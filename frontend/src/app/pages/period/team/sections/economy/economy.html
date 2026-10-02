@@ -1,0 +1,88 @@
+@let e = economy();
+<div class="columns">
+  <div class="table-scroll">
+    <h3>Pistol rounds <app-info-tip topic="pistols" /></h3>
+    <table class="data-table">
+      <tr>
+        <th></th>
+        <th class="num">Gagnés</th>
+        <th class="num">Top ranked <app-info-tip topic="topRanked" /></th>
+      </tr>
+      @for (row of e.pistols; track row.side) {
+        <tr>
+          <td>{{ sideLabels[row.side] }}</td>
+          <td class="num">
+            <app-rate-bar [rate]="row.squad" />
+            <span class="muted">({{ fraction(row.squad) }})</span>
+          </td>
+          <td class="num">{{ percent(row.top) }}</td>
+        </tr>
+      }
+    </table>
+
+    <h3>Rounds qui suivent le pistol <app-info-tip topic="afterPistol" /></h3>
+    <p class="caption">
+      Couleur par rapport au top ranked : vert au-dessus, orange proche, rouge en dessous.
+    </p>
+    <table class="data-table">
+      <tr>
+        <th></th>
+        <th class="num">R2/R14</th>
+        <th class="num">Top</th>
+        <th class="num">R3/R15</th>
+        <th class="num">Top</th>
+      </tr>
+      @for (row of afterPistol(); track row.label) {
+        <tr>
+          <td>{{ row.label }}</td>
+          @for (cell of row.cells; track cell.roundsAfter) {
+            <td
+              appHeat
+              [rate]="cell.squad"
+              [center]="cell.top.value"
+              [hint]="'top ranked ' + percent(cell.top)"
+            ></td>
+            <td class="num">{{ percent(cell.top) }}</td>
+          }
+        </tr>
+      }
+    </table>
+  </div>
+
+  <div class="table-scroll">
+    <h3>Rounds gagnés selon les achats <app-info-tip topic="buyMatrix" /></h3>
+    <p class="caption">
+      Lignes : votre achat. Colonnes : celui de l'adversaire. Survoler pour le nombre de rounds et
+      le top ranked.
+    </p>
+    <table class="data-table">
+      <tr>
+        <th>Vous \ eux</th>
+        @for (buy of buys; track buy) {
+          <th class="num">{{ buyLabels[buy] }}</th>
+        }
+      </tr>
+      @for (own of buys; track own) {
+        <tr>
+          <td>{{ buyLabels[own] }}</td>
+          @for (opp of buys; track opp) {
+            @if (matchup(own, opp); as cell) {
+              <td appHeat [rate]="cell.squad" [hint]="'top ranked ' + percent(cell.top)"></td>
+            }
+          }
+        </tr>
+      }
+    </table>
+
+    <h3>Répartition des achats (hors pistols) <app-info-tip topic="buyShares" /></h3>
+    <app-grouped-bar-chart
+      [categories]="buyCategories"
+      [series]="buySeries()"
+      [valueFormatter]="percentFormatter"
+      [yMax]="100"
+      ariaLabel="Répartition des achats"
+      yAxisLabel="Part des rounds (%)"
+      heightClass="h-52 w-full"
+    />
+  </div>
+</div>

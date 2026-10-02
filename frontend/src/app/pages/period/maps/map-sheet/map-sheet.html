@@ -1,0 +1,82 @@
+@let s = sheet();
+<!-- Hero: the map's loading screen behind its name, record and headline figures. -->
+<header class="relative isolate overflow-hidden rounded-lg ring-1 ring-edge ring-inset">
+  @if (splash(); as splash) {
+    <img [src]="splash" alt="" class="absolute inset-0 -z-20 size-full object-cover opacity-60" />
+  }
+  <div
+    class="absolute inset-0 -z-10 bg-linear-to-r from-surface-950 via-surface-950/80 to-surface-950/20"
+    aria-hidden="true"
+  ></div>
+  <div class="flex flex-wrap items-center gap-x-3 gap-y-2 px-5 pt-6 pb-4">
+    <h2
+      class="!my-0 !mr-2 font-display !text-[2.25rem] !leading-none font-bold tracking-wide uppercase after:!hidden"
+    >
+      {{ s.mapName }}
+    </h2>
+    <app-badge
+      [label]="s.wins + 'V - ' + s.losses + 'D'"
+      [kind]="s.wins >= s.losses ? 'good' : 'bad'"
+    />
+    <app-badge [label]="s.matches + ' matchs, ' + s.rounds + ' rounds'" size="sm" />
+    @if (s.hasTopReference) {
+      <app-badge [label]="'Réf. ' + s.topMatches + ' matchs top ranked'" kind="top" size="sm" />
+    } @else {
+      <app-badge label="Hors pool du top ranked : pas de référence" size="sm" />
+    }
+  </div>
+  <div [class]="bandClass">
+    @for (kpi of s.kpis; track kpi.label) {
+      <app-stat-tile
+        [label]="kpi.label"
+        [help]="kpiHelp[kpi.key] ?? null"
+        [value]="percent(kpi.squad)"
+        [detail]="kpi.top ? 'top ' + percent(kpi.top) : null"
+        [rating]="kpiRating(kpi)"
+      />
+    }
+  </div>
+</header>
+
+<app-segmented-tabs
+  class="mt-5"
+  [items]="sections()"
+  [(selected)]="section"
+  label="Parties de la fiche carte"
+/>
+
+<div class="mt-5">
+  @switch (section()) {
+    @case ('compositions') {
+      <app-map-compositions [compositions]="s.compositions" [hasTopReference]="s.hasTopReference" />
+    }
+    @case ('players') {
+      <app-map-players [players]="s.players" />
+    }
+    @case ('summary') {
+      <h3 class="!mt-0">Points forts et faibles sur cette carte</h3>
+      <app-finding-list
+        [findings]="s.findings"
+        [known]="s.mapName"
+        empty="Rien de net sur cette carte."
+      />
+
+      @if (s.throws) {
+        <h3>Rounds à revoir</h3>
+        <app-point-card
+          title="Rounds perdus avec 2 joueurs d'avance ou plus"
+          [value]="'' + s.throws"
+          [rewatch]="throwRewatch()"
+          tone="bad"
+        />
+      }
+    }
+    @default {
+      @for (side of s.sides; track side.side) {
+        @if (side.side === section()) {
+          <app-map-side [side]="side" [hasTopReference]="s.hasTopReference" />
+        }
+      }
+    }
+  }
+</div>

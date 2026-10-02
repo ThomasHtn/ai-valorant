@@ -1,0 +1,60 @@
+@let c = compositions();
+<!-- Side by side: yours, the top ranked ones, the agents top ranked teams pick most. -->
+<div class="grid items-start gap-x-6 gap-y-2 lg:grid-cols-2 2xl:grid-cols-3">
+  <div class="table-scroll">
+    <h3 class="!mt-0">Les vôtres</h3>
+    <table class="data-table">
+      <tr>
+        <th>Composition</th>
+        <th class="num">Matchs</th>
+        <th class="num">V-D</th>
+      </tr>
+      @for (comp of c.squad; track $index) {
+        <tr>
+          <td><app-agent-lineup [agents]="comp.agents" /></td>
+          <td class="num">{{ comp.matches }}</td>
+          <td class="num">{{ comp.wins }}-{{ comp.matches - comp.wins }}</td>
+        </tr>
+      }
+    </table>
+  </div>
+  @if (hasTopReference()) {
+    <div class="table-scroll">
+      <h3 class="!mt-0">Top ranked</h3>
+      <table class="data-table">
+        <tr>
+          <th>Composition</th>
+          <th class="num">Équipes</th>
+          <th class="num">Victoires</th>
+        </tr>
+        @for (comp of c.top; track $index) {
+          <tr>
+            <td><app-agent-lineup [agents]="comp.agents" /></td>
+            <td class="num">{{ percent(comp.share) }}</td>
+            <td class="num">{{ percent(comp.wins) }}</td>
+          </tr>
+        }
+      </table>
+    </div>
+    <div class="table-scroll">
+      <h3 class="!mt-0">
+        Agents les plus joués en top ranked
+        <app-info-tip topic="agentPresence" />
+      </h3>
+      <table class="data-table">
+        <tr>
+          <th>Agent</th>
+          <th class="num">Présence</th>
+          <th class="num">Victoires</th>
+        </tr>
+        @for (agent of c.topAgents; track agent.agent) {
+          <tr>
+            <td><app-agent-name [agent]="agent.agent" /></td>
+            <td class="num">{{ percent(agent.presence) }}</td>
+            <td class="num">{{ percent(agent.wins) }}</td>
+          </tr>
+        }
+      </table>
+    </div>
+  }
+</div>

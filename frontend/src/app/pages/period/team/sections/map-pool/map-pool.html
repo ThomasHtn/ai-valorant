@@ -1,0 +1,37 @@
+<table class="data-table">
+  <tr>
+    <th>Carte</th>
+    <th class="num">Matchs</th>
+    <th class="num">V-D</th>
+    <th class="num">Rounds gagnés <app-info-tip topic="roundsWon" /></th>
+    <th class="num">Attaque <app-info-tip topic="sideRounds" /></th>
+    <th class="num">Défense <app-info-tip topic="sideRounds" /></th>
+    <th class="num">Pistols <app-info-tip topic="pistols" /></th>
+    <th class="num">First blood <app-info-tip topic="teamFirstBlood" /></th>
+    <th class="num">Post-plant <app-info-tip topic="postPlant" /></th>
+    <th class="num">Retake <app-info-tip topic="retake" /></th>
+  </tr>
+  @for (row of rows(); track row.mapName) {
+    <tr>
+      <td>
+        <a
+          [routerLink]="['/periods/maps', row.mapName]"
+          queryParamsHandling="preserve"
+          class="focus-ring rounded-sm !text-text-primary no-underline hover:!text-brand-400"
+          [attr.aria-label]="'Fiche ' + row.mapName"
+        >
+          <app-map-name [map]="row.mapName" />
+        </a>
+      </td>
+      <td class="num">{{ row.matches }}</td>
+      <td class="num">{{ row.wins }}-{{ row.losses }}</td>
+      <td class="num"><app-rate-bar [rate]="row.rounds" /></td>
+      <td class="num"><app-rate-bar [rate]="row.attack" /></td>
+      <td class="num"><app-rate-bar [rate]="row.defense" /></td>
+      <td class="num">{{ fraction(row.pistols) }}</td>
+      <td class="num">{{ percent(row.firstBlood) }}</td>
+      <td class="num">{{ percent(row.postPlant) }}</td>
+      <td class="num">{{ percent(row.retake) }}</td>
+    </tr>
+  }
+</table>

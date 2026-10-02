@@ -1,0 +1,46 @@
+<table class="data-table">
+  <tr>
+    <th>Joueur</th>
+    <th class="num">Matchs</th>
+    <th class="num">ACS <app-info-tip topic="acs" /></th>
+    <th class="num">K/D <app-info-tip topic="kd" /></th>
+    <th class="num">ADR <app-info-tip topic="adr" /></th>
+    <th class="num">KAST <app-info-tip topic="kast" /></th>
+    <th class="num">HS <app-info-tip topic="hs" /></th>
+    <th class="num">FB-FD <app-info-tip topic="fbfd" /></th>
+    <th class="num">Duels d'ouv. <app-info-tip topic="opening" /></th>
+    <th class="num">Morts avec revenge <app-info-tip topic="traded" /></th>
+    <th class="num">Impact <app-info-tip topic="impact" /></th>
+  </tr>
+  @for (row of rows(); track row.puuid) {
+    <tr>
+      <td>
+        @if (linkProfiles() && row.hasProfile) {
+          <a [routerLink]="['../players', row.puuid]" queryParamsHandling="preserve">{{
+            row.name
+          }}</a>
+        } @else {
+          {{ row.name }}
+        }
+      </td>
+      <td class="num">{{ row.matches }}</td>
+      <td class="num" [class]="row.acs | ratingClass: 'acs'">{{ decimal(row.acs) }}</td>
+      <td class="num" [class]="row.kd | ratingClass: 'kd'">{{ decimal(row.kd, 2) }}</td>
+      <td class="num" [class]="row.adr | ratingClass: 'adr'">{{ decimal(row.adr) }}</td>
+      <td class="num" [class]="row.kast | ratingClass: 'kast'">{{ percentOf(row.kast) }}</td>
+      <td class="num" [class]="row.headshots | ratingClass: 'hs'">
+        {{ percentOf(row.headshots) }}
+      </td>
+      <td class="num" [class]="row.firstBloods | ratingAgainstClass: row.firstDeaths : 0">
+        {{ row.firstBloods }}-{{ row.firstDeaths }}
+      </td>
+      <td class="num" [class]="row.opening | ratingClass: 'opening'">
+        {{ percentOf(row.opening) }}
+      </td>
+      <td class="num">{{ percentOf(row.traded) }}</td>
+      <td class="num font-semibold" [class]="row.impact | ratingClass: 'impact'">
+        {{ decimal(row.impact, 1, true) }}
+      </td>
+    </tr>
+  }
+</table>

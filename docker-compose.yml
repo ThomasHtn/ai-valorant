@@ -1,0 +1,21 @@
+# Local PostgreSQL for ValoStats. Port 5433 so it can run next to the ValoQuests database (5432).
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: valostats-postgres
+    environment:
+      POSTGRES_DB: valostats
+      POSTGRES_USER: valostats
+      POSTGRES_PASSWORD: valostats
+    ports:
+      - "5433:5432"
+    volumes:
+      - valostats-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U valostats -d valostats"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  valostats-postgres-data:

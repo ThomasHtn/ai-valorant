@@ -1,0 +1,18 @@
+/*
+ * Tokens ValoStats adds on top of the ValoQuests palette. Kept apart so the copied files above stay
+ * identical to their source.
+ */
+
+@theme static {
+  /* Squad and opponents on the minimaps. */
+  --color-squad: #418ad1;
+  --color-opponent: #c48235;
+
+  /*
+   * How a statistic reads for the squad: green good, amber average, red bad. Same steps ValoQuests
+   * uses for a judged figure (`accent-green` favourable, `accent-gold` attention), plus its danger red.
+   */
+  --color-rating-good: #5fb88a;
+  --color-rating-average: #d9954a;
+  --color-rating-bad: #d9534f;
+}

@@ -1,0 +1,68 @@
+<p class="caption">
+  Corrélation entre une stat de l'équipe sur un match et la part des rounds gagnés dans ce match (r
+  de -1 à +1). Plus |r| est grand, plus la stat va de pair avec le résultat. Une corrélation n'est
+  pas une cause : elle montre ce qui accompagne vos victoires. Les stats qui sont des morceaux du
+  résultat (post-plants, retakes, clutchs) sont exclues.
+</p>
+
+<ng-template #rCell let-r>
+  <td class="num" [attr.title]="strength(r)">
+    {{ coefficient(r) }}
+    <span
+      class="relative ml-2 inline-block h-1.5 w-16 bg-surface-sunken align-middle"
+      aria-hidden="true"
+    >
+      <i
+        class="absolute inset-y-0 left-0"
+        [class.bg-rating-good]="r > 0"
+        [class.bg-rating-bad]="r <= 0"
+        [style.width.%]="barWidth(r)"
+      ></i>
+    </span>
+  </td>
+</ng-template>
+
+<div class="columns">
+  <div class="table-scroll">
+    <h3>Stats d'équipe et résultat</h3>
+    <table class="data-table">
+      <tr>
+        <th>Stat sur le match</th>
+        <th class="num">Corrélation (r) <app-info-tip topic="correlation" /></th>
+        <th class="num">Matchs</th>
+      </tr>
+      @for (row of correlations().team; track row.label) {
+        <tr>
+          <td>{{ row.label }}</td>
+          <ng-container *ngTemplateOutlet="rCell; context: { $implicit: row.r }" />
+          <td class="num">{{ row.matches }}</td>
+        </tr>
+      }
+    </table>
+  </div>
+  <div class="table-scroll">
+    <h3>ACS de chaque joueur et résultat</h3>
+    <p class="caption">
+      r élevé : l'équipe gagne surtout quand ce joueur performe. Dernières colonnes : rounds gagnés
+      quand son ACS est au-dessus ou en dessous de sa médiane.
+    </p>
+    <table class="data-table">
+      <tr>
+        <th>Joueur</th>
+        <th class="num">Matchs</th>
+        <th class="num">Corrélation (r) <app-info-tip topic="correlation" /></th>
+        <th class="num">ACS haut <app-info-tip topic="acsHighLow" /></th>
+        <th class="num">ACS bas <app-info-tip topic="acsHighLow" /></th>
+      </tr>
+      @for (row of correlations().players; track row.name) {
+        <tr>
+          <td>{{ row.name }}</td>
+          <td class="num">{{ row.matches }}</td>
+          <ng-container *ngTemplateOutlet="rCell; context: { $implicit: row.r }" />
+          <td class="num">{{ percentOf(row.winRateHighAcs) }}</td>
+          <td class="num">{{ percentOf(row.winRateLowAcs) }}</td>
+        </tr>
+      }
+    </table>
+  </div>
+</div>

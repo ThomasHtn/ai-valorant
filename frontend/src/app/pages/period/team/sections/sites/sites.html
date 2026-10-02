@@ -1,0 +1,100 @@
+@let s = sites();
+<p class="caption">
+  Attaque : où vous plantez et combien de post-plants vous gagnez. Défense : où l'adversaire plante
+  contre vous et combien de retakes vous réussissez. Couleur par rapport au top ranked sur le même
+  site : vert au-dessus, orange proche, rouge en dessous.
+</p>
+<div class="table-scroll">
+  <table class="data-table">
+    <tr>
+      <th>Carte</th>
+      <th>Site</th>
+      <th class="num">Vos plants <app-info-tip topic="plantShare" /></th>
+      <th class="num">Top ranked <app-info-tip topic="topRanked" /></th>
+      <th class="num">Post-plant gagné</th>
+      <th class="num">Plants subis <app-info-tip topic="plantsAgainst" /></th>
+      <th class="num">Retake réussi <app-info-tip topic="retake" /></th>
+    </tr>
+    @for (row of s.rows; track row.mapName + row.site) {
+      <tr>
+        <td>{{ row.mapName }}</td>
+        <td>{{ row.site }}</td>
+        <td class="num">{{ percent(row.plantShare) }}</td>
+        <td class="num">{{ percent(row.topPlantShare) }}</td>
+        <td
+          appHeat
+          [rate]="row.postPlant.squad"
+          [center]="row.postPlant.reference?.value"
+          [hint]="'post-plants gagnés · top ranked ' + percent(row.postPlant.reference)"
+        ></td>
+        <td class="num">{{ percent(row.plantsAgainstShare) }}</td>
+        <td
+          appHeat
+          [rate]="row.retake.squad"
+          [center]="row.retake.reference?.value"
+          [hint]="'retakes réussis · top ranked ' + percent(row.retake.reference)"
+        ></td>
+      </tr>
+    }
+  </table>
+</div>
+
+<div class="columns">
+  <div class="table-scroll">
+    <h3>Tempo du plant <app-info-tip topic="plantTempo" /></h3>
+    <table class="data-table">
+      <tr>
+        <th></th>
+        <th class="num">Vos plants <app-info-tip topic="plantShare" /></th>
+        <th class="num">Top</th>
+        <th class="num">Post-plant gagné</th>
+        <th class="num">Top</th>
+      </tr>
+      @for (row of s.tempo; track row.label) {
+        <tr>
+          <td>{{ row.label }}</td>
+          <td class="num">{{ percent(row.share) }}</td>
+          <td class="num">{{ percent(row.topShare) }}</td>
+          <td
+            appHeat
+            [rate]="row.won"
+            [center]="row.topWon.value"
+            [hint]="'top ' + percent(row.topWon)"
+          ></td>
+          <td class="num">{{ percent(row.topWon) }}</td>
+        </tr>
+      }
+    </table>
+  </div>
+  <div class="table-scroll">
+    <h3>Joueurs en vie au moment du plant <app-info-tip topic="numbersAtPlant" /></h3>
+    <table class="data-table">
+      <tr>
+        <th>Vous par rapport à eux</th>
+        <th class="num">Post-plant gagné</th>
+        <th class="num">Top</th>
+        <th class="num">Retake réussi <app-info-tip topic="retake" /></th>
+        <th class="num">Top</th>
+      </tr>
+      @for (row of s.numbersAtPlant; track row.label) {
+        <tr>
+          <td>{{ row.label }}</td>
+          <td
+            appHeat
+            [rate]="row.postPlant"
+            [center]="row.topPostPlant.value"
+            [hint]="'top ' + percent(row.topPostPlant)"
+          ></td>
+          <td class="num">{{ percent(row.topPostPlant) }}</td>
+          <td
+            appHeat
+            [rate]="row.retake"
+            [center]="row.topRetake.value"
+            [hint]="'top ' + percent(row.topRetake)"
+          ></td>
+          <td class="num">{{ percent(row.topRetake) }}</td>
+        </tr>
+      }
+    </table>
+  </div>
+</div>

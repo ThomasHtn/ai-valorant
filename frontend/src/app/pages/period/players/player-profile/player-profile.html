@@ -1,0 +1,126 @@
+@let p = profile();
+<!-- Player card: main agent, name, record and agent split, then the headline figures. -->
+<header class="overflow-hidden rounded-lg bg-text-primary/4 ring-1 ring-edge ring-inset">
+  <div class="flex flex-wrap items-center gap-x-4 gap-y-3 px-5 py-4">
+    @if (mainAgent(); as agent) {
+      <app-agent-icon [agent]="agent" size="lg" [decorative]="true" />
+    }
+    <div class="flex min-w-0 flex-col gap-1.5">
+      <h2 class="!my-0 !text-[1.75rem] !leading-none after:!hidden">{{ p.name }}</h2>
+      <p class="flex flex-wrap items-center gap-2 text-sm text-text-muted">
+        <app-badge
+          [label]="p.wins + 'V - ' + p.losses + 'D'"
+          [kind]="p.wins >= p.losses ? 'good' : 'bad'"
+          size="sm"
+        />
+        {{ p.matches }} matchs, {{ p.rounds }} rounds. Écarts {{ p.comparisonLabel }}.
+      </p>
+    </div>
+    <ul class="ml-auto flex flex-wrap gap-x-4 gap-y-2" aria-label="Agents joués">
+      @for (agent of agents(); track agent.name) {
+        <li class="flex items-center gap-2 text-sm">
+          <app-agent-icon [agent]="agent.name" [decorative]="true" />
+          <span class="font-semibold text-text-primary">{{ agent.name }}</span>
+          <span class="text-text-muted tabular-nums">{{ agent.share }}</span>
+        </li>
+      }
+    </ul>
+  </div>
+  <app-player-headline [headline]="p.headline" [definitions]="definitions()" />
+</header>
+
+<app-segmented-tabs
+  class="mt-5"
+  [items]="sections()"
+  [(selected)]="section"
+  label="Parties du profil"
+/>
+
+<div class="mt-5">
+  @switch (section()) {
+    @case ('stats') {
+      <p class="caption !mt-0">
+        Couleur de la valeur, par rapport aux adversaires de même niveau : vert mieux, orange
+        pareil, rouge moins bien (écart net seulement). ▲▼ : écart net avec le top ranked sur les
+        mêmes agents (pondéré par ses rounds sur chaque agent).
+      </p>
+      <app-player-stats-table [stats]="p.stats" [definitions]="definitions()" [name]="p.name" />
+    }
+    @case ('impact') {
+      <app-player-details [profile]="p" />
+    }
+    @case ('splits') {
+      <h3 class="!mt-0">Par side</h3>
+      <app-split-table [rows]="p.bySide" label="Side" [withMatches]="false" />
+      <h3>Par agent</h3>
+      <app-split-table [rows]="p.byAgent" label="Agent" art="agent" />
+      <h3>Par carte</h3>
+      <app-split-table [rows]="p.byMap" label="Carte" art="map" />
+    }
+    @case ('duels') {
+      <app-duel-map-legend />
+      <div class="mt-3 grid grid-cols-[repeat(auto-fill,minmax(240px,1fr))] gap-4">
+        @for (duels of p.duelMaps; track duels.mapName) {
+          <figure class="panel !p-3">
+            <app-duel-map [duels]="duels" />
+            <figcaption class="mt-2 flex flex-wrap items-center gap-1.5 text-sm text-text-muted">
+              <app-map-name class="font-semibold text-text-primary" [map]="duels.mapName" />
+              <span class="ml-auto"
+                >{{ duels.won.length }} first bloods, {{ duels.lost.length }} first deaths</span
+              >
+            </figcaption>
+          </figure>
+        }
+      </div>
+    }
+    @default {
+      <div class="columns">
+        <div>
+          <h3 class="!mt-0">Points forts</h3>
+          @for (card of strengths(); track $index) {
+            <app-point-card
+              [badges]="card.badges"
+              [title]="card.title"
+              [value]="card.value"
+              [details]="card.details"
+              [tone]="card.tone"
+            />
+          } @empty {
+            <p class="muted">Rien de net.</p>
+          }
+        </div>
+        <div>
+          <h3 class="!mt-0">À travailler</h3>
+          @for (card of weaknesses(); track $index) {
+            <app-point-card
+              [badges]="card.badges"
+              [title]="card.title"
+              [value]="card.value"
+              [details]="card.details"
+              [tone]="card.tone"
+            />
+          } @empty {
+            <p class="muted">Rien de net.</p>
+          }
+        </div>
+      </div>
+
+      <h3>Forme</h3>
+      <p class="caption">
+        ACS à chaque match (courbe claire), moyenne sur 5 matchs (ambre).
+        @if (p.topReferenceAcs !== null) {
+          En pointillés verts : le top ranked sur ses agents ({{ p.topReferenceAcs.toFixed(0) }}).
+        }
+      </p>
+      <app-form-chart
+        [points]="formPoints()"
+        [yMax]="acsAxis()"
+        [reference]="p.topReferenceAcs"
+        unit=""
+        label="ACS"
+        referenceLabel="Top ranked sur ses agents"
+        heightClass="h-48 w-full"
+      />
+    }
+  }
+</div>

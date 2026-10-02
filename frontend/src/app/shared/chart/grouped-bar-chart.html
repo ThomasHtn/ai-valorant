@@ -1,0 +1,20 @@
+<div [class]="heightClass()" class="relative">
+  <canvas
+    #canvas
+    [attr.aria-label]="ariaLabel()"
+    class="absolute inset-0 block"
+    role="img"
+  ></canvas>
+</div>
+
+<!-- Legend in HTML rather than Chart.js' own, so it reads with the page's type and a screen reader. -->
+<ul class="mt-3 flex flex-wrap gap-x-5 gap-y-1.5" aria-hidden="true">
+  @for (item of series(); track item.label) {
+    <li class="flex items-center gap-2 text-sm text-text-secondary">
+      <span class="size-2.5 shrink-0" [style.background]="item.color"></span>
+      {{ item.label }}
+    </li>
+  }
+</ul>
+
+<p class="sr-only">{{ summary() }}</p>

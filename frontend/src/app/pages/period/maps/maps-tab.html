@@ -1,0 +1,10 @@
+<app-picker-tabs [items]="tabs()" [selected]="selected()" label="Cartes" />
+
+<app-resource-state
+  [resource]="sheet"
+  notFoundText="Pas de match de l'escouade sur cette carte pendant la période."
+>
+  @if (sheet.value(); as s) {
+    <app-map-sheet class="mt-4 block" [sheet]="s" [(section)]="section" />
+  }
+</app-resource-state>

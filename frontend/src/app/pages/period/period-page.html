@@ -1,0 +1,36 @@
+<app-page-header>
+  <app-period-selector pageTitle [page]="pageLabel()" />
+  @if (overview.value(); as period) {
+    <div class="hidden items-center gap-x-5 text-sm text-text-secondary sm:flex">
+      <p class="flex items-center gap-1.5">
+        <app-badge [label]="period.matches + ' matchs'" size="sm" />
+        <span class="hidden items-center gap-1 lg:flex">
+          comparés au même niveau <app-info-tip topic="opponents" /> et au top ranked
+          <app-info-tip topic="topRanked" />
+        </span>
+      </p>
+      <ul class="hidden items-center gap-3 xl:flex" aria-label="Code couleur">
+        <li class="flex items-center gap-1.5">
+          <span class="size-2 rounded-full bg-rating-good" aria-hidden="true"></span>Bien
+        </li>
+        <li class="flex items-center gap-1.5">
+          <span class="size-2 rounded-full bg-rating-average" aria-hidden="true"></span>Moyen
+        </li>
+        <li class="flex items-center gap-1.5">
+          <span class="size-2 rounded-full bg-rating-bad" aria-hidden="true"></span>À travailler
+        </li>
+      </ul>
+    </div>
+  }
+</app-page-header>
+
+<div class="page-body !pt-5">
+  <div>
+    <app-resource-state
+      [resource]="overview"
+      notFoundText="Aucun match de l'escouade sur cette période."
+    >
+      <router-outlet />
+    </app-resource-state>
+  </div>
+</div>

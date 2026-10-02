@@ -1,0 +1,54 @@
+@if (entry(); as e) {
+  <button
+    #trigger
+    type="button"
+    class="trigger"
+    [attr.aria-label]="'Explication : ' + e.title"
+    [attr.aria-describedby]="id"
+    [attr.aria-expanded]="isOpen()"
+    (click)="toggle()"
+    (pointerenter)="onPointerEnter($event)"
+    (pointerleave)="onPointerLeave($event)"
+    (focus)="onFocus()"
+    (blur)="onBlur()"
+  >
+    <svg viewBox="0 0 16 16" aria-hidden="true">
+      <circle cx="8" cy="8" r="6.75" fill="none" stroke="currentColor" stroke-width="1.5" />
+      <circle cx="8" cy="4.9" r="1" fill="currentColor" />
+      <path d="M8 7.3v4.4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
+    </svg>
+  </button>
+  <div
+    #panel
+    popover="manual"
+    role="tooltip"
+    class="panel"
+    [id]="id"
+    (pointerenter)="onPanelEnter()"
+    (pointerleave)="onPointerLeave($event)"
+  >
+    <p class="title">{{ e.title }}</p>
+    <p class="what">{{ e.what }}</p>
+    @if (e.how || e.example || e.read) {
+      <dl>
+        @if (e.how) {
+          <dt>Calcul</dt>
+          <dd>{{ e.how }}</dd>
+        }
+        @if (e.example; as example) {
+          <dt>Exemple</dt>
+          <dd>
+            {{ example.text }}
+            @if (example.swing) {
+              <app-swing-gauge [swing]="example.swing" />
+            }
+          </dd>
+        }
+        @if (e.read) {
+          <dt>Repère</dt>
+          <dd>{{ e.read }}</dd>
+        }
+      </dl>
+    }
+  </div>
+}

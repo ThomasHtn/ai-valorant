@@ -1,0 +1,98 @@
+<app-link-tabs [items]="groupTabs" [selected]="selectedGroup()" label="Parties du rapport équipe" />
+
+<app-resource-state [resource]="report">
+  @if (report.value(); as r) {
+    @switch (selectedGroup()) {
+      @case ('summary') {
+        <!-- One screen: headline figures, what to remember beside the form, then the map pool. -->
+        <p class="caption !mt-5 !mb-2">Écarts {{ r.kpis.comparisonLabel }}.</p>
+        <app-team-kpis [kpis]="r.kpis" />
+        <div class="mt-6 grid items-start gap-x-8 gap-y-6 xl:grid-cols-2">
+          <section aria-labelledby="team-summary">
+            <h2 id="team-summary" class="!mt-0">À retenir</h2>
+            <app-summary-box [items]="r.summary" />
+          </section>
+          <section aria-labelledby="team-form">
+            <h2 id="team-form" class="!mt-0">Forme</h2>
+            <app-form-section [form]="r.form" heightClass="h-48 w-full" />
+          </section>
+        </div>
+        <h2>Map pool</h2>
+        <app-map-pool [rows]="r.mapPool" />
+      }
+      @case ('findings') {
+        <p class="caption !mt-5">
+          Comparés aux adversaires de vos propres matchs (même niveau). « Confirmé » : écart assez
+          net pour ne pas être dû au hasard. « Piste » : à surveiller.
+        </p>
+      }
+      @default {
+        <p class="caption !mt-5">
+          Comparé au top ranked : vos adversaires y seraient le reflet exact de vos propres
+          chiffres. Survoler une case colorée pour le détail.
+        </p>
+      }
+    }
+
+    @for (section of sections(); track section.id) {
+      <h2 [id]="section.id" [class.!mt-4]="$first">
+        {{
+          section.id === 'evolution' ? 'Évolution ' + r.evolution.comparisonLabel : section.title
+        }}
+        @if (section.help) {
+          <app-info-tip [topic]="section.help" />
+        }
+      </h2>
+      @switch (section.id) {
+        @case ('weak') {
+          <app-findings-columns [team]="r.findings.weakTeam" [players]="r.findings.weakPlayers" />
+        }
+        @case ('strong') {
+          <app-findings-columns
+            [team]="r.findings.strongTeam"
+            [players]="r.findings.strongPlayers"
+          />
+        }
+        @case ('drivers') {
+          <app-round-drivers [groups]="r.roundDrivers" />
+        }
+        @case ('correlations') {
+          <app-correlations [correlations]="r.correlations" />
+        }
+        @case ('economy') {
+          <app-economy [economy]="r.economy" />
+        }
+        @case ('opening') {
+          <app-opening [opening]="r.opening" />
+        }
+        @case ('situations') {
+          <app-situations [situations]="r.situations" />
+        }
+        @case ('sites') {
+          <app-sites [sites]="r.sites" />
+        }
+        @case ('clutches') {
+          <app-clutches [rows]="r.clutches" />
+        }
+        @case ('revenge') {
+          <app-revenge-matrix [matrix]="r.revenge" />
+        }
+        @case ('compositions') {
+          <app-compositions [maps]="r.compositions" />
+        }
+        @case ('context') {
+          <app-sessions-context [context]="r.sessionsContext" />
+        }
+        @case ('spots') {
+          <app-recurring-spots [spots]="r.recurringSpots" />
+        }
+        @case ('roster') {
+          <app-roster-table [rows]="r.roster" [linkProfiles]="true" />
+        }
+        @case ('evolution') {
+          <app-evolution [evolution]="r.evolution" />
+        }
+      }
+    }
+  }
+</app-resource-state>

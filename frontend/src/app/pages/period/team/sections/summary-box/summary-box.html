@@ -1,0 +1,37 @@
+<!-- Each row: the map's preview in a fixed column, the point and where it happens, the figure, then
+     what opponents of the same level do. -->
+<ul>
+  @for (row of rows(); track $index) {
+    <li
+      class="grid grid-cols-[2.5rem_minmax(0,1fr)_auto] items-center gap-x-3 border-b border-edge py-2.5 last:border-b-0 sm:grid-cols-[2.5rem_minmax(0,1fr)_auto_7.5rem]"
+    >
+      @if (row.map) {
+        <app-map-thumb [map]="row.map" size="md" />
+      } @else {
+        <span aria-hidden="true"></span>
+      }
+      <span class="flex min-w-0 flex-col gap-1">
+        <span class="font-semibold text-text-primary">{{ row.label }}</span>
+        @if (row.map || row.badges.length) {
+          <span class="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-text-secondary">
+            @if (row.map) {
+              <span>{{ row.map }}</span>
+            }
+            @for (badge of row.badges; track $index) {
+              <app-badge [label]="badge.label" [kind]="badge.kind" size="sm" />
+            }
+          </span>
+        }
+      </span>
+      <span
+        class="text-right font-display text-xl leading-none font-semibold tabular-nums"
+        [class.good]="row.tone === 'good'"
+        [class.bad]="row.tone === 'bad'"
+        >{{ row.value }}</span
+      >
+      <span class="hidden text-right text-sm text-text-muted sm:block">{{ row.reference }}</span>
+    </li>
+  } @empty {
+    <li class="muted py-2.5">Rien de net sur cette période.</li>
+  }
+</ul>

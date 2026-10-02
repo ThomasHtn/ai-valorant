@@ -1,0 +1,14 @@
+@if (tabs().length) {
+  <app-picker-tabs look="avatar" [items]="tabs()" [selected]="selected()" label="Joueurs" />
+} @else {
+  <p class="muted">Aucun joueur n'a assez de rounds sur la période pour un profil.</p>
+}
+
+<app-resource-state
+  [resource]="profile"
+  notFoundText="Pas assez de rounds sur la période pour ce joueur."
+>
+  @if (profile.value(); as p) {
+    <app-player-profile class="mt-4 block" [profile]="p" [(section)]="section" />
+  }
+</app-resource-state>

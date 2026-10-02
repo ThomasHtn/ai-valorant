@@ -1,0 +1,49 @@
+@let k = kpis();
+<app-stat-tile label="Matchs" [value]="k.wins + 'V - ' + k.losses + 'D'" />
+<app-stat-tile
+  label="Rounds gagnés"
+  help="roundsWon"
+  [value]="percent(k.roundsWon.current)"
+  [rating]="winRating(k.roundsWon.current)"
+  [detail]="change(k.roundsWon)"
+  [tone]="tone(k.roundsWon)"
+/>
+<app-stat-tile
+  label="En attaque"
+  help="sideRounds"
+  [value]="percent(k.attack.current)"
+  [rating]="winRating(k.attack.current)"
+  [detail]="change(k.attack)"
+  [tone]="tone(k.attack)"
+/>
+<app-stat-tile
+  label="En défense"
+  help="sideRounds"
+  [value]="percent(k.defense.current)"
+  [rating]="winRating(k.defense.current)"
+  [detail]="change(k.defense)"
+  [tone]="tone(k.defense)"
+/>
+<app-stat-tile
+  label="Pistols gagnés"
+  help="pistols"
+  [value]="fraction(k.pistols)"
+  [rating]="winRating(k.pistols)"
+/>
+<app-stat-tile
+  label="First blood"
+  help="teamFirstBlood"
+  [value]="percent(k.firstBlood.current)"
+  [rating]="winRating(k.firstBlood.current)"
+  [detail]="change(k.firstBlood)"
+  [tone]="tone(k.firstBlood)"
+/>
+<app-stat-tile
+  label="KAST équipe"
+  help="teamKast"
+  [value]="percent(k.kast.current)"
+  [rating]="kastRating(k.kast.current)"
+  [detail]="change(k.kast)"
+  [tone]="tone(k.kast)"
+/>
+<app-stat-tile label="Morts avec revenge" help="teamTraded" [value]="percent(k.tradedDeaths)" />

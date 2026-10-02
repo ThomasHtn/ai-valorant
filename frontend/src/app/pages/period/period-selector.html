@@ -1,0 +1,40 @@
+<!-- The page title names the page, then the period as a picker: one control instead of a title
+     plus a drop-down. -->
+<h1 class="sr-only">{{ page() ? page() + ', ' : '' }}{{ title() }}</h1>
+@if (page()) {
+  <span
+    class="mr-2 shrink-0 font-display text-xl leading-tight font-bold tracking-wide text-text-primary uppercase sm:text-2xl"
+    aria-hidden="true"
+    >{{ page() }}</span
+  >
+}
+<label class="relative inline-flex max-w-full items-center">
+  <span class="sr-only">Changer de période</span>
+  <select
+    class="focus-ring max-w-full cursor-pointer appearance-none truncate rounded-md [field-sizing:content] bg-transparent py-1 pr-8 pl-1 font-display text-xl leading-tight font-bold tracking-wide text-brand-500 uppercase transition-colors hover:bg-brand-500/8 sm:text-2xl [&_option]:bg-surface-800 [&_option]:font-sans [&_option]:text-base [&_option]:normal-case [&_option]:text-text-primary [&_optgroup]:bg-surface-800 [&_optgroup]:text-text-muted"
+    (change)="select($any($event.target).value)"
+  >
+    @if (!selected()) {
+      <option value="" selected disabled>{{ title() }}</option>
+    }
+    <optgroup label="Mois">
+      @for (month of months(); track month) {
+        <option [value]="'month:' + month" [selected]="'month:' + month === selected()">
+          {{ monthTitle(month) }}
+        </option>
+      }
+    </optgroup>
+    <optgroup label="Patchs">
+      @for (patch of patches(); track patch) {
+        <option [value]="'patch:' + patch" [selected]="'patch:' + patch === selected()">
+          Patch {{ patch }}
+        </option>
+      }
+    </optgroup>
+  </select>
+  <svg
+    class="pointer-events-none absolute right-1.5 size-5 text-brand-500"
+    lucideChevronDown
+    aria-hidden="true"
+  ></svg>
+</label>

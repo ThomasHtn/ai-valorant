@@ -1,0 +1,54 @@
+@let s = situations();
+<p class="caption">
+  Rounds gagnés quand vous êtes passés par cette situation (au moins une fois dans le round).
+  Couleur par rapport au top ranked : vert au-dessus, orange proche, rouge en dessous.
+</p>
+<div class="columns">
+  <div class="table-scroll">
+    <table class="data-table">
+      <tr>
+        <th>Situation <app-info-tip topic="situation" /></th>
+        <th class="num">Rounds gagnés</th>
+        <th class="num">Rounds</th>
+        <th class="num">Top ranked <app-info-tip topic="topRanked" /></th>
+      </tr>
+      @for (row of s.states; track row.state) {
+        <tr>
+          <td>{{ row.state }}</td>
+          <td
+            appHeat
+            [rate]="row.squad"
+            [center]="row.top.value"
+            [span]="0.2"
+            [hint]="'top ranked ' + percent(row.top)"
+          ></td>
+          <td class="num">{{ row.squad.total }}</td>
+          <td class="num">{{ percent(row.top) }}</td>
+        </tr>
+      }
+    </table>
+  </div>
+  <div>
+    <div [class]="bandClass">
+      <app-stat-tile
+        label="Throws en avantage 2+"
+        help="throws"
+        [value]="percent(s.throws.squad)"
+        [detail]="'top ranked ' + percent(s.throws.reference)"
+        [rating]="throwsRating()"
+      />
+      <app-stat-tile
+        label="Comebacks à 2 de moins"
+        help="comebacks"
+        [value]="percent(s.comebacks.squad)"
+        [detail]="'top ranked ' + percent(s.comebacks.reference)"
+        [rating]="comebacksRating()"
+      />
+    </div>
+    <p class="caption">
+      Throws : {{ s.throws.squad.count }} rounds perdus sur {{ s.throws.squad.total }} où vous avez
+      eu 2 joueurs d'avance ou plus. Comebacks : {{ s.comebacks.squad.count }} rounds gagnés sur
+      {{ s.comebacks.squad.total }} où vous avez été à 2 de moins ou pire.
+    </p>
+  </div>
+</div>

@@ -1,0 +1,62 @@
+/* Bar with the change on it, the signed change on the right, the two values underneath. */
+:host {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  column-gap: 0.6rem;
+  margin-top: 0.45rem;
+}
+
+.track {
+  position: relative;
+  height: 0.5rem;
+  border-radius: 999px;
+  background: var(--color-surface-600);
+  overflow: hidden;
+}
+
+.track i {
+  position: absolute;
+  inset-block: 0;
+}
+
+.before {
+  left: 0;
+  background: var(--color-text-muted);
+  opacity: 0.55;
+}
+
+.change {
+  background: var(--color-rating-good);
+}
+
+.change.loss {
+  background: var(--color-rating-bad);
+}
+
+.delta {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--color-rating-good);
+  font-variant-numeric: tabular-nums;
+}
+
+.delta.loss {
+  color: var(--color-rating-bad);
+}
+
+.scale {
+  position: relative;
+  height: 1.1rem;
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.scale span {
+  position: absolute;
+  top: 0.1rem;
+  translate: -50% 0;
+  white-space: nowrap;
+}

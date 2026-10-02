@@ -1,0 +1,33 @@
+<p class="caption">
+  Rounds gagnés selon la situation. Couleur par rapport au top ranked dans la même situation : vert
+  au-dessus, orange proche, rouge en dessous.
+</p>
+<div class="columns">
+  @for (group of groups(); track group.title) {
+    <div class="table-scroll">
+      <h3>{{ group.title }}</h3>
+      <table class="data-table">
+        <tr>
+          <th></th>
+          <th class="num">Rounds gagnés</th>
+          <th class="num">Rounds</th>
+          <th class="num">Top ranked <app-info-tip topic="topRanked" /></th>
+        </tr>
+        @for (row of group.rows; track row.label) {
+          <tr>
+            <td>{{ row.label }}</td>
+            <td
+              appHeat
+              [rate]="row.squad"
+              [center]="row.top.value"
+              [span]="0.2"
+              [hint]="'top ranked ' + percent(row.top)"
+            ></td>
+            <td class="num">{{ row.squad.total }}</td>
+            <td class="num">{{ percent(row.top) }}</td>
+          </tr>
+        }
+      </table>
+    </div>
+  }
+</div>

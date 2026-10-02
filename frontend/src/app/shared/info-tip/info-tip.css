@@ -1,0 +1,129 @@
+/* Icon sits on the text baseline, right after the label it explains. */
+:host {
+  display: inline-flex;
+  vertical-align: -0.14em;
+  margin-left: 0.3em;
+}
+
+.trigger {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  width: 0.95em;
+  height: 0.95em;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: none;
+  color: var(--color-text-muted);
+  cursor: help;
+  transition: color 120ms;
+}
+
+/* Larger hit area for fingers, without moving the layout. */
+.trigger::after {
+  content: '';
+  position: absolute;
+  inset: -0.4rem;
+}
+
+.trigger svg {
+  width: 100%;
+  height: 100%;
+}
+
+.trigger:hover,
+.trigger[aria-expanded='true'] {
+  color: var(--color-brand-400);
+}
+
+.trigger:focus-visible {
+  outline: 2px solid var(--color-brand-400);
+  outline-offset: 2px;
+}
+
+/*
+ * ValoQuests' tooltip: sunken, cut at its top-right corner, an amber rule on its leading edge and no
+ * shadow (the cut would clip it). The panel lives in the top layer but still inherits from its DOM
+ * parent (a table header, a heading), so every inherited text property is reset here.
+ */
+.panel {
+  position: fixed;
+  inset: auto;
+  margin: 0;
+  width: max-content;
+  max-width: min(25rem, calc(100vw - 16px));
+  padding: 0.85rem 1rem 0.9rem;
+  border: 0;
+  border-left: 2px solid --alpha(var(--color-brand-500) / 50%);
+  background: var(--color-surface-sunken);
+  clip-path: polygon(0 0, calc(100% - 0.375rem) 0, 100% 0.375rem, 100% 100%, 0 100%);
+  color: var(--color-text-primary);
+  font-family: var(--font-sans);
+  font-size: 0.95rem;
+  font-weight: 400;
+  font-style: normal;
+  font-variant-numeric: normal;
+  letter-spacing: normal;
+  line-height: 1.4;
+  text-align: left;
+  text-transform: none;
+  white-space: normal;
+  opacity: 1;
+  translate: 0 0;
+  transition:
+    opacity 120ms ease-out,
+    translate 120ms ease-out;
+}
+
+@starting-style {
+  .panel:popover-open {
+    opacity: 0;
+    translate: 0 4px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .panel,
+  .trigger {
+    transition: none;
+  }
+}
+
+.title {
+  margin: 0 0 0.3rem;
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--color-brand-400);
+}
+
+.what {
+  margin: 0;
+}
+
+dl {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 0.4rem 0.75rem;
+  margin: 0.6rem 0 0;
+  padding-top: 0.55rem;
+  border-top: 1px solid var(--color-edge);
+}
+
+dt {
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  line-height: 1.9;
+  text-transform: uppercase;
+  color: var(--color-brand-400);
+}
+
+dd {
+  margin: 0;
+  color: var(--color-text-secondary);
+}
