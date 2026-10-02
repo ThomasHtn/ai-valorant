@@ -8,10 +8,7 @@ import { RevengeMatrix as RevengeMatrixData } from '@core/periods/insights.model
   selector: 'app-revenge-matrix',
   template: `
     @let m = matrix();
-    <p class="caption">
-      Lignes : le joueur mort. Colonnes : le coéquipier qui a pris la revenge. Dernière colonne :
-      part de ses morts avec revenge.
-    </p>
+    <p class="caption">Le joueur mort en ligne, le coéquipier qui le venge en colonne.</p>
     <div class="table-scroll">
       <table class="data-table">
         <tr>

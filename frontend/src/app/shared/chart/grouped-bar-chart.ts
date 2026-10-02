@@ -74,7 +74,7 @@ export class GroupedBarChart {
       data: [...series.values],
       backgroundColor: series.color,
       borderWidth: 0,
-      borderRadius: { topLeft: 3, topRight: 3, bottomLeft: 0, bottomRight: 0 },
+      borderRadius: 0,
       maxBarThickness: 32,
       categoryPercentage: 0.72,
       barPercentage: 0.9,

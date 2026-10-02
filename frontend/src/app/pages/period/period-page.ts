@@ -11,14 +11,15 @@ import { InfoTip } from '@shared/info-tip/info-tip';
 import { ResourceState } from '@shared/resource-state/resource-state';
 
 import { PeriodSelector } from './period-selector';
+import { PeriodTabs } from './period-tabs';
 
 /**
- * Period report: the page name and the period picker as title, its context on the right, then the routed page
- * (team, maps, players or glossary), chosen from the sidebar.
+ * Period report: the period picker as title, the report's pages as tabs beside it, its context on the
+ * right, then the routed page (team, maps or players).
  */
 @Component({
   selector: 'app-period-page',
-  imports: [RouterOutlet, PageHeader, ResourceState, PeriodSelector, Badge, InfoTip],
+  imports: [RouterOutlet, PageHeader, ResourceState, PeriodSelector, PeriodTabs, Badge, InfoTip],
   host: { class: 'page-stack' },
   templateUrl: './period-page.html',
 })
@@ -28,7 +29,7 @@ export class PeriodPage {
   private readonly router = inject(Router);
 
   /** Tab segment of the URL (`/periods/maps/Ascent` -> 'maps'). */
-  private readonly tab = toSignal(
+  protected readonly tab = toSignal(
     this.router.events.pipe(
       filter((event) => event instanceof NavigationEnd),
       map(() => this.tabOf(this.router.url)),

@@ -1,12 +1,10 @@
 import { Component, ElementRef, viewChild } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 
-import { Sidebar } from '@layout/sidebar/sidebar';
-
-/** Application frame: navigation rail and the routed page. */
+/** Application frame: the routed page, which brings its own header. */
 @Component({
   selector: 'app-shell',
-  imports: [RouterOutlet, Sidebar],
+  imports: [RouterOutlet],
   templateUrl: './shell.html',
 })
 export class Shell {

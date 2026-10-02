@@ -1,4 +1,4 @@
-import { Rate, RoundRef } from '@core/common/common.model';
+import { Noun, Rate, RoundRef } from '@core/common/common.model';
 import { StatDefinition } from '@core/reference/reference.model';
 
 import { MONTHS } from './labels.constants';
@@ -14,6 +14,11 @@ export function percent(rate: Rate | null | undefined): string {
 /** '48 %' from a share between 0 and 1. */
 export function percentOf(value: number | null | undefined): string {
   return value === null || value === undefined ? EMPTY : `${Math.round(100 * value)} %`;
+}
+
+/** The word agreeing with a count: singular for 0 and 1, as French does. */
+export function agree(noun: Noun, count: number): string {
+  return count >= 2 ? noun.many : noun.one;
 }
 
 /** '21/54'. */
@@ -58,6 +63,11 @@ export function signedPoints(points: number): string {
 /** '30/09' from an ISO date. */
 export function dayMonth(iso: string): string {
   return `${iso.slice(8, 10)}/${iso.slice(5, 7)}`;
+}
+
+/** '21:10' from an ISO date-time, in the time zone it was written in. */
+export function hourMinute(iso: string): string {
+  return iso.slice(11, 16);
 }
 
 /** '30/09/2026' from an ISO date. */

@@ -23,9 +23,3 @@ export interface StatHelp {
   /** What a usual, good or bad value looks like. */
   read?: string;
 }
-
-/** A themed set of explanations, as listed in the glossary tab. */
-export interface StatHelpGroup {
-  title: string;
-  entries: Record<string, StatHelp>;
-}

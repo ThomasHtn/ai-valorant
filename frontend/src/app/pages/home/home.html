@@ -3,8 +3,7 @@
 <div class="page-body !pt-8">
   <div class="grid items-start gap-x-10 gap-y-10 xl:grid-cols-[minmax(0,1fr)_22rem]">
     <section aria-labelledby="home-months">
-      <h2 id="home-months" class="!mt-0 !mb-1">Par mois</h2>
-      <p class="caption">Chaque mois contient son rapport complet et les soirées jouées.</p>
+      <h2 id="home-months" class="!mt-0">Par mois</h2>
 
       <app-resource-state [resource]="periods">
         <ul class="mt-4 flex flex-col gap-2">
@@ -32,7 +31,7 @@
                   <span class="flex-1 font-display text-lg font-medium">{{ group.title }}</span>
                   <span class="hidden text-sm text-text-muted sm:inline">
                     {{ group.sessions.length }}
-                    {{ group.sessions.length > 1 ? 'soirées' : 'soirée' }}
+                    {{ group.sessions.length > 1 ? 'sessions' : 'session' }}
                   </span>
                   @if (group.sessions.length) {
                     <app-badge
@@ -48,7 +47,7 @@
                     <a
                       routerLink="/periods/team"
                       [queryParams]="{ month: group.month }"
-                      class="focus-ring-inset group/row flex items-center gap-3 rounded-md px-3 py-2.5 !text-text-primary no-underline transition-colors hover:bg-brand-500/8"
+                      class="focus-ring-inset group/row flex items-center gap-3 px-3 py-2.5 !text-text-primary no-underline transition-colors hover:bg-brand-500/8"
                     >
                       <svg
                         class="size-5 shrink-0 text-brand-400"
@@ -57,7 +56,7 @@
                       ></svg>
                       <span class="flex flex-1 flex-col leading-tight">
                         <span class="font-semibold">Rapport du mois</span>
-                        <span class="text-sm text-text-muted">Équipe, cartes et joueurs</span>
+                        <span class="text-sm text-text-muted">Équipe, cartes, joueurs</span>
                       </span>
                       <svg
                         class="size-4 shrink-0 text-text-muted group-hover/row:text-brand-400"
@@ -70,7 +69,7 @@
                     <li>
                       <a
                         [routerLink]="['/sessions', session.day]"
-                        class="focus-ring-inset group/row flex flex-wrap items-center gap-x-3 gap-y-1.5 rounded-md px-3 py-2.5 !text-text-primary no-underline transition-colors hover:bg-text-primary/6"
+                        class="focus-ring-inset group/row flex flex-wrap items-center gap-x-3 gap-y-1.5 px-3 py-2.5 !text-text-primary no-underline transition-colors hover:bg-text-primary/6"
                       >
                         <svg
                           class="size-5 shrink-0 text-text-muted"
@@ -110,8 +109,7 @@
 
     <aside class="flex flex-col gap-10">
       <section aria-labelledby="home-patches">
-        <h2 id="home-patches" class="!mt-0 !mb-1">Par patch</h2>
-        <p class="caption">Le même rapport, limité à une version du jeu.</p>
+        <h2 id="home-patches" class="!mt-0">Par patch</h2>
         @if (periods.value(); as available) {
           <ul class="mt-4 flex flex-col gap-1">
             @for (patch of available.patches; track patch) {
@@ -138,8 +136,7 @@
       @if (periods.value(); as available) {
         @if (available.firstDay && available.lastDay) {
           <section aria-labelledby="home-all">
-            <h2 id="home-all" class="!mt-0 !mb-1">Tout l'historique</h2>
-            <p class="caption">Tous les matchs de l'escouade dans un seul rapport.</p>
+            <h2 id="home-all" class="!mt-0">Tout l'historique</h2>
             <a
               routerLink="/periods/team"
               [queryParams]="{ start: available.firstDay, end: available.lastDay }"

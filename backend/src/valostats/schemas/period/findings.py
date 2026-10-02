@@ -1,33 +1,47 @@
 """Strengths, weaknesses, recurring first-death spots and evolution of a period."""
 
 from valostats.domain.enums import FindingStatus, Side, Tone
-from valostats.schemas.common import ApiModel, Rate, RoundRef
+from valostats.schemas.common import ApiModel, MatchLink, Rate, RoundRef
 
 
-class FindingPlayer(ApiModel):
-    name: str
+class Noun(ApiModel):
+    """A word in the singular and the plural, to agree with a count ("1 throw", "3 throws")."""
+
+    one: str
+    many: str
+
+
+class FindingMatch(MatchLink):
+    """A match a point is built on, with the point's own figure in that match."""
+
     rate: Rate
-    rewatch: list[RoundRef]
 
 
 class Finding(ApiModel):
     """A gap between the squad and its opponents (or 50 %), confirmed or only a lead.
 
-    A single finding has a `scope` (all maps, a map, a side or a player) and a `squad` rate. A finding
-    shared by several players has no scope and lists them in `players`.
+    `scope` is all maps, a map, a side, or a player's name for a player's own finding.
     """
 
-    scope: str | None
+    scope: str
     metric: str
     label: str
     tone: Tone
     status: FindingStatus
+    # True when the label and every rate count the failures of the metric ("Premiers duels perdus").
+    inverted: bool
     unit: str
-    squad: Rate | None
+    # What one match's count and total stand for ("3 throws sur 5 rounds à 2 joueurs d'avance").
+    counted: Noun
+    tries: Noun
+    squad: Rate
     # Opponents' rate; null when the squad is tested against 50 %.
     reference: Rate | None
-    players: list[FindingPlayer]
+    # Top ranked rate on the same scope, shown beside the test without being part of it.
+    top: Rate | None
     rewatch: list[RoundRef]
+    # Matches the squad figure comes from, oldest first.
+    matches: list[FindingMatch]
 
 
 class TeamFindings(ApiModel):
@@ -41,10 +55,22 @@ class SummaryItem(ApiModel):
     """One line of the "À retenir" box."""
 
     scope: str
+    # Metric key of a finding, for its explanation; None for the first-death spot.
+    metric: str | None
     label: str
     tone: Tone
+    # True when the label and every rate count the failures of the metric ("Premiers duels perdus").
+    inverted: bool
+    # What the figure counts ('rounds', 'morts', 'duels', 'first deaths').
+    unit: str
+    # What the count of one match's figure counts, as in "3 throws sur 5".
+    counted: Noun
+    # What the total of one match's figure counts, as in "sur 5 rounds à 2 joueurs d'avance".
+    tries: Noun
     squad: Rate | None
     reference: Rate | None
+    top: Rate | None
+    matches: list[FindingMatch]
 
 
 class SpotPlayer(ApiModel):

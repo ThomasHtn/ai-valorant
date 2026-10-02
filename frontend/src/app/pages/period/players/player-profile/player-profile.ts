@@ -23,11 +23,6 @@ import { SplitTable } from './split-table';
 
 /** Smallest top of the ACS axis, rounded up to the next hundred above the best match. */
 const MIN_ACS_AXIS = 300;
-/** Who the gap is measured against, written before the reference value. */
-const REFERENCE_LABELS: Record<string, string> = {
-  opp: 'adversaires de même niveau',
-  top: 'top ranked sur ses agents',
-};
 
 /** Individual profile, one part at a time: summary, every stat, impact, breakdowns, duels. */
 @Component({
@@ -98,13 +93,17 @@ export class PlayerProfileView {
 
   private gapCard(gap: StatGap): PointCardContent {
     const definition = this.definitions().get(gap.key);
-    const versus = REFERENCE_LABELS[gap.referenceGroup] ?? gap.referenceGroup;
+    const stat = this.profile().stats.find((s) => s.key === gap.key);
     return {
       badges: [],
       status: null,
       title: gap.label,
       value: statValue(definition, gap.value),
-      details: [`${versus} : ${statValue(definition, gap.reference)}`],
+      details: [],
+      references: [
+        { label: 'adversaire', value: stat ? statValue(definition, stat.opponents) : null },
+        { label: 'top ranked', value: stat ? statValue(definition, stat.top) : null },
+      ],
       tone: gap.tone,
     };
   }

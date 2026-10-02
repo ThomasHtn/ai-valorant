@@ -40,6 +40,8 @@ import { VersusUsual } from './versus-usual/versus-usual';
 export class SessionPage {
   /** Route parameter: a `YYYY-MM-DD` day or `latest`. */
   public readonly day = input.required<string>();
+  /** Query parameter (`?match=…`): the match to open instead of the evening, from a report link. */
+  public readonly match = input<string>();
 
   private readonly sessions = inject(SessionsApi);
   protected readonly report = this.sessions.report(computed(() => this.day()));
@@ -51,13 +53,13 @@ export class SessionPage {
   protected readonly heading = computed(() => {
     const report = resourceValue(this.report, null);
     return report
-      ? `Soirée du ${longDay(report.day).toLowerCase()} ${report.day.slice(0, 4)}`
-      : 'Soirée';
+      ? `Session du ${longDay(report.day).toLowerCase()} ${report.day.slice(0, 4)}`
+      : 'Session';
   });
 
   /** The evening first, then each match as its map banner with the score. */
   protected readonly tabs = computed<PickerItem[]>(() => [
-    { id: EVENING_TAB, label: 'Soirée' },
+    { id: EVENING_TAB, label: 'Session' },
     ...(resourceValue(this.report, null)?.matches ?? []).map((m) => ({
       id: m.matchId,
       label: m.mapName,
@@ -78,9 +80,9 @@ export class SessionPage {
     };
   });
 
-  /** Back to the evening whenever another day opens. */
-  protected readonly tab = linkedSignal<string, string | null>({
-    source: this.day,
-    computation: () => EVENING_TAB,
+  /** The linked match, or the evening, whenever another day or match is opened. */
+  protected readonly tab = linkedSignal<{ day: string; match?: string }, string | null>({
+    source: () => ({ day: this.day(), match: this.match() }),
+    computation: ({ match }) => match ?? EVENING_TAB,
   });
 }

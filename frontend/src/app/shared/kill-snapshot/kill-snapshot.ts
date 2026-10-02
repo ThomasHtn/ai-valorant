@@ -11,7 +11,7 @@ const CROSS = 5;
   template: `
     <svg
       [attr.viewBox]="'0 0 ' + size + ' ' + size"
-      class="notch-tr w-full max-w-sm bg-surface-sunken [--notch:0.75rem]"
+      class="w-full max-w-sm bg-surface-sunken"
       role="img"
       aria-label="Positions au moment du kill"
     >

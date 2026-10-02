@@ -10,18 +10,14 @@ import { LinkTabs } from '@shared/tabs/link-tabs';
 import { LinkTabItem } from '@shared/tabs/tabs.model';
 
 import { PeriodContext } from '@core/periods/period-context';
-import { Clutches } from './sections/clutches/clutches';
 import { Compositions } from './sections/compositions/compositions';
-import { Correlations } from './sections/correlations/correlations';
 import { Economy } from './sections/economy/economy';
 import { Evolution } from './sections/evolution/evolution';
 import { FindingsColumns } from './sections/findings-columns/findings-columns';
-import { FormSection } from './sections/form-section/form-section';
 import { MapPool } from './sections/map-pool/map-pool';
 import { Opening } from './sections/opening/opening';
 import { RecurringSpots } from './sections/recurring-spots/recurring-spots';
 import { RevengeMatrix } from './sections/revenge-matrix/revenge-matrix';
-import { RoundDrivers } from './sections/round-drivers/round-drivers';
 import { SessionsContext } from './sections/sessions-context/sessions-context';
 import { Sites } from './sections/sites/sites';
 import { Situations } from './sections/situations/situations';
@@ -39,16 +35,12 @@ import { TEAM_GROUP_ICONS, TEAM_SECTIONS } from './team-sections.constants';
     RosterTable,
     SummaryBox,
     TeamKpis,
-    FormSection,
     MapPool,
     FindingsColumns,
-    RoundDrivers,
-    Correlations,
     Economy,
     Opening,
     Situations,
     Sites,
-    Clutches,
     RevengeMatrix,
     Compositions,
     SessionsContext,

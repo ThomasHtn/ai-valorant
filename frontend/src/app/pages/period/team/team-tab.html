@@ -4,40 +4,22 @@
   @if (report.value(); as r) {
     @switch (selectedGroup()) {
       @case ('summary') {
-        <!-- One screen: headline figures, what to remember beside the form, then the map pool. -->
-        <p class="caption !mt-5 !mb-2">Écarts {{ r.kpis.comparisonLabel }}.</p>
-        <app-team-kpis [kpis]="r.kpis" />
-        <div class="mt-6 grid items-start gap-x-8 gap-y-6 xl:grid-cols-2">
-          <section aria-labelledby="team-summary">
-            <h2 id="team-summary" class="!mt-0">À retenir</h2>
-            <app-summary-box [items]="r.summary" />
-          </section>
-          <section aria-labelledby="team-form">
-            <h2 id="team-form" class="!mt-0">Forme</h2>
-            <app-form-section [form]="r.form" heightClass="h-48 w-full" />
-          </section>
-        </div>
+        <!-- One screen: headline figures, what to remember with its matches, then the map pool. -->
+        <app-team-kpis class="mt-5" [kpis]="r.kpis" />
+        <h2 id="team-summary">À retenir</h2>
+        <app-summary-box [items]="r.summary" />
         <h2>Map pool</h2>
         <app-map-pool [rows]="r.mapPool" />
-      }
-      @case ('findings') {
-        <p class="caption !mt-5">
-          Comparés aux adversaires de vos propres matchs (même niveau). « Confirmé » : écart assez
-          net pour ne pas être dû au hasard. « Piste » : à surveiller.
-        </p>
-      }
-      @default {
-        <p class="caption !mt-5">
-          Comparé au top ranked : vos adversaires y seraient le reflet exact de vos propres
-          chiffres. Survoler une case colorée pour le détail.
-        </p>
       }
     }
 
     @for (section of sections(); track section.id) {
-      <h2 [id]="section.id" [class.!mt-4]="$first">
+      <!-- A part holding a single section is already named by its tab. -->
+      <h2 [id]="section.id" [class.!mt-6]="$first" [class.sr-only]="sections().length === 1">
         {{
-          section.id === 'evolution' ? 'Évolution ' + r.evolution.comparisonLabel : section.title
+          section.id === 'evolution'
+            ? 'Évolution, écart avec ' + r.evolution.comparisonLabel
+            : section.title
         }}
         @if (section.help) {
           <app-info-tip [topic]="section.help" />
@@ -45,19 +27,18 @@
       </h2>
       @switch (section.id) {
         @case ('weak') {
-          <app-findings-columns [team]="r.findings.weakTeam" [players]="r.findings.weakPlayers" />
+          <app-findings-columns
+            [team]="r.findings.weakTeam"
+            [players]="r.findings.weakPlayers"
+            empty="Aucun point faible net sur cette période."
+          />
         }
         @case ('strong') {
           <app-findings-columns
             [team]="r.findings.strongTeam"
             [players]="r.findings.strongPlayers"
+            empty="Aucun point fort net sur cette période."
           />
-        }
-        @case ('drivers') {
-          <app-round-drivers [groups]="r.roundDrivers" />
-        }
-        @case ('correlations') {
-          <app-correlations [correlations]="r.correlations" />
         }
         @case ('economy') {
           <app-economy [economy]="r.economy" />
@@ -70,9 +51,6 @@
         }
         @case ('sites') {
           <app-sites [sites]="r.sites" />
-        }
-        @case ('clutches') {
-          <app-clutches [rows]="r.clutches" />
         }
         @case ('revenge') {
           <app-revenge-matrix [matrix]="r.revenge" />

@@ -3,28 +3,40 @@ import { StatHelp } from './stat-help.model';
 /** How to read the reports: references, colours and the strength of a gap. */
 export const READING_HELP = {
   opponents: {
-    title: 'Adversaires (même niveau)',
-    what: "Les joueurs d'en face dans vos propres matchs, donc au même elo que vous.",
-    read: "La référence la plus juste pour savoir si vous faites mieux ou moins bien qu'à votre niveau.",
+    title: 'Adversaire',
+    what: "Les joueurs d'en face dans vos matchs, donc à votre elo.",
+    read: 'La comparaison la plus juste pour savoir si vous jouez au-dessus ou en dessous de votre rang.',
   },
   topRanked: {
     title: 'Top ranked',
-    what: 'Les 20 meilleurs joueurs du leaderboard de chaque région et leurs matchs compétitifs récents.',
-    read: "Sert de référence pour les situations de jeu : vos adversaires y seraient le reflet exact de vos chiffres (un duel que vous gagnez est un duel qu'ils perdent).",
+    what: 'Le top 20 du leaderboard de chaque région, sur leurs dernières ranked.',
+    read: "Le niveau à viser. Pour les situations de jeu (3v2, retake, clutch...), c'est la seule comparaison possible : un clutch que vous gagnez, c'est un clutch que vos adversaires perdent, se comparer à eux ne voudrait rien dire.",
+  },
+  sameLevel: {
+    title: 'Adversaire',
+    what: 'Vos adversaires dans ces mêmes matchs : des joueurs de votre elo.',
+    read: "Pour un pourcentage de rounds gagnés ou de first bloods, l'adversaire fait toujours l'inverse de vous : la référence est alors 50 %.",
   },
   status: {
-    title: 'Confirmé ou piste',
-    what: "Confirmé : l'écart est trop grand et répété sur trop de rounds pour être de la malchance. Piste : écart à surveiller, qui peut encore être du hasard.",
-    how: 'Un test statistique vérifie chaque écart, en tenant compte du grand nombre de stats comparées en même temps.',
+    title: 'Écart net ou à confirmer',
+    what: 'Écart net : il revient sur assez de rounds pour ne pas être de la chance. À confirmer : à surveiller, ça peut encore être un coup de chance ou de malchance.',
+    how: 'Chaque écart passe un test statistique. Comme on compare beaucoup de stats à la fois, le test est plus sévère pour éviter les fausses alertes.',
   },
   heatColors: {
     title: 'Cases colorées',
-    what: "Vert : au-dessus de la référence. Orange : à 3 points près, dans la moyenne. Rouge : en dessous. Plus la couleur est franche, plus l'écart est grand.",
-    read: 'Case grisée sans couleur : moins de 5 rounds, trop peu pour conclure. Survoler une case pour le nombre exact de rounds.',
+    what: "Vert : mieux que la référence. Orange : à 3 points près, dans la moyenne. Rouge : moins bien. Plus la couleur est vive, plus l'écart est grand.",
+    read: 'Case grise : moins de 5 rounds, pas assez pour conclure. Passez la souris sur une case pour voir le nombre de rounds.',
+  },
+  roundsGap: {
+    title: 'Écart en rounds',
+    what: 'Les rounds gagnés en plus ou en moins que si vous gagniez aussi souvent que le top ranked, sur le même nombre de rounds.',
+    example: {
+      text: '16 retakes à jouer, le top ranked en gagne 29 % : environ 5. Vous en gagnez 0, soit -5 rounds.',
+    },
   },
   points: {
     title: 'Écart en points',
-    what: 'Différence entre deux pourcentages : passer de 50 % à 53 % fait +3 pts.',
-    read: '« net » : changement assez grand pour ne pas être dû au hasard.',
+    what: 'La différence entre deux pourcentages : de 50 % à 53 %, ça fait +3 pts.',
+    read: '« net » : écart assez grand pour ne pas être du hasard.',
   },
 } satisfies Record<string, StatHelp>;

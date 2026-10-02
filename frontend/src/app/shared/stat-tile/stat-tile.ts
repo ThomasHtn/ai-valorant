@@ -8,7 +8,7 @@ import { InfoTip } from '@shared/info-tip/info-tip';
 
 /**
  * One figure of a stats band (`STAT_BAND_CLASS`): its name, then the value in the display face
- * coloured by its rating, with the change or reference on the same line.
+ * coloured by its rating, then the change or reference on a line of its own.
  */
 @Component({
   selector: 'app-stat-tile',
@@ -20,22 +20,25 @@ import { InfoTip } from '@shared/info-tip/info-tip';
         <app-info-tip [topic]="help()" />
       }
     </p>
-    <p class="mt-1.5 flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-      <span
-        class="font-display text-2xl leading-none font-semibold whitespace-nowrap tabular-nums"
-        [class]="valueClass()"
-        >{{ value() }}</span
-      >
-      @if (detail()) {
+    <p
+      class="mt-1.5 font-display text-2xl leading-none font-semibold whitespace-nowrap tabular-nums"
+      [class]="valueClass()"
+    >
+      {{ value() }}
+    </p>
+    @if (detail()) {
+      <p class="mt-1 truncate text-[0.8125rem] leading-tight text-text-muted">
         <span
-          class="text-[0.8125rem] leading-tight whitespace-nowrap"
           [class.good]="tone() === 'good'"
           [class.bad]="tone() === 'bad'"
           [class.muted]="tone() === 'neutral'"
           >{{ detail() }}</span
         >
-      }
-    </p>
+        @if (context()) {
+          {{ context() }}
+        }
+      </p>
+    }
   `,
   host: { class: 'block min-w-0 px-4 py-3 shadow-[1px_1px_0_0_var(--color-edge)]' },
 })
@@ -44,6 +47,8 @@ export class StatTile {
   public readonly value = input.required<string>();
   /** Line under the value: a change, a reference. */
   public readonly detail = input<string | null>(null);
+  /** Muted words after the detail, saying what it is measured against ('vs septembre'). */
+  public readonly context = input<string | null>(null);
   public readonly tone = input<Tone>('neutral');
   /** How the value reads (green, amber, red); left neutral for figures that are only reported. */
   public readonly rating = input<Rating>('unknown');

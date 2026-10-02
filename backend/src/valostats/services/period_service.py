@@ -18,17 +18,19 @@ from valostats.analysis.period.selection import PeriodQuery, PeriodWindow, patch
 from valostats.analysis.period.summary import summary
 from valostats.analysis.players.profile import player_profile
 from valostats.analysis.players.roster import roster
+from valostats.analysis.session.grouping import session_days
 from valostats.analysis.team.clutches import clutches
 from valostats.analysis.team.economy import economy
 from valostats.analysis.team.kpis import team_kpis
-from valostats.analysis.team.map_pool import form, map_pool
-from valostats.analysis.team.match_results import opponents_only, squad_only
+from valostats.analysis.team.map_pool import map_pool
+from valostats.analysis.team.match_results import match_links, opponents_only, squad_only
 from valostats.analysis.team.opening import opening
 from valostats.analysis.team.sites import sites
 from valostats.analysis.team.situations import situations
 from valostats.constants.analysis import MIN_PLAYER_ROUNDS, MIN_PREVIOUS_MATCHES
 from valostats.core.errors import NotFoundError
 from valostats.domain.facts import DeathFact, PlayerMatchFact, PlayerRoundFact, RoundFact
+from valostats.schemas.common import MatchLink
 from valostats.schemas.period.map_sheet import MapSheet
 from valostats.schemas.period.player import PlayerProfile
 from valostats.schemas.period.report import AvailablePeriods, PeriodOverview, PlayerLink, TeamReport
@@ -52,10 +54,12 @@ class PeriodData:
     previous_deaths: list[DeathFact]
     previous_player_rounds: list[PlayerRoundFact]
     top: TopFacts
+    # Squad matches of the period with their evening, oldest first.
+    matches: dict[str, MatchLink]
 
     @cached_property
     def findings(self) -> findings_analysis.FindingSet:
-        return findings_analysis.find_gaps(self.rounds, self.deaths)
+        return findings_analysis.find_gaps(self.rounds, self.deaths, self.top.rounds, [d for d in self.top.deaths if not d.teamkill])
 
     @cached_property
     def profiled_players(self) -> list[PlayerLink]:
@@ -93,6 +97,8 @@ def build_period_data(query: PeriodQuery, squad: SquadFacts, top: TopFacts) -> P
         previous_deaths=[d for d in deaths if previous(d)],
         previous_player_rounds=[r for r in squad.player_rounds if previous(r)],
         top=top,
+        # Evenings are grouped over every squad match, so one crossing the period's edge keeps its day.
+        matches=match_links(rounds, session_days(squad.rounds)),
     )
 
 
@@ -130,11 +136,11 @@ class PeriodService:
         d = self._data(query)
         top = d.top
         return TeamReport(
-            summary=summary(d.findings, d.deaths),
+            summary=summary(d.findings, d.deaths, d.matches),
             kpis=team_kpis(d.comparison_label, d.rounds, d.player_rounds, d.previous_rounds, d.previous_player_rounds),
-            form=form(d.rounds),
+            matches=list(reversed(d.matches.values())),
             map_pool=map_pool(d.rounds),
-            findings=findings_analysis.team_findings(d.findings),
+            findings=findings_analysis.team_findings(d.findings, d.matches),
             round_drivers=round_drivers(d.rounds, d.deaths, top.rounds, top.deaths),
             correlations=correlations(d.rounds, d.deaths, d.player_rounds, d.player_matches),
             economy=economy(d.rounds, top.rounds),
@@ -163,7 +169,7 @@ class PeriodService:
             d.player_matches,
             d.top.rounds,
             d.top.player_matches,
-            findings_analysis.map_findings(d.findings, map_name),
+            findings_analysis.map_findings(d.findings, map_name, d.matches),
         )
 
     def player(self, query: PeriodQuery, puuid: str) -> PlayerProfile:

@@ -1,38 +1,57 @@
 import { Component, computed, inject, input } from '@angular/core';
 
-import { percent } from '@core/format/format.utils';
 import { resourceValue } from '@core/http/resource-state.utils';
-import { scopeBadges } from '@core/periods/finding-format.utils';
 import { SummaryItem } from '@core/periods/findings.model';
+import { rankByImpact } from '@core/periods/match-impact.utils';
 import { PeriodContext } from '@core/periods/period-context';
-import { Badge } from '@shared/badge/badge';
-import { MapThumb } from '@shared/game-art/map-thumb';
+import { summaryCard } from '@shared/point-card/finding-card.utils';
+import { PointRowContent } from '@shared/point-row/point-row.model';
 
-/** "À retenir": the main weaknesses, strengths and the worst first-death spot, one per row. */
+import { SUMMARY_LEGEND } from './summary-box.constants';
+import { SummaryColumn } from './summary-column/summary-column';
+
+/**
+ * "À retenir": the main weaknesses and the worst first-death spot on the left, the main strengths
+ * on the right, each with its matches. An empty side is left out.
+ */
 @Component({
   selector: 'app-summary-box',
-  imports: [Badge, MapThumb],
-  templateUrl: './summary-box.html',
-  host: { class: 'block rounded-r-md border-l-2 border-brand-500 bg-text-primary/4 px-4 py-1' },
+  imports: [SummaryColumn],
+  template: `
+    @if (weak().length || strong().length) {
+      <!-- Says once what each figure is, for a player with no stats background. -->
+      <p class="muted mb-4 max-w-4xl text-sm">{{ legend }}</p>
+      <div class="columns">
+        @if (weak().length) {
+          <app-summary-column title="Points faibles" [rows]="weak()" />
+        }
+        @if (strong().length) {
+          <app-summary-column title="Points forts" [rows]="strong()" />
+        }
+      </div>
+    } @else {
+      <p class="muted">Rien de net sur cette période.</p>
+    }
+  `,
+  host: { class: 'block' },
 })
 export class SummaryBox {
   public readonly items = input.required<SummaryItem[]>();
 
   private readonly overview = inject(PeriodContext).overview;
 
-  /** Map apart from the other scope badges (side, player), figure and reference, prepared once. */
-  protected readonly rows = computed(() => {
-    const players = (resourceValue(this.overview, null)?.players ?? []).map((p) => p.name);
-    return this.items().map((item) => {
-      const badges = scopeBadges(item.scope, 'team', players);
-      return {
-        map: badges.find((b) => b.kind === 'map')?.label ?? null,
-        badges: badges.filter((b) => b.kind !== 'map'),
-        label: item.label,
-        tone: item.tone,
-        value: item.squad ? percent(item.squad) : null,
-        reference: item.reference ? `adversaires ${percent(item.reference)}` : null,
-      };
-    });
+  protected readonly legend = SUMMARY_LEGEND;
+
+  private readonly rows = computed<PointRowContent[]>(() => {
+    const players = resourceValue(this.overview, null)?.players ?? [];
+    return this.items().map((item) => ({
+      card: summaryCard(item, players),
+      matches: rankByImpact(item.matches, item.squad, item.reference),
+      wording: { counted: item.counted, tries: item.tries },
+      rewatch: [],
+    }));
   });
+
+  protected readonly weak = computed(() => this.rows().filter((r) => r.card.tone !== 'good'));
+  protected readonly strong = computed(() => this.rows().filter((r) => r.card.tone === 'good'));
 }

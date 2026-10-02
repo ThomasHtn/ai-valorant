@@ -91,6 +91,8 @@ export interface SessionHighlight {
   side: Side | null;
   roundNumber: number | null;
   state: string | null;
+  /** What the squad usually does in the same spot. */
+  detail: string | null;
 }
 
 export interface VersusUsualRow {

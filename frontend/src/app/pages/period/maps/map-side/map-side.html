@@ -35,7 +35,7 @@
     <table class="data-table">
       <tr>
         <th></th>
-        <th class="num">Vous</th>
+        <th class="num">L'escouade</th>
         <th class="num">Top ranked</th>
       </tr>
       <tr>
@@ -64,7 +64,7 @@
 
 <div class="columns mt-2">
   <div>
-    <h3>Duels d'ouverture {{ isAttack() ? 'en attaque' : 'en défense' }}</h3>
+    <h3>Premiers duels {{ isAttack() ? 'en attaque' : 'en défense' }}</h3>
     <app-duel-map-legend />
     <div class="max-w-md"><app-duel-map [duels]="s.duelMap" /></div>
   </div>

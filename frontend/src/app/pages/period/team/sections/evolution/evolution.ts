@@ -24,8 +24,12 @@ export class Evolution {
         badges: scopeBadges(line.scope),
         status: null,
         title: line.label,
-        value: `${percent(line.previous)} → ${percent(line.current)}`,
-        details: ['changement net par rapport à la période de comparaison'],
+        value: percent(line.current),
+        details: [],
+        references: [
+          { label: 'avant', value: percent(line.previous) },
+          { label: 'écart', value: signedPoints(pointsChange(line.current, line.previous) ?? 0) },
+        ],
         tone: line.better ? 'good' : 'bad',
       })),
   );

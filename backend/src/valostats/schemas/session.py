@@ -106,6 +106,8 @@ class SessionHighlight(ApiModel):
     side: Side | None
     round_number: int | None
     state: str | None
+    # What the squad usually does in the same spot ("d'habitude 45 % sur Abyss").
+    detail: str | None
 
 
 class VersusUsualRow(ApiModel):

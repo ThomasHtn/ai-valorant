@@ -2,11 +2,11 @@
 
 from datetime import date
 
-from valostats.schemas.common import ApiModel
+from valostats.schemas.common import ApiModel, MatchLink
 from valostats.schemas.period.findings import Evolution, RecurringSpot, SummaryItem, TeamFindings
 from valostats.schemas.period.insights import Correlations, DriverGroup, MapCompositions, RevengeMatrix, SessionsContext
 from valostats.schemas.period.player import RosterRow
-from valostats.schemas.period.team import ClutchRow, Economy, FormPoint, MapPoolRow, Opening, Sites, Situations, TeamKpis
+from valostats.schemas.period.team import ClutchRow, Economy, MapPoolRow, Opening, Sites, Situations, TeamKpis
 
 
 class AvailablePeriods(ApiModel):
@@ -39,7 +39,8 @@ class PeriodOverview(ApiModel):
 class TeamReport(ApiModel):
     summary: list[SummaryItem]
     kpis: TeamKpis
-    form: list[FormPoint]
+    # Squad matches of the period, newest first.
+    matches: list[MatchLink]
     map_pool: list[MapPoolRow]
     findings: TeamFindings
     round_drivers: list[DriverGroup]

@@ -1,8 +1,3 @@
-export interface GlossaryEntry {
-  term: string;
-  definition: string;
-}
-
 /** Definition of an individual statistic, with display hints. */
 export interface StatDefinition {
   key: string;
@@ -15,7 +10,6 @@ export interface StatDefinition {
 }
 
 export interface Glossary {
-  terms: GlossaryEntry[];
   stats: StatDefinition[];
 }
 

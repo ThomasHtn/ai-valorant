@@ -9,7 +9,7 @@ import { resourceValue } from '@core/http/resource-state.utils';
 
 import { PeriodContext } from '@core/periods/period-context';
 
-/** Page name then the months and patches played, as the page title; changing it keeps the page. */
+/** Months and patches played, as the page title; changing it keeps the page. */
 @Component({
   selector: 'app-period-selector',
   imports: [LucideChevronDown],
@@ -17,7 +17,7 @@ import { PeriodContext } from '@core/periods/period-context';
   host: { class: 'flex min-w-0 items-center' },
 })
 export class PeriodSelector {
-  /** Report page shown before the period ('Équipe', 'Cartes'...). */
+  /** Report page named in the heading ('Équipe', 'Cartes'...). */
   public readonly page = input<string | null>(null);
 
   private readonly router = inject(Router);

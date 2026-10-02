@@ -1,3 +1,5 @@
+import { MatchLink } from '@core/common/common.model';
+
 import { Evolution, RecurringSpot, SummaryItem, TeamFindings } from './findings.model';
 import {
   Correlations,
@@ -7,16 +9,7 @@ import {
   SessionsContext,
 } from './insights.model';
 import { RosterRow } from './player.model';
-import {
-  ClutchRow,
-  Economy,
-  FormPoint,
-  MapPoolRow,
-  Opening,
-  Sites,
-  Situations,
-  TeamKpis,
-} from './team.model';
+import { ClutchRow, Economy, MapPoolRow, Opening, Sites, Situations, TeamKpis } from './team.model';
 
 export interface AvailablePeriods {
   months: string[];
@@ -46,7 +39,8 @@ export interface PeriodOverview {
 export interface TeamReport {
   summary: SummaryItem[];
   kpis: TeamKpis;
-  form: FormPoint[];
+  /** Squad matches of the period, newest first. */
+  matches: MatchLink[];
   mapPool: MapPoolRow[];
   findings: TeamFindings;
   roundDrivers: DriverGroup[];

@@ -6,11 +6,9 @@
   Aller au contenu
 </a>
 
-<!-- Rail beside the content from `lg` up, drawer over it below. Each page scrolls its own body
-     (`page-body`), so the rail and the page's context bar never move. -->
-<div class="ambient-field flex h-dvh flex-col overflow-hidden bg-surface-950 lg:flex-row">
-  <app-sidebar />
-  <main #main id="main-content" class="relative flex-1 overflow-hidden" tabindex="-1">
+<!-- Each page scrolls its own body (`page-body`), so the page's context bar never moves. -->
+<div class="ambient-field h-dvh overflow-hidden bg-surface-950">
+  <main #main id="main-content" class="relative h-full overflow-hidden" tabindex="-1">
     <router-outlet />
   </main>
 </div>

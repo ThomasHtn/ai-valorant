@@ -3,11 +3,10 @@
 from sqlalchemy.orm import Session
 
 from valostats.analysis.players.metrics import STATS
-from valostats.constants.glossary import GLOSSARY
 from valostats.domain.enums import MatchSource
 from valostats.repositories import facts_repository, map_repository, match_repository, squad_repository
 from valostats.schemas.period.player import StatDefinitionDto
-from valostats.schemas.reference import DataStatus, GameMapDto, Glossary, GlossaryEntry, SourceStatus, SquadPlayerDto
+from valostats.schemas.reference import DataStatus, GameMapDto, Glossary, SourceStatus, SquadPlayerDto
 
 
 def squad_players(session: Session) -> list[SquadPlayerDto]:
@@ -22,7 +21,6 @@ def game_maps(session: Session) -> list[GameMapDto]:
 
 def glossary() -> Glossary:
     return Glossary(
-        terms=[GlossaryEntry(term=term, definition=definition) for term, definition in GLOSSARY],
         stats=[
             StatDefinitionDto(key=s.key, label=s.label, kind=s.kind.value, higher_is_better=s.higher_is_better, decimals=s.decimals,
                               signed=s.signed, definition=s.definition)

@@ -29,6 +29,9 @@ export interface ChartSeries {
    * Draws this curve dashed, so two neighbours of close colour stay apart.
    */
   readonly dashed?: boolean;
+
+  /** Radius of a dot on each point; none by default, since long series would fuse into a band. */
+  readonly pointRadius?: number;
 }
 
 /**

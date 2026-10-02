@@ -75,12 +75,13 @@ def session_report(
 def _highlights(matches: Sequence[SessionMatch]) -> list[SessionHighlight]:
     """The bad points first, then the costliest throws."""
     points = [
-        SessionHighlight(map_name=m.map_name, title=p.title, side=p.side, round_number=None, state=None)
+        SessionHighlight(map_name=m.map_name, title=p.title, side=p.side, round_number=None, state=None, detail=p.detail)
         for m in matches
         for p in m.recurring + m.unusual
         if p.tone is Tone.BAD
     ][:MAX_HIGHLIGHT_POINTS]
     throws = sorted(((m.map_name, c) for m in matches for c in m.costly_rounds), key=lambda x: -x[1].best_chance)[:MAX_HIGHLIGHT_THROWS]
     return points + [
-        SessionHighlight(map_name=name, title=c.headline, side=c.side, round_number=c.round_number, state=c.state) for name, c in throws
+        SessionHighlight(map_name=name, title=c.headline, side=c.side, round_number=c.round_number, state=c.state, detail=None)
+        for name, c in throws
     ]

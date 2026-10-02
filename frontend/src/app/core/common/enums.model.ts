@@ -11,4 +11,4 @@ export type Cohort = 'squad' | 'opp' | 'top';
 export type Tone = 'good' | 'bad' | 'neutral';
 
 /** Confirmed gaps survive the multiple-testing correction; leads are only worth watching. */
-export type FindingStatus = 'confirmed' | 'lead' | 'mixed';
+export type FindingStatus = 'confirmed' | 'lead';

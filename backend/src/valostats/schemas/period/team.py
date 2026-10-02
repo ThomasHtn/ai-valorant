@@ -4,8 +4,6 @@ Reference rates come from top ranked games where the opponents of our own matche
 mirror the squad's numbers (a duel won by us is a duel lost by them).
 """
 
-from datetime import datetime
-
 from valostats.domain.enums import BuyType, Cohort, Side
 from valostats.schemas.common import ApiModel, DuelMap, Rate, RateVsReference
 
@@ -27,14 +25,6 @@ class TeamKpis(ApiModel):
     first_blood: KpiRate
     kast: KpiRate
     traded_deaths: Rate
-
-
-class FormPoint(ApiModel):
-    match_id: str
-    started_at: datetime
-    map_name: str
-    rounds_won: int
-    rounds_lost: int
 
 
 class MapPoolRow(ApiModel):

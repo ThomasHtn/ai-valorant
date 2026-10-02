@@ -139,7 +139,7 @@ export class BarChart {
         borderWidth: 0,
         // A 4px cap on the data end only, so the bar stays anchored to its baseline instead of
         // floating as a lozenge.
-        borderRadius: { topLeft: 4, topRight: 4, bottomLeft: 0, bottomRight: 0 },
+        borderRadius: 0,
         maxBarThickness: 44,
         categoryPercentage: 0.7,
         barPercentage: 0.9,

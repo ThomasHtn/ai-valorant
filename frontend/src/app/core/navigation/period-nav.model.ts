@@ -1,8 +1,8 @@
 import { LucideIcon } from '@lucide/angular';
 
-/** A tab of the period report (team, maps, players, glossary). */
+/** A page of the period report (team, maps, players). */
 export interface PeriodTab {
-  path: 'team' | 'maps' | 'players' | 'glossary';
+  path: 'team' | 'maps' | 'players';
   label: string;
   icon: LucideIcon;
 }

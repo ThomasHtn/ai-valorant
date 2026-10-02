@@ -16,13 +16,7 @@ class GameMapDto(ApiModel):
     minimap_url: str
 
 
-class GlossaryEntry(ApiModel):
-    term: str
-    definition: str
-
-
 class Glossary(ApiModel):
-    terms: list[GlossaryEntry]
     stats: list[StatDefinitionDto]
 
 

@@ -4,23 +4,25 @@ import { BuyType, Cohort, FindingStatus, Side } from '@core/common/enums.model';
 export const SIDE_LABELS: Record<Side, string> = { att: 'Attaque', def: 'Défense' };
 
 export const BUY_LABELS: Record<BuyType, string> = {
-  pistol: 'pistol round',
-  eco: 'eco',
-  force: 'force buy',
-  full: 'full buy',
+  pistol: 'Pistol',
+  eco: 'Eco',
+  force: 'Force buy',
+  full: 'Full buy',
 };
 
 export const COHORT_LABELS: Record<Cohort, string> = {
-  squad: 'Escouade',
-  opp: 'Adversaires',
+  squad: "L'escouade",
+  opp: 'Adversaire',
   top: 'Top ranked',
 };
 
 export const STATUS_LABELS: Record<FindingStatus, string> = {
-  confirmed: 'confirmé',
-  lead: 'piste',
-  mixed: 'confirmé ou piste',
+  confirmed: 'Écart net',
+  lead: 'À confirmer',
 };
+
+/** API scope of a finding over every map. */
+export const ALL_MAPS_SCOPE = 'Toutes cartes';
 
 export const MONTHS = [
   'janvier',

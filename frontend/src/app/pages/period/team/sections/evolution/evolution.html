@@ -1,5 +1,5 @@
 @if (!evolution().hasPrevious) {
-  <p class="muted">Pas de matchs avant cette période : rien à comparer.</p>
+  <p class="muted">Aucun match avant cette période : rien à comparer.</p>
 } @else {
   @for (card of cards(); track $index) {
     <app-point-card
@@ -7,13 +7,14 @@
       [title]="card.title"
       [value]="card.value"
       [details]="card.details"
+      [references]="card.references ?? []"
       [tone]="card.tone"
     />
   } @empty {
-    <p class="muted">Aucun changement net par rapport à vos matchs précédents.</p>
+    <p class="muted">Rien n'a bougé nettement.</p>
   }
   <details class="my-2">
-    <summary class="cursor-pointer text-brand-400">Tous les indicateurs</summary>
+    <summary class="cursor-pointer text-brand-400">Voir tous les indicateurs</summary>
     <div class="table-scroll">
       <table class="data-table">
         <tr>

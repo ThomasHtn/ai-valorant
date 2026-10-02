@@ -206,7 +206,7 @@ export class LineChart {
         borderDash: series.dashed ? [4, 4] : [],
         // A season runs to hundreds of matches: a marker on every one of them would fuse into a
         // solid band and bury the trend the chart exists to show.
-        pointRadius: 0,
+        pointRadius: series.pointRadius ?? 0,
         pointHoverRadius: 5,
         pointHoverBorderWidth: 0,
         tension: 0.2,

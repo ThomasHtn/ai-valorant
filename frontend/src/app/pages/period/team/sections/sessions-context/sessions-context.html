@@ -1,7 +1,7 @@
 @let c = context();
 <p class="caption">
-  Part des rounds gagnés selon le moment du match. En vert : le meilleur créneau. Grisé : moins de
-  {{ minMatches }} matchs, trop peu pour conclure.
+  Rounds gagnés selon le moment. Vert : le meilleur créneau. Grisé : moins de {{ minMatches }}
+  matchs, trop peu pour conclure.
 </p>
 <div class="grid gap-6 lg:grid-cols-3">
   @for (group of charts(); track group.title) {

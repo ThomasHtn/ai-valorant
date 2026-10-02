@@ -23,7 +23,6 @@ export const BADGE_STYLES: Record<BadgeKind, BadgeStyle> = {
   player: { icon: LucideUser, tint: 'bg-squad/15 text-[#a9cdf0] ring-squad/35' },
   confirmed: { icon: LucideCircleCheck, tint: 'bg-brand-500/15 text-brand-400 ring-brand-500/45' },
   lead: { icon: LucideScanSearch, tint: 'bg-transparent text-text-secondary ring-edge-strong' },
-  mixed: { icon: LucideScanSearch, tint: 'bg-brand-500/8 text-brand-300 ring-brand-500/30' },
   opponents: { icon: LucideUsers, tint: NEUTRAL, iconTint: 'text-text-muted' },
   top: { icon: LucideTrophy, tint: NEUTRAL, iconTint: 'text-accent-gold' },
   buy: { icon: LucideCoins, tint: NEUTRAL, iconTint: 'text-text-muted' },

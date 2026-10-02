@@ -1,17 +1,10 @@
-<!-- The page title names the page, then the period as a picker: one control instead of a title
-     plus a drop-down. -->
+<!-- The period is the visible title, as a picker: one control instead of a title plus a drop-down.
+     The page name is shown by the header tabs, so it only joins the heading for screen readers. -->
 <h1 class="sr-only">{{ page() ? page() + ', ' : '' }}{{ title() }}</h1>
-@if (page()) {
-  <span
-    class="mr-2 shrink-0 font-display text-xl leading-tight font-bold tracking-wide text-text-primary uppercase sm:text-2xl"
-    aria-hidden="true"
-    >{{ page() }}</span
-  >
-}
 <label class="relative inline-flex max-w-full items-center">
   <span class="sr-only">Changer de période</span>
   <select
-    class="focus-ring max-w-full cursor-pointer appearance-none truncate rounded-md [field-sizing:content] bg-transparent py-1 pr-8 pl-1 font-display text-xl leading-tight font-bold tracking-wide text-brand-500 uppercase transition-colors hover:bg-brand-500/8 sm:text-2xl [&_option]:bg-surface-800 [&_option]:font-sans [&_option]:text-base [&_option]:normal-case [&_option]:text-text-primary [&_optgroup]:bg-surface-800 [&_optgroup]:text-text-muted"
+    class="focus-ring max-w-full cursor-pointer appearance-none truncate [field-sizing:content] bg-transparent py-1 pr-8 pl-1 font-display text-xl leading-tight font-bold tracking-wide text-brand-500 uppercase transition-colors hover:bg-brand-500/8 sm:text-2xl [&_option]:bg-surface-800 [&_option]:font-sans [&_option]:text-base [&_option]:normal-case [&_option]:text-text-primary [&_optgroup]:bg-surface-800 [&_optgroup]:text-text-muted"
     (change)="select($any($event.target).value)"
   >
     @if (!selected()) {

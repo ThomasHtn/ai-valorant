@@ -6,15 +6,7 @@ from valostats.analysis.statistics.rates import rate
 from valostats.analysis.team.match_results import squad_matches, squad_only
 from valostats.domain.enums import BuyType, Side
 from valostats.domain.facts import RoundFact
-from valostats.schemas.period.team import FormPoint, MapPoolRow
-
-
-def form(rounds: Sequence[RoundFact]) -> list[FormPoint]:
-    """Rounds won and lost in each squad match, oldest first."""
-    return [
-        FormPoint(match_id=m.match_id, started_at=m.started_at, map_name=m.map_name, rounds_won=m.rounds_won, rounds_lost=m.rounds_lost)
-        for m in sorted(squad_matches(rounds).values(), key=lambda m: m.started_at)
-    ]
+from valostats.schemas.period.team import MapPoolRow
 
 
 def map_pool(rounds: Sequence[RoundFact]) -> list[MapPoolRow]:

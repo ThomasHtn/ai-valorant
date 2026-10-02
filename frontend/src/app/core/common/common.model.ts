@@ -28,6 +28,16 @@ export interface LabelledRate {
   rate: Rate;
 }
 
+/** A squad match and the evening it belongs to, whose day is the session page's address. */
+export interface MatchLink {
+  matchId: string;
+  sessionDay: string;
+  startedAt: string;
+  mapName: string;
+  roundsWon: number;
+  roundsLost: number;
+}
+
 /** A round to rewatch. */
 export interface RoundRef {
   matchId: string;
@@ -56,4 +66,10 @@ export interface MatchRecord {
   wins: number;
   losses: number;
   rounds: Rate;
+}
+
+/** A word in the singular and the plural, to agree with a count ('1 throw', '3 throws'). */
+export interface Noun {
+  one: string;
+  many: string;
 }

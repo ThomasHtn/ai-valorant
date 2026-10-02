@@ -1,37 +1,36 @@
-import { Component, computed, input } from '@angular/core';
+import { Component, computed, inject, input } from '@angular/core';
 
-import {
-  findingBadges,
-  findingDetails,
-  findingRewatch,
-  FindingSubject,
-  findingValue,
-  statusBadge,
-} from '@core/periods/finding-format.utils';
+import { resourceValue } from '@core/http/resource-state.utils';
+import { FindingSubject } from '@core/periods/finding-format.utils';
 import { Finding } from '@core/periods/findings.model';
+import { rankByImpact } from '@core/periods/match-impact.utils';
+import { PeriodContext } from '@core/periods/period-context';
+import { PointRow } from '@shared/point-row/point-row';
+import { PointRowHead } from '@shared/point-row/point-row-head';
+import { PointRowContent } from '@shared/point-row/point-row.model';
 
-import { PointCard } from './point-card';
-import { PointCardContent } from './point-card.model';
+import { findingCard } from './finding-card.utils';
 
-/** A list of findings as rows, or a placeholder when there is none. */
+/** A list of findings as rows under one head naming the columns, or a placeholder when empty. */
 @Component({
   selector: 'app-finding-list',
-  imports: [PointCard],
+  imports: [PointRow, PointRowHead],
   template: `
-    @for (card of cards(); track $index) {
-      <app-point-card
-        [badges]="card.badges"
-        [status]="card.status"
-        [title]="card.title"
-        [value]="card.value"
-        [details]="card.details"
-        [rewatch]="card.rewatch ?? []"
-        [tone]="card.tone"
+    @if (rows().length) {
+      <app-point-row-head />
+    }
+    @for (row of rows(); track $index) {
+      <app-point-row
+        [card]="row.card"
+        [matches]="row.matches"
+        [wording]="row.wording"
+        [rewatch]="row.rewatch"
       />
     } @empty {
       <p class="muted">{{ empty() }}</p>
     }
   `,
+  host: { class: 'block min-w-0' },
 })
 export class FindingList {
   public readonly findings = input.required<Finding[]>();
@@ -41,15 +40,15 @@ export class FindingList {
   /** Scope already given by the page (the map of a map sheet), left out of the badges. */
   public readonly known = input<string | null>(null);
 
-  protected readonly cards = computed<PointCardContent[]>(() =>
-    this.findings().map((f) => ({
-      badges: findingBadges(f, this.subject()).filter((b) => b.label !== this.known()),
-      status: statusBadge(f.status),
-      title: f.label,
-      value: findingValue(f),
-      details: findingDetails(f),
-      rewatch: findingRewatch(f),
-      tone: f.tone,
-    })),
-  );
+  private readonly overview = inject(PeriodContext).overview;
+
+  protected readonly rows = computed<PointRowContent[]>(() => {
+    const players = resourceValue(this.overview, null)?.players ?? [];
+    return this.findings().map((f) => ({
+      card: findingCard(f, this.subject(), players, this.known()),
+      matches: rankByImpact(f.matches, f.squad, f.reference),
+      wording: { counted: f.counted, tries: f.tries },
+      rewatch: f.rewatch,
+    }));
+  });
 }

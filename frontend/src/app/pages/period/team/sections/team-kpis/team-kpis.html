@@ -1,27 +1,34 @@
 @let k = kpis();
-<app-stat-tile label="Matchs" [value]="k.wins + 'V - ' + k.losses + 'D'" />
+<app-stat-tile
+  label="Matchs"
+  [value]="k.wins + 'V - ' + k.losses + 'D'"
+  [rating]="matchRating(k.wins, k.losses)"
+/>
 <app-stat-tile
   label="Rounds gagnés"
   help="roundsWon"
   [value]="percent(k.roundsWon.current)"
   [rating]="winRating(k.roundsWon.current)"
   [detail]="change(k.roundsWon)"
+  [context]="context()"
   [tone]="tone(k.roundsWon)"
 />
 <app-stat-tile
-  label="En attaque"
+  label="Winrate attaque"
   help="sideRounds"
   [value]="percent(k.attack.current)"
   [rating]="winRating(k.attack.current)"
   [detail]="change(k.attack)"
+  [context]="context()"
   [tone]="tone(k.attack)"
 />
 <app-stat-tile
-  label="En défense"
+  label="Winrate défense"
   help="sideRounds"
   [value]="percent(k.defense.current)"
   [rating]="winRating(k.defense.current)"
   [detail]="change(k.defense)"
+  [context]="context()"
   [tone]="tone(k.defense)"
 />
 <app-stat-tile
@@ -36,6 +43,7 @@
   [value]="percent(k.firstBlood.current)"
   [rating]="winRating(k.firstBlood.current)"
   [detail]="change(k.firstBlood)"
+  [context]="context()"
   [tone]="tone(k.firstBlood)"
 />
 <app-stat-tile
@@ -44,6 +52,7 @@
   [value]="percent(k.kast.current)"
   [rating]="kastRating(k.kast.current)"
   [detail]="change(k.kast)"
+  [context]="context()"
   [tone]="tone(k.kast)"
 />
 <app-stat-tile label="Morts avec revenge" help="teamTraded" [value]="percent(k.tradedDeaths)" />

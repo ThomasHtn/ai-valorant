@@ -12,8 +12,8 @@ const SIZE = 300;
     <svg
       [attr.viewBox]="'0 0 ' + size + ' ' + size"
       role="img"
-      class="notch-tr w-full bg-surface-sunken [--notch:0.75rem]"
-      [attr.aria-label]="'Duels d\\'ouverture sur ' + duels().mapName"
+      class="w-full bg-surface-sunken"
+      [attr.aria-label]="'Premiers duels sur ' + duels().mapName"
     >
       <image
         [attr.href]="duels().minimapUrl"

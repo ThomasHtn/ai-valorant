@@ -1,0 +1,79 @@
+<div class="min-w-0">
+  <p class="flex min-w-0 items-center gap-1.5 font-semibold text-text-primary">
+    {{ card().title }}
+    @if (card().help; as help) {
+      <app-info-tip [topic]="help" />
+    }
+  </p>
+  @if (place() || scope().length || status() || meta()) {
+    <div
+      class="mt-1 flex flex-wrap items-center gap-x-2.5 gap-y-1 text-sm leading-snug text-text-muted"
+    >
+      @if (place(); as place) {
+        <span class="font-semibold text-text-secondary">{{ place }}</span>
+      }
+      @for (badge of scope(); track $index) {
+        <app-badge [label]="badge.label" [kind]="badge.kind" size="sm" />
+      }
+      @if (status(); as s) {
+        <app-badge [label]="s.label" [kind]="s.kind" size="sm" />
+      }
+      @if (meta()) {
+        <span>{{ meta() }}</span>
+      }
+    </div>
+  }
+</div>
+
+<!-- A line of its own on a phone; above, each figure takes the column named by the head. -->
+<dl class="flex items-baseline gap-5 sm:contents sm:text-right">
+  <div>
+    @if (card().value) {
+      <dt class="sr-only">L'escouade</dt>
+      <dd
+        class="font-display text-xl leading-none font-semibold whitespace-nowrap tabular-nums"
+        [class.good]="card().tone === 'good'"
+        [class.bad]="card().tone === 'bad'"
+      >
+        {{ card().value }}
+      </dd>
+    }
+  </div>
+  @for (ref of card().references ?? []; track ref.label) {
+    <div class="flex flex-col-reverse">
+      <dt class="mt-1 text-xs leading-none text-text-muted sm:sr-only">{{ ref.label }}</dt>
+      <dd class="leading-none text-text-secondary tabular-nums">{{ ref.value ?? '-' }}</dd>
+    </div>
+  }
+</dl>
+
+@if (matches().length) {
+  <!-- Folded by default: the point reads first, its matches on demand, most telling first. -->
+  <div class="sm:col-span-full">
+    <button
+      type="button"
+      class="focus-ring flex w-full cursor-pointer items-center gap-1.5 bg-surface-950/40 px-3 py-1.5 text-left text-sm text-brand-400 transition-colors hover:bg-brand-500/8 hover:text-brand-300"
+      [attr.aria-expanded]="open()"
+      [attr.aria-controls]="listId"
+      (click)="open.set(!open())"
+    >
+      <svg
+        class="size-4 transition-transform motion-reduce:transition-none"
+        [class.rotate-90]="open()"
+        lucideChevronRight
+        aria-hidden="true"
+      ></svg>
+      {{ toggleLabel() }}
+    </button>
+    @if (open()) {
+      <app-match-links
+        class="mt-px"
+        [id]="listId"
+        [matches]="matches()"
+        [unit]="card().unit ?? ''"
+        [wording]="wording()"
+        [rewatch]="rewatch()"
+      />
+    }
+  </div>
+}

@@ -10,7 +10,7 @@ import {
 } from './tabs.constants';
 import { TabItem } from './tabs.model';
 
-/** Sections of a sheet (map, player) switched without changing the URL, as a boxed control. */
+/** Sections of a sheet (map, player) switched without changing the URL, as a full-width tab bar. */
 @Component({
   selector: 'app-segmented-tabs',
   imports: [LucideDynamicIcon],
@@ -26,7 +26,7 @@ import { TabItem } from './tabs.model';
           (click)="selected.set(item.id)"
         >
           @if (item.icon) {
-            <svg class="size-4 shrink-0" [lucideIcon]="item.icon" aria-hidden="true"></svg>
+            <svg class="size-[1.125rem] shrink-0" [lucideIcon]="item.icon" aria-hidden="true"></svg>
           }
           {{ item.label }}
           @if (item.note) {

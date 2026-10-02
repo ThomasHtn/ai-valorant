@@ -29,7 +29,7 @@ import { LinkTabItem } from './tabs.model';
           [attr.aria-current]="active ? 'page' : null"
         >
           @if (item.icon) {
-            <svg class="size-4 shrink-0" [lucideIcon]="item.icon" aria-hidden="true"></svg>
+            <svg class="size-[1.125rem] shrink-0" [lucideIcon]="item.icon" aria-hidden="true"></svg>
           }
           {{ item.label }}
           @if (item.note) {

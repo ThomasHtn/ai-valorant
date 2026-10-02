@@ -163,8 +163,7 @@ export function prefersReducedMotion(): boolean {
 }
 
 /**
- * Builds the tooltip styling shared by every chart, in the direction's notched, square-cornered
- * idiom rather than Chart.js' rounded default.
+ * Builds the tooltip styling shared by every chart, square like the app's panels.
  *
  * @param theme resolved chart palette
  * @returns tooltip options to spread into a chart configuration

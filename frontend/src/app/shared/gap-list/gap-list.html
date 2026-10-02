@@ -1,0 +1,53 @@
+<table class="data-table">
+  <thead>
+    <tr>
+      <th>{{ labelHeader() }}</th>
+      <th>L'escouade</th>
+      <th class="num">{{ referenceHeader() }} <app-info-tip [topic]="referenceHelp()" /></th>
+      <th class="num">Écart <app-info-tip topic="roundsGap" /></th>
+    </tr>
+  </thead>
+  <tbody>
+    @for (row of rows(); track row.label) {
+      <tr [style.--row-accent]="accent(row.rating)" [class.muted]="row.muted">
+        <td>
+          <span class="block font-semibold text-text-primary">{{ row.label }}</span>
+          @if (row.detail) {
+            <span class="block text-xs text-text-muted">{{ row.detail }}</span>
+          }
+        </td>
+        <td class="w-full">
+          <span class="flex items-center gap-3">
+            <span class="w-20 shrink-0 text-right leading-tight tabular-nums">
+              <span class="block font-semibold" [class]="textClass(row.rating)">{{
+                percent(row.squad)
+              }}</span>
+              <span class="block text-xs text-text-muted"
+                >{{ row.squad.count }} sur {{ row.squad.total }}</span
+              >
+            </span>
+            <app-target-bar
+              class="min-w-20"
+              [rate]="row.squad"
+              [reference]="row.reference"
+              [rating]="row.rating"
+            />
+          </span>
+        </td>
+        <td class="num leading-tight">
+          <span class="block">{{ percent(row.reference) }}</span>
+          @if (row.referenceNote) {
+            <span class="block text-xs text-text-muted">{{ row.referenceNote }}</span>
+          }
+        </td>
+        <td class="num font-semibold" [class]="textClass(row.rating)">
+          {{ gapLabel(row.gap, row.unit) }}
+        </td>
+      </tr>
+    } @empty {
+      <tr>
+        <td colspan="4" class="muted">{{ empty() }}</td>
+      </tr>
+    }
+  </tbody>
+</table>

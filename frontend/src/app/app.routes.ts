@@ -17,7 +17,7 @@ export const routes: Routes = [
   {
     path: 'sessions/:day',
     loadComponent: () => import('@pages/session/session-page').then((m) => m.SessionPage),
-    title: 'Soirée · ValoStats',
+    title: 'Session · ValoStats',
   },
   {
     path: 'periods',
@@ -48,11 +48,6 @@ export const routes: Routes = [
       {
         path: 'players/:puuid',
         loadComponent: () => import('@pages/period/players/players-tab').then((m) => m.PlayersTab),
-      },
-      {
-        path: 'glossary',
-        loadComponent: () =>
-          import('@pages/period/glossary/glossary-tab').then((m) => m.GlossaryTab),
       },
     ],
   },

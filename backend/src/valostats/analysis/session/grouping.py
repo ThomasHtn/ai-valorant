@@ -35,3 +35,8 @@ def sessions(rounds: Sequence[RoundFact]) -> list[Session]:
         else:
             groups.append([match])
     return [Session(g) for g in groups]
+
+
+def session_days(rounds: Sequence[RoundFact]) -> dict[str, date]:
+    """Day of the evening each squad match belongs to, by match id."""
+    return {m.match_id: s.day for s in sessions(rounds) for m in s.matches}

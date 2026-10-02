@@ -45,7 +45,7 @@ def _casts_per_player_round(m: MatchFacts) -> float | None:
 MATCH_STATS: list[tuple[str, Callable[[MatchFacts], float | None]]] = [
     ("First blood pris", lambda m: _share([bool(r.first_kill) for r in m.rounds if r.first_kill is not None])),
     ("Morts avec revenge", lambda m: _share([d.traded for d in m.deaths])),
-    ("Morts à 0 dégât", lambda m: _share([d.damage == 0 for d in m.deaths])),
+    ("Morts sans dégât infligé", lambda m: _share([d.damage == 0 for d in m.deaths])),
     ("ADR équipe", lambda m: sum(p.damage for p in m.players) / len(m.players) if m.players else None),
     ("Headshots", _headshots),
     ("Utilitaire par joueur et par round (C, Q, E)", _casts_per_player_round),

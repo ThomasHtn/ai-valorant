@@ -20,14 +20,6 @@ export interface TeamKpis {
   tradedDeaths: Rate;
 }
 
-export interface FormPoint {
-  matchId: string;
-  startedAt: string;
-  mapName: string;
-  roundsWon: number;
-  roundsLost: number;
-}
-
 export interface MapPoolRow {
   mapName: string;
   matches: number;

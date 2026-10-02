@@ -34,13 +34,13 @@ STATS = [
     StatDefinition("apr", "Assists par round", StatKind.MEAN, True, 2, False, "Nombre moyen d'assists par round."),
     StatDefinition("adr", "ADR", StatKind.MEAN, True, 0, False, "Dégâts infligés par round."),
     StatDefinition(
-        "kast", "KAST", StatKind.RATE, True, 0, False, "Part des rounds avec un kill, un assist, une survie ou une mort revenge."
+        "kast", "KAST", StatKind.RATE, True, 0, False, "Part des rounds avec un kill, un assist, une survie ou une revenge sur sa mort."
     ),
     StatDefinition("survival", "Survie", StatKind.RATE, True, 0, False, "Part des rounds où le joueur est vivant à la fin."),
     StatDefinition("hs", "Headshots", StatKind.RATE, True, 0, False, "Part des tirs touchés à la tête."),
-    StatDefinition("fbpr", "First bloods par round", StatKind.MEAN, True, 2, False, "Kills d'ouverture par round."),
-    StatDefinition("fdpr", "First deaths par round", StatKind.MEAN, False, 2, False, "Morts d'ouverture par round."),
-    StatDefinition("opening", "Duels d'ouverture gagnés", StatKind.RATE, True, 0, False, "First bloods / (first bloods + first deaths)."),
+    StatDefinition("fbpr", "First bloods par round", StatKind.MEAN, True, 2, False, "Premiers kills du round, par round."),
+    StatDefinition("fdpr", "First deaths par round", StatKind.MEAN, False, 2, False, "Premières morts du round, par round."),
+    StatDefinition("opening", "Premiers duels gagnés", StatKind.RATE, True, 0, False, "First bloods / (first bloods + first deaths)."),
     StatDefinition(
         "revenge_given",
         "Revenges données par round",
@@ -54,7 +54,13 @@ STATS = [
         "traded", "Morts avec revenge", StatKind.RATE, True, 0, False, "Part de ses morts vengées par un coéquipier dans les 3 secondes."
     ),
     StatDefinition(
-        "zero_dmg", "Morts à 0 dégât", StatKind.RATE, False, 0, False, "Part de ses morts sans avoir infligé de dégâts dans le round."
+        "zero_dmg",
+        "Morts sans dégât infligé",
+        StatKind.RATE,
+        False,
+        0,
+        False,
+        "Part de ses morts sans avoir infligé de dégâts dans le round.",
     ),
     StatDefinition("multi", "Rounds à 2 kills ou plus", StatKind.RATE, True, 0, False, "Part des rounds avec au moins 2 kills."),
     StatDefinition(

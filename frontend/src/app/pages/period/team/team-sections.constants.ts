@@ -28,24 +28,16 @@ export const TEAM_SECTIONS: readonly {
   title: string;
   help?: HelpTopic;
 }[] = [
-  { id: 'weak', group: 'findings', title: 'Points faibles', help: 'status' },
+  { id: 'weak', group: 'findings', title: 'À travailler', help: 'status' },
   { id: 'strong', group: 'findings', title: 'Points forts', help: 'status' },
   { id: 'evolution', group: 'findings', title: 'Évolution', help: 'points' },
-  { id: 'drivers', group: 'rounds', title: 'Ce qui fait gagner vos rounds', help: 'heatColors' },
-  {
-    id: 'correlations',
-    group: 'rounds',
-    title: 'Ce qui va avec vos victoires',
-    help: 'correlation',
-  },
   { id: 'situations', group: 'rounds', title: 'Situations numériques', help: 'situation' },
-  { id: 'clutches', group: 'rounds', title: 'Clutchs', help: 'clutch' },
   { id: 'economy', group: 'economy', title: 'Économie' },
-  { id: 'opening', group: 'duels', title: "Duels d'ouverture" },
-  { id: 'spots', group: 'duels', title: 'First deaths récurrentes' },
+  { id: 'opening', group: 'duels', title: 'Premiers duels' },
+  { id: 'spots', group: 'duels', title: 'Spots de first death' },
   { id: 'sites', group: 'duels', title: 'Plants et retakes' },
   { id: 'roster', group: 'group', title: 'Joueurs' },
   { id: 'revenge', group: 'group', title: 'Qui venge qui', help: 'teamTraded' },
   { id: 'compositions', group: 'group', title: 'Compositions' },
-  { id: 'context', group: 'group', title: 'Contexte des soirées' },
+  { id: 'context', group: 'group', title: 'Moment de la session' },
 ];

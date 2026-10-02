@@ -77,130 +77,9 @@
   }
 }
 
-/*
- * Angular silhouettes — the direction's core shape language.
- *
- * The direction has no rounded corners: panels are *cut* at their top-right corner, badges are
- * hexagons, segments are sheared. These are declared once as utilities rather than inline `[clip-path:…]`
- * arbitrary values, so the cut sizes stay consistent across cards and a reader sees an intent
- * ("this panel is notched") instead of a polygon.
- *
- * Cut depth is read from `--notch`, so a caller can tighten it on a smaller element with
- * `[--notch:0.75rem]` without redeclaring the polygon.
- *
- * Note these clip their element's own box: a focus outline drawn outside it would be cut away,
- * which is why interactive notched elements use `focus-ring-inset`.
- */
-
+/* Hexagon of the loading mark. */
 @utility clip-hex {
   clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
-}
-
-/* An outlined hexagon — the campaign map's terrain tile — drawn as one element rather than a
-   surface nested in an outline. The map lays out over a hundred and fifty of these purely
-   decorative tiles, and the nested markup made each one cost three nodes: the field alone was
-   more than half the page's DOM, which is the heaviest term of its environmental footprint. The
-   inner surface is scaled rather than inset so the outline keeps a constant width all the way
-   around (see `TILE_INNER_SCALE`, which this mirrors). */
-@utility hex-terrain {
-  position: relative;
-  clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
-
-  &::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    scale: 0.95;
-    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
-    background-color: var(--color-surface-950);
-  }
-}
-
-/* Panel cut at its top-right corner only. The direction's single card silhouette: every notched
-   surface is cut on the same corner, so cards, bands and badges read as one family. */
-@utility notch-tr {
-  clip-path: polygon(
-    0 0,
-    calc(100% - var(--notch, 1.5rem)) 0,
-    100% var(--notch, 1.5rem),
-    100% 100%,
-    0 100%
-  );
-}
-
-/*
- * The diagonal edge of a `notch-tr` panel, for panels that carry a border.
- *
- * `clip-path` clips the border box, so a bordered panel's border stops dead at the cut and the
- * diagonal is left bare. This draws the missing edge as a rotated rule pinned to the corner. It
- * inherits `border-color` and `border-top-style` from the element, so the edge tracks hover and
- * state changes (and dashed borders) without restating the color.
- *
- * The rule must not transition: its inherited `border-color` already follows the element's own
- * animated value frame by frame, and a transition here would re-animate towards each intermediate
- * value, leaving the diagonal visibly lagging behind the border it continues.
- *
- * Pair with `notch-tr`; the two read the same `--notch`. Set `--notch-border-width` alongside it
- * when the element's border is not 1px, since it drives both the rule's weight and the offset that
- * pulls it out of the padding box onto the border box the cut is traced on.
- */
-@utility notch-tr-edge {
-  position: relative;
-
-  &::after {
-    content: '';
-    position: absolute;
-    top: calc(-1 * var(--notch-border-width, 1px));
-    right: calc(-1 * var(--notch-border-width, 1px));
-    /* The cut spans `--notch` on both axes, so the edge it leaves is that times √2. */
-    width: calc(var(--notch, 1.5rem) * 1.4142);
-    border-top: var(--notch-border-width, 1px) solid;
-    border-color: inherit;
-    border-top-style: inherit;
-    transition: none;
-    /* Pivot on the corner, drop to where the cut meets the right edge, then lay the rule back up
-       along the diagonal. Its stroke falls on the inner side of the cut, so the clip never eats it. */
-    transform-origin: 100% 0;
-    transform: translateY(var(--notch, 1.5rem)) rotate(45deg);
-  }
-}
-
-/*
- * The same cut on the opposite corner, and its edge. The direction cuts every panel top-right; this
- * pair exists for the one thing that is not a panel — the boss gauge in the colony's confrontation
- * band, which is cut towards the seam so the two camps' gauges face each other across it.
- */
-@utility notch-tl {
-  clip-path: polygon(var(--notch, 1.5rem) 0, 100% 0, 100% 100%, 0 100%, 0 var(--notch, 1.5rem));
-}
-
-@utility notch-tl-edge {
-  position: relative;
-
-  &::after {
-    content: '';
-    position: absolute;
-    top: calc(-1 * var(--notch-border-width, 1px));
-    left: calc(-1 * var(--notch-border-width, 1px));
-    width: calc(var(--notch, 1.5rem) * 1.4142);
-    border-top: var(--notch-border-width, 1px) solid;
-    border-color: inherit;
-    border-top-style: inherit;
-    transition: none;
-    /* Mirror of `notch-tr-edge`: same drop, pivoted on the left corner and laid back the other way. */
-    transform-origin: 0 0;
-    transform: translateY(var(--notch, 1.5rem)) rotate(-45deg);
-  }
-}
-
-/* Sheared segment, leaning right — the progress bar's discrete slots. */
-@utility clip-shear {
-  clip-path: polygon(
-    var(--notch, 0.375rem) 0,
-    100% 0,
-    calc(100% - var(--notch, 0.375rem)) 100%,
-    0 100%
-  );
 }
 
 /*
@@ -261,12 +140,11 @@
  *
  * Full border rather than a leading rule alone: `bg-surface-sunken` sits close enough to the page's
  * own background that an edge-only rule left the panel blending into whatever was behind it.
- * `notch-tr-edge` redraws the border across the notch cut; without it that corner would show a gap.
  * Positioning, width and inner padding stay at the call site: those are what actually differ
  * between the four.
  */
 @utility menu-panel {
-  @apply notch-tr notch-tr-edge border border-brand-500/50 bg-surface-sunken [--notch:0.5rem];
+  @apply border border-brand-500/50 bg-surface-sunken;
 }
 
 /*
@@ -287,7 +165,7 @@
 }
 
 /*
- * Colors of a `menu-option` in a select listbox, echoing the sidebar: a flat surface step under the
+ * Colors of a `menu-option` in a select listbox, echoing the page tabs: a flat surface step under the
  * pointer or the keyboard highlight (`data-active`), an amber bar and tint on the held value.
  * Hover and highlight are scoped to unselected rows so the held value keeps its amber under them.
  */
@@ -331,7 +209,7 @@
   scroll-padding-top: 1.5rem;
 
   /* Named so a route change animates this column alone. Without it the whole document cross-fades,
-     sidebar and context bar included, and navigating reads as the page being replaced rather than
+     context bar included, and navigating reads as the page being replaced rather than
      as its content changing. Only one `page-body` is ever mounted, so the name stays unique. */
   view-transition-name: page-body;
 

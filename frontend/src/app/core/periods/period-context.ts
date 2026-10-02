@@ -8,9 +8,8 @@ import { PeriodQuery } from './period-query.model';
 import { periodQueryFromParams, samePeriodQuery } from './period-query.utils';
 
 /**
- * The period being read and its overview, shared by the report's tabs and the sidebar so both read
- * the same request. The period comes from the URL on a `/periods` page and is remembered elsewhere,
- * so the sidebar keeps showing (and linking back to) the report the reader left.
+ * The period being read and its overview, shared by the report's header and tabs so they read the
+ * same request. The period comes from the URL on a `/periods` page and is remembered elsewhere.
  */
 @Service()
 export class PeriodContext {

@@ -43,8 +43,7 @@
 }
 
 /*
- * ValoQuests' tooltip: sunken, cut at its top-right corner, an amber rule on its leading edge and no
- * shadow (the cut would clip it). The panel lives in the top layer but still inherits from its DOM
+ * ValoQuests' tooltip: sunken and square, an amber rule on its leading edge and no shadow. The panel lives in the top layer but still inherits from its DOM
  * parent (a table header, a heading), so every inherited text property is reset here.
  */
 .panel {
@@ -57,7 +56,6 @@
   border: 0;
   border-left: 2px solid --alpha(var(--color-brand-500) / 50%);
   background: var(--color-surface-sunken);
-  clip-path: polygon(0 0, calc(100% - 0.375rem) 0, 100% 0.375rem, 100% 100%, 0 100%);
   color: var(--color-text-primary);
   font-family: var(--font-sans);
   font-size: 0.95rem;

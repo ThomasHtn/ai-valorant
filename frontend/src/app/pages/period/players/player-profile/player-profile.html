@@ -1,6 +1,6 @@
 @let p = profile();
 <!-- Player card: main agent, name, record and agent split, then the headline figures. -->
-<header class="overflow-hidden rounded-lg bg-text-primary/4 ring-1 ring-edge ring-inset">
+<header class="overflow-hidden bg-text-primary/4 ring-1 ring-edge ring-inset">
   <div class="flex flex-wrap items-center gap-x-4 gap-y-3 px-5 py-4">
     @if (mainAgent(); as agent) {
       <app-agent-icon [agent]="agent" size="lg" [decorative]="true" />
@@ -13,7 +13,10 @@
           [kind]="p.wins >= p.losses ? 'good' : 'bad'"
           size="sm"
         />
-        {{ p.matches }} matchs, {{ p.rounds }} rounds. Écarts {{ p.comparisonLabel }}.
+        {{ p.matches }} matchs, {{ p.rounds }} rounds.
+        @if (p.comparisonLabel) {
+          Petits chiffres : écart avec {{ p.comparisonLabel }}.
+        }
       </p>
     </div>
     <ul class="ml-auto flex flex-wrap gap-x-4 gap-y-2" aria-label="Agents joués">
@@ -40,9 +43,8 @@
   @switch (section()) {
     @case ('stats') {
       <p class="caption !mt-0">
-        Couleur de la valeur, par rapport aux adversaires de même niveau : vert mieux, orange
-        pareil, rouge moins bien (écart net seulement). ▲▼ : écart net avec le top ranked sur les
-        mêmes agents (pondéré par ses rounds sur chaque agent).
+        Couleur : face à l'adversaire, seulement quand l'écart est net. ▲▼ : écart net avec le top
+        ranked sur les mêmes agents.
       </p>
       <app-player-stats-table [stats]="p.stats" [definitions]="definitions()" [name]="p.name" />
     }
@@ -83,6 +85,7 @@
               [title]="card.title"
               [value]="card.value"
               [details]="card.details"
+              [references]="card.references ?? []"
               [tone]="card.tone"
             />
           } @empty {
@@ -97,6 +100,7 @@
               [title]="card.title"
               [value]="card.value"
               [details]="card.details"
+              [references]="card.references ?? []"
               [tone]="card.tone"
             />
           } @empty {
@@ -106,19 +110,13 @@
       </div>
 
       <h3>Forme</h3>
-      <p class="caption">
-        ACS à chaque match (courbe claire), moyenne sur 5 matchs (ambre).
-        @if (p.topReferenceAcs !== null) {
-          En pointillés verts : le top ranked sur ses agents ({{ p.topReferenceAcs.toFixed(0) }}).
-        }
-      </p>
       <app-form-chart
         [points]="formPoints()"
         [yMax]="acsAxis()"
         [reference]="p.topReferenceAcs"
         unit=""
         label="ACS"
-        referenceLabel="Top ranked sur ses agents"
+        [referenceLabel]="'Top ranked sur ses agents (' + (p.topReferenceAcs ?? 0).toFixed(0) + ')'"
         heightClass="h-48 w-full"
       />
     }

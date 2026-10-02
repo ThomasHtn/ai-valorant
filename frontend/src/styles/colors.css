@@ -22,7 +22,7 @@
    * scale stays teal-navy instead of drifting grey as it lifts.
    *
    * `surface-sunken` sits outside that scale on purpose: it is a *role*, not a step. The
-   * navigation rail and inset wells (a health bar's track, a segmented bar's empty slots) read as
+   * page context bar and inset wells (a health bar's track, a segmented bar's empty slots) read as
    * carved *below* the page ground, so they need a value darker than `surface-950` without
    * inverting the meaning of the scale's numbering. Dialogs and panels use it directly too.
    */

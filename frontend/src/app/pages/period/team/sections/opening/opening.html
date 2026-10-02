@@ -1,49 +1,10 @@
 @let o = opening();
-<p class="caption">
-  Couleur des conversions par rapport au top ranked : vert au-dessus, orange proche, rouge en
-  dessous.
-</p>
-<div class="table-scroll">
-  <table class="data-table">
-    <tr>
-      <th></th>
-      <th class="num">First blood pris <app-info-tip topic="teamFirstBlood" /></th>
-      <th class="num">Round gagné après FB (5v4) <app-info-tip topic="convert" /></th>
-      <th class="num">Top</th>
-      <th class="num">Round gagné après FD (4v5) <app-info-tip topic="recover" /></th>
-      <th class="num">Top</th>
-      <th class="num">Premier kill (médiane) <app-info-tip topic="medianFirstKill" /></th>
-    </tr>
-    @for (side of o.sides; track side.side) {
-      <tr>
-        <td>{{ sideLabels[side.side] }}</td>
-        <td class="num"><app-rate-bar [rate]="side.firstBlood" /></td>
-        <td
-          appHeat
-          [rate]="side.convert.squad"
-          [center]="side.convert.reference?.value"
-          [hint]="'top ranked ' + percent(side.convert.reference)"
-        ></td>
-        <td class="num">{{ percent(side.convert.reference) }}</td>
-        <td
-          appHeat
-          [rate]="side.recover.squad"
-          [center]="side.recover.reference?.value"
-          [hint]="'top ranked ' + percent(side.recover.reference)"
-        ></td>
-        <td class="num">{{ percent(side.recover.reference) }}</td>
-        <td class="num">
-          {{ side.medianFirstKillS === null ? '-' : decimal(side.medianFirstKillS) + ' s' }}
-        </td>
-      </tr>
-    }
-  </table>
-</div>
+<app-gap-list class="max-w-4xl" [lines]="sideLines()" />
 
 @if (o.duelMaps.length) {
   <details class="my-2">
     <summary class="cursor-pointer text-brand-400">
-      Où se jouent vos duels d'ouverture ({{ o.duelMaps.length }} cartes)
+      Voir où se jouent vos premiers duels ({{ o.duelMaps.length }} cartes)
     </summary>
     <app-duel-map-legend />
     <div class="grid grid-cols-[repeat(auto-fill,minmax(240px,1fr))] gap-3">
@@ -51,8 +12,11 @@
         <figure>
           <app-duel-map [duels]="duels" />
           <figcaption class="caption">
-            <strong>{{ duels.mapName }} · {{ duels.side ? sideLabels[duels.side] : '' }}</strong> ·
-            {{ duels.won.length }} FB, {{ duels.lost.length }} FD
+            <strong
+              >{{ duels.mapName
+              }}{{ duels.side ? ', ' + sideLabels[duels.side].toLowerCase() : '' }}</strong
+            >
+            : {{ duels.won.length }} FB, {{ duels.lost.length }} FD
           </figcaption>
         </figure>
       }
@@ -60,41 +24,13 @@
   </details>
 }
 
-<h3>Par joueur</h3>
-<p class="caption">
-  Rounds gagnés par l'équipe après le first blood ou la first death de chaque joueur. Couleur : par
-  rapport au top ranked ({{ percent(o.topConvert) }} après un first blood,
-  {{ percent(o.topRecover) }} après une first death).
-</p>
-<div class="table-scroll">
-  <table class="data-table">
-    <tr>
-      <th>Joueur</th>
-      <th class="num">First bloods</th>
-      <th class="num">Round gagné ensuite</th>
-      <th class="num">First deaths</th>
-      <th class="num">Round gagné ensuite</th>
-      <th class="num">First deaths avec revenge</th>
-    </tr>
-    @for (player of o.players; track player.name) {
-      <tr>
-        <td>{{ player.name }}</td>
-        <td class="num">{{ player.firstBloods }}</td>
-        <td
-          appHeat
-          [rate]="player.wonAfterFirstBlood"
-          [center]="o.topConvert.value"
-          [span]="0.2"
-        ></td>
-        <td class="num">{{ player.firstDeaths }}</td>
-        <td
-          appHeat
-          [rate]="player.wonAfterFirstDeath"
-          [center]="o.topRecover.value"
-          [span]="0.2"
-        ></td>
-        <td class="num">{{ percent(player.firstDeathsTraded) }}</td>
-      </tr>
-    }
-  </table>
+<div class="columns mt-6">
+  <div>
+    <h3 class="!mt-0">Premiers duels de chaque joueur</h3>
+    <app-gap-list labelHeader="Joueur" [lines]="playerDuels()" />
+  </div>
+  <div>
+    <h3 class="!mt-0">Rounds gagnés après sa first death <app-info-tip topic="recover" /></h3>
+    <app-gap-list labelHeader="Joueur" [lines]="playerRecovers()" />
+  </div>
 </div>

@@ -1,23 +1,26 @@
 <app-page-header>
   <app-period-selector pageTitle [page]="pageLabel()" />
+  <app-period-tabs pageTabs [selected]="tab()" />
   @if (overview.value(); as period) {
     <div class="hidden items-center gap-x-5 text-sm text-text-secondary sm:flex">
       <p class="flex items-center gap-1.5">
         <app-badge [label]="period.matches + ' matchs'" size="sm" />
-        <span class="hidden items-center gap-1 lg:flex">
-          comparés au même niveau <app-info-tip topic="opponents" /> et au top ranked
-          <app-info-tip topic="topRanked" />
-        </span>
+        @if (period.topReferenceMatches) {
+          <span class="hidden items-center gap-1 lg:flex">
+            face à {{ period.topReferenceMatches }} matchs top ranked
+            <app-info-tip topic="topRanked" />
+          </span>
+        }
       </p>
       <ul class="hidden items-center gap-3 xl:flex" aria-label="Code couleur">
         <li class="flex items-center gap-1.5">
-          <span class="size-2 rounded-full bg-rating-good" aria-hidden="true"></span>Bien
+          <span class="size-2 rounded-full bg-rating-good" aria-hidden="true"></span>Mieux
         </li>
         <li class="flex items-center gap-1.5">
-          <span class="size-2 rounded-full bg-rating-average" aria-hidden="true"></span>Moyen
+          <span class="size-2 rounded-full bg-rating-average" aria-hidden="true"></span>Proche
         </li>
         <li class="flex items-center gap-1.5">
-          <span class="size-2 rounded-full bg-rating-bad" aria-hidden="true"></span>À travailler
+          <span class="size-2 rounded-full bg-rating-bad" aria-hidden="true"></span>Moins bien
         </li>
       </ul>
     </div>

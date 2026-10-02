@@ -14,7 +14,7 @@ export const PLAYER_SECTIONS: readonly TabItem[] = [
   { id: 'stats', label: 'Toutes les stats', icon: LucideListOrdered },
   { id: 'impact', label: 'Impact et armes', icon: LucideZap },
   { id: 'splits', label: 'Par side, agent, carte', icon: LucideColumns3 },
-  { id: 'duels', label: "Duels d'ouverture", icon: LucideCrosshair },
+  { id: 'duels', label: 'Premiers duels', icon: LucideCrosshair },
 ];
 
 export const DEFAULT_PLAYER_SECTION = 'summary';

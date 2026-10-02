@@ -56,4 +56,3 @@ class FindingStatus(StrEnum):
 
     CONFIRMED = "confirmed"
     LEAD = "lead"
-    MIXED = "mixed"
