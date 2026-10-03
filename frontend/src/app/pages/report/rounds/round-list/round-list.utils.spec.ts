@@ -2,24 +2,29 @@ import { describe, expect, it } from 'vitest';
 
 import { RoundLine } from '@core/report/rounds.model';
 
-import { roundFigure } from './round-list.utils';
+import { roundOutcome } from './round-list.utils';
 
 const round = {
-  bestState: '4v3',
-  bestProbability: 0.72,
-  maxDrop: 0.4,
+  won: false,
+  cause: 'clutch_lost',
+  bestProbability: 0.78,
+  thrown: true,
 } as RoundLine;
 
-describe('round list figure', () => {
-  it('shows the best situation with its chance in the title', () => {
-    expect(roundFigure(round, false)).toEqual({
-      figurePrefix: 'max',
-      figure: '4v3',
-      figureTitle: 'Meilleure situation du round (72 % de chances)',
+describe('round list outcome', () => {
+  it('names the cause of a lost round and the chance it had', () => {
+    expect(roundOutcome(round)).toEqual({
+      outcome: 'Clutch perdu',
+      won: false,
+      chance: 'avait 78 %',
     });
   });
 
-  it('shows the biggest fall when sorted by it', () => {
-    expect(roundFigure(round, true).figure).toBe('−40 pts');
+  it('shows no chance when the round was not in hand', () => {
+    expect(roundOutcome({ ...round, thrown: false }).chance).toBeNull();
+  });
+
+  it('marks a won round', () => {
+    expect(roundOutcome({ ...round, won: true, cause: null, thrown: false }).outcome).toBe('Gagné');
   });
 });

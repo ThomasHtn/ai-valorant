@@ -1,29 +1,23 @@
+import { LOSS_CAUSE_LABELS } from '@core/format/labels.constants';
 import { RoundLine } from '@core/report/rounds.model';
 
-/** Right-hand figure of a list row, with a short visible prefix and a full title. */
-export interface RoundFigure {
-  figurePrefix: string;
-  figure: string;
-  figureTitle: string;
+/** Right-hand side of a list row: how the round ended, and the chance the squad had when thrown. */
+export interface RoundOutcome {
+  outcome: string;
+  won: boolean;
+  /** 'avait 78 %' on a lost round the squad had in hand, else null. */
+  chance: string | null;
 }
 
-/** 'max 4v3' (best situation of the round) or 'chute −40 pts' (biggest fall of the squad's chance). */
-export function roundFigure(round: RoundLine, showSwing: boolean): RoundFigure {
-  if (showSwing) {
-    const points = Math.round(round.maxDrop * 100);
-    return {
-      figurePrefix: 'chute',
-      figure: points ? `−${points} pts` : '0 pt',
-      figureTitle: "Plus forte chute des chances de l'escouade en une action",
-    };
-  }
+/** 'Clutch perdu' (the cause of a lost round) or 'Gagné', plus the chance of a throw. */
+export function roundOutcome(round: RoundLine): RoundOutcome {
   const chance =
-    round.bestProbability === null
-      ? ''
-      : ` (${Math.round(round.bestProbability * 100)} % de chances)`;
+    round.thrown && round.bestProbability !== null
+      ? `avait ${Math.round(round.bestProbability * 100)} %`
+      : null;
   return {
-    figurePrefix: 'max',
-    figure: round.bestState ?? '—',
-    figureTitle: `Meilleure situation du round${chance}`,
+    outcome: round.won ? 'Gagné' : round.cause ? LOSS_CAUSE_LABELS[round.cause] : 'Perdu',
+    won: round.won,
+    chance,
   };
 }

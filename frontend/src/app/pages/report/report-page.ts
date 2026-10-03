@@ -16,6 +16,7 @@ import { filter, map, of, switchMap, timer } from 'rxjs';
 import { freshness } from '@core/format/format.utils';
 import { integer } from '@core/format/value-format.utils';
 import { ReportContext } from '@core/report/report-context';
+import { ReportOriginTracker } from '@core/report/report-origin';
 import { periodQueryParams } from '@core/report/period-query.utils';
 import { REPORT_MAIN_VIEWS, REPORT_TOOL_VIEWS } from '@core/report/report-views.constants';
 import { PageHeader } from '@layout/page-header/page-header';
@@ -70,6 +71,11 @@ export class ReportPage {
   );
   protected readonly integer = integer;
   protected readonly freshness = freshness;
+
+  constructor() {
+    // Started here so it sees every report navigation, the first one included.
+    inject(ReportOriginTracker);
+  }
 
   /** Brings the active tab into the bar's view on narrow screens, where the bar scrolls sideways. */
   protected reveal(tab: HTMLElement): void {

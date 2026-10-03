@@ -3,9 +3,13 @@ import { Component, computed, input, output } from '@angular/core';
 import { clock } from '@core/format/format.utils';
 import { RoundEvent } from '@core/report/rounds.model';
 
-import { aliveDots, eventTag } from './event-timeline.utils';
+import { chancesBefore } from '../round-moments.utils';
+import { chanceShift, eventTag } from './event-timeline.utils';
 
-/** Every kill, plant and defuse of the round with the players alive after it; a line selects its event. */
+/**
+ * Every kill, plant and defuse of the round with the players alive after it and how the squad's
+ * chance moved; a line selects its event, the key moment is marked.
+ */
 @Component({
   selector: 'app-event-timeline',
   templateUrl: './event-timeline.html',
@@ -14,17 +18,19 @@ import { aliveDots, eventTag } from './event-timeline.utils';
 export class EventTimeline {
   public readonly events = input.required<readonly RoundEvent[]>();
   public readonly step = input(0);
+  /** Index of the key moment's event, if any. */
+  public readonly keyStep = input<number | null>(null);
   public readonly stepChange = output<number>();
 
-  protected readonly lines = computed(() =>
-    this.events().map((event, index) => ({
+  protected readonly lines = computed(() => {
+    const before = chancesBefore(this.events());
+    return this.events().map((event, index) => ({
       index,
       time: clock(event.ms),
       tag: eventTag(event),
       text: event.text,
-      own: aliveDots(event.ownAlive),
-      opp: aliveDots(event.oppAlive),
+      chance: chanceShift(before[index], event.winProbability),
       state: `${event.ownAlive}v${event.oppAlive}`,
-    })),
-  );
+    }));
+  });
 }

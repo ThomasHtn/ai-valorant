@@ -36,22 +36,23 @@
 
   <path [attr.d]="m.path" fill="none" stroke="var(--color-squad)" stroke-width="2" />
 
-  @if (m.drop; as drop) {
+  @if (m.key; as key) {
     <line
-      [attr.x1]="drop.x"
-      [attr.x2]="drop.x"
+      [attr.x1]="key.x"
+      [attr.x2]="key.x"
       [attr.y1]="m.top"
       [attr.y2]="m.bottom"
-      stroke="var(--color-rating-bad)"
+      [attr.stroke]="key.color"
       stroke-width="1.5"
     />
     <text
-      [attr.x]="drop.labelX"
+      [attr.x]="key.labelX"
       [attr.y]="m.top + 10"
-      [attr.text-anchor]="drop.anchor"
-      class="fill-rating-bad font-sans text-[11px]"
+      [attr.text-anchor]="key.anchor"
+      [attr.fill]="key.color"
+      class="font-sans text-[11px]"
     >
-      {{ drop.label }}
+      {{ key.label }}
     </text>
   }
   @if (m.cursorX !== null) {

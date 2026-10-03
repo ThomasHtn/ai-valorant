@@ -1,24 +1,29 @@
 import { DOCUMENT } from '@angular/common';
 import { Component, computed, effect, inject, input, signal } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
-import { LucideX } from '@lucide/angular';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { LucideChevronLeft } from '@lucide/angular';
 
 import { resourceValue } from '@core/http/resource-state.utils';
 import { ReportApi } from '@core/report/report-api';
 import { ReportContext } from '@core/report/report-context';
+import { ReportOriginTracker } from '@core/report/report-origin';
 import { ReportState } from '@core/report/report-state';
 import { parseRoundParam } from '@core/report/round-ref.utils';
 import { RoundQuery } from '@core/report/round-query.model';
 import { ResourceState } from '@shared/resource-state/resource-state';
 
+import { RoundCauses } from './round-causes/round-causes';
 import { RoundFiltersView } from './round-filters/round-filters';
 import { RoundList } from './round-list/round-list';
 import { RoundSheetView } from './round-sheet/round-sheet';
+import { ScopeChip } from './scope-chip/scope-chip';
 import { DEFAULT_ROUND_FILTERS, ROUND_SORTS } from './rounds-filter.constants';
 import { RoundFilters, RoundSort } from './rounds-filter.model';
 import {
-  filterOptions,
+  causeCounts,
+  filterMaps,
   filterRounds,
+  matchLabel,
   queryScope,
   readRoundParams,
   roundParams,
@@ -26,13 +31,24 @@ import {
 } from './rounds-filter.utils';
 
 /**
- * Rounds: every round of the period behind a figure, with filters, then the sheet of one round.
+ * Rounds: why the squad loses its rounds (lost rounds by cause) and which ones to rewatch, then the
+ * sheet of one round.
  * A click on a Tableaux cell arrives here with its row as a removable filter; other views link here
- * with filters in the URL ('?map=Split&side=def&preset=throws'), which then follows the list.
+ * with filters in the URL ('?map=Split&side=def&preset=throws', '?match=<id>' from Matchs), which then
+ * follows the list.
  */
 @Component({
   selector: 'app-rounds-view',
-  imports: [LucideX, ResourceState, RoundFiltersView, RoundList, RoundSheetView],
+  imports: [
+    LucideChevronLeft,
+    ResourceState,
+    RoundCauses,
+    RoundFiltersView,
+    RoundList,
+    RoundSheetView,
+    RouterLink,
+    ScopeChip,
+  ],
   host: { class: 'view-body' },
   templateUrl: './rounds-view.html',
 })
@@ -45,16 +61,30 @@ export class RoundsView {
   private readonly api = inject(ReportApi);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
+  private readonly originTracker = inject(ReportOriginTracker);
 
-  /** Filters and sort from the URL, else the map and side picked in the other views. */
-  private readonly initial = readRoundParams(this.route.snapshot.queryParams, {
-    ...DEFAULT_ROUND_FILTERS,
-    map: this.state.filters().map,
-    side: this.state.filters().side,
-  });
+  /**
+   * Filters and sort from the URL, else the map and side picked in the other views; a list limited
+   * to one match ignores those, they could hide its rounds.
+   */
+  private readonly initial = readRoundParams(
+    this.route.snapshot.queryParams,
+    this.route.snapshot.queryParams['match']
+      ? DEFAULT_ROUND_FILTERS
+      : {
+          ...DEFAULT_ROUND_FILTERS,
+          map: this.state.filters().map,
+          side: this.state.filters().side,
+        },
+  );
   protected readonly filters = signal<RoundFilters>(this.initial.filters);
   protected readonly sort = signal<RoundSort>(this.initial.sort);
   protected readonly sorts = ROUND_SORTS;
+  /** Page the round was opened from, offered as a way back. */
+  protected readonly origin = computed(() => {
+    const origin = this.originTracker.origin();
+    return origin ? { label: origin.label, link: this.router.parseUrl(origin.url) } : null;
+  });
   /** Filter carried by a Tableaux cell click, through the router's navigation state. */
   protected readonly query = signal<RoundQuery | null>(this.readQuery());
 
@@ -62,12 +92,17 @@ export class RoundsView {
   protected readonly meta = computed(() => resourceValue(this.context.meta, null));
   protected readonly maps = computed(() => this.meta()?.maps ?? []);
   private readonly allRounds = computed(() => resourceValue(this.index, null)?.rounds ?? []);
-  protected readonly options = computed(() => filterOptions(this.allRounds()));
+  protected readonly matchLabel = computed(() =>
+    matchLabel(this.allRounds(), this.filters().match),
+  );
+  protected readonly mapOptions = computed(() => filterMaps(this.allRounds()));
+  private readonly scopes = computed(() => [queryScope(this.query(), this.maps())]);
+  /** Causes of the rounds kept by every filter but the cause itself, so each bar stays clickable. */
+  protected readonly causes = computed(() =>
+    causeCounts(filterRounds(this.allRounds(), { ...this.filters(), cause: '' }, this.scopes())),
+  );
   protected readonly rows = computed(() =>
-    sortRounds(
-      filterRounds(this.allRounds(), this.filters(), [queryScope(this.query(), this.maps())]),
-      this.sort(),
-    ),
+    sortRounds(filterRounds(this.allRounds(), this.filters(), this.scopes()), this.sort()),
   );
 
   protected readonly selected = computed(() => {
@@ -88,6 +123,14 @@ export class RoundsView {
         replaceUrl: true,
       });
     });
+  }
+
+  protected setMatch(match: string): void {
+    this.filters.update((filters) => ({ ...filters, match }));
+  }
+
+  protected setCause(cause: RoundFilters['cause']): void {
+    this.filters.update((filters) => ({ ...filters, cause }));
   }
 
   private readQuery(): RoundQuery | null {

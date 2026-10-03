@@ -3,7 +3,8 @@
     @if (item.cell; as cell) {
       <a
         [routerLink]="item.link"
-        queryParamsHandling="preserve"
+        [queryParams]="{ match: matchId(), result: 'all' }"
+        queryParamsHandling="merge"
         [appHoverTip]="item.tip"
         class="focus-ring-inset flex min-h-14 w-10.5 flex-col items-center justify-between py-1 !text-text-primary no-underline hover:outline hover:-outline-offset-1 hover:outline-edge-strong"
         [class]="cell.won ? 'tone-good' : 'tone-bad'"

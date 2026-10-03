@@ -30,16 +30,17 @@
               <app-round-strip [matchId]="match.matchId" [rounds]="match.rounds" />
             </section>
 
+            <app-lost-rounds
+              [matchId]="match.matchId"
+              [rounds]="match.rounds"
+              [rows]="lostRows()"
+            />
+
             <div
               class="grid gap-x-8 gap-y-10 [grid-template-columns:repeat(auto-fit,minmax(min(100%,34rem),1fr))]"
             >
               <app-scoreboard title="L'escouade" [lines]="match.squad" [squad]="true" />
               <app-scoreboard title="Adversaires" [lines]="match.opponents" />
-            </div>
-
-            <!-- Half the scoreboard's width on wide screens, like a two-column layout. -->
-            <div class="grid gap-5 xl:grid-cols-2">
-              <app-loss-causes [rounds]="match.rounds" />
             </div>
           </div>
         }

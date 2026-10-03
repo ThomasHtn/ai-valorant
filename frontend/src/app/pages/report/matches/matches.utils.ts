@@ -6,6 +6,8 @@ import {
   RESULT_LABELS,
 } from '@core/format/round-labels.constants';
 import { MatchList, RoundStripCell } from '@core/report/matches.model';
+import { roundLink } from '@core/report/round-ref.utils';
+import { RoundLine } from '@core/report/rounds.model';
 import { HoverTipContent } from '@shared/hover-tip/hover-tip.model';
 
 /** Rounds of regulation; overtime then swaps sides every round. */
@@ -42,7 +44,9 @@ export interface CauseCount {
 }
 
 /** Lost rounds grouped by cause, most frequent first. */
-export function lossCauseCounts(rounds: readonly RoundStripCell[]): CauseCount[] {
+export function lossCauseCounts(
+  rounds: readonly Pick<RoundStripCell, 'won' | 'cause'>[],
+): CauseCount[] {
   const counts = new Map<LossCause | null, number>();
   for (const round of rounds) {
     if (!round.won) {
@@ -57,6 +61,35 @@ export function lossCauseCounts(rounds: readonly RoundStripCell[]): CauseCount[]
     count,
     share: count / max,
   }));
+}
+
+/** A lost round of the match, as listed under the strip; the line opens its sheet in Rounds. */
+export interface LostRoundRow {
+  key: string;
+  link: string[];
+  number: string;
+  detail: string;
+  cause: string;
+  /** 'avait 84 %' when the squad had the round in hand, else null. */
+  chance: string | null;
+}
+
+/** Lost rounds of one match, in game order. */
+export function lostRoundRows(rounds: readonly RoundLine[], matchId: string): LostRoundRow[] {
+  return rounds
+    .filter((round) => round.matchId === matchId && !round.won)
+    .sort((a, b) => a.roundNumber - b.roundNumber)
+    .map((round) => ({
+      key: `r${round.roundNumber}`,
+      link: roundLink(round),
+      number: `R${round.roundNumber}`,
+      detail: `${SIDE_LABELS[round.side]} · ${BUY_SENTENCE_LABELS[round.buy]} contre ${BUY_SENTENCE_LABELS[round.oppBuy]}`,
+      cause: round.cause ? LOSS_CAUSE_LABELS[round.cause] : 'Sans cause',
+      chance:
+        round.thrown && round.bestProbability !== null
+          ? `avait ${Math.round(round.bestProbability * 100)} %`
+          : null,
+    }));
 }
 
 /** Tip of a round of the strip: side and buys, how it ended, its cause, best lead, ceremony. */

@@ -11,15 +11,6 @@
   </select>
 </label>
 <label class="flex min-w-0 items-center gap-2">
-  <span class="filter-label">Cause</span>
-  <select id="round-filter-cause" class="field-control min-w-28" (change)="set('cause', $event)">
-    <option value="" [selected]="!f.cause">Toutes</option>
-    @for (cause of causes(); track cause) {
-      <option [value]="cause" [selected]="f.cause === cause">{{ causeLabels[cause] }}</option>
-    }
-  </select>
-</label>
-<label class="flex min-w-0 items-center gap-2">
   <span class="filter-label">Carte</span>
   <select id="round-filter-map" class="field-control min-w-28" (change)="set('map', $event)">
     <option value="" [selected]="!f.map">Toutes</option>

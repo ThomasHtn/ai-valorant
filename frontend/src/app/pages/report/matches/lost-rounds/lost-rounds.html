@@ -1,0 +1,48 @@
+<div class="flex flex-wrap items-baseline gap-x-3">
+  <h2 class="!m-0 text-lg" id="lost-rounds-title">
+    Rounds perdus<app-info-tip topic="lossCause" />
+  </h2>
+  <span class="text-sm text-text-muted">{{ lost() }} sur {{ rounds().length }}</span>
+</div>
+
+@if (lost()) {
+  <div class="grid items-start gap-x-8 gap-y-5 lg:grid-cols-[minmax(0,18rem)_minmax(0,1fr)]">
+    <ul class="m-0 flex list-none flex-col gap-0.5 p-0" aria-label="Rounds perdus par cause">
+      @for (item of causes(); track item.label) {
+        <li
+          class="grid grid-cols-[minmax(0,9.5rem)_1fr_2rem] items-center gap-2.5 bg-text-primary/4 px-2.5 py-1.5 text-sm"
+        >
+          <span class="truncate">{{ item.label }}</span>
+          <span
+            ><span class="block h-2 bg-rating-bad" [style.width.%]="item.share * 100"></span
+          ></span>
+          <b class="text-right tabular-nums">{{ item.count }}</b>
+        </li>
+      }
+    </ul>
+
+    <ol class="m-0 flex list-none flex-col gap-0.5 p-0" aria-label="Rounds perdus, à revoir">
+      @for (row of rows(); track row.key) {
+        <li>
+          <a
+            [routerLink]="row.link"
+            [queryParams]="{ match: matchId() }"
+            queryParamsHandling="merge"
+            class="row-link grid grid-cols-[2.6rem_minmax(0,9.5rem)_minmax(0,1fr)_auto] items-center gap-x-3 border-l-[3px] border-transparent bg-text-primary/4 py-1.5 pr-2.5 pl-2 text-sm"
+          >
+            <b class="font-display text-base font-semibold">{{ row.number }}</b>
+            <span class="truncate font-semibold text-rating-bad">{{ row.cause }}</span>
+            <span class="truncate text-text-muted">{{ row.detail }}</span>
+            <span
+              class="text-right whitespace-nowrap text-brand-400"
+              title="Meilleures chances de gagner de l'escouade dans ce round"
+              >{{ row.chance }}</span
+            >
+          </a>
+        </li>
+      }
+    </ol>
+  </div>
+} @else {
+  <p class="!m-0 text-text-muted">Aucun round perdu.</p>
+}

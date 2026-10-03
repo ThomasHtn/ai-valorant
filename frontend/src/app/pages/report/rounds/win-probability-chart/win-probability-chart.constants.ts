@@ -6,5 +6,5 @@ export const MIN_AXIS_MS = 20_000;
 export const TICK_STEP_MS = 20_000;
 /** Every round starts even. */
 export const START_PROBABILITY = 0.5;
-/** Room the drop label needs right of its line before it flips to the left (SVG units). */
-export const DROP_LABEL_WIDTH = 90;
+/** Room the key moment label needs right of its line before it flips to the left (SVG units). */
+export const KEY_LABEL_WIDTH = 110;

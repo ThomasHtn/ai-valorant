@@ -1,4 +1,4 @@
-import { BuyType } from '@core/common/enums.model';
+import { BuyType, LossCause } from '@core/common/enums.model';
 
 /** French labels of the round fields the Matches and Rounds views show. */
 
@@ -41,4 +41,17 @@ export const ARMOR_LABELS: Record<string, string> = {
   'Heavy Armor': 'Lourde',
   'Light Armor': 'Légère',
   'Regen Shield': 'Régénérante',
+};
+
+/** Why a cause was given, as written after its label ('Clutch perdu : le round est allé jusqu'au 1v1'). */
+export const LOSS_CAUSE_REASONS: Record<LossCause, string> = {
+  lead_thrown: "l'escouade a mené de 2 joueurs ou plus",
+  clutch_lost: "le round est allé jusqu'au 1v1",
+  post_plant_lost: 'spike posé à égalité ou en supériorité, puis defuse adverse',
+  retake_failed: "plant adverse alors que l'escouade était à égalité ou en supériorité",
+  opening_lost: "first death sans revenge, et l'escouade n'est jamais revenue à égalité",
+  economy_gap: 'eco ou force buy contre un full buy',
+  time_out: 'temps écoulé sans plant, avec des attaquants encore en vie',
+  execute_failed: 'attaque perdue sans plant',
+  duels_lost: 'aucune autre situation, les duels ont été perdus',
 };

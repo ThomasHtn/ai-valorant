@@ -24,7 +24,7 @@ function event(ms: number, winProbability: number, squadActor: boolean): RoundEv
 
 describe('win probability chart', () => {
   const events = [event(10_000, 0.7, true), event(30_000, 0.3, false), event(40_000, 0.2, false)];
-  const model = chartModel(events, 1);
+  const model = chartModel(events, 1, { index: 1, from: 0.7, to: 0.3 });
   const { left, right, width } = CHART_SIZE;
   const scale = (width - left - right) / 40_000;
 
@@ -34,7 +34,7 @@ describe('win probability chart', () => {
 
   it('draws plants and defuses as spike markers', () => {
     const plant = { ...event(20_000, 0.6, true), kind: 'plant' as const };
-    expect(chartModel([plant], 0).points[0].spike).toBe(true);
+    expect(chartModel([plant], 0, null).points[0].spike).toBe(true);
     expect(model.points[0].spike).toBe(false);
   });
 
@@ -43,16 +43,26 @@ describe('win probability chart', () => {
     expect(model.points[0].x).toBeCloseTo(left + 10_000 * scale);
   });
 
-  it('marks the biggest fall as the turning point', () => {
-    expect(model.drop?.label).toBe('Bascule −40 pts');
-    expect(model.drop?.x).toBeCloseTo(left + 30_000 * scale);
-    expect(model.drop?.anchor).toBe('start');
+  it('marks the key moment', () => {
+    expect(model.key?.label).toBe('Moment clé −40 pts');
+    expect(model.key?.x).toBeCloseTo(left + 30_000 * scale);
+    expect(model.key?.anchor).toBe('start');
+    expect(model.key?.color).toContain('bad');
   });
 
-  it('writes the turning point label left of its line at the end of the round', () => {
-    const late = chartModel([event(10_000, 0.6, true), event(40_000, 0, false)], 0);
-    expect(late.drop?.anchor).toBe('end');
-    expect(late.drop?.labelX).toBeLessThan(late.drop?.x ?? 0);
+  it('writes the key moment label left of its line at the end of the round', () => {
+    const late = chartModel([event(10_000, 0.6, true), event(40_000, 0.9, true)], 0, {
+      index: 1,
+      from: 0.6,
+      to: 0.9,
+    });
+    expect(late.key?.label).toBe('Moment clé +30 pts');
+    expect(late.key?.anchor).toBe('end');
+    expect(late.key?.labelX).toBeLessThan(late.key?.x ?? 0);
+  });
+
+  it('draws no key line without a key moment', () => {
+    expect(chartModel(events, 0, null).key).toBeNull();
   });
 
   it('puts the cursor on the selected event', () => {

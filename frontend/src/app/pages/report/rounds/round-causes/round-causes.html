@@ -1,0 +1,26 @@
+<h2 class="!m-0 text-lg" id="round-causes-title">
+  Pourquoi ces rounds sont perdus<app-info-tip topic="lossCause" />
+</h2>
+<p class="!m-0 text-sm text-text-muted">Clique une cause pour revoir ses rounds.</p>
+<ul class="m-0 flex list-none flex-col gap-0.5 p-0" aria-labelledby="round-causes-title">
+  @for (item of causes(); track item.cause) {
+    @let active = selected() === item.cause;
+    <li>
+      <button
+        type="button"
+        class="focus-ring-inset grid w-full cursor-pointer grid-cols-[minmax(0,9.5rem)_1fr_2rem] items-center gap-2.5 border-l-[3px] py-0.5 pr-2.5 pl-1.5 text-left text-sm transition-colors hover:bg-text-primary/10"
+        [class]="
+          active ? 'border-brand-500 bg-text-primary/7' : 'border-transparent bg-text-primary/4'
+        "
+        [attr.aria-pressed]="active"
+        (click)="toggle(item.cause)"
+      >
+        <span class="truncate">{{ item.label }}</span>
+        <span
+          ><span class="block h-2 bg-rating-bad" [style.width.%]="item.share * 100"></span
+        ></span>
+        <b class="text-right tabular-nums">{{ item.count }}</b>
+      </button>
+    </li>
+  }
+</ul>

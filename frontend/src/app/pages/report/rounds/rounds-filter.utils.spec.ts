@@ -4,8 +4,10 @@ import { RoundLine } from '@core/report/rounds.model';
 
 import { DEFAULT_ROUND_FILTERS } from './rounds-filter.constants';
 import {
-  filterOptions,
+  causeCounts,
+  filterMaps,
   filterRounds,
+  matchLabel,
   queryScope,
   readRoundParams,
   roundParams,
@@ -66,11 +68,29 @@ describe('rounds filters', () => {
     expect(kept.map((r) => r.roundNumber)).toEqual([1]);
   });
 
-  it('lists causes and maps', () => {
-    expect(filterOptions(rounds)).toEqual({
-      causes: ['clutch_lost', 'opening_lost'],
-      maps: ['Lotus', 'Split'],
-    });
+  it('limits the list to the match it came from', () => {
+    const list = [line({ roundNumber: 1, matchId: 'a' }), line({ roundNumber: 2, matchId: 'b' })];
+    const filters = { ...DEFAULT_ROUND_FILTERS, match: 'b' };
+    expect(filterRounds(list, filters, []).map((r) => r.roundNumber)).toEqual([2]);
+    expect(readRoundParams({ match: 'b' }, DEFAULT_ROUND_FILTERS).filters.match).toBe('b');
+    expect(roundParams(filters, 'date').match).toBe('b');
+  });
+
+  it('names the match with its score', () => {
+    const list = [line({ won: true }), line({ won: false }), line({ won: false })];
+    expect(matchLabel(list, 'm')).toBe('Match Split 1-2 du 30/09');
+  });
+
+  it('lists the maps of the period', () => {
+    expect(filterMaps(rounds)).toEqual(['Lotus', 'Split']);
+  });
+
+  it('counts lost rounds by cause, most frequent first', () => {
+    const list = [...rounds, line({ roundNumber: 4, cause: 'clutch_lost' })];
+    expect(causeCounts(list)).toEqual([
+      { cause: 'clutch_lost', label: 'Clutch perdu', count: 2, share: 1 },
+      { cause: 'opening_lost', label: 'Ouverture perdue', count: 1, share: 0.5 },
+    ]);
   });
 
   it('keeps the throws only with the throws filter', () => {
@@ -79,10 +99,14 @@ describe('rounds filters', () => {
     expect(filterRounds(list, filters, []).map((r) => r.roundNumber)).toEqual([1]);
   });
 
-  it('sorts by the biggest fall', () => {
-    const list = [line({ roundNumber: 1, maxDrop: 0.2 }), line({ roundNumber: 2, maxDrop: 0.6 })];
-    expect(sortRounds(list, 'swing').map((r) => r.roundNumber)).toEqual([2, 1]);
-    expect(sortRounds(list, 'date').map((r) => r.roundNumber)).toEqual([1, 2]);
+  it('sorts by the best chance the squad had', () => {
+    const list = [
+      line({ roundNumber: 1, bestProbability: 0.4 }),
+      line({ roundNumber: 2, bestProbability: 0.8 }),
+      line({ roundNumber: 3 }),
+    ];
+    expect(sortRounds(list, 'chance').map((r) => r.roundNumber)).toEqual([2, 1, 3]);
+    expect(sortRounds(list, 'date').map((r) => r.roundNumber)).toEqual([1, 2, 3]);
   });
 
   it('reads a deep link from another view', () => {
@@ -103,15 +127,16 @@ describe('rounds filters', () => {
 
   it('writes only what differs from the defaults', () => {
     expect(
-      roundParams({ ...DEFAULT_ROUND_FILTERS, result: 'thrown', map: 'Split' }, 'swing'),
+      roundParams({ ...DEFAULT_ROUND_FILTERS, result: 'thrown', map: 'Split' }, 'chance'),
     ).toEqual({
+      match: null,
       map: 'Split',
       side: null,
       result: null,
       preset: 'throws',
       cause: null,
       buy: null,
-      sort: 'swing',
+      sort: 'chance',
     });
   });
 });

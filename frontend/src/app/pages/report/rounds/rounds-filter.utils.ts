@@ -1,4 +1,6 @@
 import { BuyType, LossCause, Side } from '@core/common/enums.model';
+import { dayMonth } from '@core/format/format.utils';
+import { LOSS_CAUSE_LABELS } from '@core/format/labels.constants';
 import { RoundQuery } from '@core/report/round-query.model';
 import { RoundLine } from '@core/report/rounds.model';
 
@@ -8,6 +10,7 @@ import {
   THROWS_PRESET,
 } from './rounds-filter.constants';
 import {
+  CauseCount,
   ResultFilter,
   RoundFilters,
   RoundParams,
@@ -45,6 +48,7 @@ export function filterRounds(
   const side = filters.side || scopes.find((s) => s.side)?.side || '';
   return rounds.filter(
     (round) =>
+      (!filters.match || round.matchId === filters.match) &&
       keepsResult(round, filters.result) &&
       (!filters.cause || round.cause === filters.cause) &&
       (!map || round.mapName === map) &&
@@ -53,20 +57,37 @@ export function filterRounds(
   );
 }
 
-/** Causes and maps present in the period, for the filter options. */
-export function filterOptions(rounds: readonly RoundLine[]): {
-  causes: LossCause[];
-  maps: string[];
-} {
-  const causes = new Set<LossCause>();
-  const maps = new Set<string>();
-  for (const round of rounds) {
-    if (round.cause) {
-      causes.add(round.cause);
-    }
-    maps.add(round.mapName);
+/** 'Match Split 6-13 du 30/09': the match the list is limited to, its score counted from its rounds. */
+export function matchLabel(rounds: readonly RoundLine[], matchId: string): string {
+  const own = rounds.filter((round) => round.matchId === matchId);
+  if (!own.length) {
+    return 'Match';
   }
-  return { causes: [...causes].sort(), maps: [...maps].sort() };
+  const won = own.filter((round) => round.won).length;
+  return `Match ${own[0].mapName} ${won}-${own.length - won} du ${dayMonth(own[0].day)}`;
+}
+
+/** Maps present in the period, for the map filter. */
+export function filterMaps(rounds: readonly RoundLine[]): string[] {
+  return [...new Set(rounds.map((round) => round.mapName))].sort();
+}
+
+/** Lost rounds of the list grouped by cause, most frequent first. */
+export function causeCounts(rounds: readonly RoundLine[]): CauseCount[] {
+  const counts = new Map<LossCause, number>();
+  for (const round of rounds) {
+    if (!round.won && round.cause) {
+      counts.set(round.cause, (counts.get(round.cause) ?? 0) + 1);
+    }
+  }
+  const sorted = [...counts].sort((a, b) => b[1] - a[1]);
+  const max = sorted[0]?.[1] ?? 1;
+  return sorted.map(([cause, count]) => ({
+    cause,
+    label: LOSS_CAUSE_LABELS[cause],
+    count,
+    share: count / max,
+  }));
 }
 
 function keepsResult(round: RoundLine, result: ResultFilter): boolean {
@@ -82,9 +103,11 @@ function keepsResult(round: RoundLine, result: ResultFilter): boolean {
   }
 }
 
-/** The list in the chosen order: as given (newest first) or the biggest fall first. */
+/** The list in the chosen order: as given (newest first) or the best chance of winning first. */
 export function sortRounds(rounds: readonly RoundLine[], sort: RoundSort): RoundLine[] {
-  return sort === 'swing' ? [...rounds].sort((a, b) => b.maxDrop - a.maxDrop) : [...rounds];
+  return sort === 'chance'
+    ? [...rounds].sort((a, b) => (b.bestProbability ?? 0) - (a.bestProbability ?? 0))
+    : [...rounds];
 }
 
 /**
@@ -105,13 +128,14 @@ export function readRoundParams(
         : fallback.result;
   return {
     filters: {
+      match: params.match ?? fallback.match,
       result,
       cause: (params.cause as LossCause | null) ?? fallback.cause,
       map: params.map ?? fallback.map,
       side,
       buy: (params.buy as BuyType | null) ?? fallback.buy,
     },
-    sort: params.sort === 'swing' ? 'swing' : DEFAULT_ROUND_SORT,
+    sort: params.sort === 'chance' ? 'chance' : DEFAULT_ROUND_SORT,
   };
 }
 
@@ -119,6 +143,7 @@ export function readRoundParams(
 export function roundParams(filters: RoundFilters, sort: RoundSort): RoundParams {
   const thrown = filters.result === 'thrown';
   return {
+    match: filters.match || null,
     map: filters.map || null,
     side: filters.side || null,
     result: thrown || filters.result === DEFAULT_ROUND_FILTERS.result ? null : filters.result,

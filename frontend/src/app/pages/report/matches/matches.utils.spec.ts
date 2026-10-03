@@ -1,10 +1,12 @@
 import { describe, expect, it } from 'vitest';
 
 import { RoundStripCell } from '@core/report/matches.model';
+import { RoundLine } from '@core/report/rounds.model';
 
 import {
   defaultMatchId,
   lossCauseCounts,
+  lostRoundRows,
   matchLength,
   roundTip,
   startTime,
@@ -82,6 +84,35 @@ describe('matches view utils', () => {
       ['Ouverture perdue', 2, 1],
       ['Clutch perdu', 1, 0.5],
     ]);
+  });
+
+  it('lists the lost rounds of one match in game order', () => {
+    const line = (matchId: string, roundNumber: number, won: boolean) =>
+      ({
+        matchId,
+        roundNumber,
+        won,
+        side: 'att',
+        buy: 'full',
+        oppBuy: 'eco',
+        cause: 'lead_thrown',
+        thrown: roundNumber === 3,
+        bestProbability: 0.84,
+      }) as RoundLine;
+    const rows = lostRoundRows(
+      [line('m', 7, false), line('m', 3, false), line('m', 5, true), line('x', 1, false)],
+      'm',
+    );
+    expect(rows.map((r) => r.number)).toEqual(['R3', 'R7']);
+    expect(rows[0]).toEqual({
+      key: 'r3',
+      link: ['/report/rounds', 'm_3'],
+      number: 'R3',
+      detail: 'Attaque · full buy contre eco',
+      cause: 'Avantage perdu',
+      chance: 'avait 84 %',
+    });
+    expect(rows[1].chance).toBeNull();
   });
 
   it('writes the round tip in French', () => {

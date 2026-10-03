@@ -1,18 +1,19 @@
-import { Component, computed, input } from '@angular/core';
+import { Component, ElementRef, afterRenderEffect, computed, inject, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
-import { SIDE_LABELS, LOSS_CAUSE_LABELS } from '@core/format/labels.constants';
+import { SIDE_LABELS } from '@core/format/labels.constants';
 import { dayMonth } from '@core/format/format.utils';
 import { BUY_SENTENCE_LABELS } from '@core/format/round-labels.constants';
 import { roundLink, sameRound } from '@core/report/round-ref.utils';
 import { RoundLine, RoundRef } from '@core/report/rounds.model';
 import { MapThumb } from '@shared/game-art/map-thumb';
+import { revealCurrent } from '@shared/scroll/reveal-current.utils';
 
-import { roundFigure } from './round-list.utils';
+import { roundOutcome } from './round-list.utils';
 
 /**
- * Rounds kept by the filters, in the list's order; a line opens the round's sheet. The figure on the
- * right is the round's best situation, or its biggest fall when the list is sorted by it.
+ * Rounds kept by the filters, in the list's order; a line opens the round's sheet. The right side
+ * names the cause of a lost round and, for a throw, the chance the squad had.
  */
 @Component({
   selector: 'app-round-list',
@@ -22,8 +23,8 @@ import { roundFigure } from './round-list.utils';
 export class RoundList {
   public readonly rounds = input.required<readonly RoundLine[]>();
   public readonly selected = input<RoundRef | null>(null);
-  /** Show the biggest fall of the squad's chance instead of the best situation. */
-  public readonly showSwing = input(false);
+
+  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
 
   protected readonly lines = computed(() =>
     this.rounds().map((round) => ({
@@ -33,14 +34,16 @@ export class RoundList {
       active: sameRound(round, this.selected()),
       title: `${round.mapName} R${round.roundNumber}`,
       day: dayMonth(round.day),
-      ...roundFigure(round, this.showSwing()),
-      detail: [
-        SIDE_LABELS[round.side],
-        `${BUY_SENTENCE_LABELS[round.buy]} contre ${BUY_SENTENCE_LABELS[round.oppBuy]}`,
-        round.cause ? LOSS_CAUSE_LABELS[round.cause] : round.won ? 'gagné' : null,
-      ]
-        .filter(Boolean)
-        .join(' · '),
+      ...roundOutcome(round),
+      detail: `${SIDE_LABELS[round.side]} · ${BUY_SENTENCE_LABELS[round.buy]} contre ${BUY_SENTENCE_LABELS[round.oppBuy]}`,
     })),
   );
+
+  constructor() {
+    // Bring the open round into the list's view without scrolling the page.
+    afterRenderEffect(() => {
+      this.lines();
+      revealCurrent(this.host.nativeElement.querySelector('ul'));
+    });
+  }
 }

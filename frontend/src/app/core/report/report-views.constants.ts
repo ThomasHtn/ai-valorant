@@ -14,8 +14,16 @@ export const REPORT_MAIN_VIEWS: readonly ReportView[] = [
     label: 'Points forts et faibles',
     hint: "Les situations où l'escouade gagne ou perd des rounds face à la référence",
   },
-  { path: 'rounds', label: 'Rounds', hint: 'Chaque round en détail, avec son replay 2D' },
-  { path: 'matches', label: 'Matchs', hint: 'Les matchs par session, avec leur scoreboard' },
+  {
+    path: 'matches',
+    label: 'Matchs',
+    hint: 'Les matchs par session : scoreboard et rounds perdus',
+  },
+  {
+    path: 'rounds',
+    label: 'Rounds',
+    hint: 'Pourquoi les rounds sont perdus, et chacun en replay 2D',
+  },
   { path: 'minimap', label: 'Minimap', hint: "Où l'escouade meurt et tue, carte par carte" },
   { path: 'players', label: 'Joueurs', hint: 'La fiche de chaque joueur' },
 ];

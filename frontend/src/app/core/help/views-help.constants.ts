@@ -18,7 +18,7 @@ export const VIEWS_HELP: Readonly<Record<string, StatHelp>> = {
     title: 'Probabilité de victoire',
     what: "Les chances de l'escouade de gagner le round après chaque kill, plant ou defuse.",
     how: 'Part des rounds gagnés par les équipes du top ranked dans la même situation : joueurs en vie de chaque côté, side, spike posé ou non. Le round commence à 50 %.',
-    read: "La ligne rouge marque l'événement qui fait le plus chuter les chances : c'est le moment où le round bascule.",
+    read: "Le moment clé est l'événement qui fait le plus chuter les chances (le plus monter sur un round gagné), hors dernier kill : c'est là que le round bascule.",
   },
   replay2d: {
     title: 'Replay 2D',

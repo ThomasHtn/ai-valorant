@@ -21,7 +21,7 @@ interface StripView {
 
 /**
  * One square per round, green won and red lost, with the side and the buy; a gap marks each side
- * swap. A square opens the round's sheet.
+ * swap. A square opens the round's sheet, its list limited to the match with won rounds included.
  */
 @Component({
   selector: 'app-round-strip',

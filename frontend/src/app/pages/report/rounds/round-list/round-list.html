@@ -20,15 +20,22 @@
             >{{ line.title }} <span class="font-normal text-text-muted">{{ line.day }}</span></span
           >
           <span
-            class="text-right font-display text-[0.95rem] font-semibold whitespace-nowrap"
-            [class]="line.round.won ? 'text-rating-good' : 'text-rating-bad'"
-            [title]="line.figureTitle"
-            ><span class="font-sans text-xs font-normal text-text-muted">{{
-              line.figurePrefix
-            }}</span>
-            {{ line.figure }}</span
+            class="text-right text-sm font-semibold whitespace-nowrap"
+            [class]="line.won ? 'text-rating-good' : 'text-rating-bad'"
+            >{{ line.outcome }}</span
           >
-          <span class="col-start-2 col-end-4 text-sm text-text-muted">{{ line.detail }}</span>
+          <span
+            class="col-start-2 truncate text-sm text-text-muted"
+            [class.col-end-4]="!line.chance"
+            >{{ line.detail }}</span
+          >
+          @if (line.chance) {
+            <span
+              class="text-right text-sm whitespace-nowrap text-brand-400"
+              title="Meilleures chances de gagner de l'escouade dans ce round"
+              >{{ line.chance }}</span
+            >
+          }
         </a>
       </li>
     }

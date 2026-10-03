@@ -1,25 +1,26 @@
-<div class="filter-strip" role="group" aria-label="Filtres des rounds">
-  <app-round-filters
-    [filters]="filters()"
-    [causes]="options().causes"
-    [maps]="options().maps"
-    (filtersChange)="filters.set($event)"
-  />
-  @if (query(); as q) {
-    <div
-      class="flex h-9 items-center gap-2 border-l-2 border-brand-500 bg-brand-500/10 pl-2.5 pr-1"
+<!-- The way back sits with the filters, as close as they are to the list. -->
+<div class="-mb-4 flex flex-col gap-2">
+  @if (origin(); as o) {
+    <a
+      [routerLink]="o.link"
+      class="focus-ring inline-flex items-center gap-1 self-start py-0.5 pr-1 text-sm !text-text-secondary no-underline hover:!text-text-primary"
     >
-      <span>{{ q.title }}</span>
-      <button
-        type="button"
-        class="focus-ring ml-auto cursor-pointer p-1 text-text-secondary hover:text-text-primary"
-        aria-label="Retirer ce filtre"
-        (click)="query.set(null)"
-      >
-        <svg class="size-4" lucideX aria-hidden="true"></svg>
-      </button>
-    </div>
+      <svg class="size-4" lucideChevronLeft aria-hidden="true"></svg>{{ o.label }}
+    </a>
   }
+  <div class="filter-strip" role="group" aria-label="Filtres des rounds">
+    <app-round-filters
+      [filters]="filters()"
+      [maps]="mapOptions()"
+      (filtersChange)="filters.set($event)"
+    />
+    @if (filters().match) {
+      <app-scope-chip [label]="matchLabel()" (cleared)="setMatch('')" />
+    }
+    @if (query(); as q) {
+      <app-scope-chip [label]="q.title" (cleared)="query.set(null)" />
+    }
+  </div>
 </div>
 
 <div class="grid items-start gap-x-10 gap-y-6 lg:grid-cols-[22rem_minmax(0,1fr)]">
@@ -28,6 +29,14 @@
       [resource]="index"
       notFoundText="Aucun round de l'escouade sur cette période."
     >
+      @if (causes().length) {
+        <app-round-causes
+          class="mb-5"
+          [causes]="causes()"
+          [selected]="filters().cause"
+          (selectedChange)="setCause($event)"
+        />
+      }
       <div class="flex items-center gap-2">
         <p class="!m-0 font-semibold">
           {{ rows().length }} <span class="font-normal text-text-muted">rounds</span>
@@ -48,12 +57,7 @@
           </div>
         </div>
       </div>
-      <app-round-list
-        class="mt-1.5 block"
-        [rounds]="rows()"
-        [selected]="selected()"
-        [showSwing]="sort() === 'swing'"
-      />
+      <app-round-list class="mt-1.5 block" [rounds]="rows()" [selected]="selected()" />
     </app-resource-state>
   </nav>
 
