@@ -58,8 +58,9 @@ export function chartModel(
   events: readonly RoundEvent[],
   step: number,
   key: KeyMoment | null,
+  width = CHART_SIZE.width,
 ): ChartModel {
-  const { width, height, left, right, top, bottom } = CHART_SIZE;
+  const { height, left, right, top, bottom } = CHART_SIZE;
   const maxMs = Math.max(MIN_AXIS_MS, ...events.map((e) => e.ms));
   const x = (ms: number): number => left + (ms / maxMs) * (width - left - right);
   const y = (p: number): number => top + (1 - p) * (height - top - bottom);

@@ -4,7 +4,8 @@ import { RouterLink } from '@angular/router';
 import { resourceValue } from '@core/http/resource-state.utils';
 import { ReportApi } from '@core/report/report-api';
 import { ReportContext } from '@core/report/report-context';
-import { ReportState } from '@core/report/report-state';
+import { ViewState } from '@core/report/view-state';
+import { provideViewState } from '@core/report/view-states';
 import { ResourceState } from '@shared/resource-state/resource-state';
 import { StatTableView } from '@shared/stat-table/stat-table';
 import { StatTile } from '@shared/stat-tile/stat-tile';
@@ -38,11 +39,12 @@ import { headlineTiles, pickColumns, priorityItems } from './summary.utils';
     LastEvening,
   ],
   host: { class: 'view-body' },
+  providers: [provideViewState('summary')],
   templateUrl: './summary-view.html',
 })
 export class SummaryView {
   protected readonly context = inject(ReportContext);
-  protected readonly state = inject(ReportState);
+  protected readonly state = inject(ViewState);
   private readonly api = inject(ReportApi);
 
   protected readonly results = this.api.tables(this.context.query, signal('results'));

@@ -269,3 +269,12 @@ export function profileRows(
     sample: f.cell.n ? `${integer(f.cell.n)} ${f.unit}` : null,
   }));
 }
+
+/** Matches of the period, led by the last few played before it for context. */
+export function formWindow<T extends { inPeriod: boolean }>(
+  form: readonly T[],
+  context: number,
+): T[] {
+  const first = form.findIndex((m) => m.inPeriod);
+  return first < 0 ? form.slice(-context) : form.slice(Math.max(0, first - context));
+}

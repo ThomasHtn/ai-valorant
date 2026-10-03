@@ -82,6 +82,9 @@ def test_matches_grouped_by_evening(client: TestClient) -> None:
     body = client.get("/api/report/matches", params=PERIOD).json()
     assert len(body["evenings"]) == 1
     assert [m["matchId"] for m in body["evenings"][0]["matches"]] == ["m0", "m1"]
+    first = body["evenings"][0]["matches"][0]
+    assert first["lineup"][0]["name"] == "Alpha"
+    assert first["openingWon"] + first["openingLost"] <= 2
 
 
 def test_match_detail(client: TestClient) -> None:

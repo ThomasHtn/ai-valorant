@@ -5,7 +5,8 @@ import { resourceValue } from '@core/http/resource-state.utils';
 import { Distribution } from '@core/report/distributions.model';
 import { ReportApi } from '@core/report/report-api';
 import { ReportContext } from '@core/report/report-context';
-import { ReportState } from '@core/report/report-state';
+import { ViewState } from '@core/report/view-state';
+import { provideViewState } from '@core/report/view-states';
 import { FilterBar } from '@shared/filter-bar/filter-bar';
 import { HistogramChart } from '@shared/histogram/histogram';
 import { withUnit } from '@shared/histogram/histogram.utils';
@@ -30,11 +31,12 @@ import { distributionSeries, medianGap, readingSentence } from './distribution.u
   selector: 'app-distribution-view',
   imports: [FilterBar, ResourceState, HistogramChart, InfoTip, StatTile],
   host: { class: 'view-body' },
+  providers: [provideViewState('distribution')],
   templateUrl: './distribution-view.html',
 })
 export class DistributionView {
   private readonly context = inject(ReportContext);
-  private readonly state = inject(ReportState);
+  private readonly state = inject(ViewState);
   /** Map and side of the shared filter bar; the player filter does not apply here. */
   private readonly scope = computed(() => {
     const { map, side } = this.state.filters();

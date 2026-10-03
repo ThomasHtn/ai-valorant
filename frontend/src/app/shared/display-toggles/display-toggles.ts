@@ -1,9 +1,9 @@
 import { Component, inject } from '@angular/core';
 
-import { ReportState } from '@core/report/report-state';
+import { ViewState } from '@core/report/view-state';
 import { DISPLAY_TOGGLES } from '@shared/filter-bar/filter-bar.constants';
 
-/** Display options of the statistics tables: cell colours, samples, reference values. */
+/** Display options of the view's tables: cell colours, samples, reference values. */
 @Component({
   selector: 'app-display-toggles',
   template: `
@@ -22,6 +22,6 @@ import { DISPLAY_TOGGLES } from '@shared/filter-bar/filter-bar.constants';
   host: { class: 'flex flex-wrap items-center gap-x-5', role: 'group', 'aria-label': 'Affichage' },
 })
 export class DisplayToggles {
-  protected readonly state = inject(ReportState);
+  protected readonly state = inject(ViewState);
   protected readonly toggles = DISPLAY_TOGGLES;
 }

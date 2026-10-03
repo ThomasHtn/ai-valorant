@@ -1,4 +1,4 @@
-<app-filter-bar [maps]="maps()" [players]="players()" [showReference]="false" [showToggles]="false">
+<app-filter-bar [maps]="maps()" [players]="players()">
   <label class="inline-flex h-9 cursor-pointer items-center gap-2 text-text-secondary">
     <input
       id="findings-confirmed-only"
@@ -16,9 +16,8 @@
 </app-filter-bar>
 
 <app-resource-state [resource]="report" notFoundText="Aucun écart testé sur cette période.">
-  <!-- On wide screens both columns fill the screen and scroll on their own, so neither leaves a
-       blank half while the other runs on. -->
-  <div class="grid gap-5 xl:h-[calc(100dvh-19.25rem)] xl:min-h-[30rem] xl:grid-cols-2">
+  <!-- Weaknesses, then strengths, one under the other at full width; only the page scrolls. -->
+  <div class="flex flex-col gap-10">
     <app-finding-column
       heading="Points faibles"
       [weak]="true"

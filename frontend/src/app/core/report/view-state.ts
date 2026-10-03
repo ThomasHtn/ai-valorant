@@ -1,0 +1,63 @@
+import { computed, signal, WritableSignal } from '@angular/core';
+
+import { Reference } from '@core/common/enums.model';
+
+import { NO_FILTERS, PREFERENCES_STORAGE_PREFIX } from './report-preferences.constants';
+import { ReportFilters, ReportPreferences, ReportScope } from './report-preferences.model';
+import { hasFilters, parsePreferences } from './report-preferences.utils';
+
+/**
+ * Filters and display options of one report view. A choice made on a view only changes that view:
+ * display options are remembered for it in this browser, filters for the session.
+ */
+export class ViewState {
+  public readonly preferences: WritableSignal<ReportPreferences>;
+  public readonly filters = signal<ReportFilters>(NO_FILTERS);
+  public readonly filtered = computed(() => hasFilters(this.filters()));
+
+  private readonly key: string;
+
+  constructor(
+    scope: ReportScope,
+    private readonly defaults: ReportPreferences,
+    private readonly storage: Storage | null,
+  ) {
+    this.key = PREFERENCES_STORAGE_PREFIX + scope;
+    this.preferences = signal(this.read());
+  }
+
+  public setReference(reference: Reference): void {
+    this.updatePreferences({ reference });
+  }
+
+  /** Flips one display toggle (colours, samples, reference values). */
+  public toggle(key: 'colours' | 'samples' | 'referenceValues'): void {
+    this.updatePreferences({ [key]: !this.preferences()[key] });
+  }
+
+  public setFilter<K extends keyof ReportFilters>(key: K, value: ReportFilters[K]): void {
+    this.filters.update((f) => ({ ...f, [key]: value }));
+  }
+
+  public resetFilters(): void {
+    this.filters.set(NO_FILTERS);
+  }
+
+  private updatePreferences(change: Partial<ReportPreferences>): void {
+    this.preferences.update((p) => ({ ...p, ...change }));
+    // Storage can be missing or throw (private window, blocked site data): the page works without it.
+    try {
+      this.storage?.setItem(this.key, JSON.stringify(this.preferences()));
+    } catch {
+      // Not remembered this time; nothing else depends on it.
+    }
+  }
+
+  private read(): ReportPreferences {
+    try {
+      return parsePreferences(this.storage?.getItem(this.key) ?? null, this.defaults);
+    } catch {
+      return this.defaults;
+    }
+  }
+}

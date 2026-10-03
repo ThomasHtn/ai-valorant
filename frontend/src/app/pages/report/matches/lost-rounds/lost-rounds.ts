@@ -1,6 +1,7 @@
 import { Component, computed, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
+import { THROW_TIP } from '@core/format/format.utils';
 import { RoundStripCell } from '@core/report/matches.model';
 import { InfoTip } from '@shared/info-tip/info-tip';
 
@@ -27,6 +28,7 @@ export class LostRounds {
   /** Lost rounds with their chance, empty while the rounds of the period load. */
   public readonly rows = input.required<readonly LostRoundRow[]>();
 
+  protected readonly throwTip = THROW_TIP;
   protected readonly causes = computed(() => lossCauseCounts(this.rounds()));
   protected readonly lost = computed(() => this.rounds().filter((r) => !r.won).length);
 }

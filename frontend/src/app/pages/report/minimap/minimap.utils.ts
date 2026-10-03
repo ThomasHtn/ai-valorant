@@ -171,18 +171,11 @@ export function plantSpots(
   }));
 }
 
-/**
- * Map of the view: the one named in the URL (any case), else the map filter, else the squad's
- * usual map, else the first map of the period.
- */
-export function pickMap(
-  param: string | undefined,
-  filter: string,
-  maps: readonly string[],
-): string | null {
+/** Map of the view: the one named in the URL (any case), else the squad's usual map, else the first. */
+export function pickMap(param: string | undefined, maps: readonly string[]): string | null {
   const find = (name: string | undefined): string | undefined =>
     name ? maps.find((m) => m.toLowerCase() === name.toLowerCase()) : undefined;
-  return find(param) ?? find(filter) ?? find(PREFERRED_MAP) ?? maps[0] ?? null;
+  return find(param) ?? find(PREFERRED_MAP) ?? maps[0] ?? null;
 }
 
 /** How much more often the squad dies first in the zone than the top ranked (rate points); null without reference. */

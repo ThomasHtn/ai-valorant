@@ -5,17 +5,17 @@ import { resourceValue } from '@core/http/resource-state.utils';
 import { ReportApi } from '@core/report/report-api';
 import { ReportContext } from '@core/report/report-context';
 import { DEFAULT_DOMAIN, REPORT_DOMAINS } from '@core/report/report-domains.constants';
-import { ReportState } from '@core/report/report-state';
+import { ViewState } from '@core/report/view-state';
+import { provideViewState } from '@core/report/view-states';
 import { RoundQuery } from '@core/report/round-query.model';
 import { StatRow } from '@core/report/stat-table.model';
-import { DisplayToggles } from '@shared/display-toggles/display-toggles';
 import { FilterBar } from '@shared/filter-bar/filter-bar';
 import { InfoTip } from '@shared/info-tip/info-tip';
+import { ReadingBar } from '@shared/reading-bar/reading-bar';
 import { ResourceState } from '@shared/resource-state/resource-state';
 import { StatTableView } from '@shared/stat-table/stat-table';
 import { StatCellClick } from '@shared/stat-table/stat-table.model';
 import { rowText } from '@shared/stat-table/stat-table.utils';
-import { ToneLegend } from '@shared/tone-legend/tone-legend';
 
 import { DetectionsPanel } from './detections-panel/detections-panel';
 import { detectionGroups } from './detections-panel/detections-panel.utils';
@@ -32,14 +32,14 @@ import { scopeFilter } from './tables-view.utils';
   imports: [
     RouterLink,
     FilterBar,
-    DisplayToggles,
-    ToneLegend,
+    ReadingBar,
     StatTableView,
     InfoTip,
     ResourceState,
     DetectionsPanel,
   ],
   host: { class: 'view-body' },
+  providers: [provideViewState('tables')],
   templateUrl: './tables-view.html',
 })
 export class TablesView {
@@ -47,7 +47,7 @@ export class TablesView {
   public readonly domain = input<string>();
 
   protected readonly context = inject(ReportContext);
-  protected readonly state = inject(ReportState);
+  protected readonly state = inject(ViewState);
   private readonly router = inject(Router);
 
   protected readonly domains = REPORT_DOMAINS;

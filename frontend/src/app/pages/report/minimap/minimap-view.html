@@ -31,9 +31,16 @@
 >
   @if (view.hasValue()) {
     @let data = view.value();
+    <!-- What the map says first, in one sentence; then the layers, the map and its zones. -->
+    @if (verdict(); as v) {
+      <p class="!m-0 -mb-5 text-[1.1rem]">
+        <b class="font-display font-semibold">{{ data.mapName }} en {{ sideLabel() }} :</b>
+        <span [class]="v.alert ? 'text-rating-bad' : 'text-text-secondary'"> {{ v.text }}</span>
+      </p>
+    }
     <!-- On wide screens the map fits the screen height and the zones scroll beside it, so both stay in view. -->
     <div
-      class="grid items-start gap-4 [--map-size:clamp(24rem,calc(100dvh-19.5rem),calc(100vw-56rem))] xl:h-(--map-size) xl:grid-cols-[12.5rem_auto_minmax(0,1fr)]"
+      class="grid items-start gap-4 [--map-size:clamp(24rem,calc(100dvh-22rem),calc(100vw-56rem))] xl:h-(--map-size) xl:grid-cols-[15rem_auto_minmax(0,1fr)]"
     >
       <div class="flex flex-col gap-2">
         <app-layer-toggles
@@ -61,8 +68,6 @@
       @if (zones(); as z) {
         <app-zone-table
           class="xl:max-h-full xl:overflow-y-auto xl:overscroll-contain"
-          [map]="data.mapName"
-          [sideLabel]="sideLabel()"
           [rows]="z.rows"
           [squadFirstDeaths]="z.firstDeaths"
           (highlight)="setHighlight($event)"

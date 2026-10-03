@@ -58,16 +58,10 @@
     </div>
   } @else {
     <div class="view-body">
-      <!-- Filters, then how cells are coloured: one toolbar over every table of the domain. -->
+      <!-- What is shown (filters), then how it reads (reference and colours), over every table. -->
       <div class="flex flex-col gap-3">
-        <app-filter-bar [maps]="maps()" [players]="players()" [showToggles]="false" />
-        <div class="flex flex-wrap items-center justify-between gap-x-6 gap-y-1">
-          <app-tone-legend
-            [reference]="state.preferences().reference"
-            [mixed]="hasHistoryColumns()"
-          />
-          <app-display-toggles />
-        </div>
+        <app-filter-bar [maps]="maps()" [players]="players()" />
+        <app-reading-bar [mixed]="hasHistoryColumns()" />
       </div>
       <app-resource-state
         [resource]="tables"

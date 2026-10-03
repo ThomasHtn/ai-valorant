@@ -15,7 +15,7 @@ export interface StatSort {
   direction: 1 | -1;
 }
 
-/** How the table is read, from `ReportState`. */
+/** How the table is read, from the view's `ViewState`. */
 export interface StatDisplay {
   reference: Reference;
   colours: boolean;

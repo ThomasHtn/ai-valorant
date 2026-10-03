@@ -3,14 +3,11 @@
   @if (showMap()) {
     <label class="flex min-w-0 items-center gap-2">
       <span class="filter-label">Carte</span>
-      <select
-        class="field-control min-w-28"
-        [value]="state.filters().map"
-        (change)="setMap($event)"
-      >
-        <option value="">Toutes</option>
+      <!-- [selected] on options, not [value] on the select: options can arrive after the value. -->
+      <select class="field-control min-w-28" (change)="setMap($event)">
+        <option value="" [selected]="!state.filters().map">Toutes</option>
         @for (map of maps(); track map) {
-          <option [value]="map">{{ map }}</option>
+          <option [value]="map" [selected]="state.filters().map === map">{{ map }}</option>
         }
       </select>
     </label>
@@ -18,13 +15,11 @@
   @if (showSide()) {
     <label class="flex min-w-0 items-center gap-2">
       <span class="filter-label">Side</span>
-      <select
-        class="field-control min-w-28"
-        [value]="state.filters().side"
-        (change)="setSide($event)"
-      >
+      <select class="field-control min-w-28" (change)="setSide($event)">
         @for (option of sideOptions; track option.value) {
-          <option [value]="option.value">{{ option.label }}</option>
+          <option [value]="option.value" [selected]="state.filters().side === option.value">
+            {{ option.label }}
+          </option>
         }
       </select>
     </label>
@@ -32,38 +27,25 @@
   @if (showPlayer()) {
     <label class="flex min-w-0 items-center gap-2">
       <span class="filter-label">Joueur</span>
-      <select
-        class="field-control min-w-28"
-        [value]="state.filters().player"
-        (change)="setPlayer($event)"
-      >
-        <option value="">Toute l'escouade</option>
+      <select class="field-control min-w-28" (change)="setPlayer($event)">
+        <option value="" [selected]="!state.filters().player">Toute l'escouade</option>
         @for (player of players(); track player) {
-          <option [value]="player">{{ player }}</option>
+          <option [value]="player" [selected]="state.filters().player === player">
+            {{ player }}
+          </option>
         }
       </select>
     </label>
   }
-  @if (showReference()) {
-    <div class="flex items-center gap-2">
-      <span class="filter-label">Référence<app-info-tip topic="reference" /></span>
-      <div class="seg-group" role="group" aria-label="Référence">
-        @for (option of referenceOptions; track option.value) {
-          <button
-            type="button"
-            class="seg-option"
-            [attr.aria-pressed]="state.preferences().reference === option.value"
-            (click)="setReference(option.value)"
-          >
-            {{ option.label }}
-          </button>
-        }
-      </div>
-    </div>
-  }
   <!-- Controls a view adds to the bar (a view-only filter, a mode switch). -->
   <ng-content />
-  @if (showToggles()) {
-    <app-display-toggles class="ml-auto" />
+  @if (state.filtered()) {
+    <button
+      type="button"
+      class="focus-ring ml-auto cursor-pointer text-sm text-brand-400 hover:text-brand-300 hover:underline"
+      (click)="state.resetFilters()"
+    >
+      Effacer les filtres
+    </button>
   }
 </div>

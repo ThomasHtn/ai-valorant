@@ -1,20 +1,17 @@
 import { Component, inject, input } from '@angular/core';
 
-import { Reference, Side } from '@core/common/enums.model';
-import { ReportState } from '@core/report/report-state';
-import { DisplayToggles } from '@shared/display-toggles/display-toggles';
-import { InfoTip } from '@shared/info-tip/info-tip';
+import { Side } from '@core/common/enums.model';
+import { ViewState } from '@core/report/view-state';
 
-import { REFERENCE_OPTIONS, SIDE_OPTIONS } from './filter-bar.constants';
+import { SIDE_OPTIONS } from './filter-bar.constants';
 
 /**
- * Filters shared by every report view: map, side, player, the reference cells are compared with,
- * and the display toggles. Reads and writes `ReportState`; each `show*` input hides a control the
- * view does not use.
+ * Scope filters of a report view: map, side, player, plus the view's own controls. Reads and writes
+ * the view's `ViewState`, so a filter never reaches another view; each `show*` input hides a control
+ * the view does not use.
  */
 @Component({
   selector: 'app-filter-bar',
-  imports: [DisplayToggles, InfoTip],
   templateUrl: './filter-bar.html',
   host: { class: 'block' },
 })
@@ -26,11 +23,8 @@ export class FilterBar {
   public readonly showMap = input(true);
   public readonly showSide = input(true);
   public readonly showPlayer = input(true);
-  public readonly showReference = input(true);
-  public readonly showToggles = input(true);
 
-  protected readonly state = inject(ReportState);
-  protected readonly referenceOptions = REFERENCE_OPTIONS;
+  protected readonly state = inject(ViewState);
   protected readonly sideOptions = SIDE_OPTIONS;
 
   protected setMap(event: Event): void {
@@ -43,9 +37,5 @@ export class FilterBar {
 
   protected setPlayer(event: Event): void {
     this.state.setFilter('player', (event.target as HTMLSelectElement).value);
-  }
-
-  protected setReference(reference: Reference): void {
-    this.state.setReference(reference);
   }
 }

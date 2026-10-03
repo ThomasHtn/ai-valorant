@@ -1,14 +1,7 @@
-@let display = sheetDisplay();
-
-<!-- Who and against what: the filters and the player picker form one toolbar. -->
-<div class="flex flex-col gap-2">
-  <app-filter-bar [showMap]="false" [showSide]="false" [showPlayer]="false" [showReference]="false">
-    <app-player-reference />
-  </app-filter-bar>
-  @if (players.hasValue()) {
-    <app-player-picker [players]="players.value()" [selected]="selected()" />
-  }
-</div>
+<!-- Who first: the picker is the view's main choice. -->
+@if (players.hasValue()) {
+  <app-player-picker [players]="players.value()" [selected]="selected()" />
+}
 
 <app-resource-state
   [resource]="players"
@@ -20,11 +13,12 @@
   >
     @if (sheet.hasValue()) {
       @let p = sheet.value();
+      @let display = state.preferences();
       <div class="view-body">
-        <!-- Who the player is and how his colours read. -->
-        <div class="flex flex-col gap-3">
+        <!-- Who the player is, then what his figures are measured against, right over them. -->
+        <div class="flex flex-col gap-5">
           <app-player-header [sheet]="p" />
-          <app-tone-legend [reference]="display.reference" />
+          <app-reading-bar [perRole]="true" />
         </div>
 
         <!-- His key figures once: their shape on the radar, their numbers beside it. -->

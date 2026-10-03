@@ -44,6 +44,10 @@ describe('matches view utils', () => {
       won: true,
       roundsWon: 13,
       roundsLost: 5,
+      lengthMs: null,
+      openingWon: 0,
+      openingLost: 0,
+      lineup: [],
     });
     const list = {
       evenings: [
@@ -110,7 +114,7 @@ describe('matches view utils', () => {
       number: 'R3',
       detail: 'Attaque · full buy contre eco',
       cause: 'Avantage perdu',
-      chance: 'avait 84 %',
+      chance: 'Throw à 84 %',
     });
     expect(rows[1].chance).toBeNull();
   });

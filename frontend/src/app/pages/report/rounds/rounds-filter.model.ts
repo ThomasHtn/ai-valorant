@@ -29,7 +29,7 @@ export type RoundParams = Record<
   string | null
 >;
 
-/** One bar of the "lost rounds by cause" list; `share` is relative to the most frequent cause. */
+/** One ring of the "lost rounds by cause" grid; `share` is its part of the lost rounds (0..1). */
 export interface CauseCount {
   cause: LossCause;
   label: string;

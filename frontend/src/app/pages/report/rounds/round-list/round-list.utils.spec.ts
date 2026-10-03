@@ -16,7 +16,7 @@ describe('round list outcome', () => {
     expect(roundOutcome(round)).toEqual({
       outcome: 'Clutch perdu',
       won: false,
-      chance: 'avait 78 %',
+      chance: 'Throw à 78 %',
     });
   });
 

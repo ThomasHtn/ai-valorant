@@ -2,6 +2,15 @@ import { BuyType, LossCause, Side } from '@core/common/enums.model';
 
 /** Mirrors `backend/src/valostats/schemas/report/matches.py`. */
 
+/** A squad player of one match, as the match list sums him up. */
+export interface LineupLine {
+  name: string;
+  agent: string;
+  acs: number;
+  kills: number;
+  deaths: number;
+}
+
 export interface MatchSummary {
   matchId: string;
   startedAt: string;
@@ -9,6 +18,12 @@ export interface MatchSummary {
   won: boolean;
   roundsWon: number;
   roundsLost: number;
+  lengthMs: number | null;
+  /** Rounds where the squad got the first kill, and where it suffered it. */
+  openingWon: number;
+  openingLost: number;
+  /** Squad players, best ACS first. */
+  lineup: LineupLine[];
 }
 
 /** An evening (session): its day and its matches, oldest first. */

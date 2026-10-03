@@ -4,7 +4,8 @@ import { resourceValue } from '@core/http/resource-state.utils';
 import { ReportApi } from '@core/report/report-api';
 import { ReportContext } from '@core/report/report-context';
 import { DEFAULT_DOMAIN, REPORT_DOMAINS } from '@core/report/report-domains.constants';
-import { ReportState } from '@core/report/report-state';
+import { ViewState } from '@core/report/view-state';
+import { provideViewState } from '@core/report/view-states';
 import { FilterBar } from '@shared/filter-bar/filter-bar';
 import { ResourceState } from '@shared/resource-state/resource-state';
 
@@ -34,11 +35,12 @@ const COHORT_OPTIONS: CompareOption[] = Object.entries(COMPARE_COHORTS).map(([va
   imports: [FilterBar, ResourceState, SelectionBox, CompareTable, ProfileRadar],
   // Narrow centred column: four short columns would otherwise sit far from their labels.
   host: { class: 'view-body mx-auto w-full max-w-[64rem]' },
+  providers: [provideViewState('compare')],
   templateUrl: './compare-view.html',
 })
 export class CompareView {
   protected readonly context = inject(ReportContext);
-  private readonly state = inject(ReportState);
+  private readonly state = inject(ViewState);
 
   protected readonly modes = COMPARE_MODES;
   protected readonly sorts = COMPARE_SORTS;
@@ -77,8 +79,8 @@ export class CompareView {
     this.context.query,
     computed(() => (this.mode() === 'players' ? this.playerB() || null : null)),
   );
-  /** Same reference as the Joueurs view: each player against players of his role. */
-  protected readonly radarReference = computed(() => this.state.preferences().playerReference);
+  /** Each player against players of his role, opponents of the same matches by default. */
+  protected readonly radarReference = computed(() => this.state.preferences().reference);
   /** Player A in the squad blue, B in orange, the colours of their selection boxes. */
   protected readonly radarSeries = computed<RadarSeries[]>(() => {
     const a = resourceValue(this.sheetA, null);

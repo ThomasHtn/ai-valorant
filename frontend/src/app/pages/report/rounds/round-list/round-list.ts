@@ -2,7 +2,7 @@ import { Component, ElementRef, afterRenderEffect, computed, inject, input } fro
 import { RouterLink } from '@angular/router';
 
 import { SIDE_LABELS } from '@core/format/labels.constants';
-import { dayMonth } from '@core/format/format.utils';
+import { dayMonth, THROW_TIP } from '@core/format/format.utils';
 import { BUY_SENTENCE_LABELS } from '@core/format/round-labels.constants';
 import { roundLink, sameRound } from '@core/report/round-ref.utils';
 import { RoundLine, RoundRef } from '@core/report/rounds.model';
@@ -26,6 +26,7 @@ export class RoundList {
 
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
 
+  protected readonly throwTip = THROW_TIP;
   protected readonly lines = computed(() =>
     this.rounds().map((round) => ({
       key: `${round.matchId}_${round.roundNumber}`,

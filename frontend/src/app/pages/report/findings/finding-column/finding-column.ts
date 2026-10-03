@@ -7,14 +7,14 @@ import { FindingCard } from '../finding-card/finding-card';
 import { FindingColumnView } from '../findings.model';
 
 /**
- * One column of the view, weaknesses or strengths: a fixed header with its count, then each group's
- * cards under a quiet divider, in a block that scrolls on its own on wide screens.
+ * One block of the view, weaknesses or strengths: a header with its count, then each group's
+ * folded cards under a quiet divider, the block's costliest card opened.
  */
 @Component({
   selector: 'app-finding-column',
   imports: [Badge, FindingCard, LucideDynamicIcon],
   templateUrl: './finding-column.html',
-  host: { class: 'flex min-h-0 min-w-0 flex-col border border-edge' },
+  host: { class: 'flex min-w-0 flex-col border border-edge' },
 })
 export class FindingColumn {
   public readonly heading = input.required<string>();

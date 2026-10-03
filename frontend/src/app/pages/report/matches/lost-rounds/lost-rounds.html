@@ -33,11 +33,9 @@
             <b class="font-display text-base font-semibold">{{ row.number }}</b>
             <span class="truncate font-semibold text-rating-bad">{{ row.cause }}</span>
             <span class="truncate text-text-muted">{{ row.detail }}</span>
-            <span
-              class="text-right whitespace-nowrap text-brand-400"
-              title="Meilleures chances de gagner de l'escouade dans ce round"
-              >{{ row.chance }}</span
-            >
+            <span class="text-right whitespace-nowrap text-brand-400" [title]="throwTip">{{
+              row.chance
+            }}</span>
           </a>
         </li>
       }

@@ -8,6 +8,7 @@ import {
   DEFAULT_ROUND_FILTERS,
   DEFAULT_ROUND_SORT,
   THROWS_PRESET,
+  THROW_SORT_RESULTS,
 } from './rounds-filter.constants';
 import {
   CauseCount,
@@ -75,19 +76,23 @@ export function filterMaps(rounds: readonly RoundLine[]): string[] {
 /** Lost rounds of the list grouped by cause, most frequent first. */
 export function causeCounts(rounds: readonly RoundLine[]): CauseCount[] {
   const counts = new Map<LossCause, number>();
+  let lost = 0;
   for (const round of rounds) {
-    if (!round.won && round.cause) {
-      counts.set(round.cause, (counts.get(round.cause) ?? 0) + 1);
+    if (!round.won) {
+      lost += 1;
+      if (round.cause) {
+        counts.set(round.cause, (counts.get(round.cause) ?? 0) + 1);
+      }
     }
   }
-  const sorted = [...counts].sort((a, b) => b[1] - a[1]);
-  const max = sorted[0]?.[1] ?? 1;
-  return sorted.map(([cause, count]) => ({
-    cause,
-    label: LOSS_CAUSE_LABELS[cause],
-    count,
-    share: count / max,
-  }));
+  return [...counts]
+    .sort((a, b) => b[1] - a[1])
+    .map(([cause, count]) => ({
+      cause,
+      label: LOSS_CAUSE_LABELS[cause],
+      count,
+      share: count / lost,
+    }));
 }
 
 function keepsResult(round: RoundLine, result: ResultFilter): boolean {
@@ -104,6 +109,11 @@ function keepsResult(round: RoundLine, result: ResultFilter): boolean {
 }
 
 /** The list in the chosen order: as given (newest first) or the best chance of winning first. */
+/** The sort really applied: the throw sort only on lists of lost rounds, the date order otherwise. */
+export function effectiveSort(result: ResultFilter, sort: RoundSort): RoundSort {
+  return THROW_SORT_RESULTS.includes(result) ? sort : DEFAULT_ROUND_SORT;
+}
+
 export function sortRounds(rounds: readonly RoundLine[], sort: RoundSort): RoundLine[] {
   return sort === 'chance'
     ? [...rounds].sort((a, b) => (b.bestProbability ?? 0) - (a.bestProbability ?? 0))

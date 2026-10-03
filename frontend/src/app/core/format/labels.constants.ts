@@ -10,11 +10,32 @@ export const REFERENCE_LABELS: Record<Reference, string> = {
   hist: "Historique de l'escouade",
 };
 
-/** Short names, for the segmented control. */
+/** Short names, for table columns. */
 export const REFERENCE_SHORT_LABELS: Record<Reference, string> = {
   top: 'Top ranked',
   opp: 'Adversaires',
   hist: 'Historique',
+};
+
+/** Options of the "Comparer à" switch: they must say who the squad is measured against. */
+export const REFERENCE_OPTION_LABELS: Record<Reference, string> = {
+  top: 'Top ranked',
+  opp: 'Adversaires affrontés',
+  hist: 'Avant la période',
+};
+
+/** End of "Comparé …" under the switch, for team figures. */
+export const REFERENCE_SENTENCES: Record<Reference, string> = {
+  top: 'aux équipes du top ranked (top 20 de chaque région)',
+  opp: 'aux équipes affrontées dans ces mêmes matchs',
+  hist: "à l'escouade avant cette période",
+};
+
+/** Same, for a player measured against players of his role. */
+export const REFERENCE_ROLE_SENTENCES: Record<Reference, string> = {
+  top: 'aux joueurs top ranked du même rôle',
+  opp: 'aux joueurs du même rôle dans les équipes affrontées',
+  hist: 'à ses propres matchs avant cette période',
 };
 
 export const STATUS_LABELS: Record<FindingStatus, string> = {

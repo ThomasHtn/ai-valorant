@@ -98,7 +98,7 @@ le calculer dans `analysis/extraction/`, créer une migration (`uv run alembic r
 
 | Dossier | Rôle |
 |---|---|
-| `core/report/` | Modèles (`*.model.ts`, miroir des DTO), `ReportApi`, contexte de la période (`ReportContext`), préférences et filtres (`ReportState`), règle de couleur (`tone.utils.ts`) |
+| `core/report/` | Modèles (`*.model.ts`, miroir des DTO), `ReportApi`, contexte de la période (`ReportContext`), filtres et affichage propres à chaque vue (`ViewState`, fourni par `provideViewState`), règle de couleur (`tone.utils.ts`) |
 | `core/format/` | Formatage des nombres et libellés français des valeurs d'enum |
 | `core/help/` | Explications des stats en langage de joueur, un fichier par domaine ; infobulles « i » et Glossaire |
 | `core/game-assets/` | Chemin des images du jeu (agents, cartes, minimaps, armes, rôles, rangs) |

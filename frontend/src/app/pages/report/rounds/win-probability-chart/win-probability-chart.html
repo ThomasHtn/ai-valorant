@@ -1,24 +1,24 @@
 @let m = model();
 <svg
-  [attr.viewBox]="'0 0 ' + size.width + ' ' + size.height"
+  [attr.viewBox]="'0 0 ' + size().width + ' ' + size().height"
   class="block h-auto w-full"
   role="img"
   aria-label="Probabilité de victoire de l'escouade au fil du round"
 >
   @for (line of m.grid; track line.label) {
     <line
-      [attr.x1]="size.left"
-      [attr.x2]="size.width - size.right"
+      [attr.x1]="size().left"
+      [attr.x2]="size().width - size().right"
       [attr.y1]="line.y"
       [attr.y2]="line.y"
       stroke="var(--color-edge)"
       [attr.stroke-dasharray]="line.dashed ? '3 3' : null"
     />
     <text
-      [attr.x]="size.left - 6"
+      [attr.x]="size().left - 6"
       [attr.y]="line.y + 4"
       text-anchor="end"
-      class="fill-text-muted font-sans text-[11px]"
+      class="fill-text-muted font-sans text-[12px]"
     >
       {{ line.label }}
     </text>
@@ -26,9 +26,9 @@
   @for (tick of m.ticks; track tick.label) {
     <text
       [attr.x]="tick.x"
-      [attr.y]="size.height - 8"
+      [attr.y]="size().height - 8"
       text-anchor="middle"
-      class="fill-text-muted font-sans text-[11px]"
+      class="fill-text-muted font-sans text-[12px]"
     >
       {{ tick.label }}
     </text>
@@ -50,7 +50,7 @@
       [attr.y]="m.top + 10"
       [attr.text-anchor]="key.anchor"
       [attr.fill]="key.color"
-      class="font-sans text-[11px]"
+      class="font-sans text-[12px]"
     >
       {{ key.label }}
     </text>

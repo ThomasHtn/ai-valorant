@@ -46,7 +46,7 @@ interface HoveredCell {
 })
 export class StatTableView {
   public readonly table = input.required<StatTable>();
-  /** Reference, colours and extra lines, usually `ReportState.preferences()`. */
+  /** Reference, colours and extra lines, usually the view's `ViewState.preferences()`. */
   public readonly display = input.required<StatDisplay>();
   /** Squad player name -> avatar agent, to draw player rows. */
   public readonly playerAgents = input<Record<string, string>>({});

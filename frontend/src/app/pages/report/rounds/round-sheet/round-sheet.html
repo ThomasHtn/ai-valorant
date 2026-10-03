@@ -9,7 +9,14 @@
         {{ r.mapName }} · round {{ r.roundNumber }}
       </h2>
       <p class="!m-0 mt-1 flex flex-wrap items-center gap-x-1.5 text-text-secondary">
-        {{ c.day }} ·
+        <a
+          class="hover:underline"
+          [routerLink]="['/report/matches', r.matchId]"
+          [queryParams]="periodParams()"
+          title="Ouvrir le match de ce round"
+          >{{ c.day }}</a
+        >
+        ·
         <app-badge
           [label]="r.side === 'att' ? 'attaque' : 'défense'"
           [kind]="r.side === 'att' ? 'attack' : 'defense'"
@@ -18,6 +25,7 @@
         · {{ c.buys }} · score avant {{ r.scoreBefore }}
       </p>
     </div>
+    <div class="ml-auto"><ng-content /></div>
   </div>
 
   <dl

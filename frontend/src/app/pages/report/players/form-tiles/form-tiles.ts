@@ -8,12 +8,13 @@ import { InfoTip } from '@shared/info-tip/info-tip';
 import { MapThumb } from '@shared/game-art/map-thumb';
 import { TONE_TEXT_CLASSES } from '@shared/stat-tile/stat-tile.constants';
 
-import { formTone } from '../players.utils';
+import { FORM_CONTEXT_MATCHES } from '../players.constants';
+import { formTone, formWindow } from '../players.utils';
 
 /**
  * Form, match by match: one clickable tile per match in chronological order (map, day, ACS coloured
- * against the reference, score and K/D/A), green or red underline for the result, pale outside the
- * period. A tile opens the match.
+ * against the reference, score and K/D/A), green or red underline for the result. The few matches
+ * played just before the period lead the row, pale, for context. A tile opens the match.
  */
 @Component({
   selector: 'app-form-tiles',
@@ -24,7 +25,7 @@ import { formTone } from '../players.utils';
         Forme, match par match<app-info-tip topic="playerForm" />
       </h2>
       <span class="ml-auto text-sm text-text-muted"
-        >Couleur : ACS du match comparé à la référence. Pâle : hors période.</span
+        >Couleur : ACS du match comparé à la référence. Pâle : matchs juste avant la période.</span
       >
     </div>
     <div
@@ -66,7 +67,7 @@ export class FormTiles {
   public readonly colours = input(true);
 
   protected readonly tiles = computed(() =>
-    this.form().map((m) => {
+    formWindow(this.form(), FORM_CONTEXT_MATCHES).map((m) => {
       const tone = formTone(m, this.acs(), this.reference(), this.colours());
       const kda = `${m.kills}/${m.deaths}/${m.assists}`;
       return {

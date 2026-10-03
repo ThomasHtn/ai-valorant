@@ -1,4 +1,5 @@
 import { LossCause } from '@core/common/enums.model';
+import { throwLabel } from '@core/format/format.utils';
 import { LOSS_CAUSE_LABELS, SIDE_LABELS } from '@core/format/labels.constants';
 import {
   BUY_SENTENCE_LABELS,
@@ -114,7 +115,7 @@ export interface LostRoundRow {
   number: string;
   detail: string;
   cause: string;
-  /** 'avait 84 %' when the squad had the round in hand, else null. */
+  /** 'Throw à 84 %' when the squad had the round in hand, else null. */
   chance: string | null;
 }
 
@@ -130,9 +131,7 @@ export function lostRoundRows(rounds: readonly RoundLine[], matchId: string): Lo
       detail: `${SIDE_LABELS[round.side]} · ${BUY_SENTENCE_LABELS[round.buy]} contre ${BUY_SENTENCE_LABELS[round.oppBuy]}`,
       cause: round.cause ? LOSS_CAUSE_LABELS[round.cause] : 'Sans cause',
       chance:
-        round.thrown && round.bestProbability !== null
-          ? `avait ${Math.round(round.bestProbability * 100)} %`
-          : null,
+        round.thrown && round.bestProbability !== null ? throwLabel(round.bestProbability) : null,
     }));
 }
 

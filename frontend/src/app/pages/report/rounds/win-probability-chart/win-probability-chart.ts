@@ -1,6 +1,7 @@
 import { Component, computed, input, output } from '@angular/core';
 
 import { RoundEvent } from '@core/report/rounds.model';
+import { hostWidth } from '@shared/charts/host-width';
 
 import { KeyMoment } from '../round-moments.model';
 
@@ -23,8 +24,10 @@ export class WinProbabilityChart {
   public readonly keyMoment = input<KeyMoment | null>(null);
   public readonly stepChange = output<number>();
 
-  protected readonly size = CHART_SIZE;
+  /** Drawn at the container's width with a fixed height, so the chart never grows with the screen. */
+  private readonly width = hostWidth(CHART_SIZE.width);
+  protected readonly size = computed(() => ({ ...CHART_SIZE, width: this.width() }));
   protected readonly model = computed(() =>
-    chartModel(this.events(), this.step(), this.keyMoment()),
+    chartModel(this.events(), this.step(), this.keyMoment(), this.width()),
   );
 }

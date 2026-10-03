@@ -1,7 +1,10 @@
-import { Component, computed, input, linkedSignal } from '@angular/core';
+import { Component, computed, inject, input, linkedSignal } from '@angular/core';
+import { RouterLink } from '@angular/router';
 
 import { longDay } from '@core/format/format.utils';
 import { BUY_SENTENCE_LABELS } from '@core/format/round-labels.constants';
+import { periodQueryParams } from '@core/report/period-query.utils';
+import { ReportContext } from '@core/report/report-context';
 import { RoundSheet } from '@core/report/rounds.model';
 import { Badge } from '@shared/badge/badge';
 import { InfoTip } from '@shared/info-tip/info-tip';
@@ -16,16 +19,21 @@ import { roundSummary } from './round-sheet.utils';
 
 /**
  * Sheet of one round: what happened in a few sentences, the win probability over time, the 2D replay
- * and the timeline (all three follow the selected event), then both teams' economy.
+ * and the timeline (all three follow the selected event), then both teams' economy. Content given
+ * to the sheet (the list's previous / next) sits at the end of its title row.
  */
 @Component({
   selector: 'app-round-sheet',
-  imports: [Badge, EconomyTable, EventTimeline, InfoTip, Replay2d, WinProbabilityChart],
+  imports: [Badge, EconomyTable, EventTimeline, InfoTip, Replay2d, RouterLink, WinProbabilityChart],
   templateUrl: './round-sheet.html',
   host: { class: 'flex min-w-0 flex-col gap-8' },
 })
 export class RoundSheetView {
   public readonly sheet = input.required<RoundSheet>();
+
+  /** The day links to the match; keep the period only, not the round filters. */
+  private readonly report = inject(ReportContext);
+  protected readonly periodParams = computed(() => periodQueryParams(this.report.query()));
 
   /** Selected event; back to the first one when another round opens. */
   protected readonly step = linkedSignal({ source: this.sheet, computation: () => 0 });

@@ -1,5 +1,6 @@
-import { Component, computed, input } from '@angular/core';
+import { Component, computed, input, linkedSignal } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { LucideChevronDown } from '@lucide/angular';
 
 import { STATUS_LABELS } from '@core/format/labels.constants';
 import { formatValue, integer } from '@core/format/value-format.utils';
@@ -44,6 +45,9 @@ interface OtherLine {
   confirmed: boolean;
 }
 
+/** Gives each card's folding body a unique id. */
+let cardCount = 0;
+
 const ONE_DECIMAL = new Intl.NumberFormat('fr-FR', {
   minimumFractionDigits: 1,
   maximumFractionDigits: 1,
@@ -55,22 +59,25 @@ function signedRounds(gap: number): string {
 }
 
 /**
- * Everything the period says about one subject (a map, a player, a global scope). The costliest
- * finding leads with its bars against both references, why its rounds were lost and where to look;
- * the other findings of the subject follow as single lines since they count the same rounds.
+ * Everything the period says about one subject (a map, a player, a global scope), folded to one
+ * line so the list reads at a glance. Opened, the costliest finding shows its bars against both
+ * references, why its rounds were lost and where to look; the other findings of the subject follow
+ * as single lines since they count the same rounds.
  */
 @Component({
   selector: 'app-finding-card',
-  imports: [Badge, BetterHint, GapChip, RowArt, RewatchLinks, RouterLink],
+  imports: [Badge, BetterHint, GapChip, LucideChevronDown, RowArt, RewatchLinks, RouterLink],
   templateUrl: './finding-card.html',
-  host: {
-    class:
-      'grid grid-cols-[2.25rem_minmax(0,1fr)_auto] items-start gap-x-3.5 bg-text-primary/4 px-5 py-4',
-  },
+  host: { class: 'block bg-text-primary/4' },
 })
 export class FindingCard {
   public readonly subject = input.required<FindingSubject>();
   public readonly playerAgents = input<Record<string, string>>({});
+  /** Opened at first (the top card of a column), folded otherwise. */
+  public readonly initiallyOpen = input(false);
+
+  protected readonly open = linkedSignal(() => this.initiallyOpen());
+  protected readonly bodyId = `finding-${++cardCount}`;
 
   protected readonly lead = computed<Finding>(() => this.subject().lead);
   protected readonly title = computed(() => subjectLabel(this.lead()));

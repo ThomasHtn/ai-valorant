@@ -1,116 +1,131 @@
-<app-row-art class="!size-9" [art]="art()" />
-
-<!-- Identity: the subject, then which way the squad differs and which way is better. -->
-<span class="flex min-w-0 flex-wrap items-center gap-x-2.5 gap-y-1 self-center sm:self-start">
-  <span class="font-display text-lg leading-tight font-semibold">{{ title() }}</span>
-  <app-badge
-    [label]="statusLabel()"
-    [kind]="lead().status === 'confirmed' ? 'confirmed' : 'lead'"
-    size="sm"
-  />
-</span>
-
-<app-gap-chip
-  class="sm:row-span-2"
-  [value]="gapText()"
-  [unit]="gapUnit()"
-  [tone]="isWeak() ? 'bad' : 'good'"
-/>
-
-<p
-  class="col-span-3 !m-0 mt-2 flex flex-wrap items-baseline gap-x-3 gap-y-0.5 sm:col-span-1 sm:col-start-2 sm:mt-1"
+<!-- Folded, the card is one line read left to right: who, the gap in rounds, which way the squad
+     differs. On phones the gap moves to the end of the line. -->
+<button
+  type="button"
+  class="focus-ring-inset grid w-full cursor-pointer grid-cols-[2.25rem_minmax(0,1fr)_auto] items-center gap-x-3.5 gap-y-2 px-4 py-3 text-left transition-colors hover:bg-text-primary/6 sm:grid-cols-[2.25rem_8.5rem_minmax(0,1fr)_1.25rem]"
+  [attr.aria-expanded]="open()"
+  [attr.aria-controls]="bodyId"
+  (click)="open.set(!open())"
 >
-  <b class="font-semibold" [class]="isWeak() ? 'text-rating-bad' : 'text-rating-good'">{{
-    verdict().comparison
-  }}</b>
-  <app-better-hint [better]="verdict().better" />
-</p>
+  <app-row-art class="!size-9" [art]="art()" />
+  <span class="flex min-w-0 flex-col gap-1 sm:col-start-3 sm:row-start-1">
+    <span class="flex flex-wrap items-center gap-x-2.5 gap-y-1">
+      <span class="font-display text-lg leading-tight font-semibold">{{ title() }}</span>
+      <app-badge
+        [label]="statusLabel()"
+        [kind]="lead().status === 'confirmed' ? 'confirmed' : 'lead'"
+        size="sm"
+      />
+    </span>
+    <span class="flex flex-wrap items-baseline gap-x-3 gap-y-0.5">
+      <b class="font-semibold" [class]="isWeak() ? 'text-rating-bad' : 'text-rating-good'">{{
+        verdict().comparison
+      }}</b>
+      <app-better-hint [better]="verdict().better" />
+    </span>
+  </span>
+  <app-gap-chip
+    class="sm:col-start-2 sm:row-start-1"
+    [value]="gapText()"
+    [unit]="gapUnit()"
+    [tone]="isWeak() ? 'bad' : 'good'"
+  />
+  <svg
+    lucideChevronDown
+    class="hidden size-5 text-text-muted transition-transform sm:col-start-4 sm:row-start-1 sm:block"
+    [class.rotate-180]="open()"
+    aria-hidden="true"
+  ></svg>
+</button>
 
-<!-- Figures and context share one label column, so every line of the card starts at the same place. -->
-<div class="col-span-3 mt-2 flex flex-col sm:col-span-2 sm:col-start-2">
-  <div class="finding-grid gap-y-2.5 border-t border-edge py-3.5">
-    @for (bar of bars(); track bar.label) {
-      <span [class]="bar.isSquad ? 'font-semibold' : 'text-text-secondary'">{{ bar.label }}</span>
-      <span class="relative h-2.5 bg-text-primary/8" aria-hidden="true">
-        <i
-          class="absolute inset-y-0 left-0 block"
-          [class]="bar.fill"
-          [style.width.%]="bar.width"
-        ></i>
-      </span>
-      <!-- Rate and sample in columns of their own, so each reads apart and lines up across bars. -->
-      <b
-        class="text-right text-[1.0625rem] font-semibold whitespace-nowrap tabular-nums"
-        [class]="bar.isSquad ? 'text-text-primary' : 'text-text-secondary'"
-        >{{ bar.value }}</b
-      >
-      <span class="text-right text-sm whitespace-nowrap text-text-muted tabular-nums">{{
-        bar.sample
-      }}</span>
+@if (open()) {
+  <!-- Figures and context share one label column, so every line of the card starts at the same place. -->
+  <!-- Under the verdict, capped so a figure never sits a screen away from its label. -->
+  <div [id]="bodyId" class="flex flex-col px-4 pb-4 sm:max-w-[67rem] sm:pl-[13.5rem]">
+    <div class="finding-grid gap-y-2.5 border-t border-edge py-3.5">
+      @for (bar of bars(); track bar.label) {
+        <span [class]="bar.isSquad ? 'font-semibold' : 'text-text-secondary'">{{ bar.label }}</span>
+        <span class="relative h-2.5 bg-text-primary/8" aria-hidden="true">
+          <i
+            class="absolute inset-y-0 left-0 block"
+            [class]="bar.fill"
+            [style.width.%]="bar.width"
+          ></i>
+        </span>
+        <!-- Rate and sample in columns of their own, so each reads apart and lines up across bars. -->
+        <b
+          class="text-right text-[1.0625rem] font-semibold whitespace-nowrap tabular-nums"
+          [class]="bar.isSquad ? 'text-text-primary' : 'text-text-secondary'"
+          >{{ bar.value }}</b
+        >
+        <span class="text-right text-sm whitespace-nowrap text-text-muted tabular-nums">{{
+          bar.sample
+        }}</span>
+      }
+    </div>
+
+    @if (hasContext()) {
+      <dl class="finding-grid !m-0 border-t border-edge pt-3">
+        @if (causes(); as causes) {
+          <dt>Perdu par</dt>
+          <dd>{{ causes }}</dd>
+        }
+
+        @if (caveat(); as caveat) {
+          <dt>À noter</dt>
+          <dd class="text-text-secondary">{{ caveat }}</dd>
+        }
+
+        @if (lead().rewatch.length) {
+          <dt>À revoir</dt>
+          <dd><app-rewatch-links [rounds]="lead().rewatch" /></dd>
+        }
+
+        @if (others().length) {
+          <dt>Autres écarts</dt>
+          <dd class="flex flex-col gap-0.5">
+            @for (other of others(); track $index) {
+              <span
+                class="grid grid-cols-[minmax(0,1fr)_3.5rem] items-baseline gap-x-3 sm:grid-cols-[minmax(0,1fr)_auto_3.5rem]"
+              >
+                <span class="min-w-0 truncate">
+                  {{ other.label }}
+                  @if (other.confirmed) {
+                    <span class="text-sm text-text-muted">(écart net)</span>
+                  }
+                </span>
+                <span
+                  class="col-start-1 row-start-2 text-sm text-text-muted sm:col-start-auto sm:row-start-auto sm:whitespace-nowrap"
+                  >{{ other.detail }}</span
+                >
+                <b
+                  class="text-right font-semibold tabular-nums"
+                  [class]="isWeak() ? 'text-rating-bad' : 'text-rating-good'"
+                  >{{ other.gap }}</b
+                >
+              </span>
+            }
+            <span class="text-sm text-text-muted"
+              >Mêmes rounds que plus haut : ne pas additionner.</span
+            >
+          </dd>
+        }
+
+        @if (links().length) {
+          <dt>Voir</dt>
+          <dd class="flex flex-wrap gap-x-4">
+            @for (link of links(); track link.label) {
+              <a
+                class="hover:underline"
+                [routerLink]="link.commands"
+                [queryParams]="link.queryParams"
+                queryParamsHandling="merge"
+                >{{ link.label }}</a
+              >
+            }
+          </dd>
+        }
+      </dl>
     }
   </div>
-
-  @if (hasContext()) {
-    <dl class="finding-grid !m-0 border-t border-edge pt-3">
-      @if (causes(); as causes) {
-        <dt>Perdu par</dt>
-        <dd>{{ causes }}</dd>
-      }
-
-      @if (caveat(); as caveat) {
-        <dt>À noter</dt>
-        <dd class="text-text-secondary">{{ caveat }}</dd>
-      }
-
-      @if (lead().rewatch.length) {
-        <dt>À revoir</dt>
-        <dd><app-rewatch-links [rounds]="lead().rewatch" /></dd>
-      }
-
-      @if (others().length) {
-        <dt>Autres écarts</dt>
-        <dd class="flex flex-col gap-0.5">
-          @for (other of others(); track $index) {
-            <span
-              class="grid grid-cols-[minmax(0,1fr)_3.5rem] items-baseline gap-x-3 sm:grid-cols-[minmax(0,1fr)_auto_3.5rem]"
-            >
-              <span class="min-w-0 truncate">
-                {{ other.label }}
-                @if (other.confirmed) {
-                  <span class="text-sm text-text-muted">(écart net)</span>
-                }
-              </span>
-              <span
-                class="col-start-1 row-start-2 text-sm text-text-muted sm:col-start-auto sm:row-start-auto sm:whitespace-nowrap"
-                >{{ other.detail }}</span
-              >
-              <b
-                class="text-right font-semibold tabular-nums"
-                [class]="isWeak() ? 'text-rating-bad' : 'text-rating-good'"
-                >{{ other.gap }}</b
-              >
-            </span>
-          }
-          <span class="text-sm text-text-muted"
-            >Mêmes rounds que plus haut : ne pas additionner.</span
-          >
-        </dd>
-      }
-
-      @if (links().length) {
-        <dt>Voir</dt>
-        <dd class="flex flex-wrap gap-x-4">
-          @for (link of links(); track link.label) {
-            <a
-              class="hover:underline"
-              [routerLink]="link.commands"
-              [queryParams]="link.queryParams"
-              queryParamsHandling="merge"
-              >{{ link.label }}</a
-            >
-          }
-        </dd>
-      }
-    </dl>
-  }
-</div>
+}

@@ -3,7 +3,8 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { resourceValue } from '@core/http/resource-state.utils';
 import { ReportApi } from '@core/report/report-api';
 import { ReportContext } from '@core/report/report-context';
-import { ReportState } from '@core/report/report-state';
+import { ViewState } from '@core/report/view-state';
+import { provideViewState } from '@core/report/view-states';
 import { FilterBar } from '@shared/filter-bar/filter-bar';
 import { InfoTip } from '@shared/info-tip/info-tip';
 import { ResourceState } from '@shared/resource-state/resource-state';
@@ -12,18 +13,19 @@ import { FindingColumn } from './finding-column/finding-column';
 import { filterFindings, findingColumn } from './findings-view.utils';
 
 /**
- * Points forts et faibles: every gap of the period that passes a statistical test, weaknesses on the
- * left and strengths on the right, each split between the team and its players.
+ * Points forts et faibles: every gap of the period that passes a statistical test, weaknesses first
+ * then strengths, one block under the other, each split between the team and its players.
  */
 @Component({
   selector: 'app-findings-view',
   imports: [FilterBar, InfoTip, ResourceState, FindingColumn],
   host: { class: 'view-body' },
+  providers: [provideViewState('findings')],
   templateUrl: './findings-view.html',
 })
 export class FindingsView {
   protected readonly context = inject(ReportContext);
-  private readonly state = inject(ReportState);
+  private readonly state = inject(ViewState);
   protected readonly report = inject(ReportApi).findings(this.context.query);
 
   /** "Écarts nets seulement": hides the gaps still to confirm. */

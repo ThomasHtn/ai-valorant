@@ -3,18 +3,17 @@ import { Component, computed, inject, input } from '@angular/core';
 import { resourceValue } from '@core/http/resource-state.utils';
 import { ReportApi } from '@core/report/report-api';
 import { ReportContext } from '@core/report/report-context';
-import { ReportState } from '@core/report/report-state';
-import { FilterBar } from '@shared/filter-bar/filter-bar';
+import { ViewState } from '@core/report/view-state';
+import { provideViewState } from '@core/report/view-states';
+import { ReadingBar } from '@shared/reading-bar/reading-bar';
 import { ResourceState } from '@shared/resource-state/resource-state';
 import { StatTableView } from '@shared/stat-table/stat-table';
-import { ToneLegend } from '@shared/tone-legend/tone-legend';
 
 import { DeathZones } from './death-zones/death-zones';
 import { FormTiles } from './form-tiles/form-tiles';
 import { OpeningClutch } from './opening-clutch/opening-clutch';
 import { PlayerHeader } from './player-header/player-header';
 import { PlayerPicker } from './player-picker/player-picker';
-import { PlayerReference } from './player-reference/player-reference';
 import { ProfileFigures } from './profile-figures/profile-figures';
 import { ProfileRadar } from './profile-radar/profile-radar';
 import { RadarSeries } from './profile-radar/profile-radar.model';
@@ -31,12 +30,10 @@ import { WeaponsPanel } from './weapons-panel/weapons-panel';
 @Component({
   selector: 'app-players-view',
   imports: [
-    FilterBar,
-    ToneLegend,
+    ReadingBar,
     ResourceState,
     StatTableView,
     PlayerPicker,
-    PlayerReference,
     PlayerHeader,
     ProfileRadar,
     ProfileFigures,
@@ -47,6 +44,7 @@ import { WeaponsPanel } from './weapons-panel/weapons-panel';
     RewatchList,
   ],
   host: { class: 'view-body' },
+  providers: [provideViewState('players')],
   templateUrl: './players-view.html',
 })
 export class PlayersView {
@@ -54,23 +52,18 @@ export class PlayersView {
   public readonly player = input<string>();
 
   protected readonly context = inject(ReportContext);
-  protected readonly state = inject(ReportState);
+  protected readonly state = inject(ViewState);
   private readonly api = inject(ReportApi);
 
   protected readonly players = this.api.players(this.context.query);
-  /** The route's player, else the player filter, else the first squad player of the period. */
+  /** The route's player, else the first squad player of the period. */
   protected readonly selected = computed<string | null>(() => {
     const list = resourceValue(this.players, null) ?? [];
-    const wanted = this.player() || this.state.filters().player;
-    return list.find((p) => p.name === wanted)?.name ?? this.player() ?? list[0]?.name ?? null;
+    return (
+      list.find((p) => p.name === this.player())?.name ?? this.player() ?? list[0]?.name ?? null
+    );
   });
   protected readonly sheet = this.api.player(this.context.query, this.selected);
-
-  /** Display preferences with the Joueurs view's own reference in place of the global one. */
-  protected readonly sheetDisplay = computed(() => {
-    const preferences = this.state.preferences();
-    return { ...preferences, reference: preferences.playerReference };
-  });
 
   /**
    * By map, by agent, by side: prepared here so the template gets a stable array. The agent table is

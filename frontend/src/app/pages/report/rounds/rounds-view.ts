@@ -3,17 +3,12 @@ import { Component, computed, effect, inject, input, signal } from '@angular/cor
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { LucideChevronLeft, LucideChevronRight } from '@lucide/angular';
 
-import { longDay } from '@core/format/format.utils';
-
 import { resourceValue } from '@core/http/resource-state.utils';
 import { ReportApi } from '@core/report/report-api';
 import { ReportContext } from '@core/report/report-context';
 import { ReportOriginTracker } from '@core/report/report-origin';
-import { ReportState } from '@core/report/report-state';
 import { parseRoundParam, roundLink, sameRound } from '@core/report/round-ref.utils';
 import { RoundQuery } from '@core/report/round-query.model';
-import { Breadcrumb } from '@shared/breadcrumb/breadcrumb';
-import { Crumb } from '@shared/breadcrumb/breadcrumb.model';
 import { ResourceState } from '@shared/resource-state/resource-state';
 
 import { RoundCauses } from './round-causes/round-causes';
@@ -21,7 +16,7 @@ import { RoundFiltersView } from './round-filters/round-filters';
 import { RoundList } from './round-list/round-list';
 import { RoundSheetView } from './round-sheet/round-sheet';
 import { ScopeChip } from './scope-chip/scope-chip';
-import { DEFAULT_ROUND_FILTERS, ROUND_SORTS } from './rounds-filter.constants';
+import { DEFAULT_ROUND_FILTERS, ROUND_SORTS, THROW_SORT_RESULTS } from './rounds-filter.constants';
 import { RoundFilters, RoundSort } from './rounds-filter.model';
 import {
   causeCounts,
@@ -32,6 +27,7 @@ import {
   readRoundParams,
   roundParams,
   sortRounds,
+  effectiveSort,
 } from './rounds-filter.utils';
 
 /**
@@ -44,7 +40,6 @@ import {
 @Component({
   selector: 'app-rounds-view',
   imports: [
-    Breadcrumb,
     LucideChevronLeft,
     LucideChevronRight,
     ResourceState,
@@ -63,29 +58,24 @@ export class RoundsView {
   public readonly round = input<string>();
 
   protected readonly context = inject(ReportContext);
-  private readonly state = inject(ReportState);
   private readonly api = inject(ReportApi);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly originTracker = inject(ReportOriginTracker);
 
-  /**
-   * Filters and sort from the URL, else the map and side picked in the other views; a list limited
-   * to one match ignores those, they could hide its rounds.
-   */
+  /** Filters and sort from the URL only: what another view filtered never narrows this list. */
   private readonly initial = readRoundParams(
     this.route.snapshot.queryParams,
-    this.route.snapshot.queryParams['match']
-      ? DEFAULT_ROUND_FILTERS
-      : {
-          ...DEFAULT_ROUND_FILTERS,
-          map: this.state.filters().map,
-          side: this.state.filters().side,
-        },
+    DEFAULT_ROUND_FILTERS,
   );
   protected readonly filters = signal<RoundFilters>(this.initial.filters);
   protected readonly sort = signal<RoundSort>(this.initial.sort);
   protected readonly sorts = ROUND_SORTS;
+  /** The throw sort only applies to lists of lost rounds; elsewhere the list keeps the date order. */
+  protected readonly appliedSort = computed(() =>
+    effectiveSort(this.filters().result, this.sort()),
+  );
+  protected readonly canSort = computed(() => THROW_SORT_RESULTS.includes(this.filters().result));
   /** Page the round was opened from, offered as a way back. */
   protected readonly origin = computed(() => {
     const origin = this.originTracker.origin();
@@ -108,7 +98,7 @@ export class RoundsView {
     causeCounts(filterRounds(this.allRounds(), { ...this.filters(), cause: '' }, this.scopes())),
   );
   protected readonly rows = computed(() =>
-    sortRounds(filterRounds(this.allRounds(), this.filters(), this.scopes()), this.sort()),
+    sortRounds(filterRounds(this.allRounds(), this.filters(), this.scopes()), this.appliedSort()),
   );
 
   protected readonly selected = computed(() => {
@@ -125,26 +115,10 @@ export class RoundsView {
     const at = (i: number) => (index >= 0 && rows[i] ? roundLink(rows[i]) : null);
     return { previous: at(index - 1), next: at(index + 1) };
   });
-  /** 'Matchs › Mercredi 30 septembre › Split › Round 19': the round inside its match. */
-  protected readonly crumbs = computed<Crumb[]>(() => {
-    const ref = this.selected();
-    const round =
-      resourceValue(this.sheet, null)?.round ?? this.allRounds().find((r) => sameRound(r, ref));
-    if (!ref || !round) {
-      return [{ label: 'Rounds', link: null }];
-    }
-    return [
-      { label: 'Matchs', link: ['/report/matches'] },
-      { label: longDay(round.day), link: null },
-      { label: round.mapName, link: ['/report/matches', round.matchId] },
-      { label: `Round ${round.roundNumber}`, link: null },
-    ];
-  });
-
   constructor() {
     // Keep the URL in step with the list so a round click (which rebuilds the view) keeps it.
     effect(() => {
-      const queryParams = roundParams(this.filters(), this.sort());
+      const queryParams = roundParams(this.filters(), this.appliedSort());
       void this.router.navigate([], {
         relativeTo: this.route,
         queryParams,

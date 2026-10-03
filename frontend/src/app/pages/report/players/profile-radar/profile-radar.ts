@@ -1,7 +1,7 @@
 import { Component, computed, input } from '@angular/core';
 
 import { Reference } from '@core/common/enums.model';
-import { REFERENCE_SHORT_LABELS } from '@core/format/labels.constants';
+import { REFERENCE_ROLE_SENTENCES } from '@core/format/labels.constants';
 import { HoverTip } from '@shared/hover-tip/hover-tip';
 import { InfoTip } from '@shared/info-tip/info-tip';
 
@@ -38,10 +38,8 @@ export class ProfileRadar {
    * The dashed ring is not the reference's own profile: every figure is divided by the reference, so
    * the reference always lands on the same ring. The legend says "equal to", not "the reference".
    */
-  protected readonly referenceLabel = computed(() =>
-    this.reference() === 'hist'
-      ? 'Égal à son niveau avant la période'
-      : `Égal au ${REFERENCE_SHORT_LABELS[this.reference()].toLowerCase()} du même rôle`,
+  protected readonly referenceLabel = computed(
+    () => `Égal ${REFERENCE_ROLE_SENTENCES[this.reference()]}`,
   );
   protected readonly legend = computed(() =>
     this.series().map((one) => ({ name: one.name, colour: one.colour ?? RADAR_SQUAD_COLOUR })),

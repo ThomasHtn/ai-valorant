@@ -5,13 +5,14 @@ from collections.abc import Iterable, Sequence
 from dataclasses import dataclass, field
 from datetime import date
 
-from valostats.analysis.report.foundation.cohorts import ReportCohorts
+from valostats.analysis.report.foundation.cohorts import FactKind, ReportCohorts
 from valostats.analysis.report.overview.evenings import evenings
 from valostats.analysis.report.rounds.loss_causes import loss_cause
 from valostats.domain.enums import Cohort
 from valostats.domain.facts import MatchFact, PlayerMatchFact, PlayerRoundFact, RoundFact
 from valostats.schemas.report.matches import (
     EveningMatches,
+    LineupLine,
     MatchDetail,
     MatchList,
     MatchSummary,
@@ -65,21 +66,44 @@ def match_list(cohorts: ReportCohorts) -> MatchList:
             day=evening.day,
             wins=evening.wins,
             losses=evening.losses,
-            matches=[
-                MatchSummary(
-                    match_id=m.match_id,
-                    started_at=m.started_at,
-                    map_name=m.map_name,
-                    won=m.won,
-                    rounds_won=m.rounds_won,
-                    rounds_lost=m.rounds_lost,
-                )
-                for m in evening.matches
-            ],
+            matches=[_summary(cohorts, m) for m in evening.matches],
         )
         for evening in evenings(cohorts.matches())
     ]
     return MatchList(evenings=list(reversed(groups)))
+
+
+def _summary(cohorts: ReportCohorts, match: MatchFact) -> MatchSummary:
+    """One match of the list, with what its card sums up: opening duels and the lineup."""
+    rounds: Sequence[RoundFact] = cohorts.squad(FactKind.ROUNDS, match_id=match.match_id)
+    player_rounds: Sequence[PlayerRoundFact] = cohorts.squad(FactKind.PLAYER_ROUNDS, match_id=match.match_id)
+    by_player: defaultdict[str, list[PlayerRoundFact]] = defaultdict(list)
+    for p in player_rounds:
+        by_player[p.puuid].append(p)
+    lineup = [_lineup_line(pm, by_player[pm.puuid]) for pm in cohorts.squad(FactKind.PLAYER_MATCHES, match_id=match.match_id)]
+    return MatchSummary(
+        match_id=match.match_id,
+        started_at=match.started_at,
+        map_name=match.map_name,
+        won=match.won,
+        rounds_won=match.rounds_won,
+        rounds_lost=match.rounds_lost,
+        length_ms=match.length_ms,
+        opening_won=sum(r.first_kill is True for r in rounds),
+        opening_lost=sum(r.first_kill is False for r in rounds),
+        lineup=sorted(lineup, key=lambda line: -line.acs),
+    )
+
+
+def _lineup_line(player: PlayerMatchFact, rounds: Sequence[PlayerRoundFact]) -> LineupLine:
+    played = len(rounds) or player.rounds
+    return LineupLine(
+        name=player.name,
+        agent=player.agent,
+        acs=round(player.score / played, 1) if played else 0.0,
+        kills=sum(r.kills for r in rounds),
+        deaths=sum(r.deaths for r in rounds),
+    )
 
 
 def match_detail(record: MatchRecords, day: date) -> MatchDetail:

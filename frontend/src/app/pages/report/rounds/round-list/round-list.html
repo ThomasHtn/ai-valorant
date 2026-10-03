@@ -1,6 +1,6 @@
 @if (lines().length) {
   <ul
-    class="m-0 flex max-h-[max(24rem,calc(100dvh-20rem))] list-none flex-col gap-0.5 overflow-y-auto p-0"
+    class="m-0 flex max-h-[28rem] min-h-0 flex-1 list-none flex-col gap-0.5 overflow-y-auto p-0 lg:max-h-none"
   >
     @for (line of lines(); track line.key) {
       <li>
@@ -30,11 +30,9 @@
             >{{ line.detail }}</span
           >
           @if (line.chance) {
-            <span
-              class="text-right text-sm whitespace-nowrap text-brand-400"
-              title="Meilleures chances de gagner de l'escouade dans ce round"
-              >{{ line.chance }}</span
-            >
+            <span class="text-right text-sm whitespace-nowrap text-brand-400" [title]="throwTip">{{
+              line.chance
+            }}</span>
           }
         </a>
       </li>

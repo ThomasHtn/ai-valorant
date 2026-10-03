@@ -105,13 +105,12 @@ describe('minimap view utils', () => {
     expect(minimapMarkers(view, 'def', new Set(['firstDeaths']), '')).toEqual([]);
   });
 
-  it('picks the map from the URL, the filter, then the usual map', () => {
+  it('picks the map from the URL, then the usual map', () => {
     const maps = ['Ascent', 'Lotus', 'Split'];
-    expect(pickMap('lotus', 'Ascent', maps)).toBe('Lotus');
-    expect(pickMap(undefined, 'Ascent', maps)).toBe('Ascent');
-    expect(pickMap(undefined, '', maps)).toBe('Split');
-    expect(pickMap(undefined, '', ['Haven'])).toBe('Haven');
-    expect(pickMap(undefined, '', [])).toBeNull();
+    expect(pickMap('lotus', maps)).toBe('Lotus');
+    expect(pickMap(undefined, maps)).toBe('Split');
+    expect(pickMap(undefined, ['Haven'])).toBe('Haven');
+    expect(pickMap(undefined, [])).toBeNull();
   });
 
   it('hides the plants layer that is always empty on a side', () => {

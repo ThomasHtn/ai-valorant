@@ -6,6 +6,16 @@ from valostats.domain.enums import BuyType, LossCause, Side
 from valostats.schemas.common import ApiModel
 
 
+class LineupLine(ApiModel):
+    """A squad player of one match, as the match list sums him up."""
+
+    name: str
+    agent: str
+    acs: float
+    kills: int
+    deaths: int
+
+
 class MatchSummary(ApiModel):
     match_id: str
     started_at: datetime
@@ -13,6 +23,12 @@ class MatchSummary(ApiModel):
     won: bool
     rounds_won: int
     rounds_lost: int
+    length_ms: int | None
+    # Rounds where the squad got the first kill, and where it suffered it.
+    opening_won: int
+    opening_lost: int
+    # Squad players, best ACS first.
+    lineup: list[LineupLine]
 
 
 class EveningMatches(ApiModel):

@@ -60,3 +60,12 @@ export function freshness(value: string): string {
   const match = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/.exec(value);
   return match ? `${match[3]}/${match[2]} à ${match[4]}:${match[5]}` : value;
 }
+
+/** 'Throw à 97 %': a lost round the squad once had this chance of winning (0..1). */
+export function throwLabel(probability: number): string {
+  return `Throw à ${Math.round(probability * 100)} %`;
+}
+
+/** Tip of a throw label, the same wherever a thrown round is listed. */
+export const THROW_TIP =
+  "Round perdu alors que l'escouade a eu jusqu'à ce pourcentage de chances de le gagner";

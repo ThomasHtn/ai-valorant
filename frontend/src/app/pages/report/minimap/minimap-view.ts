@@ -14,7 +14,8 @@ import { SIDE_LABELS } from '@core/format/labels.constants';
 import { resourceValue } from '@core/http/resource-state.utils';
 import { ReportApi } from '@core/report/report-api';
 import { ReportContext } from '@core/report/report-context';
-import { ReportState } from '@core/report/report-state';
+import { ViewState } from '@core/report/view-state';
+import { provideViewState } from '@core/report/view-states';
 import { MinimapCanvas } from '@shared/minimap-canvas/minimap-canvas';
 import { MinimapHighlight } from '@shared/minimap-canvas/minimap-canvas.model';
 import { ResourceState } from '@shared/resource-state/resource-state';
@@ -23,7 +24,15 @@ import { LayerToggles } from './layer-toggles/layer-toggles';
 import { MapPicker } from './map-picker/map-picker';
 import { DEFAULT_LAYERS } from './minimap-layers.constants';
 import { MinimapLayerKey } from './minimap-layers.model';
-import { layerCounts, minimapMarkers, pickMap, plantSpots, sideLayers } from './minimap.utils';
+import {
+  layerCounts,
+  minimapMarkers,
+  pickMap,
+  plantSpots,
+  sideLayers,
+  zoneLines,
+  zoneVerdict,
+} from './minimap.utils';
 import { ZoneTable } from './zone-table/zone-table';
 
 /**
@@ -34,6 +43,7 @@ import { ZoneTable } from './zone-table/zone-table';
   selector: 'app-minimap-view',
   imports: [LayerToggles, MapPicker, MinimapCanvas, ResourceState, ZoneTable],
   host: { class: 'view-body' },
+  providers: [provideViewState('minimap')],
   templateUrl: './minimap-view.html',
 })
 export class MinimapView {
@@ -44,7 +54,7 @@ export class MinimapView {
   public readonly playerParam = input<string | undefined>(undefined, { alias: 'player' });
 
   protected readonly context = inject(ReportContext);
-  protected readonly state = inject(ReportState);
+  protected readonly state = inject(ViewState);
   private readonly api = inject(ReportApi);
 
   protected readonly side = linkedSignal<Side>(() => (this.sideParam() === 'def' ? 'def' : 'att'));
@@ -56,9 +66,7 @@ export class MinimapView {
   protected readonly players = computed(
     () => resourceValue(this.context.meta, null)?.players.map((p) => p.name) ?? [],
   );
-  protected readonly mapName = computed(() =>
-    pickMap(this.map(), this.state.filters().map, this.maps()),
-  );
+  protected readonly mapName = computed(() => pickMap(this.map(), this.maps()));
   protected readonly view = this.api.minimap(this.context.query, this.mapName);
 
   private readonly data = computed(() => resourceValue(this.view, null));
@@ -75,6 +83,13 @@ export class MinimapView {
     plantSpots(this.data()?.topPlants ?? [], this.layers()),
   );
   protected readonly zones = computed(() => this.sideData()?.zones ?? null);
+  /** The sentence the view opens on: zones where the squad dies first well above the top ranked. */
+  protected readonly verdict = computed(() => {
+    const zones = this.zones();
+    return zones
+      ? zoneVerdict(zoneLines(zones.rows, zones.firstDeaths), zones.firstDeaths, this.sideLabel())
+      : null;
+  });
   protected readonly highlight = computed<MinimapHighlight | null>(() => {
     const zone = this.hoveredZone();
     const callout = zone ? this.data()?.callouts.find((c) => c.name === zone) : undefined;

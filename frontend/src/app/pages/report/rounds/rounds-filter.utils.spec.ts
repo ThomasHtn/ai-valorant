@@ -5,6 +5,7 @@ import { RoundLine } from '@core/report/rounds.model';
 import { DEFAULT_ROUND_FILTERS } from './rounds-filter.constants';
 import {
   causeCounts,
+  effectiveSort,
   filterMaps,
   filterRounds,
   matchLabel,
@@ -85,11 +86,15 @@ describe('rounds filters', () => {
     expect(filterMaps(rounds)).toEqual(['Lotus', 'Split']);
   });
 
-  it('counts lost rounds by cause, most frequent first', () => {
-    const list = [...rounds, line({ roundNumber: 4, cause: 'clutch_lost' })];
+  it('counts lost rounds by cause, most frequent first, as a part of every lost round', () => {
+    const list = [
+      ...rounds,
+      line({ roundNumber: 4, cause: 'clutch_lost' }),
+      line({ roundNumber: 5, cause: null }),
+    ];
     expect(causeCounts(list)).toEqual([
-      { cause: 'clutch_lost', label: 'Clutch perdu', count: 2, share: 1 },
-      { cause: 'opening_lost', label: 'Ouverture perdue', count: 1, share: 0.5 },
+      { cause: 'clutch_lost', label: 'Clutch perdu', count: 2, share: 0.5 },
+      { cause: 'opening_lost', label: 'Ouverture perdue', count: 1, share: 0.25 },
     ]);
   });
 
@@ -107,6 +112,13 @@ describe('rounds filters', () => {
     ];
     expect(sortRounds(list, 'chance').map((r) => r.roundNumber)).toEqual([2, 1, 3]);
     expect(sortRounds(list, 'date').map((r) => r.roundNumber)).toEqual([1, 2, 3]);
+  });
+
+  it('sorts by throw size on lost rounds only', () => {
+    expect(effectiveSort('lost', 'chance')).toBe('chance');
+    expect(effectiveSort('thrown', 'chance')).toBe('chance');
+    expect(effectiveSort('won', 'chance')).toBe('date');
+    expect(effectiveSort('all', 'chance')).toBe('date');
   });
 
   it('reads a deep link from another view', () => {

@@ -23,74 +23,91 @@
   </div>
 </div>
 
-<div class="grid items-start gap-x-10 gap-y-6 lg:grid-cols-[22rem_minmax(0,1fr)]">
-  <nav class="flex min-w-0 flex-col gap-2" aria-label="Liste des rounds">
-    <app-resource-state
-      [resource]="index"
-      notFoundText="Aucun round de l'escouade sur cette période."
-    >
-      @if (causes().length) {
-        <app-round-causes
-          class="mb-5"
-          [causes]="causes()"
-          [selected]="filters().cause"
-          (selectedChange)="setCause($event)"
+<!-- The overview of the filtered rounds, then the list beside the round it opens. -->
+@if (causes().length) {
+  <app-round-causes
+    [causes]="causes()"
+    [selected]="filters().cause"
+    (selectedChange)="setCause($event)"
+  />
+}
+
+<!-- The sheet sets the row's height; the list fills it down to the sheet's end and scrolls inside. -->
+<div class="grid items-stretch gap-x-10 gap-y-6 lg:grid-cols-[22rem_minmax(0,1fr)]">
+  <div class="relative min-w-0 lg:min-h-[32rem]">
+    <nav class="flex flex-col gap-2 lg:absolute lg:inset-0" aria-label="Liste des rounds">
+      @if (index.hasValue()) {
+        <div class="flex items-center gap-2">
+          <p class="!m-0 font-semibold">
+            {{ rows().length }} <span class="font-normal text-text-muted">rounds</span>
+          </p>
+          <!-- Sorting by throw size only means something on lost rounds. -->
+          @if (canSort()) {
+            <div
+              class="ml-auto flex items-center gap-2"
+              role="group"
+              aria-label="Ordre de la liste"
+            >
+              <span class="filter-label">Tri</span>
+              <div class="seg-group">
+                @for (option of sorts; track option.value) {
+                  <button
+                    type="button"
+                    class="seg-option"
+                    [attr.aria-pressed]="appliedSort() === option.value"
+                    [title]="option.hint"
+                    (click)="sort.set(option.value)"
+                  >
+                    {{ option.label }}
+                  </button>
+                }
+              </div>
+            </div>
+          }
+        </div>
+        <app-round-list
+          class="mt-1.5 flex min-h-0 flex-1 flex-col"
+          [rounds]="rows()"
+          [selected]="selected()"
+        />
+      } @else {
+        <app-resource-state
+          [resource]="index"
+          notFoundText="Aucun round de l'escouade sur cette période."
         />
       }
-      <div class="flex items-center gap-2">
-        <p class="!m-0 font-semibold">
-          {{ rows().length }} <span class="font-normal text-text-muted">rounds</span>
-        </p>
-        <div class="ml-auto flex items-center gap-2" role="group" aria-label="Ordre de la liste">
-          <span class="filter-label">Tri</span>
-          <div class="seg-group">
-            @for (option of sorts; track option.value) {
-              <button
-                type="button"
-                class="seg-option"
-                [attr.aria-pressed]="sort() === option.value"
-                (click)="sort.set(option.value)"
-              >
-                {{ option.label }}
-              </button>
-            }
-          </div>
-        </div>
-      </div>
-      <app-round-list class="mt-1.5 block" [rounds]="rows()" [selected]="selected()" />
-    </app-resource-state>
-  </nav>
+    </nav>
+  </div>
 
   @if (selected()) {
     <div class="flex min-w-0 flex-col gap-4">
-      <!-- The round inside its match, and the rounds before and after it in the list. -->
-      <app-breadcrumb [crumbs]="crumbs()">
-        <span class="seg-group">
-          <a
-            class="seg-option inline-flex items-center gap-1 no-underline"
-            [class.pointer-events-none]="!neighbours().previous"
-            [class.opacity-40]="!neighbours().previous"
-            [routerLink]="neighbours().previous"
-            queryParamsHandling="preserve"
-            [attr.aria-disabled]="!neighbours().previous"
-            title="Round précédent de la liste"
-            ><svg lucideChevronLeft class="size-4" aria-hidden="true"></svg>Précédent</a
-          >
-          <a
-            class="seg-option inline-flex items-center gap-1 no-underline"
-            [class.pointer-events-none]="!neighbours().next"
-            [class.opacity-40]="!neighbours().next"
-            [routerLink]="neighbours().next"
-            queryParamsHandling="preserve"
-            [attr.aria-disabled]="!neighbours().next"
-            title="Round suivant de la liste"
-            >Suivant<svg lucideChevronRight class="size-4" aria-hidden="true"></svg
-          ></a>
-        </span>
-      </app-breadcrumb>
       <app-resource-state [resource]="sheet" notFoundText="Ce round est introuvable.">
         @if (sheet.hasValue()) {
-          <app-round-sheet [sheet]="sheet.value()" />
+          <app-round-sheet [sheet]="sheet.value()">
+            <!-- The rounds before and after this one in the list. -->
+            <span class="seg-group">
+              <a
+                class="seg-option inline-flex items-center gap-1 no-underline"
+                [class.pointer-events-none]="!neighbours().previous"
+                [class.opacity-40]="!neighbours().previous"
+                [routerLink]="neighbours().previous"
+                queryParamsHandling="preserve"
+                [attr.aria-disabled]="!neighbours().previous"
+                title="Round précédent de la liste"
+                ><svg lucideChevronLeft class="size-4" aria-hidden="true"></svg>Précédent</a
+              >
+              <a
+                class="seg-option inline-flex items-center gap-1 no-underline"
+                [class.pointer-events-none]="!neighbours().next"
+                [class.opacity-40]="!neighbours().next"
+                [routerLink]="neighbours().next"
+                queryParamsHandling="preserve"
+                [attr.aria-disabled]="!neighbours().next"
+                title="Round suivant de la liste"
+                >Suivant<svg lucideChevronRight class="size-4" aria-hidden="true"></svg
+              ></a>
+            </span>
+          </app-round-sheet>
         }
       </app-resource-state>
     </div>

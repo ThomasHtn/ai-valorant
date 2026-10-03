@@ -1,11 +1,7 @@
-<h2 class="!m-0 text-[1.05rem]" id="zones-title">
-  Zones · {{ map() }} en {{ sideLabel() }}<app-info-tip topic="mmZones" />
-</h2>
-<p class="!m-0" [class.text-rating-bad]="verdict().alert">{{ verdict().text }}</p>
+<h2 class="!m-0 text-[1.05rem]" id="zones-title">Zone par zone<app-info-tip topic="mmZones" /></h2>
 <p class="!m-0 text-sm text-text-muted">
-  Pour chaque zone : la part des first deaths de l'escouade qui ont lieu là, face au top ranked,
-  puis toutes ses morts et kills. Dessous, les rounds où chaque joueur y est mort,
-  <span [class]="chip.first">rouge</span> s'il est mort en premier.
+  Survole une zone pour la voir sur la carte. Sous chaque zone, les rounds où chaque joueur y est
+  mort, <span [class]="chip.first">rouge</span> s'il est mort en premier.
 </p>
 <!-- One tbody per zone: its tinted figures row, then one line per player who died there. -->
 <!-- Phones scroll the columns sideways inside the panel. -->
