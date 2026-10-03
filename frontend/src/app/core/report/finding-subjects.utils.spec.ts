@@ -6,7 +6,9 @@ import {
   fiveStackCaveat,
   gapUnit,
   groupBySubject,
+  higherIsBetter,
   mainCauses,
+  verdictText,
 } from './finding-subjects.utils';
 import { Finding } from './findings.model';
 
@@ -64,6 +66,28 @@ describe('finding texts', () => {
     expect(detailLabel(finding({}))).toBe('Rounds gagnés');
     expect(gapUnit(finding({}))).toBe('rounds sur 5 matchs');
     expect(gapUnit(finding({ matches: 1 }))).toBe('rounds sur 1 match');
+  });
+
+  it('says why a gap is good or bad, whichever way the metric reads', () => {
+    expect(higherIsBetter(finding({}))).toBe(true);
+    expect(verdictText(finding({}))).toEqual({
+      comparison: 'Moins de rounds gagnés que le top ranked',
+      direction: ", alors que plus c'est mieux.",
+    });
+    const noDamage = finding({
+      side: 'strong',
+      metric: 'Morts sans dégâts',
+      squad: rate(28, 100),
+      top: rate(36, 100),
+    });
+    expect(higherIsBetter(noDamage)).toBe(false);
+    expect(verdictText(noDamage)).toEqual({
+      comparison: 'Moins de morts sans dégâts que le top ranked',
+      direction: ", et ici moins c'est mieux.",
+    });
+    expect(verdictText(finding({ reference: 'opp', metric: 'ACS' })).comparison).toBe(
+      'Moins de ACS que les adversaires',
+    );
   });
 
   it('lists the main causes of the lost rounds, most frequent first', () => {

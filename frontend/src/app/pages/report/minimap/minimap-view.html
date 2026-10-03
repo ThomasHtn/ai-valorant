@@ -32,7 +32,10 @@
   >
     @if (view.hasValue()) {
       @let data = view.value();
-      <div class="grid items-start gap-4 xl:grid-cols-[12.5rem_minmax(0,1fr)_minmax(0,35rem)]">
+      <!-- On wide screens the map fits the screen height and the zones scroll beside it, so both stay in view. -->
+      <div
+        class="grid items-start gap-4 [--map-size:clamp(24rem,calc(100dvh-19.5rem),calc(100vw-56rem))] xl:h-(--map-size) xl:grid-cols-[12.5rem_auto_minmax(0,1fr)]"
+      >
         <div class="flex flex-col gap-2">
           <app-layer-toggles
             [layers]="visibleLayers()"
@@ -48,9 +51,8 @@
             }
           </p>
         </div>
-        <!-- As large as the screen height allows, so callouts stay readable. -->
         <app-minimap-canvas
-          class="mx-auto max-w-[max(24rem,calc(100dvh-16rem))]"
+          class="mx-auto max-w-[36rem] xl:size-(--map-size) xl:max-w-none"
           [map]="data.mapName"
           [markers]="markers()"
           [labels]="data.callouts"
@@ -58,6 +60,7 @@
         />
         @if (zones(); as z) {
           <app-zone-table
+            class="xl:max-h-full xl:overflow-y-auto xl:overscroll-contain"
             [map]="data.mapName"
             [sideLabel]="sideLabel()"
             [rows]="z.rows"

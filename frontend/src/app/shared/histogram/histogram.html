@@ -18,7 +18,7 @@
         [attr.y]="tick.at + 4"
         text-anchor="end"
         fill="var(--color-text-muted)"
-        font-size="13"
+        font-size="15"
       >
         {{ tick.label }}
       </text>
@@ -45,7 +45,8 @@
           [attr.d]="bar.topPath"
           fill="none"
           [attr.stroke]="topColour"
-          stroke-width="2"
+          stroke-width="1"
+          stroke-opacity="0.85"
           pointer-events="none"
         />
       }
@@ -57,7 +58,7 @@
         [attr.y]="v.height - v.bottom + 20"
         [attr.text-anchor]="label.anchor"
         fill="var(--color-text-secondary)"
-        font-size="13"
+        font-size="15"
       >
         {{ label.label }}
       </text>
@@ -67,7 +68,7 @@
       [attr.y]="v.height - 14"
       text-anchor="middle"
       fill="var(--color-text-muted)"
-      font-size="13"
+      font-size="15"
     >
       {{ label() }} ({{ unit() }})
     </text>
@@ -88,7 +89,7 @@
         [attr.y]="median.labelY"
         [attr.text-anchor]="median.anchor"
         [attr.fill]="median.colour"
-        font-size="13"
+        font-size="15"
         font-weight="600"
       >
         {{ median.label }}

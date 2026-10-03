@@ -1,5 +1,6 @@
 import { Component, computed, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { LucideArrowDown, LucideArrowUp, LucideDynamicIcon } from '@lucide/angular';
 
 import { STATUS_LABELS } from '@core/format/labels.constants';
 import { formatValue, integer } from '@core/format/value-format.utils';
@@ -9,9 +10,11 @@ import {
   findingLinks,
   fiveStackCaveat,
   gapUnit,
+  higherIsBetter,
   mainCauses,
   referenceText,
   subjectLabel,
+  verdictText,
 } from '@core/report/finding-subjects.utils';
 import { Finding } from '@core/report/findings.model';
 import { Rate } from '@core/report/rate.model';
@@ -59,7 +62,7 @@ function signedRounds(gap: number): string {
  */
 @Component({
   selector: 'app-finding-card',
-  imports: [Badge, GapChip, RowArt, RewatchLinks, RouterLink],
+  imports: [Badge, GapChip, RowArt, RewatchLinks, RouterLink, LucideDynamicIcon],
   templateUrl: './finding-card.html',
   host: {
     class:
@@ -81,6 +84,10 @@ export class FindingCard {
   protected readonly causes = computed(() => mainCauses(this.lead()));
   protected readonly caveat = computed(() => fiveStackCaveat(this.lead()));
   protected readonly links = computed(() => findingLinks(this.lead()));
+  protected readonly verdict = computed(() => verdictText(this.lead()));
+  protected readonly higherIsBetter = computed(() => higherIsBetter(this.lead()));
+  protected readonly arrowUp = LucideArrowUp;
+  protected readonly arrowDown = LucideArrowDown;
 
   protected readonly others = computed<OtherLine[]>(() =>
     this.subject().others.map((f) => ({

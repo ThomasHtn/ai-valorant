@@ -3,13 +3,14 @@ import { RouterLink } from '@angular/router';
 
 import { PlayerSummary } from '@core/report/players.model';
 import { AgentIcon } from '@shared/game-art/agent-icon';
+import { RoleIcon } from '@shared/game-art/role-icon';
 
 import { roleLabel } from '../players.utils';
 
-/** Squad players of the period as portrait buttons (main agent, name, role); each opens his sheet. */
+/** Squad players of the period as portrait buttons (main agent, name, role and its icon); each opens his sheet. */
 @Component({
   selector: 'app-player-picker',
-  imports: [RouterLink, AgentIcon],
+  imports: [RouterLink, AgentIcon, RoleIcon],
   template: `
     <nav class="flex flex-wrap gap-0.5" aria-label="Joueur">
       @for (item of items(); track item.name) {
@@ -28,7 +29,9 @@ import { roleLabel } from '../players.utils';
           <app-agent-icon [agent]="item.mainAgent" size="md" [decorative]="true" />
           <span class="flex flex-col leading-tight">
             <b class="font-semibold">{{ item.name }}</b>
-            <small class="text-xs text-text-muted">{{ item.role }}</small>
+            <small class="flex items-center gap-1 text-xs text-text-muted">
+              <app-role-icon class="!size-3.5" [role]="item.roleKey" />{{ item.role }}
+            </small>
           </span>
         </a>
       }
@@ -42,6 +45,11 @@ export class PlayerPicker {
   public readonly selected = input<string | null>(null);
 
   protected readonly items = computed(() =>
-    this.players().map((p) => ({ name: p.name, mainAgent: p.mainAgent, role: roleLabel(p.role) })),
+    this.players().map((p) => ({
+      name: p.name,
+      mainAgent: p.mainAgent,
+      roleKey: p.role,
+      role: roleLabel(p.role),
+    })),
   );
 }

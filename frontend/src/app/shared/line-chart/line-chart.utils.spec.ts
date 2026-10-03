@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { LINE_CHART_BOX } from './line-chart.constants';
+import { LINE_CHART_BOX, POINT_INSET } from './line-chart.constants';
 import { LinePoint } from './line-chart.model';
 import { bandPolygons, buildLineChart, tickLabel } from './line-chart.utils';
 
@@ -19,8 +19,8 @@ describe('buildLineChart', () => {
   it('spans the plot from the first to the last point and skips gaps in the line', () => {
     const view = buildLineChart([point(0.4), point(null), point(0.5)], 'pct', null, 'Top', [], 20)!;
     expect(view.dots.map((d) => d.x)).toEqual([
-      LINE_CHART_BOX.left,
-      LINE_CHART_BOX.width - LINE_CHART_BOX.right,
+      LINE_CHART_BOX.left + POINT_INSET,
+      LINE_CHART_BOX.width - LINE_CHART_BOX.right - POINT_INSET,
     ]);
     expect(view.line.split(' ')).toHaveLength(2);
   });

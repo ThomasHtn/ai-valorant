@@ -14,6 +14,21 @@
 
 <app-gap-chip [value]="gapText()" [unit]="gapUnit()" [tone]="isWeak() ? 'bad' : 'good'" />
 
+<!-- Plain-language reading of the gap: which way the squad differs and which way is better. -->
+<p class="col-span-2 col-start-2 !m-0 flex items-start gap-1.5">
+  <svg
+    class="mt-[0.2rem] size-4 shrink-0 text-text-muted"
+    [lucideIcon]="higherIsBetter() ? arrowUp : arrowDown"
+    aria-hidden="true"
+  ></svg>
+  <span>
+    <b class="font-semibold" [class]="isWeak() ? 'text-rating-bad' : 'text-rating-good'">{{
+      verdict().comparison
+    }}</b
+    ><span class="text-text-secondary">{{ verdict().direction }}</span>
+  </span>
+</p>
+
 <div
   class="col-span-2 col-start-2 mt-1.5 grid grid-cols-[5.5rem_minmax(0,1fr)_auto] items-center sm:grid-cols-[6.5rem_minmax(0,1fr)_7.5rem] gap-x-3 gap-y-1"
 >

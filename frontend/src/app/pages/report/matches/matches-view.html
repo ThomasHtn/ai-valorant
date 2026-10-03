@@ -37,7 +37,10 @@
               <app-scoreboard title="Adversaires" [lines]="match.opponents" />
             </div>
 
-            <app-loss-causes [rounds]="match.rounds" />
+            <!-- Half the scoreboard's width on wide screens, like a two-column layout. -->
+            <div class="grid gap-5 xl:grid-cols-2">
+              <app-loss-causes [rounds]="match.rounds" />
+            </div>
           </div>
         }
       </app-resource-state>

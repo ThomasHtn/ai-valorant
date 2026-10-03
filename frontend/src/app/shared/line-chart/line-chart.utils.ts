@@ -2,7 +2,13 @@ import { ValueFormat } from '@core/format/value-format.model';
 import { formatValue, integer } from '@core/format/value-format.utils';
 import { AxisRange, linearScale, niceRange, tickValues } from '@shared/charts/chart-scale.utils';
 
-import { DENSE_LABELS, DENSE_POINTS, DOT_RADIUS, LINE_CHART_BOX } from './line-chart.constants';
+import {
+  DENSE_LABELS,
+  DENSE_POINTS,
+  DOT_RADIUS,
+  LINE_CHART_BOX,
+  POINT_INSET,
+} from './line-chart.constants';
 import { ChartMarker, LineChartView, LinePoint } from './line-chart.model';
 
 /** Writes a tick: percentages for rates, whole numbers for wide steps, two decimals otherwise. */
@@ -24,6 +30,7 @@ export function buildLineChart(
   referenceLabel: string,
   markers: readonly ChartMarker[],
   minSample: number,
+  boxWidth: number = LINE_CHART_BOX.width,
 ): LineChartView | null {
   const values = points.flatMap((p) => (p.value === null ? [] : [p.value]));
   if (reference !== null) {
@@ -32,14 +39,15 @@ export function buildLineChart(
   if (!values.length) {
     return null;
   }
-  const { width, height, left, right, top, bottom } = LINE_CHART_BOX;
+  const { height, left, right, top, bottom } = LINE_CHART_BOX;
+  const width = boxWidth;
   const range = niceRange(values, format === 'pct');
   const y = linearScale([range.min, range.max], [height - bottom, top]);
   const count = points.length;
   const x =
     count === 1
       ? () => (left + width - right) / 2
-      : linearScale([0, count - 1], [left, width - right]);
+      : linearScale([0, count - 1], [left + POINT_INSET, width - right - POINT_INSET]);
   const dense = count > DENSE_POINTS;
   const labelEvery = dense ? Math.ceil(count / DENSE_LABELS) : 1;
   const slot = count > 1 ? x(1) - x(0) : 0;

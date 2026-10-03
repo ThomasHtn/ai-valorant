@@ -14,6 +14,8 @@ export interface HistogramInput {
   top: Histogram | null;
   /** Who the filled bars are, in the median label ('escouade', a player's name). */
   squadName: string;
+  /** Drawing width in CSS pixels; `HISTOGRAM_BOX.width` when left out. */
+  width?: number;
 }
 
 /** One bin: the squad's bar and the top ranked outline over it. */

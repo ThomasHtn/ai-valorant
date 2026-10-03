@@ -1,7 +1,9 @@
 import { Component, computed, input, signal } from '@angular/core';
 
 import { ValueFormat } from '@core/format/value-format.model';
+import { hostWidth } from '@shared/charts/host-width';
 
+import { LINE_CHART_BOX } from './line-chart.constants';
 import { ChartMarker, DotView, LinePoint } from './line-chart.model';
 import { buildLineChart } from './line-chart.utils';
 
@@ -28,6 +30,9 @@ export class LineChart {
   /** Accessible name of the chart. */
   public readonly label = input.required<string>();
 
+  /** Drawn at the container's width so texts keep their size on wide screens. */
+  private readonly width = hostWidth(LINE_CHART_BOX.width);
+
   protected readonly view = computed(() =>
     buildLineChart(
       this.points(),
@@ -36,6 +41,7 @@ export class LineChart {
       this.referenceLabel(),
       this.markers(),
       this.minSample(),
+      this.width(),
     ),
   );
   protected readonly hovered = signal<DotView | null>(null);

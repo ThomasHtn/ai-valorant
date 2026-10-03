@@ -1,4 +1,10 @@
-import { AGENT_ROLES, ASSETS_ROOT, KNOWN_MAPS, KNOWN_WEAPONS } from './game-assets.constants';
+import {
+  AGENT_ROLES,
+  ASSETS_ROOT,
+  KNOWN_MAPS,
+  KNOWN_WEAPONS,
+  ROLE_LABELS,
+} from './game-assets.constants';
 import { AgentRole } from './game-assets.model';
 
 /** File name of a game name: 'KAY/O' -> 'kayo', 'The Range' -> 'the-range'. */
@@ -17,6 +23,11 @@ export function agentIcon(agent: string): string | null {
 
 export function agentRole(agent: string): AgentRole | null {
   return AGENT_ROLES[agent] ?? null;
+}
+
+/** White role glyph ('Duelist'), or null for a role the assets do not know. */
+export function roleIcon(role: string): string | null {
+  return role in ROLE_LABELS ? `${ASSETS_ROOT}/roles/${role.toLowerCase()}.webp` : null;
 }
 
 /** Wide strip of a map (456 x 100), used by pickers and table rows. */

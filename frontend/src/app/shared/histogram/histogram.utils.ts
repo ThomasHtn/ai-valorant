@@ -40,7 +40,8 @@ export function buildHistogram(input: HistogramInput): HistogramView | null {
   if (!bins.length) {
     return null;
   }
-  const { width, height, left, right, top: plotTop, bottom } = HISTOGRAM_BOX;
+  const { height, left, right, top: plotTop, bottom } = HISTOGRAM_BOX;
+  const width = input.width ?? HISTOGRAM_BOX.width;
   const shares = [...squad.shares, ...(top?.shares ?? [])].map((s) => s ?? 0);
   const axis = shareAxis(Math.max(0, ...shares));
   const y = linearScale([0, axis.max], [height - bottom, plotTop]);

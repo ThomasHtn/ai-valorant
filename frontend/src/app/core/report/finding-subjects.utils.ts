@@ -57,6 +57,45 @@ export function referenceText(f: Finding): string {
   return `${formatValue(f.squad.value, 'pct')} contre ${formatValue(reference.value, 'pct')} (${name})`;
 }
 
+/** Rate the finding was tested against, and how the text names it. */
+function testedReference(f: Finding): { rate: Finding['top']; name: string } {
+  return f.reference === 'opp'
+    ? { rate: f.opp, name: 'les adversaires' }
+    : { rate: f.top, name: 'le top ranked' };
+}
+
+/** Whether the squad rate sits at or above the rate it was tested against. */
+function squadAbove(f: Finding): boolean {
+  return (f.squad.value ?? 0) >= (testedReference(f).rate.value ?? 0);
+}
+
+/** Whether a higher squad rate is the better one: a strength above its reference, a weakness below. */
+export function higherIsBetter(f: Finding): boolean {
+  return f.side === 'strong' ? squadAbove(f) : !squadAbove(f);
+}
+
+/** 'morts sans dégâts' from 'Morts sans dégâts'; acronyms ('ACS') stay as written. */
+function lowerFirst(text: string): string {
+  return /^[A-ZÀ-Ý][a-zà-ÿ]/.test(text) ? text.charAt(0).toLowerCase() + text.slice(1) : text;
+}
+
+/**
+ * Why the finding is good or bad, in two parts so the comparison can be coloured:
+ * 'Moins de morts sans dégâts que le top ranked' + ', et ici moins c'est mieux.'
+ */
+export function verdictText(f: Finding): { comparison: string; direction: string } {
+  const reference = testedReference(f);
+  const more = squadAbove(f);
+  const better = higherIsBetter(f) ? 'plus' : 'moins';
+  return {
+    comparison: `${more ? 'Plus' : 'Moins'} de ${lowerFirst(f.metric)} que ${reference.name}`,
+    direction:
+      f.side === 'strong'
+        ? `, et ici ${better} c'est mieux.`
+        : `, alors que ${better} c'est mieux.`,
+  };
+}
+
 /** Unit under the gap: 'rounds sur 5 matchs'. */
 export function gapUnit(f: Finding): string {
   return `rounds sur ${f.matches} match${f.matches > 1 ? 's' : ''}`;

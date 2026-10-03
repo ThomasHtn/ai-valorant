@@ -1,8 +1,9 @@
 import { Component, computed, input, signal } from '@angular/core';
 
 import { Histogram, HistogramBin } from '@core/report/distributions.model';
+import { hostWidth } from '@shared/charts/host-width';
 
-import { SQUAD_COLOUR, TOP_COLOUR } from './histogram.constants';
+import { HISTOGRAM_BOX, SQUAD_COLOUR, TOP_COLOUR } from './histogram.constants';
 import { BarView } from './histogram.model';
 import { buildHistogram } from './histogram.utils';
 
@@ -28,6 +29,9 @@ export class HistogramChart {
   /** Who the bars are: "L'escouade" or a player's name. */
   public readonly squadLabel = input("L'escouade");
 
+  /** Drawn at the container's width so texts keep their size on wide screens. */
+  private readonly width = hostWidth(HISTOGRAM_BOX.width);
+
   protected readonly squadColour = SQUAD_COLOUR;
   protected readonly topColour = TOP_COLOUR;
   protected readonly view = computed(() =>
@@ -38,6 +42,7 @@ export class HistogramChart {
       squad: this.squad(),
       top: this.top(),
       squadName: this.squadLabel() === "L'escouade" ? 'escouade' : this.squadLabel(),
+      width: this.width(),
     }),
   );
   protected readonly hovered = signal<BarView | null>(null);

@@ -18,7 +18,7 @@ import { lossCauseCounts } from '../matches.utils';
       <ul class="m-0 flex list-none flex-col gap-0.5 p-0">
         @for (item of causes(); track item.label) {
           <li
-            class="grid grid-cols-[11rem_1fr_2rem] items-center gap-2.5 bg-text-primary/4 px-2.5 py-1"
+            class="grid grid-cols-[minmax(0,11rem)_1fr_2rem] items-center gap-2.5 bg-text-primary/4 px-2.5 py-1"
           >
             <span>{{ item.label }}</span>
             <span
@@ -33,7 +33,7 @@ import { lossCauseCounts } from '../matches.utils';
     }
   `,
   host: {
-    class: 'flex max-w-160 flex-col gap-3 bg-text-primary/4 px-4 py-4',
+    class: 'flex min-w-0 flex-col gap-3 bg-text-primary/4 px-4 py-4',
     role: 'region',
     'aria-labelledby': 'loss-causes-title',
   },

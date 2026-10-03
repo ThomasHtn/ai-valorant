@@ -13,7 +13,7 @@
       }
     </select>
   </label>
-  <div class="seg-group xl:ml-auto" role="group" aria-label="Type de comparaison">
+  <div class="seg-group" role="group" aria-label="Type de comparaison">
     @for (item of modes; track item.mode) {
       <button
         type="button"
@@ -27,7 +27,8 @@
   </div>
 </app-filter-bar>
 
-<div class="mt-4 flex flex-col gap-4">
+<!-- Capped width: each figure stays within reach of its label. -->
+<div class="mt-4 flex max-w-[64rem] flex-col gap-4">
   <div class="grid gap-0.5 md:grid-cols-2">
     @if (mode() === 'team') {
       <app-selection-box

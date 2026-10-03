@@ -18,8 +18,10 @@
           <span
             ><b class="text-text-primary">{{ meta.matches }}</b> matchs</span
           >
-          <span
-            ><b class="text-text-primary">{{ meta.wins }}V - {{ meta.losses }}D</b></span
+          <span class="font-semibold"
+            ><b class="text-rating-good">{{ meta.wins }}V</b>
+            <span class="mx-1 text-text-muted">-</span>
+            <b class="text-rating-bad">{{ meta.losses }}D</b></span
           >
           <span
             ><b class="text-text-primary">{{ integer(meta.rounds) }}</b> rounds</span
@@ -33,31 +35,34 @@
       }
     </div>
 
+    <!-- One coloured block per group: its name above, its tabs below. -->
     <nav
-      class="flex overflow-x-auto border-b border-edge-strong [scrollbar-width:thin]"
+      class="flex gap-1.5 overflow-x-auto border-b border-edge-strong [scrollbar-width:thin]"
       aria-label="Vues du rapport"
     >
-      @for (group of groups; track group.label; let first = $first) {
+      @for (group of groups; track group.label) {
         <div
-          class="flex items-end"
-          [class]="first ? '' : 'ml-3 border-l border-edge pl-3'"
+          class="flex shrink-0 flex-col border-t-2"
+          [class]="group.tone.block"
           role="group"
           [attr.aria-label]="group.label"
         >
-          <span class="hidden self-center pr-1.5 text-sm text-text-muted xl:inline">{{
+          <span class="px-4 pt-1.5 text-sm font-medium" [class]="group.tone.label">{{
             group.label
           }}</span>
-          @for (view of group.views; track view.path) {
-            <a
-              [routerLink]="view.path"
-              [queryParams]="periodParams()"
-              routerLinkActive="!border-brand-500 !text-text-primary"
-              ariaCurrentWhenActive="page"
-              [title]="view.hint"
-              class="focus-ring-inset border-b-[3px] border-transparent px-4 pt-2.5 pb-2 font-display text-[0.98rem] font-medium tracking-wide whitespace-nowrap text-text-secondary uppercase no-underline transition-colors hover:border-brand-500/40 hover:bg-text-primary/5 hover:text-text-primary"
-              >{{ view.label }}</a
-            >
-          }
+          <div class="flex">
+            @for (view of group.views; track view.path) {
+              <a
+                [routerLink]="view.path"
+                [queryParams]="periodParams()"
+                routerLinkActive="!border-brand-500 !text-text-primary bg-text-primary/6"
+                ariaCurrentWhenActive="page"
+                [title]="view.hint"
+                class="focus-ring-inset border-b-[3px] border-transparent px-4 pt-1 pb-2 font-display text-[0.98rem] font-medium tracking-wide whitespace-nowrap text-text-secondary uppercase no-underline transition-colors hover:border-brand-500/40 hover:bg-text-primary/5 hover:text-text-primary"
+                >{{ view.label }}</a
+              >
+            }
+          </div>
         </div>
       }
     </nav>
