@@ -1,0 +1,93 @@
+@let m = match();
+<a
+  [routerLink]="['/report/matches', m.matchId]"
+  queryParamsHandling="preserve"
+  class="row-link grid gap-x-8 gap-y-4 border-l-[3px] bg-text-primary/4 px-4 py-4 lg:grid-cols-[minmax(13rem,16rem)_minmax(0,1fr)] xl:grid-cols-[minmax(12rem,15rem)_minmax(16rem,1fr)_minmax(19rem,1.2fr)_auto]"
+  [class]="m.won ? 'border-rating-good/70' : 'border-rating-bad/70'"
+>
+  <!-- Which match, and how it ended. -->
+  <div class="flex items-center gap-3">
+    <app-map-thumb [map]="m.mapName" size="lg" />
+    <span class="flex min-w-0 flex-col leading-tight">
+      <b class="font-display text-[1.2rem] font-semibold">{{ m.mapName }}</b>
+      <small class="text-sm text-text-muted">{{ m.when }}</small>
+    </span>
+    <span
+      class="ml-auto font-display text-[1.75rem] leading-none font-semibold tabular-nums"
+      [class]="m.won ? 'text-rating-good' : 'text-rating-bad'"
+      ><span class="sr-only">{{ m.won ? 'Victoire' : 'Défaite' }} </span>{{ m.score }}</span
+    >
+  </div>
+
+  <!-- How the rounds went: one square per round, then the figures behind the score. -->
+  <div class="flex min-w-0 flex-col justify-center gap-3">
+    @if (m.squares.length) {
+      <span class="flex flex-wrap gap-px" aria-hidden="true">
+        @for (square of m.squares; track square.key) {
+          @if (square.won === null) {
+            <i class="w-2"></i>
+          } @else {
+            <i
+              class="block h-4 w-2.5"
+              [class]="square.won ? 'bg-rating-good/80' : 'bg-rating-bad/75'"
+            ></i>
+          }
+        }
+      </span>
+    }
+    <dl class="m-0 flex flex-wrap gap-x-6 gap-y-1">
+      @for (figure of m.digest.figures; track figure.label) {
+        <div class="flex items-baseline gap-1.5">
+          <dt class="text-sm text-text-muted">{{ figure.label }}</dt>
+          <dd
+            class="m-0 font-semibold tabular-nums"
+            [class]="figure.tone ? toneText[figure.tone] : 'text-text-primary'"
+          >
+            {{ figure.value }}
+          </dd>
+        </div>
+      }
+    </dl>
+  </div>
+
+  <!-- What decided the match, in a few sentences. -->
+  @if (m.digest.facts.length) {
+    <ul
+      class="m-0 flex list-none flex-col justify-center gap-1.5 p-0 lg:col-start-2 xl:col-start-auto"
+    >
+      @for (fact of m.digest.facts; track fact.key) {
+        <li class="flex items-baseline gap-2.5 text-[0.95rem] text-text-primary">
+          <i
+            class="block size-2 shrink-0 -translate-y-px"
+            [class]="fact.tone === 'good' ? 'bg-rating-good' : 'bg-rating-bad'"
+            aria-hidden="true"
+          ></i>
+          {{ fact.text }}
+        </li>
+      }
+    </ul>
+  } @else {
+    <p class="m-0 self-center text-sm text-text-muted lg:col-start-2 xl:col-start-auto">
+      Rien de marquant : un match sans série, sans throw ni retournement.
+    </p>
+  }
+
+  <!-- Who played, best ACS first, the best one named. -->
+  @if (m.lineup.length) {
+    <div class="flex flex-col justify-center gap-1.5 lg:col-start-2 xl:col-start-auto">
+      <ol class="m-0 flex list-none gap-1.5 p-0">
+        @for (player of m.lineup; track player.name) {
+          <li class="flex w-9 flex-col items-center gap-0.5" [title]="player.title">
+            <app-agent-icon [agent]="player.agent" size="md" [decorative]="true" />
+            <span class="text-xs text-text-muted tabular-nums">{{ player.acs }}</span>
+          </li>
+        }
+      </ol>
+      @if (best(); as b) {
+        <span class="text-sm text-text-secondary"
+          >Meilleur ACS : <b class="font-semibold text-text-primary">{{ b.name }}</b></span
+        >
+      }
+    </div>
+  }
+</a>
