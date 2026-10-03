@@ -11,22 +11,22 @@ import { ToneLegend } from '@shared/tone-legend/tone-legend';
 
 import { DeathZones } from './death-zones/death-zones';
 import { FormTiles } from './form-tiles/form-tiles';
-import { HeadlineBand } from './headline-band/headline-band';
 import { OpeningClutch } from './opening-clutch/opening-clutch';
 import { PlayerHeader } from './player-header/player-header';
 import { PlayerPicker } from './player-picker/player-picker';
 import { PlayerReference } from './player-reference/player-reference';
+import { ProfileFigures } from './profile-figures/profile-figures';
 import { ProfileRadar } from './profile-radar/profile-radar';
 import { RadarSeries } from './profile-radar/profile-radar.model';
 import { radarStats } from './profile-radar/profile-radar.utils';
-import { roleLabel } from './players.utils';
 import { RewatchList } from './rewatch-list/rewatch-list';
 import { WeaponsPanel } from './weapons-panel/weapons-panel';
 
 /**
  * Joueurs: the sheet of one squad player. Every figure sits beside the view's own reference
- * (opponents of his role by default, top ranked of his role, or his own history): headline band, profile radar, results by map, agent and side,
- * opening duels, clutches, weapons, death zones, form match by match and first deaths to rewatch.
+ * (opponents of his role by default, top ranked of his role, or his own history): profile (radar and
+ * its figures), opening duels, clutches, weapons, results by map, agent and side, death zones, form
+ * match by match and first deaths to rewatch.
  */
 @Component({
   selector: 'app-players-view',
@@ -38,8 +38,8 @@ import { WeaponsPanel } from './weapons-panel/weapons-panel';
     PlayerPicker,
     PlayerReference,
     PlayerHeader,
-    HeadlineBand,
     ProfileRadar,
+    ProfileFigures,
     OpeningClutch,
     WeaponsPanel,
     DeathZones,
@@ -72,10 +72,6 @@ export class PlayersView {
     return { ...preferences, reference: preferences.playerReference };
   });
 
-  protected readonly roleLabel = computed(() => {
-    const sheet = resourceValue(this.sheet, null);
-    return sheet ? roleLabel(sheet.role) : '';
-  });
   /**
    * By map, by agent, by side: prepared here so the template gets a stable array. The agent table is
    * left out for a one-agent player: the header already names it and the row would repeat the totals.

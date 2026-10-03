@@ -4,7 +4,13 @@ import { ValueFormat } from '@core/format/value-format.model';
 import { formatValue, integer } from '@core/format/value-format.utils';
 import { AgentRole } from '@core/game-assets/game-assets.model';
 import { ROLE_LABELS } from '@core/game-assets/game-assets.constants';
-import { ClutchLine, DeathZone, FormMatch, HeadlineStat } from '@core/report/players.model';
+import {
+  ClutchLine,
+  DeathZone,
+  FormMatch,
+  HeadlineStat,
+  OpeningDuels,
+} from '@core/report/players.model';
 import { StatCell, StatColumn } from '@core/report/stat-table.model';
 import { cellTone, columnReference, referenceValue } from '@core/report/tone.utils';
 import { CellTone } from '@core/report/tone.model';
@@ -207,4 +213,59 @@ export function isZoneTooDeadly(zone: DeathZone): boolean {
     zone.topPer100Rounds !== null &&
     zone.per100Rounds > zone.topPer100Rounds * ZONE_HIGH_RATIO
   );
+}
+
+/** One line of the profile list: a radar figure with its value, reference and sample. */
+export interface ProfileRow {
+  key: string;
+  label: string;
+  help: string | null;
+  /** 1 higher is better, -1 lower is better. */
+  better: number;
+  value: string;
+  tone: CellTone | null;
+  /** The reference's value ('200'), or a dash. */
+  reference: string;
+  /** '423 rounds', or null when unknown. */
+  sample: string | null;
+}
+
+/**
+ * The figures of the profile, in the radar's order: the headline figures of his role, then his
+ * opening duels won unless his role already has them (duellists). Each figure is written only here.
+ */
+export function profileRows(
+  headline: readonly HeadlineStat[],
+  duels: OpeningDuels,
+  reference: Reference,
+  colours: boolean,
+): ProfileRow[] {
+  const figures = headline.map((stat) => ({
+    key: stat.key,
+    label: stat.label,
+    help: stat.help as string | null,
+    unit: stat.unit,
+    cell: stat.cell,
+    column: headlineColumn(stat),
+  }));
+  if (!headline.some((stat) => stat.key === 'openingWon')) {
+    figures.push({
+      key: 'duelsWon',
+      label: 'Premiers duels gagnés',
+      help: 'playerOpeningDuels',
+      unit: 'duels',
+      cell: duels.duelsWon,
+      column: openingColumn('duelsWon', 'Premiers duels gagnés'),
+    });
+  }
+  return figures.map((f) => ({
+    key: f.key,
+    label: f.label,
+    help: f.help,
+    better: f.column.better,
+    value: formatValue(f.cell.v, f.column.format),
+    tone: figureTone(f.cell, f.column, reference, colours),
+    reference: formatValue(referenceValue(f.cell, reference).value ?? null, f.column.format),
+    sample: f.cell.n ? `${integer(f.cell.n)} ${f.unit}` : null,
+  }));
 }

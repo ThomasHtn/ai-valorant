@@ -102,10 +102,14 @@ function labelAnchor(cos: number): RadarAxisView['anchor'] {
   return cos > 0 ? 'start' : 'end';
 }
 
-/** Name then value under it, both above the web at the top, below it at the bottom. */
-function labelLines(y: number, sin: number): { labelY: number; valueY: number } {
+/**
+ * Name then value under it, both above the web at the top, below it at the bottom; `nameY` places
+ * the name alone, when the values are written elsewhere.
+ */
+function labelLines(y: number, sin: number): { labelY: number; valueY: number; nameY: number } {
   const first = sin < -0.3 ? y - 18 : sin > 0.3 ? y + 12 : y - 4;
-  return { labelY: round1(first), valueY: round1(first + 17) };
+  const alone = sin < -0.3 ? y - 2 : sin > 0.3 ? y + 12 : y + 5;
+  return { labelY: round1(first), valueY: round1(first + 17), nameY: round1(alone) };
 }
 
 /** One player's point on an axis: placed by his ratio to the reference, with its tip. */

@@ -28,15 +28,20 @@ export class ProfileRadar {
   public readonly series = input.required<RadarSeries[]>();
   public readonly reference = input.required<Reference>();
   public readonly colours = input(true);
+  /** True when the figures are projected beside the web: the web then shows axis names only. */
+  public readonly split = input(false);
   /** Block title; the id of its heading names the region. */
   public readonly title = input('Profil');
 
   protected readonly titleId = `radar-${++radarCount}`;
-  /** History is each player himself; the other references are players of the same role. */
+  /**
+   * The dashed ring is not the reference's own profile: every figure is divided by the reference, so
+   * the reference always lands on the same ring. The legend says "equal to", not "the reference".
+   */
   protected readonly referenceLabel = computed(() =>
     this.reference() === 'hist'
-      ? 'Le joueur avant la période'
-      : `${REFERENCE_SHORT_LABELS[this.reference()]} du même rôle`,
+      ? 'Égal à son niveau avant la période'
+      : `Égal au ${REFERENCE_SHORT_LABELS[this.reference()].toLowerCase()} du même rôle`,
   );
   protected readonly legend = computed(() =>
     this.series().map((one) => ({ name: one.name, colour: one.colour ?? RADAR_SQUAD_COLOUR })),

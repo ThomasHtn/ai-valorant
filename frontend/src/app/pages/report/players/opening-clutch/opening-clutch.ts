@@ -10,8 +10,9 @@ import { TONE_TEXT_CLASSES } from '@shared/stat-tile/stat-tile.constants';
 import { clutchBars, figureTile, openingColumn } from '../players.utils';
 
 /**
- * Two panels of the player sheet: his premiers duels (won, rounds won after his first blood and after
- * his first death) and his clutches by size, as bars with a tick at the reference.
+ * Two panels of the player sheet: what the squad makes of his premiers duels (rounds won after his
+ * first blood and after his first death; the duels won sit in his profile) and his clutches by size,
+ * as bars with a tick at the reference.
  */
 @Component({
   selector: 'app-opening-clutch',
@@ -31,13 +32,6 @@ export class OpeningClutch {
   protected readonly openingTiles = computed(() => {
     const duels = this.openingDuels();
     const figures = [
-      {
-        key: 'duelsWon',
-        label: 'Duels gagnés',
-        help: 'playerOpeningDuels',
-        cell: duels.duelsWon,
-        unit: 'duels',
-      },
       {
         key: 'afterFb',
         label: 'Gagnés après sa FB',

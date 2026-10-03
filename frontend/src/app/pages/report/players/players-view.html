@@ -21,34 +21,36 @@
     @if (sheet.hasValue()) {
       @let p = sheet.value();
       <div class="view-body">
-        <!-- Who the player is and his headline figures, read as one block. -->
+        <!-- Who the player is and how his colours read. -->
         <div class="flex flex-col gap-3">
           <app-player-header [sheet]="p" />
-          <app-headline-band
-            [headline]="p.headline"
-            [reference]="display.reference"
-            [colours]="display.colours"
-            [roleLabel]="roleLabel()"
-          />
           <app-tone-legend [reference]="display.reference" />
         </div>
 
-        <!-- His profile at a glance, beside his duels, clutches and weapons. -->
-        <div class="grid items-start gap-x-10 gap-y-10 xl:grid-cols-2">
-          <app-profile-radar
-            [series]="radarSeries()"
+        <!-- His key figures once: their shape on the radar, their numbers beside it. -->
+        <app-profile-radar
+          [series]="radarSeries()"
+          [reference]="display.reference"
+          [colours]="display.colours"
+          [split]="true"
+        >
+          <app-profile-figures
+            [headline]="p.headline"
+            [openingDuels]="p.openingDuels"
             [reference]="display.reference"
             [colours]="display.colours"
           />
-          <div class="flex min-w-0 flex-col gap-10">
-            <app-opening-clutch
-              [openingDuels]="p.openingDuels"
-              [clutches]="p.clutches"
-              [reference]="display.reference"
-              [colours]="display.colours"
-            />
-            <app-weapons-panel [weapons]="p.weapons" />
-          </div>
+        </app-profile-radar>
+
+        <div class="grid items-start gap-x-10 gap-y-10 xl:grid-cols-2">
+          <app-opening-clutch
+            class="min-w-0"
+            [openingDuels]="p.openingDuels"
+            [clutches]="p.clutches"
+            [reference]="display.reference"
+            [colours]="display.colours"
+          />
+          <app-weapons-panel class="min-w-0" [weapons]="p.weapons" />
         </div>
 
         <!-- Tables take the full width so their columns never scroll sideways. -->

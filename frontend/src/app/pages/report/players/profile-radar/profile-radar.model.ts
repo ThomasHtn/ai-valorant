@@ -46,6 +46,8 @@ export interface RadarAxisView {
   labelX: number;
   labelY: number;
   valueY: number;
+  /** Name's line when it is written without the values. */
+  nameY: number;
   anchor: 'start' | 'middle' | 'end';
   label: string;
   points: RadarPoint[];

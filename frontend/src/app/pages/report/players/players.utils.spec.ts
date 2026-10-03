@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest';
 
 import { REFERENCE_SHORT_LABELS } from '@core/format/labels.constants';
-import { DeathZone, FormMatch, HeadlineStat } from '@core/report/players.model';
+import { UNIT_SPACE } from '@core/format/value-format.utils';
+import { DeathZone, FormMatch, HeadlineStat, OpeningDuels } from '@core/report/players.model';
 
 import {
   clutchBars,
@@ -9,6 +10,7 @@ import {
   headlineColumn,
   headlineTiles,
   isZoneTooDeadly,
+  profileRows,
   referenceLine,
   roleLabel,
   sampleLine,
@@ -129,5 +131,35 @@ describe('death zone rate', () => {
     expect(isZoneTooDeadly(zone)).toBe(true);
     expect(isZoneTooDeadly({ ...zone, topPer100Rounds: 14 })).toBe(false);
     expect(isZoneTooDeadly({ ...zone, deaths: 3 })).toBe(false);
+  });
+});
+
+describe('profileRows', () => {
+  const duels: OpeningDuels = {
+    firstBloods: 12,
+    firstDeaths: 31,
+    duelsWon: { v: 0.28, n: 43, opp: 0.38, oppN: 91 },
+    wonAfterFirstBlood: { v: null },
+    wonAfterFirstDeath: { v: null },
+  };
+
+  it('lists the headline figures then the duels won, each once with reference and sample', () => {
+    const rows = profileRows([acs], duels, 'opp', true);
+    expect(rows.map((r) => r.key)).toEqual(['acs', 'duelsWon']);
+    expect(rows[0]).toMatchObject({ value: '281', reference: '245', tone: 'good', better: 1 });
+    expect(rows[0].sample).toContain('576');
+    expect(rows[1]).toMatchObject({
+      value: `28${UNIT_SPACE}%`,
+      reference: `38${UNIT_SPACE}%`,
+      tone: 'bad',
+    });
+  });
+
+  it('does not add the duels twice when the role already has them', () => {
+    const opening: HeadlineStat = { ...acs, key: 'openingWon', format: 'pct' };
+    expect(profileRows([acs, opening], duels, 'opp', true).map((r) => r.key)).toEqual([
+      'acs',
+      'openingWon',
+    ]);
   });
 });
