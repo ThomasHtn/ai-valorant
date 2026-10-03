@@ -7,7 +7,7 @@ import { RoleIcon } from '@shared/game-art/role-icon';
 
 import { roleLabel } from '../players.utils';
 
-/** Squad players of the period as portrait buttons (main agent, name, role and its icon); each opens his sheet. */
+/** Squad players of the period as portrait buttons (avatar agent, name, role and its icon); each opens his sheet. */
 @Component({
   selector: 'app-player-picker',
   imports: [RouterLink, AgentIcon, RoleIcon],
@@ -26,7 +26,7 @@ import { roleLabel } from '../players.utils';
           "
           [attr.aria-current]="active ? 'page' : null"
         >
-          <app-agent-icon [agent]="item.mainAgent" size="md" [decorative]="true" />
+          <app-agent-icon [agent]="item.portrait" size="md" [decorative]="true" />
           <span class="flex flex-col leading-tight">
             <b class="font-semibold">{{ item.name }}</b>
             <small class="flex items-center gap-1 text-xs text-text-muted">
@@ -47,7 +47,7 @@ export class PlayerPicker {
   protected readonly items = computed(() =>
     this.players().map((p) => ({
       name: p.name,
-      mainAgent: p.mainAgent,
+      portrait: p.portrait,
       roleKey: p.role,
       role: roleLabel(p.role),
     })),

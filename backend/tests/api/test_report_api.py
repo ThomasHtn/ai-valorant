@@ -25,6 +25,7 @@ class FakeFacts:
     kills: list[Any] = field(default_factory=list)
     player_rounds: list[Any] = field(default_factory=list)
     player_matches: list[Any] = field(default_factory=list)
+    portraits: dict[str, str] = field(default_factory=dict)
     match_count: int = 0
 
 
@@ -91,7 +92,7 @@ def test_meta(client: TestClient) -> None:
     body = client.get("/api/report/meta", params={"month": "2026-09"}).json()
     assert body["kind"] == "month" and body["title"] == "Septembre 2026"
     assert (body["matches"], body["wins"], body["losses"], body["rounds"], body["sessions"]) == (3, 2, 1, 12, 2)
-    assert body["players"] == [{"name": "Alpha", "puuid": "alpha", "mainAgent": "Jett", "role": "Duelist"}]
+    assert body["players"] == [{"name": "Alpha", "puuid": "alpha", "portrait": "Jett", "role": "Duelist"}]
     assert body["quality"]["incompleteMatches"] == 3  # 4 round facts for a 22-round match
     session = client.get("/api/report/meta", params={"start": "2026-09-17", "end": "2026-09-17"}).json()
     assert session["kind"] == "session" and session["matches"] == 1

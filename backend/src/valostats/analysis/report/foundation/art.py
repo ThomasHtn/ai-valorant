@@ -25,5 +25,5 @@ def weapon_art(name: str) -> GameArt:
 
 
 def player_art(name: str) -> GameArt:
-    """The front shows the player's main agent of the period."""
+    """The front shows the player's avatar agent."""
     return GameArt(type=ArtType.PLAYER, slug=name)

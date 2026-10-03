@@ -31,6 +31,7 @@ import {
 @Component({
   selector: 'app-trend-view',
   imports: [ResourceState, LineChart, InfoTip, TrendSparkline],
+  host: { class: 'view-body' },
   templateUrl: './trend-view.html',
 })
 export class TrendView {

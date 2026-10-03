@@ -39,6 +39,7 @@ import { scopeFilter } from './tables-view.utils';
     ResourceState,
     DetectionsPanel,
   ],
+  host: { class: 'view-body' },
   templateUrl: './tables-view.html',
 })
 export class TablesView {

@@ -887,3 +887,66 @@
 @utility row-hover {
   @apply transition-colors hover:bg-text-primary/7;
 }
+
+/*
+ * Spacing levels of the report, each clearly wider than the one inside it: the report band and tab
+ * strip apart from the view, the view's blocks 2.5rem apart, a block's title 0.75rem over its content.
+ */
+
+/* Report band: full-bleed darker strip holding the period and its facts. */
+@utility report-band {
+  @apply shrink-0 bg-surface-sunken/75;
+}
+
+/* Inner row of the band, on the page's gutter and width cap. */
+@utility report-band-inner {
+  @apply mx-auto w-full max-w-[2400px] px-4 py-4 sm:px-6 2xl:px-8;
+}
+
+/* Tab strip: a lighter full-bleed bar under the band, so the views read apart from the report's facts. */
+@utility report-tabs {
+  @apply shrink-0 border-y border-edge-strong bg-surface-800/70;
+}
+
+/* Inner row of the strip, on the page's gutter: tab edges line up with the blocks of the view. */
+@utility report-tabs-inner {
+  @apply mx-auto w-full max-w-[2400px] px-4 sm:px-6 2xl:px-8;
+}
+
+/* Routed view: its toolbar, then its blocks, set well apart so each block reads as one. */
+@utility view-body {
+  @apply flex min-w-0 flex-col gap-10;
+
+  /* Filters sit closer to what they filter than blocks sit to each other. */
+  & > app-filter-bar,
+  & > .filter-strip {
+    margin-bottom: -1rem;
+  }
+}
+
+/* One block of a view: its title tight over its content. */
+@utility view-section {
+  @apply flex min-w-0 flex-col gap-3;
+
+  & > h2,
+  & > h3 {
+    margin: 0;
+  }
+}
+
+/*
+ * Body of a finding card: one label column shared by its bars (label, bar, rate, sample) and its
+ * context lines (dt, then dd).
+ * On phones a context label sits over its content instead, so the content keeps the full width.
+ */
+@utility finding-grid {
+  @apply grid grid-cols-[5rem_minmax(0,1fr)_auto_auto] items-center gap-x-3 gap-y-1.5 sm:grid-cols-[7rem_minmax(0,1fr)_3.5rem_8.5rem] sm:gap-x-4;
+
+  & > dt {
+    @apply col-span-4 self-start text-text-muted not-first:mt-1.5 sm:col-span-1 sm:not-first:mt-0;
+  }
+
+  & > dd {
+    @apply col-span-4 m-0 min-w-0 sm:col-span-3;
+  }
+}

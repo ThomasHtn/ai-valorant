@@ -27,68 +27,70 @@
   </div>
 </app-filter-bar>
 
-<!-- Capped width: each figure stays within reach of its label. -->
-<div class="mt-4 flex max-w-[64rem] flex-col gap-4">
-  <div class="grid gap-0.5 md:grid-cols-2">
-    @if (mode() === 'team') {
-      <app-selection-box
-        side="A"
-        fieldLabel="Équipe et période"
-        [options]="cohortOptions"
-        [value]="cohortA()"
-        (changed)="setA($event)"
-      />
-      <app-selection-box
-        side="B"
-        fieldLabel="Équipe et période"
-        [options]="cohortOptions"
-        [value]="cohortB()"
-        (changed)="setB($event)"
-      />
-    } @else {
-      <app-selection-box
-        side="A"
-        fieldLabel="Joueur"
-        [options]="playerOptions()"
-        [value]="playerA()"
-        (changed)="setA($event)"
-      />
-      <app-selection-box
-        side="B"
-        fieldLabel="Joueur"
-        [options]="playerOptions()"
-        [value]="playerB()"
-        (changed)="setB($event)"
-      />
-    }
-  </div>
-
-  <div class="flex flex-wrap items-center gap-x-5 gap-y-2">
-    <div class="seg-group" role="group" aria-label="Ordre des lignes">
-      @for (item of sorts; track item.sort) {
-        <button
-          type="button"
-          class="seg-option"
-          [attr.aria-pressed]="sort() === item.sort"
-          (click)="sort.set(item.sort)"
-        >
-          {{ item.label }}
-        </button>
+<div class="flex flex-col gap-10">
+  <!-- What is compared: the two sides, then how the lines are sorted. -->
+  <div class="flex flex-col gap-3">
+    <div class="grid gap-0.5 md:grid-cols-2">
+      @if (mode() === 'team') {
+        <app-selection-box
+          side="A"
+          fieldLabel="Équipe et période"
+          [options]="cohortOptions"
+          [value]="cohortA()"
+          (changed)="setA($event)"
+        />
+        <app-selection-box
+          side="B"
+          fieldLabel="Équipe et période"
+          [options]="cohortOptions"
+          [value]="cohortB()"
+          (changed)="setB($event)"
+        />
+      } @else {
+        <app-selection-box
+          side="A"
+          fieldLabel="Joueur"
+          [options]="playerOptions()"
+          [value]="playerA()"
+          (changed)="setA($event)"
+        />
+        <app-selection-box
+          side="B"
+          fieldLabel="Joueur"
+          [options]="playerOptions()"
+          [value]="playerB()"
+          (changed)="setB($event)"
+        />
       }
     </div>
-    <label class="flex cursor-pointer items-center gap-2 text-text-secondary">
-      <input
-        type="checkbox"
-        class="size-4 accent-brand-500"
-        [checked]="netOnly()"
-        (change)="netOnly.set(!netOnly())"
-      />
-      Écarts nets seulement
-    </label>
-    <p class="!m-0 text-sm text-text-muted">
-      Entre parenthèses : l'échantillon. L'écart reste gris quand il peut venir du hasard avec ces
-      échantillons.
-    </p>
+
+    <div class="flex flex-wrap items-center gap-x-5 gap-y-2">
+      <div class="seg-group" role="group" aria-label="Ordre des lignes">
+        @for (item of sorts; track item.sort) {
+          <button
+            type="button"
+            class="seg-option"
+            [attr.aria-pressed]="sort() === item.sort"
+            (click)="sort.set(item.sort)"
+          >
+            {{ item.label }}
+          </button>
+        }
+      </div>
+      <label class="flex cursor-pointer items-center gap-2 text-text-secondary">
+        <input
+          type="checkbox"
+          class="size-4 accent-brand-500"
+          [checked]="netOnly()"
+          (change)="netOnly.set(!netOnly())"
+        />
+        Écarts nets seulement
+      </label>
+      <p class="!m-0 text-sm text-text-muted">
+        Entre parenthèses : l'échantillon. L'écart reste gris quand il peut venir du hasard avec ces
+        échantillons.
+      </p>
+    </div>
   </div>
 
   <app-resource-state

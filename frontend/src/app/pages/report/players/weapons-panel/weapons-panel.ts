@@ -37,7 +37,7 @@ import { InfoTip } from '@shared/info-tip/info-tip';
       }
     </ul>
   `,
-  host: { class: 'flex flex-col gap-1.5' },
+  host: { class: 'view-section' },
 })
 export class WeaponsPanel {
   public readonly weapons = input.required<WeaponUse[]>();

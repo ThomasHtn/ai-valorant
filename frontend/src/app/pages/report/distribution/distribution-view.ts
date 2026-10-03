@@ -29,6 +29,7 @@ import { distributionSeries, medianGap, readingSentence } from './distribution.u
 @Component({
   selector: 'app-distribution-view',
   imports: [FilterBar, ResourceState, HistogramChart, InfoTip, StatTile],
+  host: { class: 'view-body' },
   templateUrl: './distribution-view.html',
 })
 export class DistributionView {

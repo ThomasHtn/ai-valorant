@@ -1,15 +1,15 @@
 <app-resource-state [resource]="list" notFoundText="Aucun match de l'escouade sur cette période.">
   @if (list.hasValue()) {
-    <div class="mt-4 grid items-start gap-5 lg:grid-cols-[20rem_minmax(0,1fr)]">
+    <div class="grid items-start gap-x-10 gap-y-6 lg:grid-cols-[20rem_minmax(0,1fr)]">
       <app-evening-list [evenings]="list.value().evenings" [selected]="selectedId()" />
 
       <app-resource-state [resource]="detail" notFoundText="Ce match est introuvable.">
         @if (detail.hasValue()) {
           @let match = detail.value();
-          <div class="flex min-w-0 flex-col gap-5">
+          <div class="flex min-w-0 flex-col gap-10">
             <app-match-header [match]="match" />
 
-            <section class="flex flex-col gap-2" aria-labelledby="match-rounds-title">
+            <section class="view-section" aria-labelledby="match-rounds-title">
               <div class="flex flex-wrap items-center gap-x-4 gap-y-1">
                 <h2 class="!m-0 text-lg" id="match-rounds-title">
                   Rounds<app-info-tip topic="roundStrip" />
@@ -31,7 +31,7 @@
             </section>
 
             <div
-              class="grid gap-5 [grid-template-columns:repeat(auto-fit,minmax(min(100%,34rem),1fr))]"
+              class="grid gap-x-8 gap-y-10 [grid-template-columns:repeat(auto-fit,minmax(min(100%,34rem),1fr))]"
             >
               <app-scoreboard title="L'escouade" [lines]="match.squad" [squad]="true" />
               <app-scoreboard title="Adversaires" [lines]="match.opponents" />

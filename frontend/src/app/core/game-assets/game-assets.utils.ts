@@ -45,7 +45,7 @@ export function weaponIcon(weapon: string): string | null {
   return KNOWN_WEAPONS.has(weapon) ? `${ASSETS_ROOT}/weapons/${assetSlug(weapon)}.webp` : null;
 }
 
-/** Picture of a table row from the API's art slug; players are drawn by their main agent elsewhere. */
+/** Picture of a table row from the API's art slug; players are drawn by their avatar agent elsewhere. */
 export function artImage(type: 'map' | 'agent' | 'weapon' | 'role', slug: string): string {
   switch (type) {
     case 'map':

@@ -111,7 +111,7 @@ def _summary(cohorts: ReportCohorts, player: SquadPlayer) -> PlayerSummary:
     return PlayerSummary(
         name=player.name,
         puuid=player.puuid,
-        main_agent=player.main_agent,
+        portrait=player.portrait,
         role=player.role,
         rank=ranked[-1].tier_name if ranked else None,
         matches=len(matches),

@@ -1,25 +1,28 @@
 @let display = sheetDisplay();
 
-<app-filter-bar [showMap]="false" [showSide]="false" [showPlayer]="false" [showReference]="false">
-  <app-player-reference />
-</app-filter-bar>
+<!-- Who and against what: the filters and the player picker form one toolbar. -->
+<div class="flex flex-col gap-2">
+  <app-filter-bar [showMap]="false" [showSide]="false" [showPlayer]="false" [showReference]="false">
+    <app-player-reference />
+  </app-filter-bar>
+  @if (players.hasValue()) {
+    <app-player-picker [players]="players.value()" [selected]="selected()" />
+  }
+</div>
 
 <app-resource-state
   [resource]="players"
   notFoundText="Aucun joueur de l'escouade sur cette période."
 >
-  <div class="mt-4 flex flex-col gap-5">
-    @if (players.hasValue()) {
-      <app-player-picker [players]="players.value()" [selected]="selected()" />
-    }
-
-    <app-resource-state
-      [resource]="sheet"
-      notFoundText="Ce joueur n'a pas joué avec l'escouade sur cette période."
-    >
-      @if (sheet.hasValue()) {
-        @let p = sheet.value();
-        <div class="flex flex-col gap-5">
+  <app-resource-state
+    [resource]="sheet"
+    notFoundText="Ce joueur n'a pas joué avec l'escouade sur cette période."
+  >
+    @if (sheet.hasValue()) {
+      @let p = sheet.value();
+      <div class="view-body">
+        <!-- Who the player is and his headline figures, read as one block. -->
+        <div class="flex flex-col gap-3">
           <app-player-header [sheet]="p" />
           <app-headline-band
             [headline]="p.headline"
@@ -27,54 +30,51 @@
             [colours]="display.colours"
             [roleLabel]="roleLabel()"
           />
-
           <app-tone-legend [reference]="display.reference" />
-          <div
-            class="grid items-start gap-x-8 gap-y-5 xl:grid-cols-[minmax(0,1.45fr)_minmax(0,1fr)]"
-          >
-            <div class="flex min-w-0 flex-col gap-5">
-              @for (table of tables(); track table.id) {
-                <section
-                  class="flex min-w-0 flex-col gap-1.5"
-                  [attr.aria-labelledby]="'player-' + table.id"
-                >
-                  <h3
-                    class="!m-0 font-display text-lg font-semibold text-text-primary"
-                    [id]="'player-' + table.id"
-                  >
-                    {{ table.title }}
-                  </h3>
-                  <app-stat-table
-                    [table]="table"
-                    [display]="display"
-                    [playerAgents]="context.playerAgents()"
-                  />
-                </section>
-              }
-            </div>
-            <div class="flex min-w-0 flex-col gap-5">
-              <app-opening-clutch
-                [openingDuels]="p.openingDuels"
-                [clutches]="p.clutches"
-                [reference]="display.reference"
-                [colours]="display.colours"
-              />
-              <app-weapons-panel [weapons]="p.weapons" />
-              <app-death-zones [deathZones]="p.deathZones" />
-            </div>
-          </div>
-
-          <app-form-tiles
-            [form]="p.form"
-            [acs]="acs()"
-            [reference]="display.reference"
-            [colours]="display.colours"
-          />
-          @if (p.rewatch.length) {
-            <app-rewatch-list [rounds]="p.rewatch" />
-          }
         </div>
-      }
-    </app-resource-state>
-  </div>
+
+        <div
+          class="grid items-start gap-x-10 gap-y-10 xl:grid-cols-[minmax(0,1.45fr)_minmax(0,1fr)]"
+        >
+          <div class="flex min-w-0 flex-col gap-10">
+            @for (table of tables(); track table.id) {
+              <section class="view-section" [attr.aria-labelledby]="'player-' + table.id">
+                <h3
+                  class="font-display text-lg font-semibold text-text-primary"
+                  [id]="'player-' + table.id"
+                >
+                  {{ table.title }}
+                </h3>
+                <app-stat-table
+                  [table]="table"
+                  [display]="display"
+                  [playerAgents]="context.playerAgents()"
+                />
+              </section>
+            }
+          </div>
+          <div class="flex min-w-0 flex-col gap-10">
+            <app-opening-clutch
+              [openingDuels]="p.openingDuels"
+              [clutches]="p.clutches"
+              [reference]="display.reference"
+              [colours]="display.colours"
+            />
+            <app-weapons-panel [weapons]="p.weapons" />
+            <app-death-zones [deathZones]="p.deathZones" />
+          </div>
+        </div>
+
+        <app-form-tiles
+          [form]="p.form"
+          [acs]="acs()"
+          [reference]="display.reference"
+          [colours]="display.colours"
+        />
+        @if (p.rewatch.length) {
+          <app-rewatch-list [rounds]="p.rewatch" />
+        }
+      </div>
+    }
+  </app-resource-state>
 </app-resource-state>

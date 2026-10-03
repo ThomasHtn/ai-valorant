@@ -1,5 +1,5 @@
 <app-resource-state [resource]="trends" notFoundText="Pas de tendance pour cette période.">
-  <div class="flex flex-col gap-4">
+  <div class="view-body">
     <div class="filter-strip" role="group" aria-label="Choix de la courbe">
       <label class="flex items-center gap-2">
         <span class="filter-label">Qui</span>
@@ -110,7 +110,7 @@
     }
 
     @if (isTeam() && smallMultiples().length) {
-      <section class="flex flex-col gap-3" aria-labelledby="trend-smalls">
+      <section class="view-section" aria-labelledby="trend-smalls">
         <h2 id="trend-smalls" class="!m-0 text-lg">Par mois, chiffres clés de l'escouade</h2>
         <div class="grid grid-cols-[repeat(auto-fit,minmax(14rem,1fr))] gap-0.5">
           @for (item of smallMultiples(); track item.key) {

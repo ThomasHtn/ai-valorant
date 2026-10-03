@@ -23,16 +23,17 @@ import { LayerToggles } from './layer-toggles/layer-toggles';
 import { MapPicker } from './map-picker/map-picker';
 import { DEFAULT_LAYERS } from './minimap-layers.constants';
 import { MinimapLayerKey } from './minimap-layers.model';
-import { layerCounts, minimapMarkers, pickMap, sideLayers } from './minimap.utils';
+import { layerCounts, minimapMarkers, pickMap, plantSpots, sideLayers } from './minimap.utils';
 import { ZoneTable } from './zone-table/zone-table';
 
 /**
  * Minimap: the squad's deaths, kills and plants of the period on the real minimap of one map and
- * side, by layer, with a zone summary compared with the top ranked. A point opens its round.
+ * side, by layer, the top ranked plants as density spots, with a zone summary compared with the top ranked. A point opens its round.
  */
 @Component({
   selector: 'app-minimap-view',
   imports: [LayerToggles, MapPicker, MinimapCanvas, ResourceState, ZoneTable],
+  host: { class: 'view-body' },
   templateUrl: './minimap-view.html',
 })
 export class MinimapView {
@@ -62,7 +63,7 @@ export class MinimapView {
 
   private readonly data = computed(() => resourceValue(this.view, null));
   protected readonly sideData = computed(() => this.data()?.sides[this.side()]);
-  protected readonly counts = computed(() => layerCounts(this.sideData()));
+  protected readonly counts = computed(() => layerCounts(this.sideData(), this.data()?.topPlants));
   protected readonly visibleLayers = computed(() => sideLayers(this.side()));
   protected readonly markers = computed(() => {
     const data = this.data();
@@ -70,6 +71,9 @@ export class MinimapView {
       ? minimapMarkers(data, this.side(), this.layers(), this.state.filters().player)
       : [];
   });
+  protected readonly density = computed(() =>
+    plantSpots(this.data()?.topPlants ?? [], this.layers()),
+  );
   protected readonly zones = computed(() => this.sideData()?.zones ?? null);
   protected readonly highlight = computed<MinimapHighlight | null>(() => {
     const zone = this.hoveredZone();

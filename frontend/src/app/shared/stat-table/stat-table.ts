@@ -30,7 +30,7 @@ interface HoveredCell {
 /**
  * A coloured statistics table of the Tableaux view (any `StatTable` from the API).
  *
- * - A picture column aligns the rows (map, agent, weapon, role; players by their main agent).
+ * - A picture column aligns the rows (map, agent, weapon, role; players by their avatar agent).
  * - Headers sort the rows (descending, ascending, API order); the total row stays last.
  * - Cells are coloured against the chosen reference, may show their sample and reference value,
  *   explain themselves in a tip (squad, top ranked, opponents, history with their samples) and
@@ -47,7 +47,7 @@ export class StatTableView {
   public readonly table = input.required<StatTable>();
   /** Reference, colours and extra lines, usually `ReportState.preferences()`. */
   public readonly display = input.required<StatDisplay>();
-  /** Squad player name -> main agent, to draw player rows. */
+  /** Squad player name -> avatar agent, to draw player rows. */
   public readonly playerAgents = input<Record<string, string>>({});
   /** Keeps only the rows matching the scope filters; the total row always stays. */
   public readonly rowFilter = input<((row: StatRow) => boolean) | null>(null);

@@ -1,55 +1,44 @@
-<app-filter-bar
-  [maps]="maps()"
-  [showPlayer]="false"
-  [showReference]="false"
-  [showToggles]="false"
-/>
+<app-filter-bar [maps]="maps()" [showPlayer]="false" [showReference]="false" [showToggles]="false">
+  <!-- Which distribution and whose: part of the toolbar, so it sits with the other filters. -->
+  @if (current(); as d) {
+    <div class="seg-group flex-wrap" role="group" aria-label="Choix de la répartition">
+      @for (item of distributions.value(); track item.key) {
+        <button
+          type="button"
+          class="seg-option"
+          [attr.aria-pressed]="item.key === d.key"
+          (click)="pick(item.key)"
+        >
+          {{ item.label }}
+        </button>
+      }
+    </div>
+    @if (d.players) {
+      <label class="flex items-center gap-2">
+        <span class="filter-label">Qui</span>
+        <select
+          id="distribution-subject"
+          class="field-control min-w-28"
+          (change)="setSubject($event)"
+        >
+          <option [value]="squadSubject" [selected]="subject() === squadSubject">L'escouade</option>
+          @for (player of d.players; track player.name) {
+            <option [value]="player.name" [selected]="subject() === player.name">
+              {{ player.name }}
+            </option>
+          }
+        </select>
+      </label>
+    }
+  }
+</app-filter-bar>
 
 <app-resource-state
-  class="mt-4 block"
   [resource]="distributions"
   notFoundText="Pas de distribution sur cette période."
 >
   @if (current(); as d) {
-    <div class="flex flex-col gap-4">
-      <div
-        class="flex flex-wrap items-center gap-x-5 gap-y-2"
-        role="group"
-        aria-label="Choix de la répartition"
-      >
-        <div class="seg-group flex-wrap">
-          @for (item of distributions.value(); track item.key) {
-            <button
-              type="button"
-              class="seg-option"
-              [attr.aria-pressed]="item.key === d.key"
-              (click)="pick(item.key)"
-            >
-              {{ item.label }}
-            </button>
-          }
-        </div>
-        @if (d.players) {
-          <label class="flex items-center gap-2">
-            <span class="filter-label">Qui</span>
-            <select
-              id="distribution-subject"
-              class="field-control min-w-28"
-              (change)="setSubject($event)"
-            >
-              <option [value]="squadSubject" [selected]="subject() === squadSubject">
-                L'escouade
-              </option>
-              @for (player of d.players; track player.name) {
-                <option [value]="player.name" [selected]="subject() === player.name">
-                  {{ player.name }}
-                </option>
-              }
-            </select>
-          </label>
-        }
-      </div>
-
+    <div class="flex flex-col gap-3">
       @if (series(); as s) {
         <section
           class="flex flex-col gap-3 bg-text-primary/4 p-4"

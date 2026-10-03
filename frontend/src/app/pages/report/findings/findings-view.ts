@@ -18,6 +18,7 @@ import { filterFindings, findingColumn } from './findings-view.utils';
 @Component({
   selector: 'app-findings-view',
   imports: [FilterBar, InfoTip, ResourceState, FindingColumn],
+  host: { class: 'view-body' },
   templateUrl: './findings-view.html',
 })
 export class FindingsView {

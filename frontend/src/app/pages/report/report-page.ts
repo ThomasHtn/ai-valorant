@@ -1,3 +1,4 @@
+import { NgTemplateOutlet } from '@angular/common';
 import { Component, computed, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import {
@@ -16,7 +17,7 @@ import { freshness } from '@core/format/format.utils';
 import { integer } from '@core/format/value-format.utils';
 import { ReportContext } from '@core/report/report-context';
 import { periodQueryParams } from '@core/report/period-query.utils';
-import { REPORT_VIEW_GROUPS } from '@core/report/report-views.constants';
+import { REPORT_MAIN_VIEWS, REPORT_TOOL_VIEWS } from '@core/report/report-views.constants';
 import { PageHeader } from '@layout/page-header/page-header';
 import { DataQuality } from '@shared/data-quality/data-quality';
 import { ResourceState } from '@shared/resource-state/resource-state';
@@ -36,6 +37,7 @@ const LOADER_DELAY_MS = 200;
     RouterOutlet,
     RouterLink,
     RouterLinkActive,
+    NgTemplateOutlet,
     PageHeader,
     DataQuality,
     ResourceState,
@@ -46,7 +48,8 @@ const LOADER_DELAY_MS = 200;
 })
 export class ReportPage {
   protected readonly context = inject(ReportContext);
-  protected readonly groups = REPORT_VIEW_GROUPS;
+  protected readonly mainViews = REPORT_MAIN_VIEWS;
+  protected readonly toolViews = REPORT_TOOL_VIEWS;
   /** Tabs keep the period only: a view's own filters (map, side, round) do not leak into the next. */
   protected readonly periodParams = computed(() => periodQueryParams(this.context.query()));
   /** True while a view's code is being fetched, so the page never sits empty. */
@@ -67,4 +70,9 @@ export class ReportPage {
   );
   protected readonly integer = integer;
   protected readonly freshness = freshness;
+
+  /** Brings the active tab into the bar's view on narrow screens, where the bar scrolls sideways. */
+  protected reveal(tab: HTMLElement): void {
+    tab.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+  }
 }

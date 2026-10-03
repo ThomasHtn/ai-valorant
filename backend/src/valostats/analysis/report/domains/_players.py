@@ -24,8 +24,8 @@ _Slices = tuple[dict[str, list[Any]], dict[str, list[Any]]]
 
 
 def player_art(player: SquadPlayer) -> GameArt:
-    """Rows of players show the portrait of their main agent."""
-    return agent_art(player.main_agent)
+    """Rows of players show their avatar agent."""
+    return agent_art(player.portrait)
 
 
 def role_label(player: SquadPlayer) -> str:

@@ -18,6 +18,8 @@
 
   /* Top ranked reference in charts and bars. */
   --color-top: #bdbcb6;
+  /* Top ranked plants on the minimap: a hue no other layer uses, readable over the grey map. */
+  --color-top-plants: #b48cf2;
 }
 
 /*

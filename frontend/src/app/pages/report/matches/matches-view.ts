@@ -20,6 +20,7 @@ import { Scoreboard } from './scoreboard/scoreboard';
 @Component({
   selector: 'app-matches-view',
   imports: [EveningList, InfoTip, LossCauses, MatchHeader, ResourceState, RoundStrip, Scoreboard],
+  host: { class: 'view-body' },
   templateUrl: './matches-view.html',
 })
 export class MatchesView {

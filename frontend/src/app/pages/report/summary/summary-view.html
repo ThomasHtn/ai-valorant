@@ -1,6 +1,6 @@
 <!-- Headline figures over every map, coloured against the chosen reference. -->
-<section aria-labelledby="summary-headline">
-  <h2 id="summary-headline" class="!mt-0">
+<section class="view-section" aria-labelledby="summary-headline">
+  <h2 id="summary-headline">
     Bilan
     <app-tone-legend
       class="order-2 font-sans text-sm font-normal"
@@ -23,9 +23,9 @@
   </app-resource-state>
 </section>
 
-<div class="mt-2 grid items-start gap-x-8 xl:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
-  <div class="flex min-w-0 flex-col">
-    <section aria-labelledby="summary-weak">
+<div class="grid items-start gap-x-10 gap-y-10 xl:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
+  <div class="flex min-w-0 flex-col gap-10">
+    <section class="view-section" aria-labelledby="summary-weak">
       <h2 id="summary-weak">
         À travailler en priorité
         <a
@@ -44,7 +44,7 @@
       </app-resource-state>
     </section>
 
-    <section aria-labelledby="summary-strong">
+    <section class="view-section" aria-labelledby="summary-strong">
       <h2 id="summary-strong">
         Ce qui marche
         <a
@@ -64,8 +64,8 @@
     </section>
   </div>
 
-  <div class="flex min-w-0 flex-col">
-    <section aria-labelledby="summary-maps">
+  <div class="flex min-w-0 flex-col gap-10">
+    <section class="view-section" aria-labelledby="summary-maps">
       <h2 id="summary-maps">
         Cartes
         <a
@@ -84,7 +84,7 @@
       }
     </section>
 
-    <section aria-labelledby="summary-players">
+    <section class="view-section" aria-labelledby="summary-players">
       <h2 id="summary-players">
         Joueurs
         <a
@@ -104,7 +104,7 @@
     </section>
 
     @if (lastEvening(); as evening) {
-      <section aria-labelledby="summary-evening">
+      <section class="view-section" aria-labelledby="summary-evening">
         <h2 id="summary-evening">
           Dernière session
           <a

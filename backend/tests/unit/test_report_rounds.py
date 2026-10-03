@@ -9,7 +9,7 @@ from tests.report_facts import SEPTEMBER, kill_fact, round_fact
 from valostats.analysis.extraction.win_probability import WinProbabilityTable
 from valostats.analysis.report.foundation.death_rules import is_isolated
 from valostats.analysis.report.rounds.loss_causes import loss_cause
-from valostats.analysis.report.rounds.minimap import _Projector
+from valostats.analysis.report.rounds.minimap import _Projector, density
 from valostats.analysis.report.rounds.round_sheet import round_sheet
 from valostats.analysis.report.rounds.round_states import best_moment, biggest_drop, team_states
 from valostats.domain.enums import BuyType, LossCause, Side
@@ -121,3 +121,8 @@ def test_isolated_death_ignores_the_last_player_alive() -> None:
     assert is_isolated(kill_fact(nearest_teammate=2000.0))
     assert not is_isolated(kill_fact(nearest_teammate=900.0))
     assert not is_isolated(kill_fact(nearest_teammate=None))
+
+
+def test_density_counts_points_per_cell_and_drops_off_map_ones() -> None:
+    cells = density([(0.1, 0.1), (0.12, 0.12), (0.9, 0.5), (1.0, 1.0), (1.4, 0.5)], 4)
+    assert [(c.x, c.y, c.count) for c in cells] == [(0.125, 0.125, 2), (0.875, 0.625, 1), (0.875, 0.875, 1)]

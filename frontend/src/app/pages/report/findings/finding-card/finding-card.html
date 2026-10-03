@@ -1,97 +1,114 @@
 <app-row-art class="!size-9" [art]="art()" />
 
-<div class="flex min-w-0 flex-col gap-0.5">
-  <span class="flex flex-wrap items-center gap-x-2.5 gap-y-1">
-    <span class="font-display text-[1.0625rem] font-semibold">{{ title() }}</span>
-    <app-badge
-      [label]="statusLabel()"
-      [kind]="lead().status === 'confirmed' ? 'confirmed' : 'lead'"
-      size="sm"
-    />
-  </span>
-  <span class="text-text-secondary">{{ metric() }}</span>
-</div>
+<!-- Identity: the subject, then in plain words which way the squad differs and which way is better. -->
+<span class="flex min-w-0 flex-wrap items-center gap-x-2.5 gap-y-1 self-center sm:self-start">
+  <span class="font-display text-lg leading-tight font-semibold">{{ title() }}</span>
+  <app-badge
+    [label]="statusLabel()"
+    [kind]="lead().status === 'confirmed' ? 'confirmed' : 'lead'"
+    size="sm"
+  />
+</span>
 
-<app-gap-chip [value]="gapText()" [unit]="gapUnit()" [tone]="isWeak() ? 'bad' : 'good'" />
+<app-gap-chip
+  class="sm:row-span-2"
+  [value]="gapText()"
+  [unit]="gapUnit()"
+  [tone]="isWeak() ? 'bad' : 'good'"
+/>
 
-<!-- Plain-language reading of the gap: which way the squad differs and which way is better. -->
-<p class="col-span-2 col-start-2 !m-0 flex items-start gap-1.5">
-  <svg
-    class="mt-[0.2rem] size-4 shrink-0 text-text-muted"
-    [lucideIcon]="higherIsBetter() ? arrowUp : arrowDown"
-    aria-hidden="true"
-  ></svg>
-  <span>
-    <b class="font-semibold" [class]="isWeak() ? 'text-rating-bad' : 'text-rating-good'">{{
-      verdict().comparison
-    }}</b
-    ><span class="text-text-secondary">{{ verdict().direction }}</span>
-  </span>
+<p class="col-span-3 !m-0 mt-2 sm:col-span-1 sm:col-start-2 sm:mt-1">
+  <b class="font-semibold" [class]="isWeak() ? 'text-rating-bad' : 'text-rating-good'">{{
+    verdict().comparison
+  }}</b
+  ><span class="text-text-secondary">{{ verdict().direction }}</span>
 </p>
 
-<div
-  class="col-span-2 col-start-2 mt-1.5 grid grid-cols-[5.5rem_minmax(0,1fr)_auto] items-center sm:grid-cols-[6.5rem_minmax(0,1fr)_7.5rem] gap-x-3 gap-y-1"
->
-  @for (bar of bars(); track bar.label) {
-    <span [class]="bar.isSquad ? 'font-semibold' : 'text-text-secondary'">{{ bar.label }}</span>
-    <span class="relative h-2.5 bg-text-primary/8" aria-hidden="true">
-      <i class="absolute inset-y-0 left-0 block" [class]="bar.fill" [style.width.%]="bar.width"></i>
-    </span>
-    <span class="text-right whitespace-nowrap tabular-nums">
-      <b [class]="bar.isSquad ? 'text-text-primary' : 'font-semibold text-text-secondary'">{{
-        bar.value
-      }}</b>
-      <span class="text-sm text-text-muted"> {{ bar.sample }}</span>
-    </span>
-  }
-</div>
-
-@if (causes(); as causes) {
-  <p class="col-span-2 col-start-2 !m-0 !mt-1">
-    <span class="text-text-muted">Perdus surtout par :</span> {{ causes }}
-  </p>
-}
-
-@if (caveat(); as caveat) {
-  <p class="col-span-2 col-start-2 !m-0 text-sm text-text-muted">{{ caveat }}</p>
-}
-
-@if (lead().rewatch.length) {
-  <app-rewatch-links class="col-span-2 col-start-2" [rounds]="lead().rewatch" label="À revoir :" />
-}
-
-@if (others().length) {
-  <div class="col-span-2 col-start-2 mt-1.5 flex flex-col gap-0.5 border-t border-edge pt-2">
-    <p class="!m-0 !mb-1 text-sm text-text-muted">
-      Autres écarts sur {{ title() }}, à ne pas additionner :
-    </p>
-    @for (other of others(); track $index) {
-      <div
-        class="row-hover grid grid-cols-[minmax(0,1fr)_auto_auto] items-center gap-x-3 py-0.5 pl-1"
+<!-- Figures and context share one label column, so every line of the card starts at the same place. -->
+<div class="col-span-3 mt-2 flex flex-col sm:col-span-2 sm:col-start-2">
+  <div class="finding-grid gap-y-2.5 border-t border-edge py-3.5">
+    @for (bar of bars(); track bar.label) {
+      <span [class]="bar.isSquad ? 'font-semibold' : 'text-text-secondary'">{{ bar.label }}</span>
+      <span class="relative h-2.5 bg-text-primary/8" aria-hidden="true">
+        <i
+          class="absolute inset-y-0 left-0 block"
+          [class]="bar.fill"
+          [style.width.%]="bar.width"
+        ></i>
+      </span>
+      <!-- Rate and sample in columns of their own, so each reads apart and lines up across bars. -->
+      <b
+        class="text-right text-[1.0625rem] font-semibold whitespace-nowrap tabular-nums"
+        [class]="bar.isSquad ? 'text-text-primary' : 'text-text-secondary'"
+        >{{ bar.value }}</b
       >
-        <span class="min-w-0 truncate">
-          {{ other.label }}
-          @if (other.confirmed) {
-            <span class="text-sm text-text-muted">(écart net)</span>
-          }
-        </span>
-        <span class="text-sm whitespace-nowrap text-text-secondary">{{ other.detail }}</span>
-        <app-gap-chip size="sm" [value]="other.gap" [tone]="isWeak() ? 'bad' : 'good'" />
-      </div>
+      <span class="text-right text-sm whitespace-nowrap text-text-muted tabular-nums">{{
+        bar.sample
+      }}</span>
     }
   </div>
-}
 
-@if (links().length) {
-  <nav class="col-span-2 col-start-2 flex flex-wrap gap-x-4" aria-label="Voir le détail">
-    @for (link of links(); track link.label) {
-      <a
-        class="hover:underline"
-        [routerLink]="link.commands"
-        [queryParams]="link.queryParams"
-        queryParamsHandling="merge"
-        >{{ link.label }}</a
-      >
-    }
-  </nav>
-}
+  @if (hasContext()) {
+    <dl class="finding-grid !m-0 border-t border-edge pt-3">
+      @if (causes(); as causes) {
+        <dt>Perdu par</dt>
+        <dd>{{ causes }}</dd>
+      }
+
+      @if (caveat(); as caveat) {
+        <dt>À noter</dt>
+        <dd class="text-text-secondary">{{ caveat }}</dd>
+      }
+
+      @if (lead().rewatch.length) {
+        <dt>À revoir</dt>
+        <dd><app-rewatch-links [rounds]="lead().rewatch" /></dd>
+      }
+
+      @if (others().length) {
+        <dt>Autres écarts</dt>
+        <dd class="flex flex-col gap-0.5">
+          @for (other of others(); track $index) {
+            <span
+              class="grid grid-cols-[minmax(0,1fr)_3.5rem] items-baseline gap-x-3 sm:grid-cols-[minmax(0,1fr)_auto_3.5rem]"
+            >
+              <span class="min-w-0 truncate">
+                {{ other.label }}
+                @if (other.confirmed) {
+                  <span class="text-sm text-text-muted">(écart net)</span>
+                }
+              </span>
+              <span
+                class="col-start-1 row-start-2 text-sm text-text-muted sm:col-start-auto sm:row-start-auto sm:whitespace-nowrap"
+                >{{ other.detail }}</span
+              >
+              <b
+                class="text-right font-semibold tabular-nums"
+                [class]="isWeak() ? 'text-rating-bad' : 'text-rating-good'"
+                >{{ other.gap }}</b
+              >
+            </span>
+          }
+          <span class="text-sm text-text-muted"
+            >Mêmes rounds que plus haut : ne pas additionner.</span
+          >
+        </dd>
+      }
+
+      @if (links().length) {
+        <dt>Voir</dt>
+        <dd class="flex flex-wrap gap-x-4">
+          @for (link of links(); track link.label) {
+            <a
+              class="hover:underline"
+              [routerLink]="link.commands"
+              [queryParams]="link.queryParams"
+              queryParamsHandling="merge"
+              >{{ link.label }}</a
+            >
+          }
+        </dd>
+      }
+    </dl>
+  }
+</div>

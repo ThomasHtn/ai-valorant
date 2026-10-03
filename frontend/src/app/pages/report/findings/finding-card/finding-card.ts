@@ -1,6 +1,5 @@
 import { Component, computed, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { LucideArrowDown, LucideArrowUp, LucideDynamicIcon } from '@lucide/angular';
 
 import { STATUS_LABELS } from '@core/format/labels.constants';
 import { formatValue, integer } from '@core/format/value-format.utils';
@@ -10,7 +9,6 @@ import {
   findingLinks,
   fiveStackCaveat,
   gapUnit,
-  higherIsBetter,
   mainCauses,
   referenceText,
   subjectLabel,
@@ -26,7 +24,7 @@ import { RewatchLinks } from '@shared/rewatch-links/rewatch-links';
 
 import { barWidth } from '../findings-view.utils';
 
-/** One bar of the card: who, the rate as text, its count and the bar width. */
+/** One bar of the card: who, the rate as text, its sample ('44 sur 110') and the bar width. */
 interface RateBar {
   label: string;
   value: string;
@@ -62,11 +60,11 @@ function signedRounds(gap: number): string {
  */
 @Component({
   selector: 'app-finding-card',
-  imports: [Badge, GapChip, RowArt, RewatchLinks, RouterLink, LucideDynamicIcon],
+  imports: [Badge, GapChip, RowArt, RewatchLinks, RouterLink],
   templateUrl: './finding-card.html',
   host: {
     class:
-      'row-hover grid grid-cols-[2.25rem_minmax(0,1fr)_auto] items-start gap-x-3 gap-y-1.5 bg-text-primary/4 px-4 py-3.5',
+      'grid grid-cols-[2.25rem_minmax(0,1fr)_auto] items-start gap-x-3.5 bg-text-primary/4 px-5 py-4',
   },
 })
 export class FindingCard {
@@ -85,9 +83,6 @@ export class FindingCard {
   protected readonly caveat = computed(() => fiveStackCaveat(this.lead()));
   protected readonly links = computed(() => findingLinks(this.lead()));
   protected readonly verdict = computed(() => verdictText(this.lead()));
-  protected readonly higherIsBetter = computed(() => higherIsBetter(this.lead()));
-  protected readonly arrowUp = LucideArrowUp;
-  protected readonly arrowDown = LucideArrowDown;
 
   protected readonly others = computed<OtherLine[]>(() =>
     this.subject().others.map((f) => ({
@@ -98,12 +93,22 @@ export class FindingCard {
     })),
   );
 
+  /** True when the card has any line under its bars. */
+  protected readonly hasContext = computed(
+    () =>
+      !!this.causes() ||
+      !!this.caveat() ||
+      this.lead().rewatch.length > 0 ||
+      this.others().length > 0 ||
+      this.links().length > 0,
+  );
+
   protected readonly bars = computed<RateBar[]>(() => {
     const f = this.lead();
     const bar = (label: string, rate: Rate, fill: string, isSquad = false): RateBar => ({
       label,
       value: formatValue(rate.value, 'pct'),
-      sample: `${integer(rate.count)}/${integer(rate.total)}`,
+      sample: `${integer(rate.count)} sur ${integer(rate.total)}`,
       width: barWidth(rate.value),
       fill,
       isSquad,

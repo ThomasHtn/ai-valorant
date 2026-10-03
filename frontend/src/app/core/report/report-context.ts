@@ -47,10 +47,10 @@ export class ReportContext {
   /** Header facts, filter options and data quality of the period. */
   public readonly meta = this.api.meta(this.query);
 
-  /** Squad player name -> main agent, for the picture of player rows. */
+  /** Squad player name -> avatar agent, for the picture of player rows. */
   public readonly playerAgents = computed<Record<string, string>>(() =>
     Object.fromEntries(
-      (resourceValue(this.meta, null)?.players ?? []).map((p) => [p.name, p.mainAgent]),
+      (resourceValue(this.meta, null)?.players ?? []).map((p) => [p.name, p.portrait]),
     ),
   );
 }

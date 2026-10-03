@@ -33,6 +33,7 @@ import {
 @Component({
   selector: 'app-rounds-view',
   imports: [LucideX, ResourceState, RoundFiltersView, RoundList, RoundSheetView],
+  host: { class: 'view-body' },
   templateUrl: './rounds-view.html',
 })
 export class RoundsView {

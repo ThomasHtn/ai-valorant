@@ -81,6 +81,13 @@ export interface MinimapSide {
   zones: ZoneSummary;
 }
 
+/** One square of a density grid: its centre and how many points fall in it. */
+export interface DensityCell {
+  x: number;
+  y: number;
+  count: number;
+}
+
 export interface MinimapView {
   mapName: string;
   minimapUrl: string;
@@ -88,4 +95,6 @@ export interface MinimapView {
   sides: Partial<Record<Side, MinimapSide>>;
   /** Points dropped because Henrik placed them outside the map. */
   outOfMap: number;
+  /** Where the top ranked plant on this map, busiest cells first (same on both sides). */
+  topPlants: DensityCell[];
 }

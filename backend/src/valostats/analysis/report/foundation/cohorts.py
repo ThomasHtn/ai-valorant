@@ -97,11 +97,11 @@ def build_index(
 
 @dataclass(frozen=True)
 class SquadPlayer:
-    """A squad player of the period with his most played agent."""
+    """A squad player of the period: his avatar agent, and his role from his most played agent."""
 
     name: str
     puuid: str
-    main_agent: str
+    portrait: str
     role: str
 
 
@@ -113,6 +113,8 @@ class ReportCohorts:
     indexes: dict[ReportCohort, FactIndex]
     # Agent of every player in every match of every cohort, to know a killer's or victim's role.
     agents: dict[tuple[str, str], str] = field(default_factory=dict)
+    # Puuid -> avatar agent picked in ValoQuests; players without one show their most played agent.
+    portraits: Mapping[str, str] = field(default_factory=dict)
 
     def select(self, kind: FactKind, cohort: ReportCohort, **equal: Any) -> Sequence[Any]:
         return self.indexes[cohort].select(kind, **equal)
@@ -133,11 +135,12 @@ class ReportCohorts:
         return sorted(self.squad(FactKind.MATCHES), key=lambda m: m.started_at)
 
     def players(self) -> list[SquadPlayer]:
-        """Squad players of the period, alphabetical (case-insensitive), with their main agent."""
+        """Squad players of the period, alphabetical (case-insensitive), with their avatar and role."""
         played: Counter[tuple[str, str, str]] = Counter((p.name, p.puuid, p.agent) for p in self.squad(FactKind.PLAYER_MATCHES))
         main: dict[str, SquadPlayer] = {}
         for (name, puuid, agent), _ in played.most_common():
-            main.setdefault(puuid, SquadPlayer(name=name, puuid=puuid, main_agent=agent, role=role_of(agent)))
+            portrait = self.portraits.get(puuid, agent)
+            main.setdefault(puuid, SquadPlayer(name=name, puuid=puuid, portrait=portrait, role=role_of(agent)))
         return sorted(main.values(), key=lambda p: p.name.lower())
 
     def player(self, name: str) -> SquadPlayer | None:
@@ -148,6 +151,7 @@ def build_cohorts(
     window: PeriodWindow,
     squad_facts: Mapping[FactKind, Sequence[Any]],
     top_index: FactIndex,
+    portraits: Mapping[str, str] | None = None,
 ) -> ReportCohorts:
     """Split the squad matches' facts into squad / opp / hist for the period; reuse the shared top index.
 
@@ -182,4 +186,5 @@ def build_cohorts(
             ReportCohort.TOP: top_index,
         },
         agents=agents,
+        portraits=portraits or {},
     )

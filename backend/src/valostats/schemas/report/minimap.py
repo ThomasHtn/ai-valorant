@@ -96,6 +96,14 @@ class MinimapSide(ApiModel):
     zones: ZoneSummary
 
 
+class DensityCell(ApiModel):
+    """One square of a density grid: its centre and how many points fall in it."""
+
+    x: float
+    y: float
+    count: int
+
+
 class MinimapView(ApiModel):
     map_name: str
     minimap_url: str
@@ -103,3 +111,5 @@ class MinimapView(ApiModel):
     sides: dict[Side, MinimapSide]
     # Points dropped because Henrik placed them outside the map (e.g. a player falling off Abyss).
     out_of_map: int
+    # Where the top ranked plant the spike on this map, as a grid of counts (same on both sides).
+    top_plants: list[DensityCell]

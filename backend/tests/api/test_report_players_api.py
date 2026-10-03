@@ -23,7 +23,7 @@ def client() -> TestClient:
 
 def test_players_list(client: TestClient) -> None:
     body = client.get("/api/report/players", params={"month": "2026-09"}).json()
-    alpha = {"name": "Alpha", "puuid": "alpha", "mainAgent": "Jett", "role": "Duelist", "rank": "Platinum 1", "matches": 3, "rounds": 3}
+    alpha = {"name": "Alpha", "puuid": "alpha", "portrait": "Jett", "role": "Duelist", "rank": "Platinum 1", "matches": 3, "rounds": 3}
     assert body == [alpha]
 
 

@@ -12,3 +12,5 @@ class SquadPlayer(Base):
     puuid: Mapped[str] = mapped_column(String(78), primary_key=True)
     name: Mapped[str] = mapped_column(String(64))
     active: Mapped[bool] = mapped_column(Boolean, default=True)
+    # Agent picked in ValoQuests as the player's avatar, so both apps show the same one.
+    portrait: Mapped[str | None] = mapped_column(String(32))

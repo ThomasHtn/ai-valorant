@@ -12,7 +12,8 @@ export interface PatchCount {
 export interface MetaPlayer {
   name: string;
   puuid: string;
-  mainAgent: string;
+  /** Avatar agent picked in ValoQuests, else the most played agent. */
+  portrait: string;
   /** Role of the main agent, as Data Dragon names it ('Duelist'...). */
   role: string;
 }

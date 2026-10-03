@@ -14,9 +14,13 @@ import {
   minimapMarkers,
   pickMap,
   sideLayers,
+  plantSpots,
   zoneLines,
+  zoneMatchCount,
+  zonePlayers,
   zoneRows,
   zoneTone,
+  zoneVerdict,
 } from './minimap.utils';
 
 function point(player: string, x = 0.5): MapPoint {
@@ -67,6 +71,10 @@ const view: MinimapView = {
   callouts: [],
   sides: { att: side },
   outOfMap: 0,
+  topPlants: [
+    { x: 0.3, y: 0.8, count: 400 },
+    { x: 0.6, y: 0.2, count: 100 },
+  ],
 };
 
 describe('minimap view utils', () => {
@@ -82,6 +90,15 @@ describe('minimap view utils', () => {
     expect(markers.map((m) => m.dimmed)).toEqual([false, true]);
     expect(markers[0].link).toEqual(['/report/rounds', 'm_3']);
     expect(markers[0].tip?.lines).toContainEqual({ label: 'Tué par', value: 'Opp' });
+  });
+
+  it('sums the top ranked plants and draws them only when their layer is on', () => {
+    expect(layerCounts(side, view.topPlants).plantsTop).toBe(500);
+    expect(plantSpots(view.topPlants, new Set(['firstDeaths']))).toEqual([]);
+    const spots = plantSpots(view.topPlants, new Set(['plantsTop']));
+    expect(spots.map((s) => s.weight)).toEqual([1, 0.5]);
+    expect(spots[1].tip?.lines?.[0].value).toBe('100 sur 500');
+    expect(minimapMarkers(view, 'att', new Set(['plantsTop']), '')).toEqual([]);
   });
 
   it('draws nothing on a side without data', () => {
@@ -142,8 +159,70 @@ describe('minimap view utils', () => {
   });
 
   it('writes the gap in rate points', () => {
-    const [line] = zoneLines([row('B Garage', 5, 15, 0.18, 0.07)]);
+    const [line] = zoneLines([row('B Garage', 5, 15, 0.18, 0.07)], 28);
     expect(line.excess).toBe(`+11${UNIT_SPACE}pts`);
     expect(line.topShare).toBe(formatValue(0.07, 'pct'));
+  });
+
+  it('lists each player with their rounds grouped by match, newest match first', () => {
+    const ref = (
+      matchId: string,
+      day: string,
+      roundNumber: number,
+      player: string,
+      firstDeath = false,
+    ) => ({
+      matchId,
+      day,
+      roundNumber,
+      player,
+      firstDeath,
+    });
+    const zone: ZoneRow = {
+      ...row('Mid Top', 1, 4),
+      players: [
+        { name: 'Izakiel', deaths: 3 },
+        { name: 'kikoucraft', deaths: 1 },
+      ],
+      refs: [
+        ref('m-2', '2026-10-01', 1, 'kikoucraft', true),
+        ref('m-1', '2026-09-30', 6, 'Izakiel'),
+        ref('m-2', '2026-10-01', 10, 'Izakiel'),
+        ref('m-2', '2026-10-01', 3, 'Izakiel'),
+      ],
+    };
+    const [izakiel, kikoucraft] = zonePlayers(zone);
+    expect(izakiel.groups.map((g) => g.label)).toEqual(['01/10', '30/09']);
+    expect(izakiel.groups[0].rounds.map((r) => r.label)).toEqual(['R3', 'R10']);
+    expect(izakiel.more).toBe(0);
+    expect(kikoucraft.groups[0].rounds[0]).toMatchObject({
+      firstDeath: true,
+      commands: ['/report/rounds', 'm-2_1'],
+    });
+    expect(zoneMatchCount([zone])).toBe(2);
+  });
+
+  it('counts the deaths beyond the linked rounds', () => {
+    const zone: ZoneRow = { ...row('A', 0, 9), players: [{ name: 'Izakiel', deaths: 9 }] };
+    expect(zonePlayers(zone)[0].more).toBe(9);
+  });
+
+  it('leaves the comparison empty where nobody died first', () => {
+    expect(zoneLines([row('A', 0, 2, 0, 0)], 20)[0].compared).toBe(false);
+    expect(zoneLines([row('A', 0, 2, 0, 0.1)], 20)[0].compared).toBe(true);
+  });
+
+  it('names the zones to work on only once the side has enough first deaths', () => {
+    const over = row('B Alley', 6, 8, 0.3, 0.1);
+    expect(zoneLines([over], 6)[0].tone).toBe('even');
+    expect(zoneVerdict(zoneLines([over], 6), 6, 'attaque').text).toMatch(
+      /^Seulement 6 first deaths/,
+    );
+    const lines = zoneLines([over, row('Mid', 5, 5, 0.25, 0.1)], 20);
+    expect(lines[0].sample).toBe('6 sur 20');
+    expect(zoneVerdict(lines, 20, 'attaque')).toEqual({
+      text: `L'escouade meurt en premier bien plus souvent que le top ranked à B Alley (+20${UNIT_SPACE}pts) et Mid (+15${UNIT_SPACE}pts).`,
+      alert: true,
+    });
   });
 });

@@ -45,6 +45,12 @@ ROLE_LABELS: dict[str, str] = {
 }
 
 
+def canonical_agent(name: str | None) -> str | None:
+    """Agent name as Henrik spells it ('neon' -> 'Neon'), `None` for an unknown one ('default')."""
+    wanted = (name or "").strip().lower()
+    return next((agent for agent in AGENT_ROLES if agent.lower() == wanted), None)
+
+
 def role_of(agent: str | None) -> str:
     """Role of an agent, `UNKNOWN_ROLE` for a new or missing one."""
     return AGENT_ROLES.get(agent or "", UNKNOWN_ROLE)

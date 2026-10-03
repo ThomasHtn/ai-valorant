@@ -17,7 +17,7 @@ import { clutchBars, figureTile, openingColumn } from '../players.utils';
   selector: 'app-opening-clutch',
   imports: [StatTile, InfoTip],
   templateUrl: './opening-clutch.html',
-  host: { class: 'flex flex-col gap-5' },
+  host: { class: 'flex flex-col gap-10' },
 })
 export class OpeningClutch {
   public readonly openingDuels = input.required<OpeningDuels>();

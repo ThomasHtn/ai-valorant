@@ -23,7 +23,7 @@ import { WinProbabilityChart } from '../win-probability-chart/win-probability-ch
   selector: 'app-round-sheet',
   imports: [Badge, EconomyTable, EventTimeline, InfoTip, Replay2d, RouterLink, WinProbabilityChart],
   templateUrl: './round-sheet.html',
-  host: { class: 'flex min-w-0 flex-col gap-5' },
+  host: { class: 'flex min-w-0 flex-col gap-10' },
 })
 export class RoundSheetView {
   public readonly sheet = input.required<RoundSheet>();

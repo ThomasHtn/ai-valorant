@@ -46,6 +46,11 @@ export const VIEWS_HELP: Readonly<Record<string, StatHelp>> = {
     what: "D'où les adversaires tuent l'escouade.",
     how: "Position du tueur adverse à chaque mort de l'escouade.",
   },
+  mmTopPlants: {
+    title: 'Plants du top ranked',
+    what: "Où les équipes du top ranked posent le spike sur cette carte, pour comparer avec les plants de l'escouade ou des adversaires.",
+    how: 'Positions des plants de tous les matchs top ranked de la carte, additionnées par carré de la minimap. Plus la tache est grande et claire, plus le spot est utilisé.',
+  },
   mmZones: {
     title: 'Zones',
     what: "Ce qui se passe dans chaque zone de la carte pour l'escouade, sur le side choisi.",
@@ -54,7 +59,7 @@ export const VIEWS_HELP: Readonly<Record<string, StatHelp>> = {
   mmFdShare: {
     title: 'Part des first deaths',
     what: "Part des first deaths de l'escouade qui ont lieu dans cette zone, à comparer au top ranked sur la même carte et le même side.",
-    how: "First deaths de l'escouade dans la zone divisées par toutes ses first deaths du side. Le trait clair marque la part du top ranked.",
-    read: "Une barre bien plus longue que le trait : l'escouade meurt en premier à cet endroit plus souvent que le top ranked.",
+    how: "First deaths de l'escouade dans la zone divisées par toutes ses first deaths du side (« 4 sur 20 »). Même calcul pour le top ranked.",
+    read: "Un écart positif : l'escouade meurt en premier à cet endroit plus souvent que le top ranked. Il ne compte qu'à partir de 10 first deaths sur le side.",
   },
 };

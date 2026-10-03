@@ -12,7 +12,7 @@ router = APIRouter(prefix="/report/players", tags=["report"])
 NOT_FOUND: dict[int | str, dict[str, Any]] = {404: {"description": "No squad match in the period, or not a squad player of it"}}
 
 
-@router.get("", summary="Squad players of the period with their main agent and rank", responses=NOT_FOUND)
+@router.get("", summary="Squad players of the period with their avatar agent and rank", responses=NOT_FOUND)
 def report_players(service: ReportServiceDep, query: PeriodQueryDep) -> list[PlayerSummary]:
     return service.view(query, "players", player_summaries)
 

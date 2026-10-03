@@ -24,6 +24,7 @@ class FakeFacts:
     kills: list[Any] = field(default_factory=list)
     player_rounds: list[Any] = field(default_factory=list)
     player_matches: list[Any] = field(default_factory=list)
+    portraits: dict[str, str] = field(default_factory=dict)
     squad: set[str] = field(default_factory=lambda: {"alpha"})
     match_count: int = 1
 

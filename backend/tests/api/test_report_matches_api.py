@@ -30,6 +30,7 @@ class FakeFacts:
     kills: list[Any] = field(default_factory=list)
     player_rounds: list[Any] = field(default_factory=list)
     player_matches: list[Any] = field(default_factory=list)
+    portraits: dict[str, str] = field(default_factory=dict)
     match_count: int = 0
     win_probability: WinProbabilityTable = field(default_factory=lambda: WinProbabilityTable([]))
 

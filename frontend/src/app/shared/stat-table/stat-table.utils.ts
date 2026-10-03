@@ -14,7 +14,7 @@ export function rowText(row: StatRow): string {
 }
 
 /**
- * Picture of a row: its own art, a player drawn by his main agent, or a row named after a squad
+ * Picture of a row: its own art, a player drawn by his avatar agent, or a row named after a squad
  * player ('Psilonnix', 'Psilonnix · Jett') drawn the same way.
  */
 export function resolveRowArt(row: StatRow, playerAgents: Record<string, string>): GameArt | null {

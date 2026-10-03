@@ -2,7 +2,9 @@
 
 from sqlalchemy import create_engine, text
 
-SQUAD_QUERY = text("select riot_puuid, game_name from player where status = 'ACTIVE'")
+from valostats.constants.agents import canonical_agent
+
+SQUAD_QUERY = text("select riot_puuid, game_name, portrait from player where status = 'ACTIVE'")
 # Competitive matches with at least five tracked players; the 5-stack check on one team happens at extraction.
 SQUAD_MATCHES_QUERY = text(
     """
@@ -20,10 +22,10 @@ class ValoQuestsClient:
     def __init__(self, database_url: str) -> None:
         self._engine = create_engine(database_url)
 
-    def squad(self) -> list[tuple[str, str]]:
-        """(puuid, name) of every active player."""
+    def squad(self) -> list[tuple[str, str, str | None]]:
+        """(puuid, name, portrait agent) of every active player."""
         with self._engine.connect() as connection:
-            return [(puuid, name) for puuid, name in connection.execute(SQUAD_QUERY)]
+            return [(puuid, name, canonical_agent(portrait)) for puuid, name, portrait in connection.execute(SQUAD_QUERY)]
 
     def squad_match_ids(self) -> list[str]:
         with self._engine.connect() as connection:

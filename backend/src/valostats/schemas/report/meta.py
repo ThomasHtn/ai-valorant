@@ -56,7 +56,8 @@ class ReportPlayer(ApiModel):
 
     name: str
     puuid: str
-    main_agent: str
+    # Avatar agent picked in ValoQuests, else the most played agent.
+    portrait: str
     role: str
 
 

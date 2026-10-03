@@ -37,6 +37,7 @@ import { headlineTiles, pickColumns, priorityItems } from './summary.utils';
     PriorityList,
     LastEvening,
   ],
+  host: { class: 'view-body' },
   templateUrl: './summary-view.html',
 })
 export class SummaryView {

@@ -28,6 +28,8 @@ const COHORT_OPTIONS: CompareOption[] = Object.entries(COMPARE_COHORTS).map(([va
 @Component({
   selector: 'app-compare-view',
   imports: [FilterBar, ResourceState, SelectionBox, CompareTable],
+  // Narrow centred column: four short columns would otherwise sit far from their labels.
+  host: { class: 'view-body mx-auto w-full max-w-[64rem]' },
   templateUrl: './compare-view.html',
 })
 export class CompareView {

@@ -11,8 +11,11 @@ CACHED_ROUND_SHEETS = 64
 # Match details kept in memory.
 CACHED_MATCH_DETAILS = 32
 
-# Rounds linked from each zone of the minimap summary.
-MAX_ZONE_REFS = 6
+# Deaths linked from each zone of the minimap summary.
+MAX_ZONE_REFS = 40
+
+# Cells per side of the grid that sums the top ranked plants on the minimap.
+PLANT_GRID_CELLS = 48
 
 # Decimals of minimap coordinates (0..1) and of win probabilities in the JSON.
 MINIMAP_DECIMALS = 3

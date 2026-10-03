@@ -1,55 +1,58 @@
 @let r = round();
 @let f = facts();
-<div class="flex flex-wrap items-end gap-x-6 gap-y-3">
-  <div>
-    <h2 class="!m-0 font-display text-[1.6rem] uppercase">
-      {{ r.mapName }} · round {{ r.roundNumber }}
-    </h2>
-    <p class="!m-0 mt-1 flex flex-wrap items-center gap-x-1.5 text-text-secondary">
-      {{ f.day }} ·
-      <app-badge
-        [label]="r.side === 'att' ? 'attaque' : 'défense'"
-        [kind]="r.side === 'att' ? 'attack' : 'defense'"
-        size="sm"
-      />
-      · {{ f.buys }} · score avant {{ r.scoreBefore }}
-    </p>
-  </div>
-  <a
-    [routerLink]="['/report/matches', r.matchId]"
-    queryParamsHandling="preserve"
-    class="focus-ring ml-auto !text-text-muted hover:!text-text-primary"
-    >Voir le match</a
-  >
-</div>
-
-<div class="grid grid-cols-[repeat(auto-fit,minmax(8.5rem,1fr))] gap-0.5">
-  <div class="flex flex-col gap-0.5 bg-text-primary/4 px-3 py-2.5">
-    <span class="text-sm text-text-secondary">Résultat</span>
-    <span
-      class="font-display text-[1.6rem] leading-tight font-semibold"
-      [class]="r.won ? 'text-rating-good' : 'text-rating-bad'"
-      >{{ r.won ? 'Gagné' : 'Perdu' }}</span
+<!-- Which round and how it ended, read as one block. -->
+<div class="flex flex-col gap-3">
+  <div class="flex flex-wrap items-end gap-x-6 gap-y-3">
+    <div>
+      <h2 class="!m-0 font-display text-[1.6rem] uppercase">
+        {{ r.mapName }} · round {{ r.roundNumber }}
+      </h2>
+      <p class="!m-0 mt-1 flex flex-wrap items-center gap-x-1.5 text-text-secondary">
+        {{ f.day }} ·
+        <app-badge
+          [label]="r.side === 'att' ? 'attaque' : 'défense'"
+          [kind]="r.side === 'att' ? 'attack' : 'defense'"
+          size="sm"
+        />
+        · {{ f.buys }} · score avant {{ r.scoreBefore }}
+      </p>
+    </div>
+    <a
+      [routerLink]="['/report/matches', r.matchId]"
+      queryParamsHandling="preserve"
+      class="focus-ring ml-auto !text-text-muted hover:!text-text-primary"
+      >Voir le match</a
     >
-    <span class="text-sm text-text-muted">{{ f.result }}</span>
   </div>
-  <div class="flex flex-col gap-0.5 bg-text-primary/4 px-3 py-2.5">
-    <span class="text-sm text-text-secondary">Meilleure situation</span>
-    <span class="font-display text-[1.6rem] leading-tight font-semibold">{{
-      r.bestState ?? '—'
-    }}</span>
-    <span class="text-sm text-text-muted">{{ f.lead }}</span>
-  </div>
-  <div class="flex flex-col gap-0.5 bg-text-primary/4 px-3 py-2.5">
-    <span class="text-sm text-text-secondary">Chances max<app-info-tip topic="winProb" /></span>
-    <span class="font-display text-[1.6rem] leading-tight font-semibold">{{ f.chance }}</span>
-    <span class="text-sm text-text-muted">de gagner le round</span>
-  </div>
-  <div class="flex flex-col gap-0.5 bg-text-primary/4 px-3 py-2.5">
-    <span class="text-sm text-text-secondary"
-      >Cause calculée<app-info-tip topic="lossCause"
-    /></span>
-    <span class="font-display text-[1.2rem] leading-tight font-semibold">{{ f.cause }}</span>
+
+  <div class="grid grid-cols-[repeat(auto-fit,minmax(8.5rem,1fr))] gap-0.5">
+    <div class="flex flex-col gap-0.5 bg-text-primary/4 px-3 py-2.5">
+      <span class="text-sm text-text-secondary">Résultat</span>
+      <span
+        class="font-display text-[1.6rem] leading-tight font-semibold"
+        [class]="r.won ? 'text-rating-good' : 'text-rating-bad'"
+        >{{ r.won ? 'Gagné' : 'Perdu' }}</span
+      >
+      <span class="text-sm text-text-muted">{{ f.result }}</span>
+    </div>
+    <div class="flex flex-col gap-0.5 bg-text-primary/4 px-3 py-2.5">
+      <span class="text-sm text-text-secondary">Meilleure situation</span>
+      <span class="font-display text-[1.6rem] leading-tight font-semibold">{{
+        r.bestState ?? '—'
+      }}</span>
+      <span class="text-sm text-text-muted">{{ f.lead }}</span>
+    </div>
+    <div class="flex flex-col gap-0.5 bg-text-primary/4 px-3 py-2.5">
+      <span class="text-sm text-text-secondary">Chances max<app-info-tip topic="winProb" /></span>
+      <span class="font-display text-[1.6rem] leading-tight font-semibold">{{ f.chance }}</span>
+      <span class="text-sm text-text-muted">de gagner le round</span>
+    </div>
+    <div class="flex flex-col gap-0.5 bg-text-primary/4 px-3 py-2.5">
+      <span class="text-sm text-text-secondary"
+        >Cause calculée<app-info-tip topic="lossCause"
+      /></span>
+      <span class="font-display text-[1.2rem] leading-tight font-semibold">{{ f.cause }}</span>
+    </div>
   </div>
 </div>
 
@@ -79,7 +82,7 @@
   </p>
 </section>
 
-<div class="grid items-start gap-5 xl:grid-cols-[minmax(0,26rem)_minmax(0,1fr)]">
+<div class="grid items-start gap-x-8 gap-y-10 xl:grid-cols-[minmax(0,26rem)_minmax(0,1fr)]">
   <app-replay-2d
     [map]="r.mapName"
     [events]="sheet().events"
@@ -89,7 +92,7 @@
   <app-event-timeline [events]="sheet().events" [step]="step()" (stepChange)="select($event)" />
 </div>
 
-<section class="flex flex-col gap-3" aria-labelledby="economy-title">
+<section class="view-section" aria-labelledby="economy-title">
   <h2 class="!m-0 text-lg" id="economy-title">Économie du round</h2>
   <div class="grid gap-5 [grid-template-columns:repeat(auto-fit,minmax(min(100%,30rem),1fr))]">
     <app-economy-table title="L'escouade" [lines]="sheet().squadEconomy" />

@@ -77,7 +77,7 @@ class ReportService:
                     FactKind.PLAYER_ROUNDS: squad.player_rounds,
                     FactKind.PLAYER_MATCHES: squad.player_matches,
                 }
-                self._periods[key] = _PeriodEntry(build_cohorts(window, facts, self._top(top.version)))
+                self._periods[key] = _PeriodEntry(build_cohorts(window, facts, self._top(top.version), squad.portraits))
                 if len(self._periods) > CACHED_PERIODS:
                     self._periods.popitem(last=False)
             self._periods.move_to_end(key)

@@ -12,7 +12,8 @@ class PlayerSummary(ApiModel):
 
     name: str
     puuid: str
-    main_agent: str
+    # Avatar agent picked in ValoQuests, else the most played agent.
+    portrait: str
     # English role (Duelist, Initiator, Controller, Sentinel); the front translates it.
     role: str
     # Latest competitive tier of the period, English name (e.g. "Platinum 1"), None when unranked.
@@ -129,7 +130,8 @@ class RewatchRound(RoundRef):
 class PlayerSheet(ApiModel):
     name: str
     puuid: str
-    main_agent: str
+    # Avatar agent picked in ValoQuests, else the most played agent.
+    portrait: str
     role: str
     rank: str | None
     matches: int

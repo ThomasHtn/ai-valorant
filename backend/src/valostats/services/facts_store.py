@@ -30,6 +30,8 @@ class SquadFacts:
     player_matches: list[PlayerMatchFact]
     # Puuids of the active squad players.
     squad: set[str]
+    # Puuid -> avatar agent picked in ValoQuests.
+    portraits: dict[str, str]
     win_probability: WinProbabilityTable
 
 
@@ -98,6 +100,7 @@ def _load_squad(session: Session, version: int) -> SquadFacts:
         player_rounds=facts_repository.load_player_rounds(session, cohorts),
         player_matches=facts_repository.load_player_matches(session, cohorts),
         squad=squad_repository.active_puuids(session),
+        portraits=squad_repository.portraits(session),
         win_probability=WinProbabilityTable(facts_repository.load_win_probability(session, MatchSource.SQUAD)),
     )
 

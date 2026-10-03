@@ -9,12 +9,12 @@ import { RankIcon } from '@shared/rank-icon/rank-icon';
 import { AgentsStrip } from '../agents-strip/agents-strip';
 import { roleLabel } from '../players.utils';
 
-/** Who the sheet is about: main agent portrait, name, role and rank with their icons, volume, agents played. */
+/** Who the sheet is about: avatar agent, name, role and rank with their icons, volume, agents played. */
 @Component({
   selector: 'app-player-header',
   imports: [AgentIcon, RankIcon, AgentsStrip, RoleIcon],
   template: `
-    <app-agent-icon [agent]="sheet().mainAgent" size="lg" [decorative]="true" />
+    <app-agent-icon [agent]="sheet().portrait" size="lg" [decorative]="true" />
     <div class="flex flex-col gap-1">
       <h2 class="!m-0 text-[1.7rem] font-semibold">{{ sheet().name }}</h2>
       <p class="!m-0 flex flex-wrap items-center gap-x-4 gap-y-1 text-text-secondary">

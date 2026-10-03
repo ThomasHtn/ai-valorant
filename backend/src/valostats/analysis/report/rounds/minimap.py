@@ -1,7 +1,8 @@
 """Minimap of one map for the period: where the squad dies, kills and plants, by side, with a summary per zone.
 
 Layers are seen from the squad's side: on attack, its deaths as attackers, its kills on defenders, its
-plants; on defense, the same as defenders and the opponents' plants.
+plants; on defense, the same as defenders and the opponents' plants. The top ranked plants come as a
+density grid, too many to draw one by one.
 """
 
 from collections import Counter, defaultdict
@@ -12,12 +13,13 @@ from datetime import date
 from valostats.analysis.report.foundation.cohorts import FactKind, ReportCohort, ReportCohorts
 from valostats.analysis.report.foundation.death_rules import is_isolated
 from valostats.analysis.report.rounds.round_lines import evening_days
-from valostats.constants.rounds import MAX_ZONE_REFS, MINIMAP_DECIMALS
+from valostats.constants.rounds import MAX_ZONE_REFS, MINIMAP_DECIMALS, PLANT_GRID_CELLS
 from valostats.domain.enums import Side
 from valostats.domain.facts import KillFact, Location, RoundFact
 from valostats.domain.maps import GameMap
 from valostats.schemas.report.minimap import (
     Callout,
+    DensityCell,
     MapPoint,
     MinimapLayers,
     MinimapSide,
@@ -116,7 +118,31 @@ def minimap_view(cohorts: ReportCohorts, game_map: GameMap) -> MinimapView:
     for c in game_map.callouts:
         x, y = game_map.to_minimap(Location(c.x, c.y))
         callouts.append(Callout(name=c.name, x=round(x, MINIMAP_DECIMALS), y=round(y, MINIMAP_DECIMALS)))
-    return MinimapView(map_name=name, minimap_url=game_map.minimap_url, callouts=callouts, sides=sides, out_of_map=projector.out_of_map)
+    top_plants = [
+        game_map.to_minimap(r.plant_location)
+        for r in cohorts.select(FactKind.ROUNDS, ReportCohort.TOP, map_name=name, side=Side.ATTACK)
+        if r.plant_location is not None
+    ]
+    return MinimapView(
+        map_name=name,
+        minimap_url=game_map.minimap_url,
+        callouts=callouts,
+        sides=sides,
+        out_of_map=projector.out_of_map,
+        top_plants=density(top_plants, PLANT_GRID_CELLS),
+    )
+
+
+def density(points: Iterable[tuple[float, float]], cells: int) -> list[DensityCell]:
+    """Points counted on a `cells` x `cells` grid over the minimap, off-map points dropped, busiest cells first."""
+    counts: Counter[tuple[int, int]] = Counter()
+    for x, y in points:
+        if 0 <= x <= 1 and 0 <= y <= 1:
+            counts[min(int(x * cells), cells - 1), min(int(y * cells), cells - 1)] += 1
+    return [
+        DensityCell(x=round((i + 0.5) / cells, MINIMAP_DECIMALS), y=round((j + 0.5) / cells, MINIMAP_DECIMALS), count=n)
+        for (i, j), n in counts.most_common()
+    ]
 
 
 def _side(

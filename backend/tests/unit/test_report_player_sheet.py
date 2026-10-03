@@ -9,6 +9,7 @@ from valostats.analysis.report.domains import agents, context, positions
 from valostats.analysis.report.foundation.cohorts import FactKind, ReportCohorts, build_cohorts, build_index
 from valostats.analysis.report.foundation.period_selection import PeriodQuery, resolve
 from valostats.analysis.report.players.player_sheet import player_sheet
+from valostats.constants.agents import canonical_agent
 from valostats.domain.enums import Cohort, KillerCohort, Side
 
 
@@ -19,6 +20,7 @@ def make_cohorts(
     player_matches: Sequence[Any] = (),
     top_matches: Sequence[Any] = (),
     top_kills: Sequence[Any] = (),
+    portraits: dict[str, str] | None = None,
 ) -> ReportCohorts:
     all_matches = list(matches) or [match_fact()]
     window = resolve(PeriodQuery(month="2026-09"), [m.started_at for m in all_matches], [m.patch for m in all_matches])
@@ -29,7 +31,7 @@ def make_cohorts(
         FactKind.PLAYER_ROUNDS: list(player_rounds),
         FactKind.PLAYER_MATCHES: list(player_matches) or [player_match()],
     }
-    return build_cohorts(window, facts, build_index(top_matches, [], top_kills, [], [], Cohort.TOP))
+    return build_cohorts(window, facts, build_index(top_matches, [], top_kills, [], [], Cohort.TOP), portraits)
 
 
 def our_death(**changes: Any) -> Any:
@@ -105,3 +107,17 @@ def test_player_sheet_form_spans_history_and_flags_the_period() -> None:
     )
     form = player_sheet(cohorts, "Alpha").form
     assert [(f.match_id, f.in_period, f.kills) for f in form] == [("old", False, 1), ("new", True, 2)]
+
+
+def test_valoquests_portrait_replaces_the_most_played_agent_but_not_the_role() -> None:
+    assert make_cohorts().players()[0].portrait == "Jett"
+    player = make_cohorts(portraits={"alpha": "Neon"}).players()[0]
+    assert (player.portrait, player.role) == ("Neon", "Duelist")
+    assert make_cohorts(portraits={"alpha": "Omen"}).players()[0].role == "Duelist"
+
+
+def test_canonical_agent_matches_valoquests_spelling() -> None:
+    assert canonical_agent("neon") == "Neon"
+    assert canonical_agent("kay/o") == "KAY/O"
+    assert canonical_agent("default") is None
+    assert canonical_agent(None) is None

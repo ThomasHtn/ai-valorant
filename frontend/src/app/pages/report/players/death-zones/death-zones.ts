@@ -64,7 +64,7 @@ import { isZoneTooDeadly, zoneRateLine } from '../players.utils';
       }
     </ul>
   `,
-  host: { class: 'flex flex-col gap-1.5' },
+  host: { class: 'view-section' },
 })
 export class DeathZones {
   public readonly deathZones = input.required<DeathZone[]>();

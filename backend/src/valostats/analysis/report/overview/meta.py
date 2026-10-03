@@ -88,7 +88,7 @@ def report_meta(query: PeriodQuery, cohorts: ReportCohorts, top_match_count: int
             PatchCount(patch=p, matches=n) for p, n in sorted(Counter(m.patch for m in matches).items(), key=lambda x: patch_sort_key(x[0]))
         ],
         maps=cohorts.maps(),
-        players=[ReportPlayer(name=p.name, puuid=p.puuid, main_agent=p.main_agent, role=p.role) for p in cohorts.players()],
+        players=[ReportPlayer(name=p.name, puuid=p.puuid, portrait=p.portrait, role=p.role) for p in cohorts.players()],
         quality=DataQuality(
             complete_matches=complete,
             incomplete_matches=len(matches) - complete,

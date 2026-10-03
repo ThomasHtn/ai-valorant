@@ -7,8 +7,9 @@
   }
 </app-page-header>
 
-<div class="page-body !gap-5 !pt-5">
-  <div class="flex flex-col gap-2">
+<!-- Report band and tab strip sit outside the scrolling body so they stay put. -->
+<div class="report-band">
+  <div class="report-band-inner">
     <!-- Period, its results, then what the figures rest on, pushed to the right on wide screens. -->
     <div class="flex flex-wrap items-center gap-x-6 gap-y-1">
       <app-period-selector />
@@ -34,41 +35,48 @@
         <app-data-quality class="xl:ml-auto" [meta]="meta" />
       }
     </div>
+  </div>
+</div>
 
-    <!-- One coloured block per group: its name above, its tabs below. -->
-    <nav
-      class="flex gap-1.5 overflow-x-auto border-b border-edge-strong [scrollbar-width:thin]"
-      aria-label="Vues du rapport"
-    >
-      @for (group of groups; track group.label) {
-        <div
-          class="flex shrink-0 flex-col border-t-2"
-          [class]="group.tone.block"
-          role="group"
-          [attr.aria-label]="group.label"
-        >
-          <span class="px-4 pt-1.5 text-sm font-medium" [class]="group.tone.label">{{
-            group.label
-          }}</span>
-          <div class="flex">
-            @for (view of group.views; track view.path) {
-              <a
-                [routerLink]="view.path"
-                [queryParams]="periodParams()"
-                routerLinkActive="!border-brand-500 !text-text-primary bg-text-primary/6"
-                ariaCurrentWhenActive="page"
-                [title]="view.hint"
-                class="focus-ring-inset border-b-[3px] border-transparent px-4 pt-1 pb-2 font-display text-[0.98rem] font-medium tracking-wide whitespace-nowrap text-text-secondary uppercase no-underline transition-colors hover:border-brand-500/40 hover:bg-text-primary/5 hover:text-text-primary"
-                >{{ view.label }}</a
-              >
-            }
-          </div>
-        </div>
+<!-- Tab strip on its own lighter ground: the report's views, then its tools pushed to the end. -->
+<div class="report-tabs">
+  <div class="report-tabs-inner">
+    <nav class="flex overflow-x-auto [scrollbar-width:none]" aria-label="Vues du rapport">
+      @for (view of mainViews; track view.path) {
+        <ng-container *ngTemplateOutlet="tab; context: { $implicit: view }" />
       }
+      <!-- The rule keeps the two sets apart when the bar overflows and the gap closes. -->
+      <div
+        class="ml-auto flex shrink-0 border-l border-edge-strong"
+        role="group"
+        aria-label="Outils"
+      >
+        @for (view of toolViews; track view.path) {
+          <ng-container *ngTemplateOutlet="tab; context: { $implicit: view }" />
+        }
+      </div>
     </nav>
   </div>
+</div>
 
+<ng-template #tab let-view>
+  <!-- Active tab in amber on a faint amber ground, the colour of every selection in the app. -->
+  <a
+    #link
+    [routerLink]="view.path"
+    [queryParams]="periodParams()"
+    routerLinkActive="!border-brand-500 bg-brand-500/10 !text-brand-400"
+    ariaCurrentWhenActive="page"
+    (isActiveChange)="$event && reveal(link)"
+    [title]="view.hint"
+    class="focus-ring-inset flex shrink-0 items-center border-b-[3px] border-transparent px-3.5 pt-3 pb-2.5 font-display text-[0.98rem] font-medium tracking-wide whitespace-nowrap text-text-secondary uppercase no-underline transition-colors hover:border-text-primary/30 hover:bg-text-primary/5 hover:text-text-primary"
+    >{{ view.label }}</a
+  >
+</ng-template>
+
+<div class="page-body !pt-0">
   <app-resource-state
+    class="block pt-6"
     [resource]="context.meta"
     notFoundText="Aucun match de l'escouade sur cette période."
   >

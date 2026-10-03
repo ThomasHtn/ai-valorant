@@ -13,7 +13,8 @@ import { StatCell, StatTable } from './stat-table.model';
 export interface PlayerSummary {
   name: string;
   puuid: string;
-  mainAgent: string;
+  /** Avatar agent picked in ValoQuests, else the most played agent. */
+  portrait: string;
   /** English role ('Duelist'...), translated with `ROLE_LABELS`. */
   role: string;
   /** Latest competitive tier of the period ('Platinum 1'), null when unranked. */
@@ -133,7 +134,8 @@ export interface RewatchRound {
 export interface PlayerSheet {
   name: string;
   puuid: string;
-  mainAgent: string;
+  /** Avatar agent picked in ValoQuests, else the most played agent. */
+  portrait: string;
   role: string;
   rank: string | null;
   matches: number;

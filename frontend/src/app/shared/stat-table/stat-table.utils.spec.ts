@@ -37,7 +37,7 @@ describe('stat table utils', () => {
     expect(nextSort({ key: 'rw', direction: 1 }, 'rw')).toBeNull();
   });
 
-  it('draws player rows with their main agent', () => {
+  it('draws player rows with their avatar agent', () => {
     const agents = { Psilonnix: 'Jett' };
     expect(resolveRowArt({ key: 'p', label: 'Psilonnix · Omen', cells: {} }, agents)).toEqual({
       type: 'agent',

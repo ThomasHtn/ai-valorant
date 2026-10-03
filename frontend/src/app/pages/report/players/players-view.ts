@@ -42,6 +42,7 @@ import { WeaponsPanel } from './weapons-panel/weapons-panel';
     FormTiles,
     RewatchList,
   ],
+  host: { class: 'view-body' },
   templateUrl: './players-view.html',
 })
 export class PlayersView {

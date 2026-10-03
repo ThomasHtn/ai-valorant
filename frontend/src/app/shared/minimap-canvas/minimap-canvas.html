@@ -11,6 +11,24 @@
   role="img"
   [attr.aria-label]="'Points sur la minimap de ' + map()"
 >
+  @if (density().length) {
+    <filter [attr.id]="blurId" x="-0.1" y="-0.1" width="1.2" height="1.2">
+      <feGaussianBlur [attr.stdDeviation]="densityBlur" />
+    </filter>
+    <g [attr.filter]="'url(#' + blurId + ')'">
+      @for (spot of density(); track spot.id) {
+        <circle
+          [attr.cx]="spot.x"
+          [attr.cy]="spot.y"
+          [attr.r]="densityMin + densitySpan * spot.weight"
+          [attr.fill]="spot.color"
+          [attr.fill-opacity]="0.5 + 0.45 * spot.weight"
+          [appHoverTip]="spot.tip ?? null"
+        />
+      }
+    </g>
+  }
+
   @for (label of labels(); track label.name) {
     <text
       [attr.x]="label.x"

@@ -41,6 +41,13 @@ export const MINIMAP_LAYERS: readonly MinimapLayer[] = [
     help: null,
   },
   {
+    key: 'plantsTop',
+    label: 'Plants top ranked',
+    color: 'var(--color-top-plants)',
+    shape: 'density',
+    help: 'mmTopPlants',
+  },
+  {
     key: 'isolatedDeaths',
     label: 'Morts isolées',
     color: 'var(--color-rating-average)',

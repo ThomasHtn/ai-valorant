@@ -1,75 +1,73 @@
-<div class="flex flex-col gap-4">
-  <div class="filter-strip">
-    <app-map-picker [maps]="maps()" [selected]="mapName()" />
-    <label class="ml-auto flex items-center gap-2">
-      <span class="filter-label">Joueur</span>
-      <select id="minimap-player" class="field-control min-w-28" (change)="setPlayer($event)">
-        <option value="" [selected]="!state.filters().player">Toute l'escouade</option>
-        @for (player of players(); track player) {
-          <option [value]="player" [selected]="state.filters().player === player">
-            {{ player }}
-          </option>
-        }
-      </select>
-    </label>
-    <div class="seg-group" role="group" aria-label="Side">
-      @for (option of sides; track option) {
-        <button
-          type="button"
-          class="seg-option"
-          [attr.aria-pressed]="option === side()"
-          (click)="side.set(option)"
-        >
-          {{ sideLabels[option] }}
-        </button>
+<div class="filter-strip">
+  <app-map-picker [maps]="maps()" [selected]="mapName()" />
+  <label class="ml-auto flex items-center gap-2">
+    <span class="filter-label">Joueur</span>
+    <select id="minimap-player" class="field-control min-w-28" (change)="setPlayer($event)">
+      <option value="" [selected]="!state.filters().player">Toute l'escouade</option>
+      @for (player of players(); track player) {
+        <option [value]="player" [selected]="state.filters().player === player">
+          {{ player }}
+        </option>
+      }
+    </select>
+  </label>
+  <div class="seg-group" role="group" aria-label="Side">
+    @for (option of sides; track option) {
+      <button
+        type="button"
+        class="seg-option"
+        [attr.aria-pressed]="option === side()"
+        (click)="side.set(option)"
+      >
+        {{ sideLabels[option] }}
+      </button>
+    }
+  </div>
+</div>
+
+<app-resource-state
+  [resource]="view"
+  notFoundText="Pas de données pour cette carte sur cette période."
+>
+  @if (view.hasValue()) {
+    @let data = view.value();
+    <!-- On wide screens the map fits the screen height and the zones scroll beside it, so both stay in view. -->
+    <div
+      class="grid items-start gap-4 [--map-size:clamp(24rem,calc(100dvh-19.5rem),calc(100vw-56rem))] xl:h-(--map-size) xl:grid-cols-[12.5rem_auto_minmax(0,1fr)]"
+    >
+      <div class="flex flex-col gap-2">
+        <app-layer-toggles
+          [layers]="visibleLayers()"
+          [active]="layers()"
+          [counts]="counts()"
+          (toggle)="toggleLayer($event)"
+        />
+        <p class="!m-0 text-sm text-text-muted">
+          {{ sideData()?.layers?.rounds ?? 0 }} rounds en {{ sideLabel() }}. Clic sur un point : le
+          round.
+          @if (state.filters().player; as player) {
+            Points de {{ player }} en avant.
+          }
+        </p>
+      </div>
+      <app-minimap-canvas
+        class="mx-auto max-w-[36rem] xl:size-(--map-size) xl:max-w-none"
+        [map]="data.mapName"
+        [markers]="markers()"
+        [density]="density()"
+        [labels]="data.callouts"
+        [highlight]="highlight()"
+      />
+      @if (zones(); as z) {
+        <app-zone-table
+          class="xl:max-h-full xl:overflow-y-auto xl:overscroll-contain"
+          [map]="data.mapName"
+          [sideLabel]="sideLabel()"
+          [rows]="z.rows"
+          [squadFirstDeaths]="z.firstDeaths"
+          (highlight)="setHighlight($event)"
+        />
       }
     </div>
-  </div>
-
-  <app-resource-state
-    [resource]="view"
-    notFoundText="Pas de données pour cette carte sur cette période."
-  >
-    @if (view.hasValue()) {
-      @let data = view.value();
-      <!-- On wide screens the map fits the screen height and the zones scroll beside it, so both stay in view. -->
-      <div
-        class="grid items-start gap-4 [--map-size:clamp(24rem,calc(100dvh-19.5rem),calc(100vw-56rem))] xl:h-(--map-size) xl:grid-cols-[12.5rem_auto_minmax(0,1fr)]"
-      >
-        <div class="flex flex-col gap-2">
-          <app-layer-toggles
-            [layers]="visibleLayers()"
-            [active]="layers()"
-            [counts]="counts()"
-            (toggle)="toggleLayer($event)"
-          />
-          <p class="!m-0 text-sm text-text-muted">
-            {{ sideData()?.layers?.rounds ?? 0 }} rounds en {{ sideLabel() }}. Clic sur un point :
-            le round.
-            @if (state.filters().player; as player) {
-              Points de {{ player }} en avant.
-            }
-          </p>
-        </div>
-        <app-minimap-canvas
-          class="mx-auto max-w-[36rem] xl:size-(--map-size) xl:max-w-none"
-          [map]="data.mapName"
-          [markers]="markers()"
-          [labels]="data.callouts"
-          [highlight]="highlight()"
-        />
-        @if (zones(); as z) {
-          <app-zone-table
-            class="xl:max-h-full xl:overflow-y-auto xl:overscroll-contain"
-            [map]="data.mapName"
-            [sideLabel]="sideLabel()"
-            [rows]="z.rows"
-            [squadFirstDeaths]="z.firstDeaths"
-            [topFirstDeaths]="z.topFirstDeaths"
-            (highlight)="setHighlight($event)"
-          />
-        }
-      </div>
-    }
-  </app-resource-state>
-</div>
+  }
+</app-resource-state>

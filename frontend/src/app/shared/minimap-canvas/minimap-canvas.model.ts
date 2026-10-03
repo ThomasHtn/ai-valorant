@@ -37,3 +37,14 @@ export interface MinimapHighlight {
   x: number;
   y: number;
 }
+
+/** A soft spot of a density layer (thousands of points summed on a grid). */
+export interface MinimapDensitySpot {
+  id: string;
+  x: number;
+  y: number;
+  /** 0..1 against the busiest spot: drives size and opacity. */
+  weight: number;
+  color: string;
+  tip?: HoverTipContent | null;
+}
