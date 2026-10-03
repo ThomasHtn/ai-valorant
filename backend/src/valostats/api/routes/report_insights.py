@@ -10,6 +10,7 @@ from valostats.analysis.report.insights.distributions import DistributionScope, 
 from valostats.analysis.report.insights.findings import findings_report
 from valostats.analysis.report.insights.trends import trends
 from valostats.api.dependencies import PeriodQueryDep, ReportServiceDep
+from valostats.core.errors import NotFoundError
 from valostats.domain.enums import Side
 from valostats.schemas.report.detections import Detections
 from valostats.schemas.report.distributions import Distribution
@@ -19,7 +20,7 @@ from valostats.services.facts_store import FactsStore
 from valostats.services.report_service import ReportService
 
 router = APIRouter(prefix="/report", tags=["report"])
-NOT_FOUND: dict[int | str, dict[str, Any]] = {404: {"description": "No squad match in the period"}}
+NOT_FOUND: dict[int | str, dict[str, Any]] = {404: {"description": "No squad match in the period, or unknown map"}}
 
 
 def facts_store(request: Request) -> FactsStore:
@@ -53,8 +54,12 @@ def report_trends(service: ReportServiceDep, query: PeriodQueryDep, store: Facts
 def report_distributions(
     service: ReportServiceDep,
     query: PeriodQueryDep,
+    store: FactsStoreDep,
     map_name: Annotated[str | None, Query(alias="map", description="One map, e.g. Split")] = None,
     side: Annotated[Side | None, Query(description="att or def")] = None,
 ) -> list[Distribution]:
+    # The map is part of the cache key: an unchecked name would cache one view per value sent.
+    if map_name is not None and map_name not in store.maps():
+        raise NotFoundError(f"Unknown map {map_name}.")
     scope = DistributionScope(map_name=map_name, side=side)
     return service.view(query, scope.cache_key, lambda cohorts: distributions(cohorts, scope))

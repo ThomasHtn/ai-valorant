@@ -4,8 +4,20 @@
     <meta charset="utf-8" />
     <title>ValoStats</title>
     <base href="/" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- `viewport-fit=cover` lets the dark ground run under a notch; `page-body` pads the home
+         indicator back out with `env(safe-area-inset-bottom)`. -->
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <!-- Mobile browser chrome painted in the context bar's colour, and native controls drawn dark. -->
+    <meta name="theme-color" content="#0a151d" />
+    <meta name="color-scheme" content="dark" />
+    <meta
+      name="description"
+      content="Les rounds que l'escouade perd encore et encore, comparés au top classé."
+    />
+    <link rel="icon" type="image/svg+xml" href="favicon.svg" />
     <link rel="icon" type="image/x-icon" href="favicon.ico" />
+    <!-- Installable app: `start_url` is the home page, since a report needs a period to open. -->
+    <link rel="manifest" href="manifest.webmanifest" />
   </head>
   <body>
     <app-root></app-root>

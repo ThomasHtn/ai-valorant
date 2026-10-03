@@ -1,7 +1,7 @@
 # Production stack on the VPS: two images behind the shared Traefik, same origin, /api/* to the backend.
 # The database is the VPS PostgreSQL 17 (dedicated database and role, see .env.example).
 # Usage: cp .env.example .env, fill it, then `docker compose -f docker-compose.prod.yml up -d --build`.
-# Collection jobs: `docker compose -f docker-compose.prod.yml run --rm backend valostats sync`.
+# Collection runs every night in the scheduler service; by hand: `docker compose -f docker-compose.prod.yml run --rm backend valostats sync`.
 
 services:
   backend:
@@ -23,6 +23,20 @@ services:
       # A report page fires about ten requests at once; this only stops floods.
       - traefik.http.middlewares.valostats-ratelimit.ratelimit.average=20
       - traefik.http.middlewares.valostats-ratelimit.ratelimit.burst=50
+
+  # Nightly collection with the backend code; the API reloads the rebuilt facts by itself.
+  scheduler:
+    build: ./backend
+    command: valostats schedule
+    restart: unless-stopped
+    # Forwards SIGTERM to Python, so a redeploy stops it at once instead of after the kill timeout.
+    init: true
+    env_file: .env
+    depends_on:
+      - backend
+    networks:
+      - edge
+      - database
 
   frontend:
     build: ./frontend

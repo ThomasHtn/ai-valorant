@@ -55,7 +55,7 @@ class FakeStore:
         return self._top
 
     def maps(self) -> dict[str, Any]:
-        return {}
+        return {"Ascent": None}
 
 
 @pytest.fixture(scope="module")
@@ -103,3 +103,9 @@ def test_distributions_narrow_to_one_side(client: TestClient) -> None:
     assert attack[0]["squad"]["n"] == 12
     assert defense[0]["squad"]["n"] == 12
     assert client.get("/api/report/distributions", params={**params, "side": "mid"}).status_code == 422
+
+
+def test_distributions_reject_an_unknown_map(client: TestClient) -> None:
+    params = {"month": "2026-09"}
+    assert client.get("/api/report/distributions", params={**params, "map": "Ascent"}).json()[0]["squad"]["n"] == 24
+    assert client.get("/api/report/distributions", params={**params, "map": "Nowhere"}).status_code == 404

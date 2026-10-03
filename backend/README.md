@@ -50,6 +50,7 @@ uv run alembic revision --autogenerate -m "..."  # new migration after a model c
 | `valostats sync-maps` | After a new map | Map metadata (callouts, minimaps) from valorant-api.com, then facts rebuild |
 | `valostats rebuild-facts [squad\|top]` | After an extraction change | Recomputes the fact tables from the stored raw matches |
 | `valostats top-status` | Any time | Top ranked volume per patch and map |
+| `valostats schedule` | Production | Runs `sync` every night and `sync-top` on Mondays, until stopped |
 
 The Henrik key is shared with ValoQuests (30 requests per minute), so `sync-top` waits between requests.
 After each rebuild, the running API notices the new build and reloads its facts by itself.
@@ -139,11 +140,13 @@ cp .env.example .env    # production values, see the comments in the file
 docker compose -f docker-compose.prod.yml up -d --build
 ```
 
-Collection runs from the host crontab, with the same image:
+Collection runs in the `scheduler` service of the same stack (`valostats schedule`): `sync` every night
+at 4 h UTC, then `sync-top` on Mondays. A failed run is logged and retried the next night. To collect by
+hand:
 
-```cron
-30 1 * * *  cd /opt/apps/valostats && docker compose -f docker-compose.prod.yml run --rm backend valostats sync
-0 4 * * 1   cd /opt/apps/valostats && docker compose -f docker-compose.prod.yml run --rm backend valostats sync-top
+```bash
+docker compose -f docker-compose.prod.yml run --rm backend valostats sync
+docker compose -f docker-compose.prod.yml logs -f scheduler
 ```
 
 To move the existing data to a new server, dump the local database and restore it into the new one:

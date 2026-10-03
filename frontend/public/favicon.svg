@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <radialGradient id="badge" cx="50%" cy="42%" r="65%">
+      <stop offset="0%" stop-color="#e8ab6b" />
+      <stop offset="100%" stop-color="#a6752a" />
+    </radialGradient>
+  </defs>
+  <!-- Same hexagon badge as ValoQuests, so the two apps read as a family on a home screen. -->
+  <polygon
+    points="32,1 62,16.5 62,47.5 32,63 2,47.5 2,16.5"
+    fill="url(#badge)"
+    stroke="#26190c"
+    stroke-width="1.5"
+    stroke-linejoin="miter"
+  />
+  <!-- Rising bars (stats) instead of ValoQuests' V, to tell the two icons apart. -->
+  <g fill="#0f1c26">
+    <rect x="16" y="35" width="8" height="12" />
+    <rect x="28" y="27" width="8" height="20" />
+    <rect x="40" y="18" width="8" height="29" />
+  </g>
+</svg>

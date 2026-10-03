@@ -13,6 +13,7 @@ from valostats.core.database import get_session_factory
 from valostats.domain.enums import MatchSource
 from valostats.ingestion.facts_rebuild import rebuild_facts
 from valostats.ingestion.maps_sync import sync_maps
+from valostats.ingestion.schedule import run_forever
 from valostats.ingestion.squad_sync import sync_squad
 from valostats.ingestion.top_sync import sync_top
 from valostats.repositories import match_repository
@@ -55,6 +56,12 @@ def rebuild_facts_command(source: Annotated[MatchSource | None, typer.Argument(h
     with get_session_factory()() as session:
         for s in [source] if source else list(MatchSource):
             rebuild_facts(session, s)
+
+
+@app.command("schedule")
+def schedule_command() -> None:
+    """Production scheduler: `sync` every night at 4 h UTC, `sync-top` on Mondays. Runs until stopped."""
+    run_forever(nightly=sync_command, weekly=sync_top_command)
 
 
 @app.command("top-status")
