@@ -7,15 +7,12 @@ which is why the application warms this store at startup.
 
 import threading
 from dataclasses import dataclass
-from functools import cached_property
 
 from sqlalchemy.orm import Session, sessionmaker
 
 from valostats.analysis.extraction.win_probability import WinProbabilityTable
-from valostats.analysis.players.benchmark import benchmark_by_agent, weapon_benchmark
-from valostats.analysis.players.metrics import StatAccumulator
 from valostats.domain.enums import Cohort, MatchSource
-from valostats.domain.facts import DeathFact, PlayerMatchFact, PlayerRoundFact, RoundFact
+from valostats.domain.facts import KillFact, MatchFact, PlayerMatchFact, PlayerRoundFact, RoundFact
 from valostats.domain.maps import GameMap
 from valostats.repositories import facts_repository, map_repository, squad_repository
 
@@ -24,33 +21,31 @@ from valostats.repositories import facts_repository, map_repository, squad_repos
 class SquadFacts:
     """Facts of the squad's 5-stacks, both teams (squad and opponents), teamkills included."""
 
+    # Id of the facts build: changes after each rebuild, so caches keyed on it expire.
     version: int
+    matches: list[MatchFact]
     rounds: list[RoundFact]
-    deaths: list[DeathFact]
+    kills: list[KillFact]
     player_rounds: list[PlayerRoundFact]
     player_matches: list[PlayerMatchFact]
+    # Puuids of the active squad players.
     squad: set[str]
     win_probability: WinProbabilityTable
 
 
 @dataclass(frozen=True)
 class TopFacts:
-    """Facts of the top ranked matches, the reference of the play sections."""
+    """Facts of the top ranked matches, the reference of the game sections."""
 
     version: int
-    matches: int
+    # Matches collected (each one gives two teams of facts).
+    match_count: int
+    matches: list[MatchFact]
     rounds: list[RoundFact]
-    deaths: list[DeathFact]
+    kills: list[KillFact]
     player_rounds: list[PlayerRoundFact]
     player_matches: list[PlayerMatchFact]
-
-    @cached_property
-    def by_agent(self) -> dict[str, StatAccumulator]:
-        return benchmark_by_agent(self.player_rounds)
-
-    @cached_property
-    def weapons(self) -> dict[str, float]:
-        return weapon_benchmark(self.player_rounds)
+    win_probability: WinProbabilityTable
 
 
 class FactsStore:
@@ -97,8 +92,9 @@ def _load_squad(session: Session, version: int) -> SquadFacts:
     cohorts = (Cohort.SQUAD, Cohort.OPPONENT)
     return SquadFacts(
         version=version,
+        matches=facts_repository.load_matches(session, cohorts),
         rounds=facts_repository.load_rounds(session, cohorts),
-        deaths=facts_repository.load_deaths(session, cohorts),
+        kills=facts_repository.load_kills(session, cohorts),
         player_rounds=facts_repository.load_player_rounds(session, cohorts),
         player_matches=facts_repository.load_player_matches(session, cohorts),
         squad=squad_repository.active_puuids(session),
@@ -108,11 +104,14 @@ def _load_squad(session: Session, version: int) -> SquadFacts:
 
 def _load_top(session: Session, version: int) -> TopFacts:
     build = facts_repository.latest_build(session, MatchSource.TOP)
+    cohorts = (Cohort.TOP,)
     return TopFacts(
         version=version,
-        matches=build.matches if build else 0,
-        rounds=facts_repository.load_rounds(session, (Cohort.TOP,)),
-        deaths=facts_repository.load_deaths(session, (Cohort.TOP,)),
-        player_rounds=facts_repository.load_player_rounds(session, (Cohort.TOP,)),
-        player_matches=facts_repository.load_player_matches(session, (Cohort.TOP,)),
+        match_count=build.matches if build else 0,
+        matches=facts_repository.load_matches(session, cohorts),
+        rounds=facts_repository.load_rounds(session, cohorts),
+        kills=facts_repository.load_kills(session, cohorts),
+        player_rounds=facts_repository.load_player_rounds(session, cohorts),
+        player_matches=facts_repository.load_player_matches(session, cohorts),
+        win_probability=WinProbabilityTable(facts_repository.load_win_probability(session, MatchSource.TOP)),
     )

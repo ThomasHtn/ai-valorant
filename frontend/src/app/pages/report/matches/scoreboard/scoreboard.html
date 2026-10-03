@@ -1,0 +1,46 @@
+<div class="overflow-x-auto">
+  <table class="w-full border-separate border-spacing-y-0.5 tabular-nums">
+    <thead>
+      <tr>
+        <th
+          scope="col"
+          class="bg-text-primary/8 px-2.5 py-2 text-left text-[0.92rem] font-semibold text-text-secondary"
+        >
+          {{ title() }}
+        </th>
+        @for (column of columns; track column.key) {
+          <th
+            scope="col"
+            class="bg-text-primary/8 px-2.5 py-2 text-right text-[0.92rem] font-semibold whitespace-nowrap text-text-secondary"
+          >
+            {{ column.label }}<app-info-tip [topic]="column.help" />
+          </th>
+        }
+      </tr>
+    </thead>
+    <tbody>
+      @for (line of lines(); track line.name; let first = $first) {
+        <tr [class.shadow-[inset_0_-1px_0_var(--color-brand-500)]]="first">
+          <td class="min-w-48 bg-text-primary/4 px-2.5 py-1.5">
+            <div class="flex items-center gap-2.5">
+              <app-agent-icon [agent]="line.agent" size="md" [decorative]="true" />
+              <span class="flex min-w-0 flex-col leading-tight">
+                <span [class]="squad() ? 'text-text-primary' : 'text-text-secondary'">{{
+                  line.name
+                }}</span>
+                <small class="flex items-center gap-1.5 text-[0.85rem] text-text-muted"
+                  >{{ line.agent }} · <app-rank-icon [name]="line.rank"
+                /></small>
+              </span>
+            </div>
+          </td>
+          @for (column of columns; track column.key) {
+            <td class="bg-text-primary/4 px-2.5 py-1.5 text-right">
+              {{ format(line[column.key], column.format) }}
+            </td>
+          }
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>

@@ -5,23 +5,18 @@ from typing import Annotated
 
 from fastapi import Depends, HTTPException, Query, Request, status
 
-from valostats.analysis.period.selection import PeriodQuery
-from valostats.services.period_service import PeriodService
-from valostats.services.session_service import SessionService
+from valostats.analysis.report.foundation.period_selection import PeriodQuery
+from valostats.services.report_service import ReportService
 
 
-def period_service(request: Request) -> PeriodService:
-    return request.app.state.period_service  # type: ignore[no-any-return]
-
-
-def session_service(request: Request) -> SessionService:
-    return request.app.state.session_service  # type: ignore[no-any-return]
+def report_service(request: Request) -> ReportService:
+    return request.app.state.report_service  # type: ignore[no-any-return]
 
 
 def period_query(
     month: Annotated[str | None, Query(pattern=r"^\d{4}-\d{2}$", description="Month, e.g. 2026-09")] = None,
     patch: Annotated[str | None, Query(pattern=r"^\d+\.\d+$", description="Game patch, e.g. 13.05")] = None,
-    start: Annotated[date | None, Query(description="First day of a custom range (with `end`)")] = None,
+    start: Annotated[date | None, Query(description="First day of a custom range (with `end`); an evening is start = end")] = None,
     end: Annotated[date | None, Query(description="Last day of a custom range (with `start`)")] = None,
 ) -> PeriodQuery:
     """At most one way of choosing the period; nothing means the latest month played."""
@@ -31,6 +26,5 @@ def period_query(
     return PeriodQuery(month=month, patch=patch, start=start, end=end)
 
 
-PeriodServiceDep = Annotated[PeriodService, Depends(period_service)]
-SessionServiceDep = Annotated[SessionService, Depends(session_service)]
+ReportServiceDep = Annotated[ReportService, Depends(report_service)]
 PeriodQueryDep = Annotated[PeriodQuery, Depends(period_query)]

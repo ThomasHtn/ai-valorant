@@ -4,9 +4,8 @@ import { NotFound } from '@pages/not-found/not-found';
 
 /**
  * Application routes. The period is carried by query parameters (`?month=2026-09`, `?patch=13.05`,
- * `?start=…&end=…`) so each tab keeps it while the reader moves around. Pages are lazy: the period
- * report owns `chart.js`, and every page brings its own icons, which would otherwise all weigh on
- * the first load.
+ * `?start=…&end=…`, an evening being `start = end`) so every report view keeps it while the analyst
+ * moves around. Pages are lazy so each brings only its own code and icons.
  */
 export const routes: Routes = [
   {
@@ -15,39 +14,80 @@ export const routes: Routes = [
     title: 'ValoStats',
   },
   {
-    path: 'sessions/:day',
-    loadComponent: () => import('@pages/session/session-page').then((m) => m.SessionPage),
-    title: 'Session · ValoStats',
+    path: 'glossary',
+    loadComponent: () => import('@pages/glossary/glossary-page').then((m) => m.GlossaryPage),
+    title: 'Glossaire · ValoStats',
   },
   {
-    path: 'periods',
-    loadComponent: () => import('@pages/period/period-page').then((m) => m.PeriodPage),
+    path: 'report',
+    loadComponent: () => import('@pages/report/report-page').then((m) => m.ReportPage),
     title: 'Rapport · ValoStats',
     children: [
-      { path: '', pathMatch: 'full', redirectTo: 'team' },
+      { path: '', pathMatch: 'full', redirectTo: 'tables' },
       {
-        path: 'team',
-        loadComponent: () => import('@pages/period/team/team-tab').then((m) => m.TeamTab),
+        path: 'tables',
+        loadComponent: () => import('@pages/report/tables/tables-view').then((m) => m.TablesView),
       },
       {
-        path: 'team/:group',
-        loadComponent: () => import('@pages/period/team/team-tab').then((m) => m.TeamTab),
+        path: 'tables/:domain',
+        loadComponent: () => import('@pages/report/tables/tables-view').then((m) => m.TablesView),
       },
       {
-        path: 'maps',
-        loadComponent: () => import('@pages/period/maps/maps-tab').then((m) => m.MapsTab),
+        path: 'findings',
+        loadComponent: () =>
+          import('@pages/report/findings/findings-view').then((m) => m.FindingsView),
       },
       {
-        path: 'maps/:map',
-        loadComponent: () => import('@pages/period/maps/maps-tab').then((m) => m.MapsTab),
+        path: 'compare',
+        loadComponent: () =>
+          import('@pages/report/compare/compare-view').then((m) => m.CompareView),
+      },
+      {
+        path: 'minimap',
+        loadComponent: () =>
+          import('@pages/report/minimap/minimap-view').then((m) => m.MinimapView),
+      },
+      {
+        path: 'minimap/:map',
+        loadComponent: () =>
+          import('@pages/report/minimap/minimap-view').then((m) => m.MinimapView),
+      },
+      {
+        path: 'rounds',
+        loadComponent: () => import('@pages/report/rounds/rounds-view').then((m) => m.RoundsView),
+      },
+      {
+        path: 'rounds/:round',
+        loadComponent: () => import('@pages/report/rounds/rounds-view').then((m) => m.RoundsView),
+      },
+      {
+        path: 'matches',
+        loadComponent: () =>
+          import('@pages/report/matches/matches-view').then((m) => m.MatchesView),
+      },
+      {
+        path: 'matches/:match',
+        loadComponent: () =>
+          import('@pages/report/matches/matches-view').then((m) => m.MatchesView),
       },
       {
         path: 'players',
-        loadComponent: () => import('@pages/period/players/players-tab').then((m) => m.PlayersTab),
+        loadComponent: () =>
+          import('@pages/report/players/players-view').then((m) => m.PlayersView),
       },
       {
-        path: 'players/:puuid',
-        loadComponent: () => import('@pages/period/players/players-tab').then((m) => m.PlayersTab),
+        path: 'players/:player',
+        loadComponent: () =>
+          import('@pages/report/players/players-view').then((m) => m.PlayersView),
+      },
+      {
+        path: 'trend',
+        loadComponent: () => import('@pages/report/trend/trend-view').then((m) => m.TrendView),
+      },
+      {
+        path: 'distribution',
+        loadComponent: () =>
+          import('@pages/report/distribution/distribution-view').then((m) => m.DistributionView),
       },
     ],
   },

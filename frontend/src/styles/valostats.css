@@ -15,4 +15,7 @@
   --color-rating-good: #5fb88a;
   --color-rating-average: #d9954a;
   --color-rating-bad: #d9534f;
+
+  /* Top ranked reference in charts and bars. */
+  --color-top: #bdbcb6;
 }

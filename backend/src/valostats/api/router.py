@@ -2,8 +2,8 @@
 
 from fastapi import APIRouter
 
-from valostats.api.routes import health, periods, reference, sessions
+from valostats.api.routes import health, reference, report, report_insights, report_matches, report_players
 
 api_router = APIRouter(prefix="/api")
-for module in (health, reference, periods, sessions):
+for module in (health, reference, report, report_insights, report_matches, report_players):
     api_router.include_router(module.router)

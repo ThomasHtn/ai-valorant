@@ -10,7 +10,23 @@ from datetime import datetime
 from typing import Any
 from zoneinfo import ZoneInfo
 
-from valostats.constants.game import BLUE, HALF_LENGTH, LOCAL_TIMEZONE, OVERTIME_START, RED, TEAM_SIZE, TEAMS
+from valostats.constants.game import (
+    BLUE,
+    HALF_LENGTH,
+    LOCAL_TIMEZONE,
+    MELEE_WEAPONS,
+    OVERTIME_START,
+    RED,
+    TEAM_SIZE,
+    TEAMS,
+    WEAPON_TYPE_ABILITY,
+    WEAPON_TYPE_FALL,
+    WEAPON_TYPE_GUN,
+    WEAPON_TYPE_MELEE,
+    WEAPON_TYPE_SPIKE,
+)
+from valostats.domain.enums import KillMeans
+from valostats.domain.facts import Location
 
 HenrikMatch = dict[str, Any]
 HenrikKill = dict[str, Any]
@@ -72,3 +88,58 @@ def squad_team(match: HenrikMatch, squad: Collection[str]) -> str | None:
         return None
     team, n = counts.most_common(1)[0]
     return str(team) if n >= TEAM_SIZE else None
+
+
+def game_length_ms(match: HenrikMatch) -> int | None:
+    return match["metadata"].get("game_length_in_ms")
+
+
+def cluster(match: HenrikMatch) -> str | None:
+    """Game server, e.g. 'Frankfurt'."""
+    return match["metadata"].get("cluster")
+
+
+def location(point: dict[str, Any]) -> Location:
+    return Location(point["x"], point["y"])
+
+
+def snapshot_location(kill: HenrikKill, puuid: str) -> Location | None:
+    """Where a player stood when the kill happened, read from the kill snapshot."""
+    spot = next((q["location"] for q in kill["player_locations"] if q["player"]["puuid"] == puuid), None)
+    return location(spot) if spot else None
+
+
+def weapon_name(kill: HenrikKill) -> str | None:
+    return (kill.get("weapon") or {}).get("name") or None
+
+
+def kill_means(kill: HenrikKill) -> KillMeans:
+    """What the kill was made with. An unnamed "Weapon" is a Chamber or Neon ultimate, so an ability."""
+    weapon = kill.get("weapon") or {}
+    kind, name = weapon.get("type"), weapon.get("name")
+    if kind == WEAPON_TYPE_GUN or (kind is None and name):
+        if not name:
+            return KillMeans.ABILITY
+        return KillMeans.MELEE if name in MELEE_WEAPONS else KillMeans.WEAPON
+    return {
+        WEAPON_TYPE_MELEE: KillMeans.MELEE,
+        WEAPON_TYPE_ABILITY: KillMeans.ABILITY,
+        WEAPON_TYPE_SPIKE: KillMeans.SPIKE,
+        WEAPON_TYPE_FALL: KillMeans.FALL,
+    }.get(kind or "", KillMeans.OTHER)
+
+
+def tier(player: dict[str, Any]) -> tuple[int | None, str | None]:
+    """Competitive tier id and name; (None, None) when unranked (Henrik sends id 0)."""
+    raw = player.get("tier") or {}
+    return (raw.get("id"), raw.get("name")) if raw.get("id") else (None, None)
+
+
+def team_tiers(match: HenrikMatch) -> dict[str, float | None]:
+    """Average tier id of each team's ranked players."""
+    ids: dict[str, list[int]] = {team: [] for team in TEAMS}
+    for player in match["players"]:
+        tier_id = tier(player)[0]
+        if tier_id and player["team_id"] in ids:
+            ids[player["team_id"]].append(tier_id)
+    return {team: sum(values) / len(values) if values else None for team, values in ids.items()}

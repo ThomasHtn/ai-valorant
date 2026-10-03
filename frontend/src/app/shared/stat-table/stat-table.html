@@ -1,0 +1,125 @@
+<div class="overflow-x-auto">
+  <table class="w-full border-separate border-spacing-y-0.5 tabular-nums">
+    <thead>
+      <tr>
+        <th
+          scope="col"
+          class="bg-text-primary/8 px-2.5 py-2 text-left text-[0.92rem] font-semibold whitespace-nowrap text-text-secondary"
+        >
+          {{ table().rowsLabel }}
+        </th>
+        @for (column of table().columns; track column.key) {
+          <th
+            scope="col"
+            class="bg-text-primary/8 px-2.5 py-2 text-right text-[0.92rem] font-semibold whitespace-nowrap text-text-secondary"
+            [attr.aria-sort]="sortState(column)"
+          >
+            <button
+              type="button"
+              class="focus-ring cursor-pointer font-semibold hover:text-text-primary"
+              (click)="sortBy(column)"
+            >
+              {{ column.label }}
+            </button>
+            <app-info-tip [topic]="column.help" />
+          </th>
+        }
+      </tr>
+    </thead>
+    <tbody>
+      @for (rowView of rows(); track rowView.row.key) {
+        <tr [class.font-semibold]="rowView.row.total">
+          <!-- The label column keeps room for short labels like "Toutes les cartes"; long ones (lineups) still wrap. -->
+          <td
+            class="min-w-44 px-2.5 py-1.5 text-left"
+            [class]="rowView.row.total ? 'bg-text-primary/9' : 'bg-text-primary/4'"
+          >
+            <div class="flex min-w-0 items-center gap-2.5">
+              <app-row-art [art]="rowView.art" />
+              <span class="flex min-w-0 flex-col leading-tight">
+                <span>{{ rowView.row.label }}</span>
+                @if (rowView.row.sub) {
+                  <small class="text-[0.85rem] font-normal text-text-muted">{{
+                    rowView.row.sub
+                  }}</small>
+                }
+              </span>
+            </div>
+          </td>
+          @for (cell of rowView.cells; track cell.key) {
+            <td
+              class="focus-ring-inset cursor-pointer px-2.5 py-1.5 text-right whitespace-nowrap hover:outline hover:-outline-offset-1 hover:outline-edge-strong"
+              [class]="
+                cell.tone
+                  ? toneClasses[cell.tone]
+                  : rowView.row.total
+                    ? 'bg-text-primary/9'
+                    : 'bg-text-primary/4'
+              "
+              tabindex="0"
+              (click)="open(rowView.row, cell)"
+              (keydown.enter)="open(rowView.row, cell)"
+              (pointerenter)="showTip($event, rowView.row, cell)"
+              (pointerleave)="hideTip()"
+              (focus)="showTip($event, rowView.row, cell)"
+              (blur)="hideTip()"
+            >
+              <span class="font-semibold">{{ cell.text }}</span>
+              @if (cell.sample) {
+                <span class="block text-[0.78rem] leading-none font-normal text-text-muted">{{
+                  cell.sample
+                }}</span>
+              }
+              @if (cell.reference) {
+                <span class="block text-[0.78rem] leading-none font-normal text-text-secondary">{{
+                  cell.reference
+                }}</span>
+              }
+            </td>
+          }
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
+
+<!-- One tip for the whole table, moved to the hovered cell. -->
+<div
+  #tip
+  popover="manual"
+  role="tooltip"
+  class="fixed m-0 w-max max-w-[min(25rem,calc(100vw-16px))] border-0 border-l-2 border-brand-500/50 bg-surface-sunken px-4 py-3 text-left text-[0.95rem] font-normal text-text-primary"
+>
+  @if (hovered(); as h) {
+    <p class="m-0 mb-1 font-display text-[1.05rem] font-semibold text-brand-400 uppercase">
+      {{ h.view.column.label }}
+    </p>
+    <p class="m-0">
+      {{ h.row.label }}
+      @if (h.row.sub) {
+        · {{ h.row.sub }}
+      }
+    </p>
+    <table class="mt-2 w-full">
+      @for (line of tipLines(); track line.label) {
+        <tr class="border-t border-edge">
+          <td class="py-0.5 pr-3 text-text-secondary">
+            {{ line.label }}
+            @if (line.isReference) {
+              · référence
+            }
+          </td>
+          <td class="py-0.5 text-right font-semibold">
+            {{ line.value }}
+            @if (line.sample) {
+              <span class="font-normal text-text-muted">({{ line.sample }})</span>
+            }
+          </td>
+        </tr>
+      }
+    </table>
+    @if (tipNote(); as note) {
+      <p class="m-0 mt-2 text-text-muted">{{ note }}</p>
+    }
+  }
+</div>

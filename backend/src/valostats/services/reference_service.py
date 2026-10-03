@@ -1,12 +1,10 @@
-"""Reference data: squad, maps, glossary and the state of the collected data."""
+"""Reference data: squad, maps and the state of the collected data."""
 
 from sqlalchemy.orm import Session
 
-from valostats.analysis.players.metrics import STATS
 from valostats.domain.enums import MatchSource
 from valostats.repositories import facts_repository, map_repository, match_repository, squad_repository
-from valostats.schemas.period.player import StatDefinitionDto
-from valostats.schemas.reference import DataStatus, GameMapDto, Glossary, SourceStatus, SquadPlayerDto
+from valostats.schemas.reference import DataStatus, GameMapDto, SourceStatus, SquadPlayerDto
 
 
 def squad_players(session: Session) -> list[SquadPlayerDto]:
@@ -17,16 +15,6 @@ def game_maps(session: Session) -> list[GameMapDto]:
     return [
         GameMapDto(name=m.name, minimap_url=m.minimap_url) for m in sorted(map_repository.load_all(session).values(), key=lambda m: m.name)
     ]
-
-
-def glossary() -> Glossary:
-    return Glossary(
-        stats=[
-            StatDefinitionDto(key=s.key, label=s.label, kind=s.kind.value, higher_is_better=s.higher_is_better, decimals=s.decimals,
-                              signed=s.signed, definition=s.definition)
-            for s in STATS
-        ],
-    )  # fmt: skip
 
 
 def data_status(session: Session) -> DataStatus:

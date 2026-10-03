@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from datetime import date, datetime
 from zoneinfo import ZoneInfo
 
-from valostats.analysis.period.selection import PeriodQuery, resolve
+from valostats.analysis.report.foundation.period_selection import PeriodQuery, resolve
 
 PARIS = ZoneInfo("Europe/Paris")
 

@@ -1,42 +1,42 @@
 import { StatHelp } from './stat-help.model';
 
-/** How to read the reports: references, colours and the strength of a gap. */
-export const READING_HELP = {
-  opponents: {
-    title: 'Adversaire',
-    what: "Les joueurs d'en face dans vos matchs, donc à votre elo.",
-    read: 'La comparaison la plus juste pour savoir si vous jouez au-dessus ou en dessous de votre rang.',
+/** Lecture des chiffres: what each statistic means, how it is counted and how to read it. */
+export const READING_HELP: Readonly<Record<string, StatHelp>> = {
+  reference: {
+    title: 'Référence',
+    what: "Ce à quoi chaque chiffre de l'escouade est comparé pour choisir la couleur.",
+    how: "Top ranked : matchs du top 20 de chaque région, patch 13.06. Adversaires : les équipes affrontées dans les mêmes matchs. Historique : l'escouade avant la période.",
+    read: 'Vert : mieux que la référence. Orange : à moins de 3 points (5 % pour une moyenne). Rouge : moins bien. Gris : échantillon trop petit.',
   },
-  topRanked: {
-    title: 'Top ranked',
-    what: 'Le top 20 du leaderboard de chaque région, sur leurs dernières ranked.',
-    read: "Le niveau à viser. Pour les situations de jeu (3v2, retake, clutch...), c'est la seule comparaison possible : un clutch que vous gagnez, c'est un clutch que vos adversaires perdent, se comparer à eux ne voudrait rien dire.",
+  dataQuality: {
+    title: 'Données',
+    what: 'Sur quoi reposent les chiffres affichés.',
+    how: "Matchs Henrik de l'escouade en 5-stack, rechargés après chaque soirée ; top ranked rechargé chaque semaine.",
   },
-  sameLevel: {
-    title: 'Adversaire',
-    what: 'Vos adversaires dans ces mêmes matchs : des joueurs de votre elo.',
-    read: "Pour un pourcentage de rounds gagnés ou de first bloods, l'adversaire fait toujours l'inverse de vous : la référence est alors 50 %.",
+  detections: {
+    title: 'Détections automatiques',
+    what: "Ce que l'outil repère seul dans les données de la période, sans interprétation.",
+    how: 'Répétitions sur plusieurs matchs, écarts qui passent un test statistique, liens entre deux chiffres. Chaque ligne donne son échantillon et ses rounds.',
   },
-  status: {
-    title: 'Écart net ou à confirmer',
-    what: 'Écart net : il revient sur assez de rounds pour ne pas être de la chance. À confirmer : à surveiller, ça peut encore être un coup de chance ou de malchance.',
-    how: 'Chaque écart passe un test statistique. Comme on compare beaucoup de stats à la fois, le test est plus sévère pour éviter les fausses alertes.',
+  detRepeat: {
+    title: 'Ce qui se répète',
+    what: 'Une même situation qui revient sur plusieurs matchs : first deaths au même endroit, même situation perdue.',
+    how: '4 fois ou plus, sur au moins 2 matchs.',
   },
-  heatColors: {
-    title: 'Cases colorées',
-    what: "Vert : mieux que la référence. Orange : à 3 points près, dans la moyenne. Rouge : moins bien. Plus la couleur est vive, plus l'écart est grand.",
-    read: 'Case grise : moins de 5 rounds, pas assez pour conclure. Passez la souris sur une case pour voir le nombre de rounds.',
+  detGap: {
+    title: 'Écarts nets',
+    what: "Les chiffres qui s'écartent le plus de la référence et passent le test statistique.",
+    how: 'Test de proportions, correction de Benjamini-Hochberg sur tous les tests de la période.',
   },
-  roundsGap: {
-    title: 'Écart en rounds',
-    what: 'Les rounds gagnés en plus ou en moins que si vous gagniez aussi souvent que le top ranked, sur le même nombre de rounds.',
-    example: {
-      text: '16 retakes à jouer, le top ranked en gagne 29 % : environ 5. Vous en gagnez 0, soit -5 rounds.',
-    },
+  detLink: {
+    title: 'Liens entre chiffres',
+    what: 'Comment le résultat du round change selon ce que fait un joueur.',
+    how: "Rounds gagnés après la first death ou le first blood de chaque joueur, comparés à la moyenne de l'escouade.",
   },
-  points: {
-    title: 'Écart en points',
-    what: 'La différence entre deux pourcentages : de 50 % à 53 %, ça fait +3 pts.',
-    read: '« net » : écart assez grand pour ne pas être du hasard.',
+  findingStatus: {
+    title: 'Écart net, à confirmer',
+    what: "Un point fort ou faible n'est affiché que si l'écart avec la référence a peu de chances d'être dû au hasard.",
+    how: 'Test de proportions sur chaque chiffre, puis correction de Benjamini-Hochberg sur tous les tests de la période. Écart net : passe la correction. À confirmer : passe le test seul (p < 0,05).',
+    read: "Adversaires pour le jeu d'équipe (mêmes matchs, même niveau), top ranked pour la méta (économie, plants, timings).",
   },
-} satisfies Record<string, StatHelp>;
+};

@@ -1,32 +1,38 @@
 <!-- Context bar of a page, as in ValoQuests: sunken, an amber rule under it, the wordmark home link,
-     the page title in display capitals, the page's own tabs resting on the rule, then what the page
-     offers on the right. -->
+     the two global screens (home and glossary), the page title if any, then what the page offers on
+     the right. Report views bring their own tabs in the page body, never here. -->
 <header class="border-b border-brand-500/50 bg-surface-sunken">
-  <div class="mx-auto flex min-h-16 w-full flex-wrap items-stretch gap-x-6 px-4 sm:px-6">
-    <div class="flex min-w-0 items-center gap-4 py-3">
-      <a
-        routerLink="/"
-        class="focus-ring flex shrink-0 items-center border-r border-edge pr-4 font-display text-xl leading-tight font-bold uppercase no-underline"
-        aria-label="ValoStats, accueil"
-      >
-        <span class="text-brand-500">Valo</span>
-        <span class="text-text-primary">Stats</span>
-      </a>
-      @if (heading()) {
-        <h1
-          class="truncate font-display text-xl leading-tight font-bold tracking-wide text-brand-500 uppercase sm:text-2xl"
+  <div
+    class="mx-auto flex min-h-14 w-full max-w-[1600px] flex-wrap items-center gap-x-5 px-4 sm:px-6"
+  >
+    <a
+      routerLink="/"
+      class="focus-ring flex shrink-0 items-center py-3 font-display text-xl leading-tight font-bold uppercase no-underline"
+      aria-label="ValoStats, accueil"
+    >
+      <span class="text-brand-500">Valo</span>
+      <span class="text-text-primary">Stats</span>
+    </a>
+    <nav class="flex gap-1" aria-label="Navigation principale">
+      @for (link of links; track link.path) {
+        <a
+          [routerLink]="link.path"
+          routerLinkActive="!text-text-primary bg-text-primary/7"
+          [routerLinkActiveOptions]="{ exact: link.exact }"
+          ariaCurrentWhenActive="page"
+          class="focus-ring px-3 py-1.5 font-semibold text-text-secondary no-underline transition-colors hover:bg-text-primary/7 hover:text-text-primary"
+          >{{ link.label }}</a
         >
-          {{ heading() }}
-        </h1>
       }
-      <!-- A page may bring its own title, such as the period picker. -->
-      <ng-content select="[pageTitle]" />
-    </div>
-
-    <!-- Wraps under the title on a phone. -->
-    <ng-content select="[pageTabs]" />
-
-    <div class="ml-auto flex min-w-0 shrink items-center gap-2">
+    </nav>
+    @if (heading()) {
+      <h1
+        class="truncate font-display text-xl leading-tight font-bold tracking-wide text-brand-500 uppercase"
+      >
+        {{ heading() }}
+      </h1>
+    }
+    <div class="ml-auto flex min-w-0 shrink items-center gap-2 py-2">
       <ng-content />
     </div>
   </div>

@@ -1,0 +1,110 @@
+<app-page-header />
+
+<div class="page-body !pt-8">
+  <div class="flex flex-wrap items-center justify-between gap-4">
+    <div class="flex flex-col gap-1">
+      <h1 class="!mt-0 font-display text-2xl font-semibold text-brand-500 uppercase">Glossaire</h1>
+      <p class="!m-0 max-w-[70ch] text-text-secondary">
+        Chaque stat a une seule définition, la même dans les infobulles « i » et dans toutes les
+        vues.
+      </p>
+    </div>
+    <label class="w-full max-w-md">
+      <span class="sr-only">Chercher une stat</span>
+      <input
+        type="search"
+        class="field-control h-10 w-full px-3"
+        placeholder="Chercher une stat (revenge, KAST, retake…)"
+        [value]="search()"
+        (input)="onSearch($event)"
+      />
+    </label>
+  </div>
+
+  <div class="grid items-start gap-6 lg:grid-cols-[14rem_minmax(0,1fr)]">
+    <nav
+      class="flex flex-wrap gap-0.5 lg:sticky lg:top-0 lg:flex-col"
+      aria-label="Sections du glossaire"
+    >
+      <button
+        type="button"
+        class="focus-ring cursor-pointer bg-text-primary/4 px-3 py-1.5 text-left font-semibold text-text-secondary hover:bg-text-primary/7 hover:text-text-primary"
+        (click)="jump('glossary-parameters')"
+      >
+        Paramètres
+      </button>
+      @for (section of sections(); track section.key) {
+        <button
+          type="button"
+          class="focus-ring cursor-pointer bg-text-primary/4 px-3 py-1.5 text-left font-semibold text-text-secondary hover:bg-text-primary/7 hover:text-text-primary"
+          (click)="jump('glossary-' + section.key)"
+        >
+          {{ section.label }}
+        </button>
+      }
+    </nav>
+
+    <div class="flex min-w-0 flex-col gap-8">
+      <section id="glossary-parameters" class="flex flex-col gap-3">
+        <h2 class="!mt-0">Paramètres</h2>
+        <div class="overflow-x-auto">
+          <table class="w-full border-separate border-spacing-y-0.5">
+            <thead>
+              <tr class="text-[0.92rem] text-text-secondary">
+                <th scope="col" class="bg-text-primary/8 px-3 py-2 text-left">Paramètre</th>
+                <th scope="col" class="bg-text-primary/8 px-3 py-2 text-left">Valeur</th>
+                <th scope="col" class="bg-text-primary/8 px-3 py-2 text-left">Utilisation</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (parameter of parameters; track parameter.name) {
+                <tr>
+                  <td class="bg-text-primary/4 px-3 py-1.5">{{ parameter.name }}</td>
+                  <td class="bg-text-primary/4 px-3 py-1.5 font-semibold whitespace-nowrap">
+                    {{ parameter.value }}
+                  </td>
+                  <td class="bg-text-primary/4 px-3 py-1.5 text-text-secondary">
+                    {{ parameter.use }}
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      @for (section of sections(); track section.key) {
+        <section [id]="'glossary-' + section.key" class="flex flex-col gap-3">
+          <h2 class="!mt-0">
+            {{ section.label }}
+            <span class="text-base font-normal text-text-muted">{{ section.entries.length }}</span>
+          </h2>
+          <div class="grid grid-cols-[repeat(auto-fill,minmax(min(100%,22rem),1fr))] gap-0.5">
+            @for (entry of section.entries; track entry.key) {
+              <article class="flex flex-col gap-1.5 bg-text-primary/4 px-4 py-3">
+                <h3 class="!mt-0 font-display text-base font-semibold text-brand-400 uppercase">
+                  {{ entry.help.title }}
+                </h3>
+                <p class="!m-0">{{ entry.help.what }}</p>
+                @if (entry.help.how || entry.help.read) {
+                  <dl class="grid grid-cols-[auto_1fr] gap-x-2.5 gap-y-1 text-[0.95rem]">
+                    @if (entry.help.how) {
+                      <dt class="font-semibold text-brand-400">Calcul</dt>
+                      <dd class="text-text-secondary">{{ entry.help.how }}</dd>
+                    }
+                    @if (entry.help.read) {
+                      <dt class="font-semibold text-brand-400">Repère</dt>
+                      <dd class="text-text-secondary">{{ entry.help.read }}</dd>
+                    }
+                  </dl>
+                }
+              </article>
+            }
+          </div>
+        </section>
+      } @empty {
+        <p class="text-text-muted">Aucune stat ne correspond à cette recherche.</p>
+      }
+    </div>
+  </div>
+</div>

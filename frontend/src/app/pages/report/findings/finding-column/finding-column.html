@@ -1,0 +1,22 @@
+<h2 class="!mt-0 !mb-1 flex items-center gap-2">
+  <span
+    class="size-3 rounded-full"
+    [class]="weak() ? 'bg-rating-bad' : 'bg-rating-good'"
+    aria-hidden="true"
+  ></span>
+  {{ heading() }}
+  <span class="font-sans text-base font-normal text-text-muted">{{ column().count }}</span>
+</h2>
+
+@for (group of column().groups; track group.group) {
+  <p class="!mt-2.5 !mb-0.5 text-[0.95rem] text-text-secondary">
+    {{ group.label }} · {{ group.findings.length }}
+  </p>
+  @for (finding of group.findings; track $index) {
+    <app-finding-card [finding]="finding" [playerAgents]="playerAgents()" />
+  }
+} @empty {
+  <p class="!m-0 bg-text-primary/4 px-6 py-6 text-center text-text-muted">
+    Aucun écart à afficher avec ces filtres.
+  </p>
+}

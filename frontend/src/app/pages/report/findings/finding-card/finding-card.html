@@ -1,0 +1,41 @@
+<app-row-art class="!size-9" [art]="art()" />
+
+<div class="flex min-w-0 flex-wrap items-center gap-x-2.5 gap-y-1">
+  <span class="font-semibold">{{ finding().scope }}</span>
+  <app-badge
+    [label]="statusLabel()"
+    [kind]="finding().status === 'confirmed' ? 'confirmed' : 'lead'"
+    size="sm"
+  />
+  <span class="basis-full text-text-secondary">{{ finding().metric }}</span>
+</div>
+
+<p
+  class="!m-0 text-right font-display text-xl leading-tight font-semibold"
+  [class]="isWeak() ? 'text-rating-bad' : 'text-rating-good'"
+>
+  {{ gapText() }}
+  <span class="block font-sans text-xs font-normal text-text-muted">rounds</span>
+</p>
+
+<div
+  class="col-span-2 col-start-2 mt-1 grid grid-cols-[7rem_minmax(0,1fr)_6.5rem] items-center gap-x-2.5 gap-y-1 text-[0.92rem]"
+>
+  @for (bar of bars(); track bar.label) {
+    <span [class.text-text-muted]="!bar.isSquad">{{ bar.label }}</span>
+    <span class="relative h-2 bg-text-primary/8" aria-hidden="true">
+      <i class="absolute inset-y-0 left-0 block" [class]="bar.fill" [style.width.%]="bar.width"></i>
+    </span>
+    <span class="text-right whitespace-nowrap" [class.text-text-muted]="!bar.isSquad">
+      {{ bar.value }} <span class="text-text-muted">{{ bar.sample }}</span>
+    </span>
+  }
+</div>
+
+@if (finding().rewatch.length) {
+  <app-rewatch-links
+    class="col-span-2 col-start-2"
+    [rounds]="finding().rewatch"
+    label="À revoir :"
+  />
+}

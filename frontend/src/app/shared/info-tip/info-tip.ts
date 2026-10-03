@@ -10,7 +10,7 @@ import {
   viewChild,
 } from '@angular/core';
 
-import { HelpTopic, STAT_HELP } from '@core/help/stat-help.constants';
+import { helpFor } from '@core/help/help-registry';
 import { StatHelp } from '@core/help/stat-help.model';
 
 import { placeTip } from './info-tip-position.utils';
@@ -32,14 +32,14 @@ let openTip: InfoTip | null = null;
   styleUrl: './info-tip.css',
 })
 export class InfoTip {
-  /** Explanation from the shared catalogue... */
-  public readonly topic = input<HelpTopic | null>(null);
+  /** Key of an explanation in the shared catalogue (`core/help`), such as the API's column `help`... */
+  public readonly topic = input<string | null | undefined>(null);
   /** ...or given directly, for stats whose key comes from the API. */
   public readonly content = input<StatHelp | null>(null);
 
   protected readonly entry = computed(() => {
     const topic = this.topic();
-    return this.content() ?? (topic ? STAT_HELP[topic] : null);
+    return this.content() ?? helpFor(topic);
   });
   protected readonly id = `info-tip-${nextId++}`;
   protected readonly isOpen = signal(false);

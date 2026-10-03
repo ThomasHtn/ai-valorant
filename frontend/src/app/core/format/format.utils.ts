@@ -1,64 +1,7 @@
-import { Noun, Rate, RoundRef } from '@core/common/common.model';
-import { StatDefinition } from '@core/reference/reference.model';
-
 import { MONTHS } from './labels.constants';
 
 /** Placeholder of a missing value. */
-export const EMPTY = '-';
-
-/** '48 %' from a rate, '-' without tries. */
-export function percent(rate: Rate | null | undefined): string {
-  return rate && rate.total ? `${Math.round((100 * rate.count) / rate.total)} %` : EMPTY;
-}
-
-/** '48 %' from a share between 0 and 1. */
-export function percentOf(value: number | null | undefined): string {
-  return value === null || value === undefined ? EMPTY : `${Math.round(100 * value)} %`;
-}
-
-/** The word agreeing with a count: singular for 0 and 1, as French does. */
-export function agree(noun: Noun, count: number): string {
-  return count >= 2 ? noun.many : noun.one;
-}
-
-/** '21/54'. */
-export function fraction(rate: Rate): string {
-  return `${rate.count}/${rate.total}`;
-}
-
-/** Fixed decimals, optionally with an explicit sign ('+1.2'). */
-export function decimal(value: number | null | undefined, digits = 0, signed = false): string {
-  if (value === null || value === undefined) {
-    return EMPTY;
-  }
-  const text = value.toFixed(digits);
-  return signed && value >= 0 ? `+${text}` : text;
-}
-
-/** A statistic formatted with its own definition: percent for rates, decimals for means. */
-export function statValue(
-  definition: StatDefinition | undefined,
-  value: number | null | undefined,
-): string {
-  if (!definition) {
-    return decimal(value, 2);
-  }
-  return definition.kind === 'rate'
-    ? percentOf(value)
-    : decimal(value, definition.decimals, definition.signed);
-}
-
-/** Change in points between two rates: '+3 pts', '-2 pts' or '='; null without a previous rate. */
-export function pointsChange(current: Rate, previous: Rate | null): number | null {
-  if (!previous || !previous.total || !current.total) {
-    return null;
-  }
-  return Math.round(100 * (current.count / current.total - previous.count / previous.total));
-}
-
-export function signedPoints(points: number): string {
-  return points === 0 ? '=' : `${points > 0 ? '+' : ''}${points} pts`;
-}
+export const EMPTY = '—';
 
 /** '30/09' from an ISO date. */
 export function dayMonth(iso: string): string {
@@ -91,7 +34,7 @@ function dayDate(iso: string): Date {
   return new Date(`${iso.slice(0, 10)}T12:00:00`);
 }
 
-/** 'mer. 1 oct.' from an ISO date. */
+/** 'jeu. 1 oct.' from an ISO date. */
 export function shortDay(iso: string): string {
   return SHORT_DAY.format(dayDate(iso));
 }
@@ -115,6 +58,15 @@ export function clock(ms: number): string {
 }
 
 /** '30/09 Split R14': where to find a round to rewatch. */
-export function roundRef(ref: RoundRef): string {
-  return `${dayMonth(ref.startedAt)} ${ref.mapName} R${ref.roundNumber}`;
+export function roundLabel(day: string, map: string, round: number): string {
+  return `${dayMonth(day)} ${map} R${round}`;
+}
+
+/**
+ * '02/10 à 10:53' from an ISO date-time ('2026-10-02T10:53:33+02:00'), read in the time it was
+ * written in; any other text is returned as is.
+ */
+export function freshness(value: string): string {
+  const match = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/.exec(value);
+  return match ? `${match[3]}/${match[2]} à ${match[4]}:${match[5]}` : value;
 }

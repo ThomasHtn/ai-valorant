@@ -62,3 +62,12 @@ def round_timelines(match: HenrikMatch) -> dict[int, RoundTimeline]:
             states.append(RoundState(event, dict(alive), planted))
         timelines[rnd["id"]] = RoundTimeline(attacker(rnd["id"]), rnd["winning_team"], tuple(states))
     return timelines
+
+
+def alive_before_kills(timeline: RoundTimeline) -> dict[int, dict[str, int]]:
+    """Alive players per team right before each kill, keyed by `id()` of the Henrik kill object."""
+    return {
+        id(state.event.data): previous.alive
+        for previous, state in zip(timeline.states, timeline.states[1:], strict=False)
+        if state.event and state.event.kind == "kill"
+    }

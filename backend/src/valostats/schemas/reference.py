@@ -1,9 +1,8 @@
-"""Reference data: squad, maps, glossary and data status."""
+"""Reference data: squad, maps and data status."""
 
 from datetime import datetime
 
 from valostats.schemas.common import ApiModel
-from valostats.schemas.period.player import StatDefinitionDto
 
 
 class SquadPlayerDto(ApiModel):
@@ -14,10 +13,6 @@ class SquadPlayerDto(ApiModel):
 class GameMapDto(ApiModel):
     name: str
     minimap_url: str
-
-
-class Glossary(ApiModel):
-    stats: list[StatDefinitionDto]
 
 
 class SourceStatus(ApiModel):

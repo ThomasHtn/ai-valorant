@@ -1,10 +1,9 @@
-/**
- * Strip of headline figures: as many tiles per row as fit, split by hairlines each tile casts on
- * its right and bottom (clipped at the strip's edge). Eight fit one row on a desktop.
- */
-export const STAT_BAND_CLASS =
-  'grid grid-cols-[repeat(auto-fit,minmax(8.5rem,1fr))] overflow-hidden bg-text-primary/4 ring-1 ring-edge ring-inset';
+import { CellTone } from '@core/report/tone.model';
 
-/** Same strip at the foot of a framed header (map hero, player card): no frame of its own. */
-export const STAT_BAND_FLUSH_CLASS =
-  'grid grid-cols-[repeat(auto-fit,minmax(8.5rem,1fr))] overflow-hidden border-t border-edge bg-surface-950/70';
+/** Text colour of a figure per tone (tiles, bars, form tiles); grey under the minimum sample. */
+export const TONE_TEXT_CLASSES: Record<CellTone, string> = {
+  good: 'text-rating-good',
+  avg: 'text-rating-average',
+  bad: 'text-rating-bad',
+  small: 'text-text-muted',
+};

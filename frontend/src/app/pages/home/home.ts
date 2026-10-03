@@ -1,4 +1,4 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import {
   LucideCalendarDays,
@@ -11,18 +11,19 @@ import {
   LucideTag,
 } from '@lucide/angular';
 
-import { fullDate, longDay } from '@core/format/format.utils';
-import { resourceValue } from '@core/http/resource-state.utils';
-import { PeriodsApi } from '@core/periods/periods-api';
-import { SessionsApi } from '@core/sessions/sessions-api';
+import { freshness, longDay, monthTitle } from '@core/format/format.utils';
+import { integer } from '@core/format/value-format.utils';
+import { ReportApi } from '@core/report/report-api';
 import { PageHeader } from '@layout/page-header/page-header';
 import { Badge } from '@shared/badge/badge';
 import { MapName } from '@shared/game-art/map-name';
+import { InfoTip } from '@shared/info-tip/info-tip';
 import { ResourceState } from '@shared/resource-state/resource-state';
 
-import { monthGroups } from './home.utils';
-
-/** Every report as a tree: months holding their report and evenings, then patches. */
+/**
+ * Home: every report as a tree. Months hold their report and their evenings (an evening opens on
+ * its matches), then patches and the whole history. Never shows the report's view tabs.
+ */
 @Component({
   selector: 'app-home',
   imports: [
@@ -30,6 +31,7 @@ import { monthGroups } from './home.utils';
     PageHeader,
     Badge,
     MapName,
+    InfoTip,
     ResourceState,
     LucideCalendarDays,
     LucideChevronDown,
@@ -44,16 +46,10 @@ import { monthGroups } from './home.utils';
   templateUrl: './home.html',
 })
 export class Home {
-  private readonly sessions = inject(SessionsApi).list;
-  protected readonly periods = inject(PeriodsApi).available;
+  protected readonly periods = inject(ReportApi).periods;
 
-  protected readonly groups = computed(() =>
-    monthGroups(
-      resourceValue(this.periods, null)?.months ?? [],
-      resourceValue(this.sessions, null) ?? [],
-    ),
-  );
-
-  protected readonly fullDate = fullDate;
+  protected readonly freshness = freshness;
   protected readonly longDay = longDay;
+  protected readonly monthTitle = monthTitle;
+  protected readonly integer = integer;
 }

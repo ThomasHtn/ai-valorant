@@ -1,4 +1,11 @@
-import { BuyType, Cohort, FindingStatus, Side } from '@core/common/enums.model';
+import {
+  BuyType,
+  Cohort,
+  FindingStatus,
+  LossCause,
+  Reference,
+  Side,
+} from '@core/common/enums.model';
 
 /** French labels of the API's enum values. */
 export const SIDE_LABELS: Record<Side, string> = { att: 'Attaque', def: 'Défense' };
@@ -12,8 +19,22 @@ export const BUY_LABELS: Record<BuyType, string> = {
 
 export const COHORT_LABELS: Record<Cohort, string> = {
   squad: "L'escouade",
-  opp: 'Adversaire',
+  opp: 'Adversaires',
   top: 'Top ranked',
+};
+
+/** Long names of the references, as the reference switch and cell tips write them. */
+export const REFERENCE_LABELS: Record<Reference, string> = {
+  top: 'Top ranked',
+  opp: 'Adversaires',
+  hist: "Historique de l'escouade",
+};
+
+/** Short names, for the segmented control. */
+export const REFERENCE_SHORT_LABELS: Record<Reference, string> = {
+  top: 'Top ranked',
+  opp: 'Adversaires',
+  hist: 'Historique',
 };
 
 export const STATUS_LABELS: Record<FindingStatus, string> = {
@@ -21,8 +42,17 @@ export const STATUS_LABELS: Record<FindingStatus, string> = {
   lead: 'À confirmer',
 };
 
-/** API scope of a finding over every map. */
-export const ALL_MAPS_SCOPE = 'Toutes cartes';
+export const LOSS_CAUSE_LABELS: Record<LossCause, string> = {
+  lead_thrown: 'Avantage perdu',
+  clutch_lost: 'Clutch perdu',
+  post_plant_lost: 'Post-plant perdu',
+  retake_failed: 'Retake raté',
+  opening_lost: 'Ouverture perdue',
+  economy_gap: 'Écart économique',
+  time_out: 'Temps écoulé',
+  execute_failed: 'Exécution ratée',
+  duels_lost: 'Duels perdus',
+};
 
 export const MONTHS = [
   'janvier',

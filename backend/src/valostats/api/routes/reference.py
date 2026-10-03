@@ -1,4 +1,4 @@
-"""Reference data: squad, maps, glossary, data status."""
+"""Reference data: squad, maps, data status."""
 
 from typing import Annotated
 
@@ -6,7 +6,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 from valostats.core.database import get_session
-from valostats.schemas.reference import DataStatus, GameMapDto, Glossary, SquadPlayerDto
+from valostats.schemas.reference import DataStatus, GameMapDto, SquadPlayerDto
 from valostats.services import reference_service
 
 router = APIRouter(tags=["reference"])
@@ -21,11 +21,6 @@ def squad_players(session: DbSession) -> list[SquadPlayerDto]:
 @router.get("/maps", summary="Maps with their minimap image")
 def game_maps(session: DbSession) -> list[GameMapDto]:
     return reference_service.game_maps(session)
-
-
-@router.get("/glossary", summary="Jargon and statistic definitions")
-def glossary() -> Glossary:
-    return reference_service.glossary()
 
 
 @router.get("/status", summary="Collected matches and last facts rebuild per source")

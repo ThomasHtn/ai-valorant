@@ -1,121 +1,142 @@
-<app-page-header heading="Tous les rapports" />
+<app-page-header>
+  @if (periods.hasValue()) {
+    <span class="flex items-center gap-2 text-sm text-text-muted">
+      <span class="size-2 rounded-full bg-rating-good" aria-hidden="true"></span>
+      Données du {{ freshness(periods.value().freshness) }}
+    </span>
+  }
+</app-page-header>
 
 <div class="page-body !pt-8">
+  <h1 class="!mt-0 font-display text-2xl font-semibold text-brand-500 uppercase">
+    Tous les rapports
+  </h1>
   <div class="grid items-start gap-x-10 gap-y-10 xl:grid-cols-[minmax(0,1fr)_22rem]">
     <section aria-labelledby="home-months">
       <h2 id="home-months" class="!mt-0">Par mois</h2>
 
       <app-resource-state [resource]="periods">
-        <ul class="mt-4 flex flex-col gap-2">
-          @for (group of groups(); track group.month) {
-            <li>
-              <details class="group/month" [open]="$first">
-                <summary
-                  class="focus-ring-inset flex cursor-pointer list-none items-center gap-3 bg-text-primary/4 px-4 py-3.5 transition-colors hover:bg-text-primary/7 [&::-webkit-details-marker]:hidden"
-                >
-                  <svg
-                    class="size-4 shrink-0 -rotate-90 text-text-muted transition-transform group-open/month:rotate-0 motion-reduce:transition-none"
-                    lucideChevronDown
-                    aria-hidden="true"
-                  ></svg>
-                  <svg
-                    class="size-5 shrink-0 text-brand-500 group-open/month:hidden"
-                    lucideFolder
-                    aria-hidden="true"
-                  ></svg>
-                  <svg
-                    class="hidden size-5 shrink-0 text-brand-500 group-open/month:block"
-                    lucideFolderOpen
-                    aria-hidden="true"
-                  ></svg>
-                  <span class="flex-1 font-display text-lg font-medium">{{ group.title }}</span>
-                  <span class="hidden text-sm text-text-muted sm:inline">
-                    {{ group.sessions.length }}
-                    {{ group.sessions.length > 1 ? 'sessions' : 'session' }}
-                  </span>
-                  @if (group.sessions.length) {
-                    <app-badge
-                      [label]="group.wins + 'V - ' + group.losses + 'D'"
-                      [kind]="group.wins >= group.losses ? 'good' : 'bad'"
-                      size="sm"
-                    />
-                  }
-                </summary>
+        @if (periods.hasValue()) {
+          <ul class="mt-4 flex flex-col gap-2">
+            @for (month of periods.value().months; track month.key) {
+              <li>
+                <details class="group/month" [open]="$index < 2">
+                  <summary
+                    class="focus-ring-inset flex cursor-pointer list-none items-center gap-3 bg-text-primary/4 px-4 py-3.5 transition-colors hover:bg-text-primary/7 [&::-webkit-details-marker]:hidden"
+                  >
+                    <svg
+                      class="size-4 shrink-0 -rotate-90 text-text-muted transition-transform group-open/month:rotate-0 motion-reduce:transition-none"
+                      lucideChevronDown
+                      aria-hidden="true"
+                    ></svg>
+                    <svg
+                      class="size-5 shrink-0 text-brand-500 group-open/month:hidden"
+                      lucideFolder
+                      aria-hidden="true"
+                    ></svg>
+                    <svg
+                      class="hidden size-5 shrink-0 text-brand-500 group-open/month:block"
+                      lucideFolderOpen
+                      aria-hidden="true"
+                    ></svg>
+                    <span class="flex-1 font-display text-lg font-medium">{{
+                      monthTitle(month.key)
+                    }}</span>
+                    <span class="hidden text-sm text-text-muted sm:inline">
+                      {{ month.sessions.length }}
+                      {{ month.sessions.length > 1 ? 'soirées' : 'soirée' }}
+                    </span>
+                    @if (month.matches) {
+                      <app-badge
+                        [label]="month.wins + 'V - ' + month.losses + 'D'"
+                        [kind]="month.wins >= month.losses ? 'good' : 'bad'"
+                        size="sm"
+                      />
+                    }
+                  </summary>
 
-                <ul class="ml-[1.6rem] flex flex-col gap-1 border-l border-edge py-2 pl-3">
-                  <li>
-                    <a
-                      routerLink="/periods/team"
-                      [queryParams]="{ month: group.month }"
-                      class="focus-ring-inset group/row flex items-center gap-3 px-3 py-2.5 !text-text-primary no-underline transition-colors hover:bg-brand-500/8"
-                    >
-                      <svg
-                        class="size-5 shrink-0 text-brand-400"
-                        lucideFileChartColumn
-                        aria-hidden="true"
-                      ></svg>
-                      <span class="flex flex-1 flex-col leading-tight">
-                        <span class="font-semibold">Rapport du mois</span>
-                        <span class="text-sm text-text-muted">Équipe, cartes, joueurs</span>
-                      </span>
-                      <svg
-                        class="size-4 shrink-0 text-text-muted group-hover/row:text-brand-400"
-                        lucideChevronRight
-                        aria-hidden="true"
-                      ></svg>
-                    </a>
-                  </li>
-                  @for (session of group.sessions; track session.day) {
+                  <ul class="ml-[1.6rem] flex flex-col gap-1 border-l border-edge py-2 pl-3">
                     <li>
                       <a
-                        [routerLink]="['/sessions', session.day]"
-                        class="focus-ring-inset group/row flex flex-wrap items-center gap-x-3 gap-y-1.5 px-3 py-2.5 !text-text-primary no-underline transition-colors hover:bg-text-primary/6"
+                        routerLink="/report/tables"
+                        [queryParams]="{ month: month.key }"
+                        class="focus-ring-inset group/row flex items-center gap-3 px-3 py-2.5 !text-text-primary no-underline transition-colors hover:bg-brand-500/8"
                       >
                         <svg
-                          class="size-5 shrink-0 text-text-muted"
-                          lucideCalendarDays
+                          class="size-5 shrink-0 text-brand-400"
+                          lucideFileChartColumn
                           aria-hidden="true"
                         ></svg>
-                        <span class="min-w-40 font-semibold">{{ longDay(session.day) }}</span>
-                        <app-badge
-                          [label]="session.wins + 'V - ' + session.losses + 'D'"
-                          [kind]="session.wins >= session.losses ? 'good' : 'bad'"
-                          size="sm"
-                        />
-                        <span
-                          class="flex flex-1 flex-wrap gap-x-4 gap-y-1.5 text-sm text-text-secondary"
-                        >
-                          @for (map of session.maps; track $index) {
-                            <app-map-name [map]="map" />
-                          }
+                        <span class="flex flex-1 flex-col leading-tight">
+                          <span class="font-semibold">Rapport du mois</span>
+                          <span class="text-sm text-text-muted"
+                            >Tableaux, points forts et faibles, minimap, rounds, joueurs</span
+                          >
                         </span>
                         <svg
-                          class="size-4 shrink-0 text-text-muted group-hover/row:text-text-primary"
+                          class="size-4 shrink-0 text-text-muted group-hover/row:text-brand-400"
                           lucideChevronRight
                           aria-hidden="true"
                         ></svg>
                       </a>
                     </li>
-                  }
-                </ul>
-              </details>
-            </li>
-          } @empty {
-            <li class="muted">Aucun match de l'escouade pour l'instant.</li>
-          }
-        </ul>
+                    @for (session of month.sessions; track session.day) {
+                      <li>
+                        <a
+                          routerLink="/report/matches"
+                          [queryParams]="{ start: session.day, end: session.day }"
+                          class="focus-ring-inset group/row flex flex-wrap items-center gap-x-3 gap-y-1.5 px-3 py-2.5 !text-text-primary no-underline transition-colors hover:bg-text-primary/6"
+                        >
+                          <svg
+                            class="size-5 shrink-0 text-text-muted"
+                            lucideCalendarDays
+                            aria-hidden="true"
+                          ></svg>
+                          <span class="min-w-44 font-semibold">{{ longDay(session.day) }}</span>
+                          <app-badge
+                            [label]="session.wins + 'V - ' + session.losses + 'D'"
+                            [kind]="session.wins >= session.losses ? 'good' : 'bad'"
+                            size="sm"
+                          />
+                          <span
+                            class="flex flex-1 flex-wrap gap-x-4 gap-y-1.5 text-sm text-text-secondary"
+                          >
+                            @for (map of session.maps; track $index) {
+                              <span class="inline-flex items-center gap-1.5">
+                                <app-map-name [map]="map" />
+                                <span class="text-text-muted">{{ session.scores[$index] }}</span>
+                              </span>
+                            }
+                          </span>
+                          <svg
+                            class="size-4 shrink-0 text-text-muted group-hover/row:text-text-primary"
+                            lucideChevronRight
+                            aria-hidden="true"
+                          ></svg>
+                        </a>
+                      </li>
+                    }
+                  </ul>
+                </details>
+              </li>
+            } @empty {
+              <li class="muted">Aucun match de l'escouade pour l'instant.</li>
+            }
+          </ul>
+        }
       </app-resource-state>
     </section>
 
-    <aside class="flex flex-col gap-10">
-      <section aria-labelledby="home-patches">
-        <h2 id="home-patches" class="!mt-0">Par patch</h2>
-        @if (periods.value(); as available) {
+    @if (periods.hasValue()) {
+      @let available = periods.value();
+      <aside class="flex flex-col gap-10">
+        <section aria-labelledby="home-patches">
+          <h2 id="home-patches" class="!mt-0">Par patch</h2>
           <ul class="mt-4 flex flex-col gap-1">
             @for (patch of available.patches; track patch) {
               <li>
                 <a
-                  routerLink="/periods/team"
+                  routerLink="/report/tables"
                   [queryParams]="{ patch }"
                   class="focus-ring-inset group/row flex items-center gap-3 bg-text-primary/4 px-4 py-2.5 !text-text-primary no-underline transition-colors hover:bg-brand-500/8"
                 >
@@ -130,34 +151,43 @@
               </li>
             }
           </ul>
-        }
-      </section>
+        </section>
 
-      @if (periods.value(); as available) {
-        @if (available.firstDay && available.lastDay) {
-          <section aria-labelledby="home-all">
-            <h2 id="home-all" class="!mt-0">Tout l'historique</h2>
-            <a
-              routerLink="/periods/team"
-              [queryParams]="{ start: available.firstDay, end: available.lastDay }"
-              class="focus-ring-inset group/row mt-4 flex items-center gap-3 bg-text-primary/4 px-4 py-3 !text-text-primary no-underline transition-colors hover:bg-brand-500/8"
-            >
-              <svg class="size-5 shrink-0 text-brand-400" lucideHistory aria-hidden="true"></svg>
-              <span class="flex flex-1 flex-col leading-tight">
-                <span class="font-semibold">Depuis le début</span>
-                <span class="text-sm text-text-muted"
-                  >Du {{ fullDate(available.firstDay) }} au {{ fullDate(available.lastDay) }}</span
-                >
-              </span>
-              <svg
-                class="size-4 shrink-0 text-text-muted group-hover/row:text-brand-400"
-                lucideChevronRight
-                aria-hidden="true"
-              ></svg>
-            </a>
-          </section>
-        }
-      }
-    </aside>
+        <section aria-labelledby="home-all">
+          <h2 id="home-all" class="!mt-0">Tout l'historique</h2>
+          <a
+            routerLink="/report/tables"
+            [queryParams]="{ start: available.firstDay, end: available.lastDay }"
+            class="focus-ring-inset group/row mt-4 flex items-center gap-3 bg-text-primary/4 px-4 py-3 !text-text-primary no-underline transition-colors hover:bg-brand-500/8"
+          >
+            <svg class="size-5 shrink-0 text-brand-400" lucideHistory aria-hidden="true"></svg>
+            <span class="flex flex-1 flex-col leading-tight">
+              <span class="font-semibold">Depuis le début</span>
+              <span class="text-sm text-text-muted"
+                >Du {{ longDay(available.firstDay).toLowerCase() }} au
+                {{ longDay(available.lastDay).toLowerCase() }}</span
+              >
+            </span>
+            <svg
+              class="size-4 shrink-0 text-text-muted group-hover/row:text-brand-400"
+              lucideChevronRight
+              aria-hidden="true"
+            ></svg>
+          </a>
+        </section>
+
+        <section aria-labelledby="home-data">
+          <h2 id="home-data" class="!mt-0">Données<app-info-tip topic="dataQuality" /></h2>
+          <dl class="mt-4 grid grid-cols-[auto_1fr] gap-x-4 gap-y-1.5">
+            <dt class="text-text-muted">Mise à jour</dt>
+            <dd>{{ freshness(available.freshness) }}</dd>
+            <dt class="text-text-muted">Top ranked</dt>
+            <dd>{{ integer(available.topMatches) }} matchs</dd>
+            <dt class="text-text-muted">Première soirée</dt>
+            <dd>{{ longDay(available.firstDay) }}</dd>
+          </dl>
+        </section>
+      </aside>
+    }
   </div>
 </div>

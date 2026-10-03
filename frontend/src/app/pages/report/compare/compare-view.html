@@ -1,0 +1,99 @@
+@if (meta(); as meta) {
+  <div class="flex flex-col gap-2">
+    <app-filter-bar
+      [maps]="maps()"
+      [players]="players()"
+      [showPlayer]="false"
+      [showReference]="false"
+      [showToggles]="false"
+    />
+    <app-data-quality [meta]="meta" />
+  </div>
+}
+
+<div class="mt-4 flex flex-col gap-4">
+  <div class="flex flex-wrap items-end justify-between gap-4">
+    <div
+      class="inline-flex border border-edge-strong"
+      role="group"
+      aria-label="Type de comparaison"
+    >
+      @for (item of modes; track item.mode) {
+        <button
+          type="button"
+          class="focus-ring-inset h-9 cursor-pointer border-edge-strong px-3.5 font-semibold transition-colors"
+          [class.border-l]="!$first"
+          [class]="
+            mode() === item.mode
+              ? 'bg-brand-500 text-surface-sunken'
+              : 'text-text-secondary hover:bg-text-primary/7 hover:text-text-primary'
+          "
+          [attr.aria-pressed]="mode() === item.mode"
+          (click)="mode.set(item.mode)"
+        >
+          {{ item.label }}
+        </button>
+      }
+    </div>
+    <label class="flex flex-col gap-1">
+      <span class="text-sm text-text-muted">Domaine</span>
+      <select id="compare-domain" class="field-control" (change)="setDomain($event)">
+        @for (item of domains; track item.key) {
+          <option [value]="item.key" [selected]="item.key === domain()">{{ item.label }}</option>
+        }
+      </select>
+    </label>
+  </div>
+
+  <div class="grid gap-0.5 md:grid-cols-2">
+    @if (mode() === 'team') {
+      <app-selection-box
+        side="A"
+        fieldLabel="Équipe et période"
+        [options]="cohortOptions"
+        [value]="cohortA()"
+        (changed)="setA($event)"
+      />
+      <app-selection-box
+        side="B"
+        fieldLabel="Équipe et période"
+        [options]="cohortOptions"
+        [value]="cohortB()"
+        (changed)="setB($event)"
+      />
+    } @else {
+      <app-selection-box
+        side="A"
+        fieldLabel="Joueur"
+        [options]="playerOptions()"
+        [value]="playerA()"
+        (changed)="setA($event)"
+      />
+      <app-selection-box
+        side="B"
+        fieldLabel="Joueur"
+        [options]="playerOptions()"
+        [value]="playerB()"
+        (changed)="setB($event)"
+      />
+    }
+  </div>
+
+  <p class="!m-0 text-[0.92rem] text-text-muted">
+    Entre parenthèses : l'échantillon. L'écart reste gris quand il peut venir du hasard avec ces
+    échantillons.
+  </p>
+
+  <app-resource-state
+    [resource]="tables"
+    notFoundText="Ce domaine n'a pas de données sur cette période."
+  >
+    @if (groups().length) {
+      <app-compare-table [groups]="groups()" />
+    } @else {
+      <p class="!m-0 bg-text-primary/4 px-6 py-8 text-center text-text-muted">
+        Rien à comparer dans ce domaine pour cette sélection.
+      </p>
+    }
+  </app-resource-state>
+</div>

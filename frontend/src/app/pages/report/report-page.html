@@ -1,0 +1,62 @@
+<app-page-header>
+  @if (context.periods.hasValue()) {
+    <span class="flex items-center gap-2 text-sm text-text-muted">
+      <span class="size-2 rounded-full bg-rating-good" aria-hidden="true"></span>
+      Données du {{ freshness(context.periods.value().freshness) }}
+    </span>
+  }
+</app-page-header>
+
+<div class="page-body !pt-6">
+  <div class="flex flex-col gap-3">
+    <div class="flex flex-wrap items-baseline gap-x-5 gap-y-1">
+      <app-period-selector />
+      @if (context.meta.hasValue()) {
+        @let meta = context.meta.value();
+        <p class="!m-0 flex flex-wrap gap-x-4 gap-y-1 text-[1.05rem] text-text-secondary">
+          <span
+            ><b class="text-text-primary">{{ meta.matches }}</b> matchs</span
+          >
+          <span
+            ><b class="text-text-primary">{{ meta.wins }}V - {{ meta.losses }}D</b></span
+          >
+          <span
+            ><b class="text-text-primary">{{ integer(meta.rounds) }}</b> rounds</span
+          >
+          <span>{{ meta.sessions }} {{ meta.sessions > 1 ? 'soirées' : 'soirée' }}</span>
+          @if (meta.patches.length) {
+            <span>
+              {{ meta.patches.length > 1 ? 'Patchs' : 'Patch' }}
+              @for (patch of meta.patches; track patch.patch) {
+                {{ patch.patch }}{{ $last ? '' : ', ' }}
+              }
+            </span>
+          }
+        </p>
+      }
+    </div>
+
+    <nav
+      class="flex overflow-x-auto border-b border-edge-strong [scrollbar-width:thin]"
+      aria-label="Vues du rapport"
+    >
+      @for (view of views; track view.path) {
+        <a
+          [routerLink]="view.path"
+          queryParamsHandling="preserve"
+          routerLinkActive="!border-brand-500 !text-text-primary"
+          ariaCurrentWhenActive="page"
+          class="focus-ring-inset border-b-[3px] border-transparent px-4 pt-2.5 pb-2 font-display text-[0.98rem] font-medium tracking-wide whitespace-nowrap text-text-secondary uppercase no-underline transition-colors hover:text-text-primary"
+          >{{ view.label }}</a
+        >
+      }
+    </nav>
+  </div>
+
+  <app-resource-state
+    [resource]="context.meta"
+    notFoundText="Aucun match de l'escouade sur cette période."
+  >
+    <router-outlet />
+  </app-resource-state>
+</div>

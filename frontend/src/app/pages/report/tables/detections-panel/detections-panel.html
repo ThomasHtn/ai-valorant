@@ -1,0 +1,30 @@
+<h2 class="!m-0 text-[1.1rem]" id="detections-title">
+  Détections automatiques<app-info-tip topic="detections" />
+</h2>
+
+@for (group of groups(); track group.key) {
+  <section class="flex flex-col gap-2.5" [attr.aria-label]="group.title">
+    <h3 class="!mt-1 !mb-0 font-display text-base !text-text-primary">
+      {{ group.title }}<app-info-tip [topic]="group.help" />
+    </h3>
+    <ul class="!m-0 flex list-none flex-col !p-0">
+      @for (item of group.items; track item.key) {
+        <li class="flex flex-col gap-0.5 border-b border-edge py-2.5 first:pt-0 last:border-b-0">
+          <span class="flex items-center gap-2">
+            @if (item.art) {
+              <app-row-art [art]="item.art" />
+            }
+            <span>{{ item.title }}</span>
+          </span>
+          @if (item.detail) {
+            <span class="text-[0.95rem] text-text-secondary">{{ item.detail }}</span>
+          }
+          @if (item.sample) {
+            <span class="text-[0.88rem] text-text-muted">{{ item.sample }}</span>
+          }
+          <app-rewatch-links [rounds]="item.rewatch" />
+        </li>
+      }
+    </ul>
+  </section>
+}

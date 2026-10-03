@@ -1,0 +1,44 @@
+@let f = filters();
+<label class="flex min-w-0 flex-col gap-1">
+  <span class="text-[0.85rem] text-text-muted">Résultat</span>
+  <select id="round-filter-result" class="field-control w-full" (change)="set('result', $event)">
+    <option value="lost" [selected]="f.result === 'lost'">Rounds perdus</option>
+    <option value="won" [selected]="f.result === 'won'">Rounds gagnés</option>
+    <option value="all" [selected]="f.result === 'all'">Tous</option>
+  </select>
+</label>
+<label class="flex min-w-0 flex-col gap-1">
+  <span class="text-[0.85rem] text-text-muted">Cause</span>
+  <select id="round-filter-cause" class="field-control w-full" (change)="set('cause', $event)">
+    <option value="" [selected]="!f.cause">Toutes</option>
+    @for (cause of causes(); track cause) {
+      <option [value]="cause" [selected]="f.cause === cause">{{ causeLabels[cause] }}</option>
+    }
+  </select>
+</label>
+<label class="flex min-w-0 flex-col gap-1">
+  <span class="text-[0.85rem] text-text-muted">Carte</span>
+  <select id="round-filter-map" class="field-control w-full" (change)="set('map', $event)">
+    <option value="" [selected]="!f.map">Toutes</option>
+    @for (map of maps(); track map) {
+      <option [value]="map" [selected]="f.map === map">{{ map }}</option>
+    }
+  </select>
+</label>
+<label class="flex min-w-0 flex-col gap-1">
+  <span class="text-[0.85rem] text-text-muted">Side</span>
+  <select id="round-filter-side" class="field-control w-full" (change)="set('side', $event)">
+    <option value="" [selected]="!f.side">Les deux</option>
+    <option value="att" [selected]="f.side === 'att'">Attaque</option>
+    <option value="def" [selected]="f.side === 'def'">Défense</option>
+  </select>
+</label>
+<label class="col-span-2 flex min-w-0 flex-col gap-1">
+  <span class="text-[0.85rem] text-text-muted">Achat</span>
+  <select id="round-filter-buy" class="field-control w-full" (change)="set('buy', $event)">
+    <option value="" [selected]="!f.buy">Tous</option>
+    @for (buy of buys; track buy) {
+      <option [value]="buy" [selected]="f.buy === buy">{{ buyLabels[buy] }}</option>
+    }
+  </select>
+</label>

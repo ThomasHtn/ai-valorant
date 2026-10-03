@@ -1,0 +1,45 @@
+@if (meta(); as meta) {
+  <div class="flex flex-col gap-2">
+    <app-filter-bar
+      [maps]="maps()"
+      [players]="players()"
+      [showReference]="false"
+      [showToggles]="false"
+    />
+    <app-data-quality [meta]="meta" />
+  </div>
+}
+
+<div class="mt-4 flex flex-wrap items-center gap-x-5 gap-y-1">
+  <label class="inline-flex h-9 cursor-pointer items-center gap-2 text-text-secondary">
+    <input
+      id="findings-confirmed-only"
+      type="checkbox"
+      class="size-4 accent-brand-500"
+      [checked]="confirmedOnly()"
+      (change)="toggleConfirmedOnly($event)"
+    />
+    Écarts nets seulement
+  </label>
+  <span class="text-[0.92rem] text-text-muted">
+    Écart en rounds : rounds gagnés ou perdus par rapport à la référence sur le même
+    échantillon.<app-info-tip topic="findingStatus" />
+  </span>
+</div>
+
+<app-resource-state [resource]="report" notFoundText="Aucun écart testé sur cette période.">
+  <div class="mt-3 grid items-start gap-6 xl:grid-cols-2">
+    <app-finding-column
+      heading="Points faibles"
+      [weak]="true"
+      [column]="weaknesses()"
+      [playerAgents]="context.playerAgents()"
+    />
+    <app-finding-column
+      heading="Points forts"
+      [weak]="false"
+      [column]="strengths()"
+      [playerAgents]="context.playerAgents()"
+    />
+  </div>
+</app-resource-state>

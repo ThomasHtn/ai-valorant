@@ -1,0 +1,128 @@
+@if (view(); as v) {
+  <svg
+    class="block h-auto w-full font-sans"
+    [attr.viewBox]="'0 0 ' + v.width + ' ' + v.height"
+    role="img"
+    [attr.aria-label]="label()"
+  >
+    @for (tick of v.yTicks; track tick.at) {
+      <line
+        [attr.x1]="v.left"
+        [attr.x2]="v.width - v.right"
+        [attr.y1]="tick.at"
+        [attr.y2]="tick.at"
+        stroke="var(--color-edge)"
+      />
+      <text
+        [attr.x]="v.left - 8"
+        [attr.y]="tick.at + 4"
+        text-anchor="end"
+        fill="var(--color-text-muted)"
+        font-size="13"
+      >
+        {{ tick.label }}
+      </text>
+    }
+
+    @for (bar of v.bars; track $index) {
+      <rect
+        [attr.x]="bar.x"
+        [attr.y]="bar.y"
+        [attr.width]="bar.width"
+        [attr.height]="bar.height"
+        [attr.fill]="squadColour"
+        fill-opacity="0.75"
+        class="cursor-pointer outline-none focus-visible:stroke-brand-400"
+        tabindex="0"
+        [attr.aria-label]="bar.label + ' : ' + bar.squadShare"
+        (pointerenter)="hovered.set(bar)"
+        (pointerleave)="hovered.set(null)"
+        (focus)="hovered.set(bar)"
+        (blur)="hovered.set(null)"
+      />
+      @if (bar.topPath) {
+        <path
+          [attr.d]="bar.topPath"
+          fill="none"
+          [attr.stroke]="topColour"
+          stroke-width="2"
+          pointer-events="none"
+        />
+      }
+    }
+
+    @for (label of v.xLabels; track $index) {
+      <text
+        [attr.x]="label.x"
+        [attr.y]="v.height - v.bottom + 20"
+        [attr.text-anchor]="label.anchor"
+        fill="var(--color-text-secondary)"
+        font-size="13"
+      >
+        {{ label.label }}
+      </text>
+    }
+    <text
+      [attr.x]="(v.width + v.left - v.right) / 2"
+      [attr.y]="v.height - 14"
+      text-anchor="middle"
+      fill="var(--color-text-muted)"
+      font-size="13"
+    >
+      {{ label() }} ({{ unit() }})
+    </text>
+
+    @for (median of v.medians; track median.label) {
+      <line
+        [attr.x1]="median.x"
+        [attr.x2]="median.x"
+        [attr.y1]="v.top - 8"
+        [attr.y2]="v.height - v.bottom"
+        [attr.stroke]="median.colour"
+        stroke-width="2"
+        stroke-dasharray="5 4"
+        pointer-events="none"
+      />
+      <text
+        [attr.x]="median.x + 6"
+        [attr.y]="v.top - 14 + median.shift"
+        [attr.fill]="median.colour"
+        font-size="13"
+        font-weight="600"
+      >
+        {{ median.label }}
+      </text>
+    }
+  </svg>
+
+  @if (hovered(); as bar) {
+    <div
+      class="pointer-events-none absolute z-10 min-w-48 -translate-x-1/2 -translate-y-[calc(100%+0.5rem)] border-l-2 border-brand-500/50 bg-surface-sunken px-3 py-2 text-sm shadow-[0_0_0_1px_var(--color-edge)]"
+      [style.left.%]="((bar.x + bar.width / 2) / v.width) * 100"
+      [style.top.%]="(bar.y / v.height) * 100"
+      role="status"
+    >
+      <p class="!m-0 font-display font-semibold text-brand-400 uppercase">{{ bar.label }}</p>
+      <table class="mt-1 w-full border-collapse">
+        <tr class="border-t border-edge">
+          <td class="py-0.5 pr-3 text-text-secondary">{{ squadLabel() }}</td>
+          <td class="py-0.5 text-right font-semibold">
+            {{ bar.squadShare }}
+            <span class="font-normal text-text-muted">({{ bar.squadCount }})</span>
+          </td>
+        </tr>
+        @if (bar.topShare) {
+          <tr class="border-t border-edge">
+            <td class="py-0.5 pr-3 text-text-secondary">Top ranked</td>
+            <td class="py-0.5 text-right font-semibold">
+              {{ bar.topShare }}
+              <span class="font-normal text-text-muted">({{ bar.topCount }})</span>
+            </td>
+          </tr>
+        }
+      </table>
+    </div>
+  }
+} @else {
+  <p class="py-8 text-center text-text-muted">Pas de valeur à répartir.</p>
+}

@@ -22,3 +22,14 @@ ECO_MAX_LOADOUT = 1500
 
 # Every date shown to the squad is in their time zone.
 LOCAL_TIMEZONE = "Europe/Paris"
+
+# Game units per metre (positions and distances are in game units).
+UNITS_PER_METRE = 100
+
+# Henrik kill weapon types, and the weapon names that are a knife.
+WEAPON_TYPE_GUN = "Weapon"
+WEAPON_TYPE_MELEE = "Melee"
+WEAPON_TYPE_ABILITY = "Ability"
+WEAPON_TYPE_SPIKE = "Bomb"
+WEAPON_TYPE_FALL = "Fall"
+MELEE_WEAPONS = frozenset({"Melee", "Knife"})

@@ -1,0 +1,151 @@
+@if (view(); as v) {
+  <svg
+    class="block h-auto w-full font-sans"
+    [attr.viewBox]="'0 0 ' + v.width + ' ' + v.height"
+    role="img"
+    [attr.aria-label]="label()"
+  >
+    @for (tick of v.yTicks; track tick.at) {
+      <line
+        [attr.x1]="v.left"
+        [attr.x2]="v.width - v.right"
+        [attr.y1]="tick.at"
+        [attr.y2]="tick.at"
+        stroke="var(--color-edge)"
+      />
+      <text
+        [attr.x]="v.left - 8"
+        [attr.y]="tick.at + 4"
+        text-anchor="end"
+        fill="var(--color-text-muted)"
+        font-size="13"
+      >
+        {{ tick.label }}
+      </text>
+    }
+
+    @for (marker of v.markers; track marker.x) {
+      <line
+        [attr.x1]="marker.x"
+        [attr.x2]="marker.x"
+        [attr.y1]="v.top - 14"
+        [attr.y2]="v.height - v.bottom"
+        stroke="var(--color-brand-500)"
+        stroke-opacity="0.55"
+        stroke-dasharray="3 4"
+      />
+      <text
+        [attr.x]="marker.x + 4"
+        [attr.y]="v.top - 18"
+        fill="var(--color-brand-400)"
+        font-size="12"
+      >
+        {{ marker.label }}
+      </text>
+    }
+
+    @if (v.reference; as ref) {
+      <line
+        [attr.x1]="v.left"
+        [attr.x2]="v.width - v.right"
+        [attr.y1]="ref.y"
+        [attr.y2]="ref.y"
+        stroke="var(--color-top)"
+        stroke-width="1.5"
+        stroke-dasharray="6 5"
+      />
+      <text
+        [attr.x]="v.width - v.right"
+        [attr.y]="ref.y - 6"
+        text-anchor="end"
+        fill="var(--color-top)"
+        font-size="13"
+      >
+        {{ ref.label }}
+      </text>
+    }
+
+    <polyline
+      [attr.points]="v.line"
+      fill="none"
+      stroke="var(--color-squad)"
+      stroke-width="2.5"
+      stroke-linejoin="round"
+    />
+
+    @for (label of v.xLabels; track $index) {
+      <text
+        [attr.x]="label.x"
+        [attr.y]="v.height - v.bottom + 20"
+        text-anchor="middle"
+        fill="var(--color-text-secondary)"
+        font-size="13"
+      >
+        {{ label.label }}
+      </text>
+      @if (label.sample) {
+        <text
+          [attr.x]="label.x"
+          [attr.y]="v.height - v.bottom + 38"
+          text-anchor="middle"
+          fill="var(--color-text-muted)"
+          font-size="12"
+        >
+          {{ label.sample }}
+        </text>
+      }
+    }
+
+    @for (dot of v.dots; track $index) {
+      <circle
+        [attr.cx]="dot.x"
+        [attr.cy]="dot.y"
+        [attr.r]="dot.radius"
+        [attr.fill]="dot.small ? 'var(--color-text-muted)' : 'var(--color-squad)'"
+        [attr.stroke]="dot.highlighted ? 'var(--color-brand-500)' : 'var(--color-surface-950)'"
+        [attr.stroke-width]="dot.highlighted ? 3 : 2"
+        class="cursor-pointer outline-none focus-visible:stroke-brand-400"
+        tabindex="0"
+        [attr.aria-label]="dot.label + ' : ' + dot.valueText"
+        (pointerenter)="hovered.set(dot)"
+        (pointerleave)="hovered.set(null)"
+        (focus)="hovered.set(dot)"
+        (blur)="hovered.set(null)"
+      />
+      @if (!v.dense) {
+        <text
+          [attr.x]="dot.x"
+          [attr.y]="dot.y - 12"
+          text-anchor="middle"
+          [attr.fill]="dot.small ? 'var(--color-text-muted)' : 'var(--color-text-primary)'"
+          font-size="14"
+          font-weight="600"
+          pointer-events="none"
+        >
+          {{ dot.valueText }}
+        </text>
+      }
+    }
+  </svg>
+
+  @if (hovered(); as dot) {
+    <div
+      class="pointer-events-none absolute z-10 max-w-64 -translate-x-1/2 -translate-y-[calc(100%+0.75rem)] border-l-2 border-brand-500/50 bg-surface-sunken px-3 py-2 text-sm shadow-[0_0_0_1px_var(--color-edge)]"
+      [style.left.%]="(dot.x / v.width) * 100"
+      [style.top.%]="(dot.y / v.height) * 100"
+      role="status"
+    >
+      <p class="!m-0 font-display font-semibold text-brand-400 uppercase">
+        {{ dot.label }}{{ dot.detail ? ' · ' + dot.detail : '' }}
+      </p>
+      <p class="!m-0 text-text-primary">
+        {{ dot.valueText }}{{ dot.sampleText ? ' sur ' + dot.sampleText : '' }}
+        @if (dot.small) {
+          <span class="text-text-muted">(échantillon trop petit)</span>
+        }
+      </p>
+    </div>
+  }
+} @else {
+  <p class="py-8 text-center text-text-muted">Pas de valeur pour cette métrique.</p>
+}

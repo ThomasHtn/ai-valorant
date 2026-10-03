@@ -1,7 +1,8 @@
 """Synthetic Henrik v4 matches, small enough to reason about in a test.
 
 Players are named R1..R5 (Red) and B1..B5 (Blue); their puuid is their name in lower case.
-Red attacks in rounds 1 to 12.
+Red attacks in rounds 1 to 12. Every player is Platinum 1 (tier 15) and buys a Vandal and heavy armor.
+In a kill snapshot every living player stands at (kill.x, 100) unless `positions` says otherwise.
 """
 
 from dataclasses import dataclass, field
@@ -35,6 +36,10 @@ class Kill:
     victim: str
     # x < 0 is A Site.
     x: float = -1000
+    weapon: str | None = "Vandal"
+    weapon_type: str = "Weapon"
+    # Snapshot positions overriding the default (kill.x, 100), by player name.
+    positions: dict[str, tuple[float, float]] = field(default_factory=dict)
 
 
 @dataclass
@@ -43,7 +48,10 @@ class RoundSpec:
     kills: list[Kill] = field(default_factory=list)
     # (ms, site, planter)
     plant: tuple[int, str, str] | None = None
+    # (ms, defuser)
+    defuse: tuple[int, str] | None = None
     result: str = "Elimination"
+    ceremony: str = "CeremonyDefault"
     red_loadout: int = 4000
     blue_loadout: int = 4000
 
@@ -58,11 +66,12 @@ def make_match(
     kills, henrik_rounds = [], []
     for index, spec in enumerate(rounds):
         alive = set(RED + BLUE)
-        damage: dict[str, int] = {}
+        damage: dict[str, list[dict[str, Any]]] = {}
         for kill in spec.kills:
             alive.discard(kill.victim)
             if team_of(kill.killer) != team_of(kill.victim):
-                damage[kill.killer] = damage.get(kill.killer, 0) + 150
+                hit = {"player": _player_ref(kill.victim), "damage": 150, "headshots": 1, "bodyshots": 1, "legshots": 0}
+                damage.setdefault(kill.killer, []).append(hit)
             kills.append(
                 {
                     "round": index,
@@ -71,29 +80,42 @@ def make_match(
                     "victim": _player_ref(kill.victim),
                     "location": {"x": kill.x, "y": 0},
                     "assistants": [],
-                    "weapon": {"name": "Vandal"},
-                    "player_locations": [{"player": _player_ref(p), "location": {"x": kill.x, "y": 100}} for p in sorted(alive)],
+                    "weapon": {"name": kill.weapon, "type": kill.weapon_type},
+                    "secondary_fire_mode": False,
+                    "player_locations": [
+                        {"player": _player_ref(p), "location": _position(kill, p), "view_radians": 0.0} for p in sorted(alive)
+                    ],
                 }
             )
         plant = None
         if spec.plant:
             ms, site, planter = spec.plant
-            plant = {"round_time_in_ms": ms, "site": site, "player": _player_ref(planter)}
+            plant = {"round_time_in_ms": ms, "site": site, "player": _player_ref(planter), "location": {"x": -1000, "y": 0}}
+        defuse = None
+        if spec.defuse:
+            ms, defuser = spec.defuse
+            defuse = {"round_time_in_ms": ms, "player": _player_ref(defuser), "location": {"x": -1000, "y": 0}}
         henrik_rounds.append(
             {
                 "id": index,
                 "winning_team": spec.winner,
                 "result": spec.result,
                 "plant": plant,
+                "defuse": defuse,
+                "ceremony": spec.ceremony,
                 "stats": [
                     {
                         "player": _player_ref(p),
                         "stats": {"score": 200 if damage.get(p) else 50, "headshots": 1, "bodyshots": 3, "legshots": 0},
-                        "damage_events": [{"damage": damage[p]}] if p in damage else [],
+                        "damage_events": damage.get(p, []),
                         "economy": {
                             "loadout_value": spec.red_loadout if team_of(p) == "Red" else spec.blue_loadout,
+                            "remaining": 300,
                             "weapon": {"name": "Vandal"},
+                            "armor": {"name": "Heavy Armor"},
                         },
+                        "was_afk": False,
+                        "received_penalty": False,
                     }
                     for p in RED + BLUE
                 ],
@@ -107,6 +129,8 @@ def make_match(
             "game_version": "release-13.05-shipping-1-1",
             "region": "eu",
             "map": {"name": map_name},
+            "cluster": "Paris",
+            "game_length_in_ms": 1_800_000,
         },
         "players": [
             {
@@ -114,6 +138,8 @@ def make_match(
                 "name": p,
                 "team_id": team_of(p),
                 "agent": {"name": "Jett"},
+                "tier": {"id": 15, "name": "Platinum 1"},
+                "stats": {"score": 4000},
                 "ability_casts": {"grenade": 3, "ability1": 2},
             }
             for p in RED + BLUE
@@ -122,6 +148,11 @@ def make_match(
         "rounds": henrik_rounds,
         "kills": kills,
     }
+
+
+def _position(kill: Kill, player: str) -> dict[str, float]:
+    x, y = kill.positions.get(player, (kill.x, 100))
+    return {"x": x, "y": y}
 
 
 SQUAD = {p.lower() for p in RED}

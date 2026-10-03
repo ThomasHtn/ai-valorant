@@ -1,0 +1,140 @@
+<app-resource-state [resource]="trends" notFoundText="Pas de tendance pour cette période.">
+  <div class="flex flex-col gap-5">
+    <div
+      class="flex flex-wrap items-end gap-x-4 gap-y-2.5 bg-text-primary/4 px-3.5 py-3"
+      role="group"
+      aria-label="Choix de la courbe"
+    >
+      <label class="flex flex-col gap-1">
+        <span class="text-sm text-text-muted">Qui</span>
+        <select id="trend-subject" class="field-control" (change)="setSubject($event)">
+          @for (item of subjects(); track item.key) {
+            <option [value]="item.key" [selected]="item.key === subject()">{{ item.label }}</option>
+          }
+        </select>
+      </label>
+      <label class="flex flex-col gap-1">
+        <span class="text-sm text-text-muted">Métrique</span>
+        <select id="trend-metric" class="field-control" (change)="setMetric($event)">
+          @for (item of metrics(); track item.key) {
+            <option [value]="item.key" [selected]="item.key === metric()">{{ item.label }}</option>
+          }
+        </select>
+      </label>
+      <div class="flex flex-col gap-1">
+        <span class="text-sm text-text-muted">Un point par</span>
+        <div class="inline-flex border border-edge-strong" role="group" aria-label="Un point par">
+          @for (item of granularities; track item.key) {
+            @let active = item.key === granularity();
+            @let enabled = available().has(item.key);
+            <button
+              type="button"
+              class="focus-ring h-[2.15rem] border-edge-strong px-3.5 font-semibold transition-colors [&:not(:first-child)]:border-l"
+              [class]="
+                active
+                  ? 'bg-brand-500 text-surface-sunken'
+                  : enabled
+                    ? 'cursor-pointer text-text-secondary hover:bg-text-primary/7 hover:text-text-primary'
+                    : 'cursor-not-allowed text-text-secondary opacity-40'
+              "
+              [attr.aria-pressed]="active"
+              [disabled]="!enabled"
+              (click)="setGranularity(item.key)"
+            >
+              {{ item.label }}
+            </button>
+          }
+        </div>
+      </div>
+    </div>
+
+    @if (chart(); as c) {
+      <section class="flex flex-col gap-3 bg-text-primary/4 p-4" aria-labelledby="trend-title">
+        <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
+          <h2 id="trend-title" class="!m-0 text-lg">
+            {{ definition()?.label }}{{ isTeam() ? '' : ' · ' + subject()
+            }}<app-info-tip [topic]="help()" />
+          </h2>
+          <div
+            class="ml-auto flex flex-wrap items-center gap-x-4 gap-y-1 text-[0.95rem] text-text-secondary"
+          >
+            <span class="inline-flex items-center gap-1.5">
+              <i class="inline-block w-6 border-t-2 border-squad" aria-hidden="true"></i>
+              {{ isTeam() ? "L'escouade" : subject() }}
+            </span>
+            @if (c.reference !== null) {
+              <span class="inline-flex items-center gap-1.5">
+                <i
+                  class="inline-block w-6 border-t-2 border-dashed border-top"
+                  aria-hidden="true"
+                ></i>
+                Top ranked, patch 13.06{{ isTeam() ? '' : ', même rôle' }}
+              </span>
+            }
+            <span class="inline-flex items-center gap-1.5">
+              <i
+                class="inline-block w-6 border-t-2 border-dashed border-brand-500"
+                aria-hidden="true"
+              ></i>
+              Changement de patch
+            </span>
+            <span class="inline-flex items-center gap-1.5">
+              <i
+                class="tone-small inline-block size-3.5 ring-1 ring-text-muted ring-inset"
+                aria-hidden="true"
+              ></i>
+              Moins de {{ minSample }} rounds
+            </span>
+          </div>
+        </div>
+        <app-line-chart
+          [points]="c.points"
+          [format]="c.format"
+          [reference]="c.reference"
+          referenceLabel="Top ranked"
+          [markers]="c.markers"
+          [minSample]="minSample"
+          [label]="definition()?.label ?? 'Évolution'"
+        />
+        <p class="!m-0 text-[0.92rem] text-text-muted">
+          @if (granularity() === 'match') {
+            Un point par match, dans l'ordre chronologique. Survol : carte et score.
+          } @else {
+            Sous chaque point : l'échantillon (rounds, ou rounds joués par le joueur pour les stats
+            individuelles). Le point cerclé est la période du rapport.
+          }
+          @if (c.reference === null && isTeam()) {
+            Pas de ligne top ranked : sur cette métrique il serait toujours à 50 %.
+          }
+        </p>
+      </section>
+    }
+
+    @if (isTeam() && smallMultiples().length) {
+      <section class="flex flex-col gap-3" aria-labelledby="trend-smalls">
+        <h2 id="trend-smalls" class="!m-0 text-lg">Par mois, chiffres clés de l'escouade</h2>
+        <div class="grid grid-cols-[repeat(auto-fit,minmax(14rem,1fr))] gap-0.5">
+          @for (item of smallMultiples(); track item.key) {
+            @let active = item.key === metric();
+            <button
+              type="button"
+              class="focus-ring flex cursor-pointer flex-col gap-1 border-t-[3px] bg-text-primary/4 px-3 py-2.5 text-left transition-colors hover:bg-text-primary/7"
+              [class]="active ? 'border-brand-500' : 'border-transparent'"
+              [attr.aria-pressed]="active"
+              (click)="showTeamMetric(item.key)"
+            >
+              <span class="text-[0.92rem] text-text-secondary">{{ item.label }}</span>
+              <span class="font-display text-[1.3rem] font-semibold tabular-nums">
+                {{ item.value }}
+                <span class="font-sans text-[0.85rem] font-normal text-text-muted">{{
+                  item.month
+                }}</span>
+              </span>
+              <app-trend-sparkline [view]="item.view" />
+            </button>
+          }
+        </div>
+      </section>
+    }
+  </div>
+</app-resource-state>

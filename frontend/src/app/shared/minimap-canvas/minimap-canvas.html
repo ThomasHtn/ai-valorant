@@ -1,0 +1,128 @@
+@if (image(); as src) {
+  <img
+    [src]="src"
+    [alt]="'Minimap de ' + map()"
+    class="absolute inset-0 size-full object-contain opacity-75"
+  />
+}
+<svg
+  viewBox="0 0 1 1"
+  class="absolute inset-0 size-full"
+  role="img"
+  [attr.aria-label]="'Points sur la minimap de ' + map()"
+>
+  @for (label of labels(); track label.name) {
+    <text
+      [attr.x]="label.x"
+      [attr.y]="label.y"
+      [attr.font-size]="calloutSize"
+      text-anchor="middle"
+      class="pointer-events-none fill-text-primary/40 font-sans"
+    >
+      {{ label.name }}
+    </text>
+  }
+
+  @if (highlight(); as spot) {
+    <circle
+      [attr.cx]="spot.x"
+      [attr.cy]="spot.y"
+      [attr.r]="highlightR"
+      fill="rgb(217 149 74 / 12%)"
+      stroke="var(--color-brand-500)"
+      stroke-width="0.004"
+    />
+  }
+
+  @for (view of views(); track view.marker.id) {
+    @let marker = view.marker;
+    <g
+      [attr.opacity]="marker.dimmed ? 0.15 : 1"
+      [class.cursor-pointer]="!!marker.link"
+      [class.focus-ring]="!!marker.link"
+      [attr.tabindex]="marker.link ? 0 : null"
+      [attr.role]="marker.link ? 'link' : null"
+      [attr.aria-label]="marker.link ? (marker.tip?.title ?? marker.label ?? 'Point') : null"
+      [appHoverTip]="marker.tip ?? null"
+      (click)="open(marker)"
+      (keydown.enter)="open(marker)"
+    >
+      @switch (marker.shape) {
+        @case ('dot') {
+          <circle
+            [attr.cx]="view.x"
+            [attr.cy]="view.y"
+            [attr.r]="r"
+            [attr.fill]="marker.color"
+            fill-opacity="0.9"
+          />
+        }
+        @case ('ring') {
+          <circle
+            [attr.cx]="view.x"
+            [attr.cy]="view.y"
+            [attr.r]="r * 0.8"
+            fill="rgb(10 21 29 / 40%)"
+            [attr.stroke]="marker.color"
+            stroke-width="0.0025"
+          />
+        }
+        @case ('thickRing') {
+          <circle
+            [attr.cx]="view.x"
+            [attr.cy]="view.y"
+            [attr.r]="r * 1.25"
+            fill="none"
+            [attr.stroke]="marker.color"
+            stroke-width="0.004"
+          />
+        }
+        @case ('player') {
+          <circle
+            [attr.cx]="view.x"
+            [attr.cy]="view.y"
+            [attr.r]="playerR"
+            [attr.fill]="marker.color"
+            stroke="var(--color-surface-sunken)"
+            stroke-width="0.004"
+          />
+        }
+        @case ('cross') {
+          <path
+            [attr.d]="view.path"
+            fill="none"
+            [attr.stroke]="marker.color"
+            stroke-width="0.005"
+          />
+        }
+        @default {
+          <path [attr.d]="view.path" [attr.fill]="marker.color" fill-opacity="0.9" />
+        }
+      }
+      @if (marker.emphasis) {
+        <circle
+          [attr.cx]="view.x"
+          [attr.cy]="view.y"
+          [attr.r]="playerR + 0.006"
+          fill="none"
+          stroke="var(--color-brand-500)"
+          stroke-width="0.004"
+        />
+      }
+      @if (marker.label) {
+        <text
+          [attr.x]="view.x + nameOffset"
+          [attr.y]="view.y - nameOffset * 0.5"
+          [attr.font-size]="nameSize"
+          [attr.fill]="marker.labelColor ?? 'var(--color-text-primary)'"
+          stroke="var(--color-surface-sunken)"
+          stroke-width="0.006"
+          paint-order="stroke"
+          class="pointer-events-none font-sans"
+        >
+          {{ marker.label }}
+        </text>
+      }
+    </g>
+  }
+</svg>

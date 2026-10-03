@@ -1,0 +1,53 @@
+<section class="flex flex-col gap-3 bg-text-primary/4 p-4" aria-labelledby="player-opening">
+  <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
+    <h3
+      id="player-opening"
+      class="!m-0 font-display text-[1.05rem] font-semibold text-text-primary"
+    >
+      Duels d'ouverture<app-info-tip topic="playerOpeningDuels" />
+    </h3>
+    <span class="ml-auto text-text-secondary">
+      {{ openingDuels().firstBloods }} first bloods · {{ openingDuels().firstDeaths }} first deaths
+    </span>
+  </div>
+  <div class="grid grid-cols-[repeat(auto-fit,minmax(7.5rem,1fr))] gap-0.5">
+    @for (tile of openingTiles(); track tile.key) {
+      <app-stat-tile
+        [label]="tile.label"
+        [value]="tile.value"
+        [tone]="tile.tone"
+        [lines]="tile.lines"
+        [help]="tile.help"
+      />
+    }
+  </div>
+</section>
+
+<section class="flex flex-col gap-3 bg-text-primary/4 p-4" aria-labelledby="player-clutches">
+  <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
+    <h3
+      id="player-clutches"
+      class="!m-0 font-display text-[1.05rem] font-semibold text-text-primary"
+    >
+      Clutchs<app-info-tip topic="playerClutches" />
+    </h3>
+    <span class="ml-auto text-[0.88rem] text-text-muted">trait : {{ referenceLabel() }}</span>
+  </div>
+  <div class="grid grid-cols-[3rem_minmax(0,1fr)_4.5rem_4.2rem] items-center gap-x-2.5 gap-y-1.5">
+    @for (bar of bars(); track bar.situation) {
+      <b>{{ bar.situation }}</b>
+      <span class="relative h-2 bg-text-primary/8" aria-hidden="true">
+        <i class="absolute inset-y-0 left-0 bg-brand-500" [style.width.%]="bar.width"></i>
+        @if (bar.tick !== null) {
+          <b class="absolute -inset-y-1 w-0.5 bg-top" [style.left.%]="bar.tick"></b>
+        }
+      </span>
+      <span
+        class="text-right font-semibold tabular-nums"
+        [class]="bar.tone ? toneText[bar.tone] : 'text-text-primary'"
+        >{{ bar.value }}</span
+      >
+      <span class="text-right text-text-muted tabular-nums">{{ bar.record }}</span>
+    }
+  </div>
+</section>

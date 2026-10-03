@@ -1,0 +1,79 @@
+@let m = model();
+<svg
+  [attr.viewBox]="'0 0 ' + size.width + ' ' + size.height"
+  class="block h-auto w-full"
+  role="img"
+  aria-label="Probabilité de victoire de l'escouade au fil du round"
+>
+  @for (line of m.grid; track line.label) {
+    <line
+      [attr.x1]="size.left"
+      [attr.x2]="size.width - size.right"
+      [attr.y1]="line.y"
+      [attr.y2]="line.y"
+      stroke="var(--color-edge)"
+      [attr.stroke-dasharray]="line.dashed ? '3 3' : null"
+    />
+    <text
+      [attr.x]="size.left - 6"
+      [attr.y]="line.y + 4"
+      text-anchor="end"
+      class="fill-text-muted font-sans text-[11px]"
+    >
+      {{ line.label }}
+    </text>
+  }
+  @for (tick of m.ticks; track tick.label) {
+    <text
+      [attr.x]="tick.x"
+      [attr.y]="size.height - 8"
+      text-anchor="middle"
+      class="fill-text-muted font-sans text-[11px]"
+    >
+      {{ tick.label }}
+    </text>
+  }
+
+  <path [attr.d]="m.path" fill="none" stroke="var(--color-squad)" stroke-width="2" />
+
+  @if (m.drop; as drop) {
+    <line
+      [attr.x1]="drop.x"
+      [attr.x2]="drop.x"
+      [attr.y1]="m.top"
+      [attr.y2]="m.bottom"
+      stroke="var(--color-rating-bad)"
+      stroke-width="1.5"
+    />
+    <text [attr.x]="drop.x + 4" [attr.y]="m.top + 10" class="fill-rating-bad font-sans text-[11px]">
+      {{ drop.label }}
+    </text>
+  }
+  @if (m.cursorX !== null) {
+    <line
+      [attr.x1]="m.cursorX"
+      [attr.x2]="m.cursorX"
+      [attr.y1]="m.top"
+      [attr.y2]="m.bottom"
+      stroke="var(--color-brand-500)"
+      stroke-dasharray="2 3"
+    />
+  }
+
+  @for (point of m.points; track point.index) {
+    <circle
+      [attr.cx]="point.x"
+      [attr.cy]="point.y"
+      [attr.r]="point.index === step() ? 4.5 : 3"
+      [attr.fill]="point.color"
+      class="focus-ring cursor-pointer"
+      tabindex="0"
+      role="button"
+      [attr.aria-label]="point.label"
+      (click)="stepChange.emit(point.index)"
+      (keydown.enter)="stepChange.emit(point.index)"
+    >
+      <title>{{ point.label }}</title>
+    </circle>
+  }
+</svg>

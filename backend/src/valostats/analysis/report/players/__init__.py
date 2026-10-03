@@ -1,0 +1,1 @@
+"""The individual player sheet."""

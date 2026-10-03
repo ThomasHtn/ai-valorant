@@ -1,4 +1,4 @@
-"""Download Valorant images from Data Dragon into `public/assets/valorant/`.
+"""Download Valorant images from Data Dragon (and rank icons from valorant-api) into `public/assets/valorant/`.
 
 Run from the repository root after a game update:
 
@@ -19,6 +19,12 @@ from PIL import Image
 DDRAGON = "https://raw.githubusercontent.com/noxelisdev/Valorant_DDragon/master"
 # Data Dragon has no agent roles; valorant-api.com mirrors the same ids with them.
 AGENTS_API = "https://valorant-api.com/v1/agents?isPlayableCharacter=true"
+# Data Dragon has no rank icons either; the last table is the current ranked ladder.
+TIERS_API = "https://valorant-api.com/v1/competitivetiers"
+# Minimaps with their coordinate transform; the backend keeps the transform, the front only the image.
+MAPS_API = "https://valorant-api.com/v1/maps"
+# Tiers 0 to 2 are "Unranked" and unused placeholders.
+FIRST_RANKED_TIER = 3
 OUT = Path(__file__).resolve().parent.parent / "public" / "assets" / "valorant"
 
 # Maps of the competitive pool, past and present; other modes are skipped.
@@ -34,6 +40,9 @@ WEAPONS = {
 }
 
 AGENT_SIZE = 128
+RANK_SIZE = 64
+# Minimaps are drawn at most ~540 px wide; 1024 keeps them sharp on high density screens.
+MINIMAP_SIZE = (1024, 1024)
 SPLASH_SIZE = (960, 540)
 WEBP_QUALITY = 80
 
@@ -99,6 +108,17 @@ def main() -> None:
         if target.exists():
             continue  # Classic is listed twice
         save(fetch(f"{DDRAGON}/Weapons/{weapon['id']}_killstream.png"), target)
+
+    for game_map in json.loads(fetch(MAPS_API))["data"]:
+        name = game_map["displayName"]
+        if name in COMPETITIVE_MAPS and game_map.get("displayIcon"):
+            save(fetch(game_map["displayIcon"]), OUT / "minimaps" / f"{slug(name)}.webp", MINIMAP_SIZE)
+
+    tiers = json.loads(fetch(TIERS_API))["data"][-1]["tiers"]
+    for tier in tiers:
+        if tier["tier"] < FIRST_RANKED_TIER or not tier.get("largeIcon"):
+            continue
+        save(fetch(tier["largeIcon"]), OUT / "ranks" / f"{slug(tier['tierName'])}.webp", (RANK_SIZE, RANK_SIZE))
 
     print(json.dumps(dict(sorted(agent_roles.items())), indent=2))
 

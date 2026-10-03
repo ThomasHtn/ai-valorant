@@ -13,8 +13,8 @@ from valostats.api.router import api_router
 from valostats.core.config import get_settings
 from valostats.core.database import get_session_factory
 from valostats.services.facts_store import FactsStore
-from valostats.services.period_service import PeriodService
-from valostats.services.session_service import SessionService
+from valostats.services.match_service import MatchService
+from valostats.services.report_service import ReportService
 
 logger = logging.getLogger(__name__)
 
@@ -32,8 +32,9 @@ def _warm_up(store: FactsStore) -> None:
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     store = FactsStore(get_session_factory())
-    app.state.period_service = PeriodService(store)
-    app.state.session_service = SessionService(store, get_session_factory())
+    app.state.facts_store = store
+    app.state.report_service = ReportService(store)
+    app.state.match_service = MatchService(store, get_session_factory())
     threading.Thread(target=_warm_up, args=(store,), daemon=True).start()
     yield
 

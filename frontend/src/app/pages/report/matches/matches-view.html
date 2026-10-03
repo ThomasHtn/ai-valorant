@@ -1,0 +1,50 @@
+@if (meta(); as meta) {
+  <app-data-quality [meta]="meta" />
+}
+
+<app-resource-state [resource]="list" notFoundText="Aucun match de l'escouade sur cette période.">
+  @if (list.hasValue()) {
+    <div class="mt-4 grid items-start gap-5 lg:grid-cols-[20rem_minmax(0,1fr)]">
+      <app-evening-list [evenings]="list.value().evenings" [selected]="selectedId()" />
+
+      <app-resource-state [resource]="detail" notFoundText="Ce match est introuvable.">
+        @if (detail.hasValue()) {
+          @let match = detail.value();
+          <div class="flex min-w-0 flex-col gap-5">
+            <app-match-header [match]="match" />
+
+            <section class="flex flex-col gap-2" aria-labelledby="match-rounds-title">
+              <div class="flex flex-wrap items-center gap-x-4 gap-y-1">
+                <h2 class="!m-0 text-lg" id="match-rounds-title">
+                  Rounds<app-info-tip topic="roundStrip" />
+                </h2>
+                <span
+                  class="ml-auto flex flex-wrap items-center gap-x-4 text-[0.9rem] text-text-secondary"
+                >
+                  <span class="inline-flex items-center gap-1.5"
+                    ><i class="tone-good size-3.5 ring-1 ring-rating-good ring-inset"></i
+                    >Gagné</span
+                  >
+                  <span class="inline-flex items-center gap-1.5"
+                    ><i class="tone-bad size-3.5 ring-1 ring-rating-bad ring-inset"></i>Perdu</span
+                  >
+                  <span class="text-text-muted">P pistol, E eco, F force buy, FB full buy</span>
+                </span>
+              </div>
+              <app-round-strip [matchId]="match.matchId" [rounds]="match.rounds" />
+            </section>
+
+            <div
+              class="grid gap-5 [grid-template-columns:repeat(auto-fit,minmax(min(100%,34rem),1fr))]"
+            >
+              <app-scoreboard title="L'escouade" [lines]="match.squad" [squad]="true" />
+              <app-scoreboard title="Adversaires" [lines]="match.opponents" />
+            </div>
+
+            <app-loss-causes [rounds]="match.rounds" />
+          </div>
+        }
+      </app-resource-state>
+    </div>
+  }
+</app-resource-state>

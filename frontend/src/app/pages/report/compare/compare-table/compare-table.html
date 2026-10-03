@@ -1,0 +1,61 @@
+<table class="w-full border-separate border-spacing-y-0.5 tabular-nums">
+  <thead>
+    <tr class="text-[0.92rem] text-text-secondary">
+      <th scope="col" class="bg-text-primary/8 px-2.5 py-2 text-left font-semibold">Métrique</th>
+      <th scope="col" class="bg-text-primary/8 px-2.5 py-2 text-right font-semibold">A</th>
+      <th scope="col" class="bg-text-primary/8 px-2.5 py-2 text-right font-semibold">B</th>
+      <th scope="col" class="bg-text-primary/8 px-2.5 py-2 text-right font-semibold">
+        Écart A − B
+      </th>
+    </tr>
+  </thead>
+  <tbody>
+    @for (group of groups(); track group.id) {
+      <tr>
+        <th
+          scope="rowgroup"
+          colspan="4"
+          class="px-2.5 pt-4 pb-1 text-left font-display text-base font-medium"
+        >
+          {{ group.title }}
+        </th>
+      </tr>
+      @for (line of group.lines; track line.key) {
+        <tr>
+          <td class="bg-text-primary/4 px-2.5 py-1.5">
+            @if (line.rowLabel) {
+              {{ line.rowLabel }}
+              @if (line.rowSub) {
+                <span class="text-text-muted">{{ line.rowSub }}</span>
+              }
+              ·
+            }
+            {{ line.columnLabel }}<app-info-tip [topic]="line.help" />
+          </td>
+          <td class="bg-text-primary/4 px-2.5 py-1.5 text-right whitespace-nowrap">
+            <b class="font-semibold text-squad">{{ value(line.a, line.format) }}</b>
+            <span class="text-text-muted"> {{ sample(line.a) }}</span>
+          </td>
+          <td class="bg-text-primary/4 px-2.5 py-1.5 text-right whitespace-nowrap">
+            <b class="font-semibold text-opponent">{{ value(line.b, line.format) }}</b>
+            <span class="text-text-muted"> {{ sample(line.b) }}</span>
+          </td>
+          <td class="bg-text-primary/4 px-2.5 py-1 text-right">
+            <span
+              class="inline-block min-w-18 rounded-full px-2 py-0.5 text-center text-[0.92rem] font-semibold"
+              [class]="
+                line.gap.tone === 'good'
+                  ? 'tone-good text-rating-good'
+                  : line.gap.tone === 'bad'
+                    ? 'tone-bad text-rating-bad'
+                    : 'tone-small'
+              "
+              [title]="line.gap.tip"
+              >{{ line.gap.text }}</span
+            >
+          </td>
+        </tr>
+      }
+    }
+  </tbody>
+</table>

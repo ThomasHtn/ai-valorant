@@ -779,3 +779,35 @@
     color: var(--color-text-muted);
   }
 }
+
+/*
+ * Form controls of the report (selects, search fields): a faint cream tint on the ground, never the
+ * lighter navy surface, and a near-black list once a select opens (the browser paints options itself).
+ */
+@utility field-control {
+  @apply h-9 max-w-full border border-edge-strong bg-text-primary/5 px-2 text-base text-text-primary transition-colors hover:bg-text-primary/9;
+
+  & option,
+  & optgroup {
+    background-color: var(--color-surface-sunken);
+    color: var(--color-text-primary);
+  }
+}
+
+/* Cell colours of the statistics tables: tinted ground, the rating colour as text stays for figures elsewhere. */
+@utility tone-good {
+  background-color: --alpha(var(--color-rating-good) / 22%);
+}
+
+@utility tone-avg {
+  background-color: --alpha(var(--color-rating-average) / 22%);
+}
+
+@utility tone-bad {
+  background-color: --alpha(var(--color-rating-bad) / 26%);
+}
+
+@utility tone-small {
+  background-color: --alpha(var(--color-text-primary) / 6%);
+  color: var(--color-text-muted);
+}

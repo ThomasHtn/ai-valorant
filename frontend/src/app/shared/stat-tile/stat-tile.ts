@@ -1,59 +1,50 @@
 import { Component, computed, input } from '@angular/core';
 
-import { Tone } from '@core/common/enums.model';
-import { HelpTopic } from '@core/help/stat-help.constants';
-import { RATING_TEXT_CLASS } from '@core/rating/rating.constants';
-import { Rating } from '@core/rating/rating.model';
+import { StatHelp } from '@core/help/stat-help.model';
+import { CellTone } from '@core/report/tone.model';
 import { InfoTip } from '@shared/info-tip/info-tip';
 
+import { TONE_TEXT_CLASSES } from './stat-tile.constants';
+
 /**
- * One figure of a stats band (`STAT_BAND_CLASS`): its name, then the value in the display face
- * coloured by its rating, then the change or reference on a line of its own.
+ * A headline figure: its name with an "i", the value in Oswald coloured by its tone, then up to two
+ * short lines (reference, sample). Tiles sit in a grid with 2px gaps, like the rows of a table.
  */
 @Component({
   selector: 'app-stat-tile',
   imports: [InfoTip],
   template: `
-    <p class="flex items-center gap-1 text-[0.8125rem] leading-tight font-medium text-text-muted">
-      <span class="truncate">{{ label() }}</span>
-      @if (help()) {
-        <app-info-tip [topic]="help()" />
-      }
-    </p>
-    <p
-      class="mt-1.5 font-display text-2xl leading-none font-semibold whitespace-nowrap tabular-nums"
+    <span class="text-[0.92rem] text-text-secondary"
+      >{{ label() }}<app-info-tip [topic]="help()" [content]="helpContent()"
+    /></span>
+    <span
+      class="font-display text-[1.6rem] leading-tight font-semibold tabular-nums"
       [class]="valueClass()"
+      >{{ value() }}</span
     >
-      {{ value() }}
-    </p>
-    @if (detail()) {
-      <p class="mt-1 truncate text-[0.8125rem] leading-tight text-text-muted">
-        <span
-          [class.good]="tone() === 'good'"
-          [class.bad]="tone() === 'bad'"
-          [class.muted]="tone() === 'neutral'"
-          >{{ detail() }}</span
-        >
-        @if (context()) {
-          {{ context() }}
-        }
-      </p>
+    @for (line of lines(); track $index) {
+      <span class="text-[0.85rem] text-text-muted">{{ line }}</span>
     }
   `,
-  host: { class: 'block min-w-0 px-4 py-3 shadow-[1px_1px_0_0_var(--color-edge)]' },
+  host: { class: 'flex min-w-0 flex-col gap-0.5 bg-text-primary/4 px-3 py-2.5' },
 })
 export class StatTile {
   public readonly label = input.required<string>();
+  /** Already formatted value ('281', '56 %'). */
   public readonly value = input.required<string>();
-  /** Line under the value: a change, a reference. */
-  public readonly detail = input<string | null>(null);
-  /** Muted words after the detail, saying what it is measured against ('vs septembre'). */
-  public readonly context = input<string | null>(null);
-  public readonly tone = input<Tone>('neutral');
-  /** How the value reads (green, amber, red); left neutral for figures that are only reported. */
-  public readonly rating = input<Rating>('unknown');
-  /** Explanation behind an "i" icon next to the label. */
-  public readonly help = input<HelpTopic | null>(null);
+  /** Colour of the value; null leaves it uncoloured. */
+  public readonly tone = input<CellTone | null>(null);
+  /** Extra classes of the value, e.g. the top ranked colour. */
+  public readonly colourClass = input<string | null>(null);
+  /** Lines under the value: reference, sample. */
+  public readonly lines = input<string[]>([]);
+  /** Glossary key of the "i" tip... */
+  public readonly help = input<string | null>(null);
+  /** ...or its text, for figures without a glossary entry. */
+  public readonly helpContent = input<StatHelp | null>(null);
 
-  protected readonly valueClass = computed(() => RATING_TEXT_CLASS[this.rating()]);
+  protected readonly valueClass = computed(() => {
+    const tone = this.tone();
+    return this.colourClass() ?? (tone ? TONE_TEXT_CLASSES[tone] : 'text-text-primary');
+  });
 }

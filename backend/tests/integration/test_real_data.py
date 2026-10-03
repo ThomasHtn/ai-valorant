@@ -30,17 +30,6 @@ def client() -> TestClient:
         yield test_client
 
 
-def test_reports_of_the_latest_month_and_evening(client: TestClient):
-    overview = client.get("/api/periods/overview").json()
-    assert client.get("/api/periods/team").status_code == 200
-    for map_name in overview["maps"]:
-        assert client.get(f"/api/periods/maps/{map_name}").status_code == 200
-    for player in overview["players"]:
-        assert client.get(f"/api/periods/players/{player['puuid']}").status_code == 200
-    sessions = client.get("/api/sessions").json()
-    assert sessions and client.get(f"/api/sessions/{sessions[0]['day']}").status_code == 200
-
-
 def test_reference_endpoints(client: TestClient):
-    for url in ("/api/health", "/api/status", "/api/squad/players", "/api/maps", "/api/glossary"):
+    for url in ("/api/health", "/api/status", "/api/squad/players", "/api/maps"):
         assert client.get(url).status_code == 200

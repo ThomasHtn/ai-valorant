@@ -1,0 +1,97 @@
+@let r = round();
+@let f = facts();
+<div class="flex flex-wrap items-end gap-x-6 gap-y-3">
+  <div>
+    <h2 class="!m-0 font-display text-[1.6rem] uppercase">
+      {{ r.mapName }} · round {{ r.roundNumber }}
+    </h2>
+    <p class="!m-0 mt-1 flex flex-wrap items-center gap-x-1.5 text-text-secondary">
+      {{ f.day }} ·
+      <app-badge
+        [label]="r.side === 'att' ? 'attaque' : 'défense'"
+        [kind]="r.side === 'att' ? 'attack' : 'defense'"
+        size="sm"
+      />
+      · {{ f.buys }} · score avant {{ r.scoreBefore }}
+    </p>
+  </div>
+  <a
+    [routerLink]="['/report/matches', r.matchId]"
+    queryParamsHandling="preserve"
+    class="focus-ring ml-auto !text-text-muted hover:!text-text-primary"
+    >Voir le match</a
+  >
+</div>
+
+<div class="grid grid-cols-[repeat(auto-fit,minmax(8.5rem,1fr))] gap-0.5">
+  <div class="flex flex-col gap-0.5 bg-text-primary/4 px-3 py-2.5">
+    <span class="text-[0.92rem] text-text-secondary">Résultat</span>
+    <span
+      class="font-display text-[1.6rem] leading-tight font-semibold"
+      [class]="r.won ? 'text-rating-good' : 'text-rating-bad'"
+      >{{ r.won ? 'Gagné' : 'Perdu' }}</span
+    >
+    <span class="text-[0.85rem] text-text-muted">{{ f.result }}</span>
+  </div>
+  <div class="flex flex-col gap-0.5 bg-text-primary/4 px-3 py-2.5">
+    <span class="text-[0.92rem] text-text-secondary">Meilleure situation</span>
+    <span class="font-display text-[1.6rem] leading-tight font-semibold">{{
+      r.bestState ?? '—'
+    }}</span>
+    <span class="text-[0.85rem] text-text-muted">{{ f.lead }}</span>
+  </div>
+  <div class="flex flex-col gap-0.5 bg-text-primary/4 px-3 py-2.5">
+    <span class="text-[0.92rem] text-text-secondary"
+      >Chances max<app-info-tip topic="winProb"
+    /></span>
+    <span class="font-display text-[1.6rem] leading-tight font-semibold">{{ f.chance }}</span>
+    <span class="text-[0.85rem] text-text-muted">de gagner le round</span>
+  </div>
+  <div class="flex flex-col gap-0.5 bg-text-primary/4 px-3 py-2.5">
+    <span class="text-[0.92rem] text-text-secondary"
+      >Cause calculée<app-info-tip topic="lossCause"
+    /></span>
+    <span class="font-display text-[1.2rem] leading-tight font-semibold">{{ f.cause }}</span>
+  </div>
+</div>
+
+<section class="flex flex-col gap-3 bg-text-primary/4 px-4 py-4" aria-labelledby="win-chart-title">
+  <h2 class="!m-0 text-lg" id="win-chart-title">
+    Probabilité de victoire<app-info-tip topic="winProb" />
+  </h2>
+  <app-win-probability-chart
+    [events]="sheet().events"
+    [step]="step()"
+    (stepChange)="select($event)"
+  />
+  <p class="!m-0 flex flex-wrap items-center gap-x-4 gap-y-1 text-[0.9rem] text-text-secondary">
+    <span class="inline-flex items-center gap-1.5"
+      ><i class="h-0.5 w-4 bg-squad"></i>L'escouade</span
+    >
+    <span class="inline-flex items-center gap-1.5"
+      ><i class="size-2.5 rounded-full bg-rating-good"></i>Kill de l'escouade</span
+    >
+    <span class="inline-flex items-center gap-1.5"
+      ><i class="size-2.5 rounded-full bg-rating-bad"></i>Mort</span
+    >
+    <span class="text-text-muted">Chances tirées des matchs top ranked dans la même situation</span>
+  </p>
+</section>
+
+<div class="grid items-start gap-5 xl:grid-cols-[minmax(0,26rem)_minmax(0,1fr)]">
+  <app-replay-2d
+    [map]="r.mapName"
+    [events]="sheet().events"
+    [step]="step()"
+    (stepChange)="select($event)"
+  />
+  <app-event-timeline [events]="sheet().events" [step]="step()" (stepChange)="select($event)" />
+</div>
+
+<section class="flex flex-col gap-3" aria-labelledby="economy-title">
+  <h2 class="!m-0 text-lg" id="economy-title">Économie du round</h2>
+  <div class="grid gap-5 [grid-template-columns:repeat(auto-fit,minmax(min(100%,30rem),1fr))]">
+    <app-economy-table title="L'escouade" [lines]="sheet().squadEconomy" />
+    <app-economy-table title="Adversaires" [lines]="sheet().oppEconomy" />
+  </div>
+</section>
