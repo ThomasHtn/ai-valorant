@@ -1,27 +1,7 @@
-import {
-  BuyType,
-  Cohort,
-  FindingStatus,
-  LossCause,
-  Reference,
-  Side,
-} from '@core/common/enums.model';
+import { FindingStatus, LossCause, Reference, Side } from '@core/common/enums.model';
 
 /** French labels of the API's enum values. */
 export const SIDE_LABELS: Record<Side, string> = { att: 'Attaque', def: 'Défense' };
-
-export const BUY_LABELS: Record<BuyType, string> = {
-  pistol: 'Pistol',
-  eco: 'Eco',
-  force: 'Force buy',
-  full: 'Full buy',
-};
-
-export const COHORT_LABELS: Record<Cohort, string> = {
-  squad: "L'escouade",
-  opp: 'Adversaires',
-  top: 'Top ranked',
-};
 
 /** Long names of the references, as the reference switch and cell tips write them. */
 export const REFERENCE_LABELS: Record<Reference, string> = {

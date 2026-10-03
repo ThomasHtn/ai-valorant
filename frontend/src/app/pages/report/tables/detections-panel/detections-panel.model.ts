@@ -5,6 +5,8 @@ import { GameArt } from '@core/report/stat-table.model';
 export interface DetectionItem {
   key: string;
   art: GameArt | null;
+  /** Where it happens: 'Lotus · défense', a player; null when it covers every map. */
+  scope: string | null;
   title: string;
   detail: string | null;
   sample: string | null;

@@ -8,16 +8,6 @@ export function dayMonth(iso: string): string {
   return `${iso.slice(8, 10)}/${iso.slice(5, 7)}`;
 }
 
-/** '21:10' from an ISO date-time, in the time zone it was written in. */
-export function hourMinute(iso: string): string {
-  return iso.slice(11, 16);
-}
-
-/** '30/09/2026' from an ISO date. */
-export function fullDate(iso: string): string {
-  return `${iso.slice(8, 10)}/${iso.slice(5, 7)}/${iso.slice(0, 4)}`;
-}
-
 const SHORT_DAY = new Intl.DateTimeFormat('fr-FR', {
   weekday: 'short',
   day: 'numeric',

@@ -50,8 +50,6 @@ class PeriodWindow:
     title: str
     includes: FactFilter
     previous: FactFilter
-    # Noun phrase read after "écart avec" ('août', 'le patch 13.04').
-    comparison_label: str
 
 
 def resolve(query: PeriodQuery, squad_dates: Sequence[datetime], squad_patches: Sequence[str]) -> PeriodWindow:
@@ -77,7 +75,6 @@ def _patch_window(patch: str, squad_patches: Sequence[str]) -> PeriodWindow:
         title=f"Patch {patch}",
         includes=lambda f: f.patch == patch,
         previous=lambda f: f.patch == previous,
-        comparison_label=f"le patch {previous}" if previous else "",
     )
 
 
@@ -90,7 +87,6 @@ def _range_window(first_day: date, last_day: date) -> PeriodWindow:
         title=f"Du {first_day:%d/%m/%Y} au {last_day:%d/%m/%Y}",
         includes=lambda f: start <= f.started_at < end,
         previous=lambda f: start - length <= f.started_at < start,
-        comparison_label=f"les {length.days} jours précédents",
     )
 
 
@@ -102,10 +98,4 @@ def _month_window(month: str) -> PeriodWindow:
         title=f"{MONTHS[number - 1].capitalize()} {year}",
         includes=lambda f: f"{f.started_at:%Y-%m}" == month,
         previous=lambda f: f"{f.started_at:%Y-%m}" == previous,
-        comparison_label=MONTHS[int(previous[5:7]) - 1],
     )
-
-
-def whole_history_before(first_match: datetime) -> tuple[FactFilter, str]:
-    """Fallback comparison when the previous period has too few matches."""
-    return (lambda f: f.started_at < first_match), "tous les matchs d'avant"

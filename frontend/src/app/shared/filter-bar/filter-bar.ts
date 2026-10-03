@@ -2,9 +2,10 @@ import { Component, inject, input } from '@angular/core';
 
 import { Reference, Side } from '@core/common/enums.model';
 import { ReportState } from '@core/report/report-state';
+import { DisplayToggles } from '@shared/display-toggles/display-toggles';
 import { InfoTip } from '@shared/info-tip/info-tip';
 
-import { DISPLAY_TOGGLES, REFERENCE_OPTIONS, SIDE_OPTIONS } from './filter-bar.constants';
+import { REFERENCE_OPTIONS, SIDE_OPTIONS } from './filter-bar.constants';
 
 /**
  * Filters shared by every report view: map, side, player, the reference cells are compared with,
@@ -13,7 +14,7 @@ import { DISPLAY_TOGGLES, REFERENCE_OPTIONS, SIDE_OPTIONS } from './filter-bar.c
  */
 @Component({
   selector: 'app-filter-bar',
-  imports: [InfoTip],
+  imports: [DisplayToggles, InfoTip],
   templateUrl: './filter-bar.html',
   host: { class: 'block' },
 })
@@ -31,7 +32,6 @@ export class FilterBar {
   protected readonly state = inject(ReportState);
   protected readonly referenceOptions = REFERENCE_OPTIONS;
   protected readonly sideOptions = SIDE_OPTIONS;
-  protected readonly toggles = DISPLAY_TOGGLES;
 
   protected setMap(event: Event): void {
     this.state.setFilter('map', (event.target as HTMLSelectElement).value);

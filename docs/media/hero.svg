@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 420" width="1200" height="420" role="img" aria-label="ValoStats. Find the rounds your squad keeps losing.">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#16283a"/>
+      <stop offset="60%" stop-color="#0f1c26"/>
+      <stop offset="100%" stop-color="#0b1620"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.5" cy="0.95" r="0.55">
+      <stop offset="0%" stop-color="#d9954a" stop-opacity="0.16"/>
+      <stop offset="100%" stop-color="#d9954a" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="1200" height="420" fill="url(#sky)"/>
+  <rect width="1200" height="420" fill="url(#glow)"/>
+  <g stroke="#ece8e1" stroke-width="1" opacity="0.04"><path d="M40 0v420"/><path d="M80 0v420"/><path d="M120 0v420"/><path d="M160 0v420"/><path d="M200 0v420"/><path d="M240 0v420"/><path d="M280 0v420"/><path d="M320 0v420"/><path d="M360 0v420"/><path d="M400 0v420"/><path d="M440 0v420"/><path d="M480 0v420"/><path d="M520 0v420"/><path d="M560 0v420"/><path d="M600 0v420"/><path d="M640 0v420"/><path d="M680 0v420"/><path d="M720 0v420"/><path d="M760 0v420"/><path d="M800 0v420"/><path d="M840 0v420"/><path d="M880 0v420"/><path d="M920 0v420"/><path d="M960 0v420"/><path d="M1000 0v420"/><path d="M1040 0v420"/><path d="M1080 0v420"/><path d="M1120 0v420"/><path d="M1160 0v420"/><path d="M0 40h1200"/><path d="M0 80h1200"/><path d="M0 120h1200"/><path d="M0 160h1200"/><path d="M0 200h1200"/><path d="M0 240h1200"/><path d="M0 280h1200"/><path d="M0 320h1200"/><path d="M0 360h1200"/><path d="M0 400h1200"/></g>
+
+  <g fill="none" stroke="#d9954a" stroke-width="1.5" opacity="0.3">
+    <circle cx="1080" cy="86" r="52"/><circle cx="1080" cy="86" r="22"/>
+    <path d="M1080 18v40M1080 114v40M1012 86h40M1108 86h40"/>
+  </g>
+  <g fill="none" stroke="#418ad1" stroke-width="1.5" opacity="0.35">
+    <path d="M70 60h130v60h-60v80H70z"/><path d="M140 120v80h60"/>
+  </g>
+  <g opacity="0.6">
+    <circle cx="100" cy="92" r="4" fill="#418ad1"/><circle cx="168" cy="88" r="4" fill="#418ad1"/>
+    <circle cx="96" cy="170" r="4" fill="#c48235"/>
+    <path d="M168 160l8 8m0-8l-8 8" stroke="#d9534f" stroke-width="2"/>
+  </g>
+
+  <text x="600" y="140" text-anchor="middle" font-family="Oswald, 'Arial Narrow', Helvetica, Arial, sans-serif" font-size="76" font-weight="600" letter-spacing="16" fill="#ece8e1">VALOSTATS</text>
+  <rect x="556" y="168" width="88" height="2" fill="#d9954a"/>
+  <text x="600" y="208" text-anchor="middle" font-family="'Barlow Condensed', 'Arial Narrow', Helvetica, Arial, sans-serif" font-size="22" letter-spacing="4" fill="#a4a7a6">FIND THE ROUNDS YOUR SQUAD KEEPS LOSING</text>
+
+  <path d="M187 300h826" stroke="#33495b" stroke-width="1.5" stroke-dasharray="4 6"/>
+  <polyline points="200,288 234,300 268,312 302,300 336,288 370,276 404,288 438,276 472,288 506,300 540,288 574,276 626,288 660,276 694,264 728,276 762,264 796,276 830,288 864,300 898,288 932,276 966,288 1000,276" fill="none" stroke="#d9954a" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+  <g fill="#d9954a"><circle cx="200" cy="288" r="3"/><circle cx="234" cy="300" r="3"/><circle cx="268" cy="312" r="3"/><circle cx="302" cy="300" r="3"/><circle cx="336" cy="288" r="3"/><circle cx="370" cy="276" r="3"/><circle cx="404" cy="288" r="3"/><circle cx="438" cy="276" r="3"/><circle cx="472" cy="288" r="3"/><circle cx="506" cy="300" r="3"/><circle cx="540" cy="288" r="3"/><circle cx="574" cy="276" r="3"/><circle cx="626" cy="288" r="3"/><circle cx="660" cy="276" r="3"/><circle cx="694" cy="264" r="3"/><circle cx="728" cy="276" r="3"/><circle cx="762" cy="264" r="3"/><circle cx="796" cy="276" r="3"/><circle cx="830" cy="288" r="3"/><circle cx="864" cy="300" r="3"/><circle cx="898" cy="288" r="3"/><circle cx="932" cy="276" r="3"/><circle cx="966" cy="288" r="3"/><circle cx="1000" cy="276" r="3"/></g>
+
+  <g><rect x="187" y="348" width="26" height="26" fill="#5fb88a" opacity="0.85"/><rect x="222" y="349" width="24" height="24" fill="none" stroke="#d9534f" stroke-width="2"/><rect x="256" y="349" width="24" height="24" fill="none" stroke="#d9534f" stroke-width="2"/><rect x="289" y="348" width="26" height="26" fill="#5fb88a" opacity="0.85"/><rect x="323" y="348" width="26" height="26" fill="#5fb88a" opacity="0.85"/><rect x="357" y="348" width="26" height="26" fill="#5fb88a" opacity="0.85"/><rect x="392" y="349" width="24" height="24" fill="none" stroke="#d9534f" stroke-width="2"/><rect x="425" y="348" width="26" height="26" fill="#5fb88a" opacity="0.85"/><rect x="460" y="349" width="24" height="24" fill="none" stroke="#d9534f" stroke-width="2"/><rect x="494" y="349" width="24" height="24" fill="none" stroke="#d9534f" stroke-width="2"/><rect x="527" y="348" width="26" height="26" fill="#5fb88a" opacity="0.85"/><rect x="561" y="348" width="26" height="26" fill="#5fb88a" opacity="0.85"/><rect x="614" y="349" width="24" height="24" fill="none" stroke="#d9534f" stroke-width="2"/><rect x="647" y="348" width="26" height="26" fill="#5fb88a" opacity="0.85"/><rect x="681" y="348" width="26" height="26" fill="#5fb88a" opacity="0.85"/><rect x="716" y="349" width="24" height="24" fill="none" stroke="#d9534f" stroke-width="2"/><rect x="749" y="348" width="26" height="26" fill="#5fb88a" opacity="0.85"/><rect x="784" y="349" width="24" height="24" fill="none" stroke="#d9534f" stroke-width="2"/><rect x="818" y="349" width="24" height="24" fill="none" stroke="#d9534f" stroke-width="2"/><rect x="852" y="349" width="24" height="24" fill="none" stroke="#d9534f" stroke-width="2"/><rect x="885" y="348" width="26" height="26" fill="#5fb88a" opacity="0.85"/><rect x="919" y="348" width="26" height="26" fill="#5fb88a" opacity="0.85"/><rect x="954" y="349" width="24" height="24" fill="none" stroke="#d9534f" stroke-width="2"/><rect x="987" y="348" width="26" height="26" fill="#5fb88a" opacity="0.85"/></g>
+  <text x="171" y="368" text-anchor="end" font-family="Oswald, 'Arial Narrow', Helvetica, Arial, sans-serif" font-size="18" letter-spacing="2" fill="#ece8e1">13</text>
+  <text x="1029" y="368" font-family="Oswald, 'Arial Narrow', Helvetica, Arial, sans-serif" font-size="18" letter-spacing="2" fill="#868b8d">11</text>
+</svg>

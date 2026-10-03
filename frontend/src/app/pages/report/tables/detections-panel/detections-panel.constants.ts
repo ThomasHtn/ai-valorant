@@ -1,7 +1,7 @@
 import { RepetitionKind } from '@core/report/detections.model';
 
 /** Items shown per list of the panel. */
-export const MAX_DETECTIONS_PER_GROUP = 6;
+export const MAX_DETECTIONS_PER_GROUP = 8;
 
 /** Repetitions most worth a look come first: first deaths in one spot, then causes, then situations. */
 export const REPETITION_ORDER: Record<RepetitionKind, number> = {

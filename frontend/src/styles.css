@@ -222,8 +222,9 @@
     background-color: var(--color-surface-sunken);
   }
 
+  /* Full width so wide tables fit; the cap only stops lines from stretching on 4K screens. */
   & > * {
-    @apply mx-auto w-full max-w-[1440px] px-4 sm:px-6;
+    @apply mx-auto w-full max-w-[2400px] px-4 sm:px-6 2xl:px-8;
   }
 }
 

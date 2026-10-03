@@ -7,13 +7,7 @@ played in that match (`ReportCohorts.agents`).
 from collections import defaultdict
 
 from valostats.analysis.report.foundation.cohorts import FactKind, ReportCohort, ReportCohorts
-from valostats.domain.enums import Side
 from valostats.domain.facts import KillFact
-
-
-def killer_side(kill: KillFact) -> Side:
-    """The killer plays the other side (teamkills are left out of the report cohorts)."""
-    return kill.victim_side.opposite
 
 
 def killer_role(cohorts: ReportCohorts, kill: KillFact) -> str:

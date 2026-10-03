@@ -1,7 +1,3 @@
-@if (meta(); as meta) {
-  <app-data-quality [meta]="meta" />
-}
-
 <app-resource-state [resource]="list" notFoundText="Aucun match de l'escouade sur cette période.">
   @if (list.hasValue()) {
     <div class="mt-4 grid items-start gap-5 lg:grid-cols-[20rem_minmax(0,1fr)]">

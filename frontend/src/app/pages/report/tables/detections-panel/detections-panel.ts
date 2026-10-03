@@ -9,14 +9,14 @@ import { RewatchLinks } from '@shared/rewatch-links/rewatch-links';
 import { detectionGroups } from './detections-panel.utils';
 
 /**
- * Right panel of the Tableaux view: what the tool finds on its own in the period, without
- * interpretation, each line with its sample and the rounds behind it.
+ * Détections entry of the Tableaux view: what the tool finds on its own in the period, without
+ * interpretation, each line with its figures, its sample and the rounds behind it.
  */
 @Component({
   selector: 'app-detections-panel',
   imports: [InfoTip, RowArt, RewatchLinks],
   templateUrl: './detections-panel.html',
-  host: { class: 'flex min-w-0 flex-col gap-3 bg-text-primary/4 px-4 py-4' },
+  host: { class: 'flex min-w-0 flex-col gap-8' },
 })
 export class DetectionsPanel {
   public readonly detections = input.required<Detections>();

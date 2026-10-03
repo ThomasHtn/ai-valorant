@@ -34,16 +34,19 @@ describe('repetitionItem', () => {
       }),
       0,
     );
-    expect(item.title).toBe('Lotus · attaque · 6 first deaths à A Stairs');
+    expect(item.scope).toBe('Lotus · attaque');
+    expect(item.title).toBe('6 first deaths à A Stairs');
     expect(item.detail).toBe('29 % des first deaths du side, top ranked 14 %');
     expect(item.sample).toBe('Sur 44 rounds, 4 matchs');
   });
 
   it('does not repeat the all-maps scope', () => {
-    expect(
-      repetitionItem(repetition({ scope: 'Toutes les cartes', label: '5v4 perdu 90 fois' }), 0)
-        .title,
-    ).toBe('5v4 perdu 90 fois');
+    const item = repetitionItem(
+      repetition({ scope: 'Toutes les cartes', label: '5v4 perdu 90 fois' }),
+      0,
+    );
+    expect(item.scope).toBeNull();
+    expect(item.title).toBe('5v4 perdu 90 fois');
   });
 });
 
@@ -92,6 +95,6 @@ describe('detectionGroups', () => {
     };
     const groups = detectionGroups(detections);
     expect(groups.map((g) => g.key)).toEqual(['repetitions']);
-    expect(groups[0].items[0].title).toContain('zone');
+    expect(groups[0].items[0].title).toBe('zone');
   });
 });

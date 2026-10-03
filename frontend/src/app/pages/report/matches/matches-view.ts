@@ -3,7 +3,6 @@ import { Component, computed, inject, input } from '@angular/core';
 import { resourceValue } from '@core/http/resource-state.utils';
 import { ReportApi } from '@core/report/report-api';
 import { ReportContext } from '@core/report/report-context';
-import { DataQuality } from '@shared/data-quality/data-quality';
 import { InfoTip } from '@shared/info-tip/info-tip';
 import { ResourceState } from '@shared/resource-state/resource-state';
 
@@ -20,16 +19,7 @@ import { Scoreboard } from './scoreboard/scoreboard';
  */
 @Component({
   selector: 'app-matches-view',
-  imports: [
-    DataQuality,
-    EveningList,
-    InfoTip,
-    LossCauses,
-    MatchHeader,
-    ResourceState,
-    RoundStrip,
-    Scoreboard,
-  ],
+  imports: [EveningList, InfoTip, LossCauses, MatchHeader, ResourceState, RoundStrip, Scoreboard],
   templateUrl: './matches-view.html',
 })
 export class MatchesView {
@@ -44,5 +34,4 @@ export class MatchesView {
     () => this.match() ?? defaultMatchId(resourceValue(this.list, null)),
   );
   protected readonly detail = this.api.match(this.selectedId);
-  protected readonly meta = computed(() => resourceValue(this.context.meta, null));
 }

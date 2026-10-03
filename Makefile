@@ -1,15 +1,12 @@
 # Common commands; run `make <target>` from the repository root.
 
-.PHONY: db migrate import sync sync-top api front test lint
+.PHONY: db migrate sync sync-top api front test lint
 
 db:        ## Start PostgreSQL (port 5433)
 	docker compose up -d
 
 migrate:   ## Apply database migrations
 	cd backend && uv run alembic upgrade head
-
-import:    ## One-off import of the legacy JSON files in data/
-	cd backend && uv run valostats import-legacy
 
 sync:      ## Squad 5-stacks from ValoQuests and Henrik, then facts rebuild
 	cd backend && uv run valostats sync

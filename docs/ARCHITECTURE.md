@@ -100,7 +100,7 @@ le calculer dans `analysis/extraction/`, créer une migration (`uv run alembic r
 | `core/game-assets/` | Chemin des images du jeu (agents, cartes, minimaps, armes, rôles, rangs) |
 | `shared/` | Composants réutilisables : tableau coloré (`stat-table`), barre de filtres, légende, qualité des données, icône de rang, minimap avec points, graphiques (`line-chart`, `histogram`), tuile de chiffre, liens de round |
 | `pages/home`, `pages/glossary` | Accueil (mois, soirées, patchs) et glossaire |
-| `pages/report/` | Coque du rapport (sélecteur de période, onglets) et une page par vue : `tables`, `findings`, `compare`, `minimap`, `rounds`, `matches`, `players`, `trend`, `distribution` |
+| `pages/report/` | Coque du rapport (sélecteur de période, onglets) et une page par vue : `summary` (onglet par défaut, assemblé à partir des autres endpoints), `tables`, `findings`, `compare`, `minimap`, `rounds`, `matches`, `players`, `trend`, `distribution` |
 | `layout/` | Barre du haut (Accueil, Glossaire), en-tête de page |
 | `src/styles*` | Copiés de ValoQuests ; seuls `styles/valostats.css` et la dernière section de `styles.css` sont propres au projet |
 
@@ -123,5 +123,5 @@ gèle la page. Préparer ces valeurs dans un `computed`.
 
 ## Base de données
 
-PostgreSQL 17 dans Docker (port 5433). Le schéma est défini par les migrations `backend/migrations/versions/`. Pour repartir
-de zéro : `docker compose down -v`, `make db migrate import`, puis `uv run valostats rebuild-facts`.
+PostgreSQL 17 dans Docker (port 5433). Le schéma est défini par les migrations `backend/migrations/versions/`. La table
+`match` est la source de vérité : une sauvegarde (`pg_dump`) suffit pour tout reconstruire avec `uv run valostats rebuild-facts`.

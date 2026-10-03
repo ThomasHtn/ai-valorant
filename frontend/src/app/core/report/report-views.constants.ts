@@ -1,5 +1,6 @@
 /** Views of a report, in the order of the header tabs; `path` is the child route under `/report`. */
 export const REPORT_VIEWS: readonly { path: string; label: string }[] = [
+  { path: 'summary', label: 'Résumé' },
   { path: 'tables', label: 'Tableaux' },
   { path: 'findings', label: 'Points forts et faibles' },
   { path: 'compare', label: 'Comparateur' },

@@ -1,15 +1,26 @@
-@if (meta(); as meta) {
-  <div class="flex flex-col gap-2">
-    <app-filter-bar [maps]="maps()" [players]="players()" />
-    <app-data-quality [meta]="meta" />
-  </div>
-}
-
-<div class="mt-4 grid items-start gap-5" [class]="gridClass()">
+<div class="grid items-start gap-x-6 gap-y-4 lg:grid-cols-[12rem_minmax(0,1fr)]">
   <nav
     class="flex flex-wrap gap-0.5 lg:sticky lg:top-0 lg:flex-col"
     aria-label="Domaines du dictionnaire"
   >
+    <!-- Period-wide detections first, apart from the domains: they ignore the filters. -->
+    @let detectionsActive = showDetections();
+    <a
+      [routerLink]="['/report/tables', detectionsKey]"
+      queryParamsHandling="preserve"
+      class="focus-ring-inset flex items-center gap-2 border-l-[3px] px-3 py-2 font-semibold no-underline transition-colors lg:mb-2"
+      [class]="
+        detectionsActive
+          ? 'border-brand-500 bg-text-primary/7 !text-text-primary'
+          : 'border-transparent bg-text-primary/4 !text-text-secondary hover:bg-text-primary/7 hover:!text-text-primary'
+      "
+      [attr.aria-current]="detectionsActive ? 'page' : null"
+    >
+      Détections
+      @if (detectionCount(); as count) {
+        <span class="ml-auto text-sm font-normal text-text-muted tabular-nums">{{ count }}</span>
+      }
+    </a>
     @for (item of domains; track item.key) {
       @let active = item.key === domainKey();
       <a
@@ -27,43 +38,58 @@
     }
   </nav>
 
-  <div class="flex min-w-0 flex-col gap-6">
-    <app-tone-legend [reference]="state.preferences().reference" />
-    <app-resource-state
-      [resource]="tables"
-      notFoundText="Ce domaine n'a pas de données sur cette période."
-    >
-      @if (tables.hasValue()) {
-        <div class="flex flex-col gap-7">
-          @for (table of tables.value().tables; track table.id) {
-            <section
-              class="flex min-w-0 flex-col gap-2"
-              [attr.aria-labelledby]="'table-' + table.id"
-            >
-              <h2 class="!mt-0 text-lg" [id]="'table-' + table.id">
-                {{ table.title }}<app-info-tip [topic]="table.help" />
-              </h2>
-              <app-stat-table
-                [table]="table"
-                [display]="state.preferences()"
-                [playerAgents]="context.playerAgents()"
-                [rowFilter]="rowFilters().get(table.id) ?? null"
-                (cellClick)="openRounds($event)"
-              />
-              @if (table.note) {
-                <p class="!m-0 text-[0.92rem] text-text-muted">{{ table.note }}</p>
-              }
-            </section>
-          }
-        </div>
-      }
-    </app-resource-state>
-  </div>
-  @if (detections.hasValue()) {
-    <app-detections-panel
-      class="lg:col-span-2 xl:col-span-1"
-      [detections]="detections.value()"
-      [playerAgents]="context.playerAgents()"
-    />
+  @if (showDetections()) {
+    <div class="flex min-w-0 flex-col gap-4">
+      <p class="!m-0 text-text-secondary">
+        Ce que l'outil repère seul sur toute la période, sans tenir compte des filtres.<app-info-tip
+          topic="detections"
+        />
+      </p>
+      <app-resource-state [resource]="detections" notFoundText="Rien de détecté sur cette période.">
+        @if (detections.hasValue()) {
+          <app-detections-panel
+            [detections]="detections.value()"
+            [playerAgents]="context.playerAgents()"
+          />
+        }
+      </app-resource-state>
+    </div>
+  } @else {
+    <div class="flex min-w-0 flex-col gap-4">
+      <app-filter-bar [maps]="maps()" [players]="players()" [showToggles]="false" />
+      <div class="flex flex-wrap items-center justify-between gap-x-6 gap-y-1">
+        <app-tone-legend [reference]="state.preferences().reference" />
+        <app-display-toggles />
+      </div>
+      <app-resource-state
+        [resource]="tables"
+        notFoundText="Ce domaine n'a pas de données sur cette période."
+      >
+        @if (tables.hasValue()) {
+          <div class="flex flex-col gap-7">
+            @for (table of tables.value().tables; track table.id) {
+              <section
+                class="flex min-w-0 flex-col gap-2"
+                [attr.aria-labelledby]="'table-' + table.id"
+              >
+                <h2 class="!mt-0 text-lg" [id]="'table-' + table.id">
+                  {{ table.title }}<app-info-tip [topic]="table.help" />
+                </h2>
+                <app-stat-table
+                  [table]="table"
+                  [display]="state.preferences()"
+                  [playerAgents]="context.playerAgents()"
+                  [rowFilter]="rowFilters().get(table.id) ?? null"
+                  (cellClick)="openRounds($event)"
+                />
+                @if (table.note) {
+                  <p class="!m-0 text-[0.92rem] text-text-muted">{{ table.note }}</p>
+                }
+              </section>
+            }
+          </div>
+        }
+      </app-resource-state>
+    </div>
   }
 </div>

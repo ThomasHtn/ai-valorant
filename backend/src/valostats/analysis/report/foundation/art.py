@@ -24,10 +24,6 @@ def weapon_art(name: str) -> GameArt:
     return GameArt(type=ArtType.WEAPON, slug=slug(name))
 
 
-def role_art(role: str) -> GameArt:
-    return GameArt(type=ArtType.ROLE, slug=slug(role))
-
-
 def player_art(name: str) -> GameArt:
     """The front shows the player's main agent of the period."""
     return GameArt(type=ArtType.PLAYER, slug=name)

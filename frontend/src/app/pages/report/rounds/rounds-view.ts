@@ -9,8 +9,6 @@ import { ReportContext } from '@core/report/report-context';
 import { ReportState } from '@core/report/report-state';
 import { parseRoundParam } from '@core/report/round-ref.utils';
 import { RoundQuery } from '@core/report/round-query.model';
-import { FilterBar } from '@shared/filter-bar/filter-bar';
-import { DataQuality } from '@shared/data-quality/data-quality';
 import { ResourceState } from '@shared/resource-state/resource-state';
 
 import { RoundFiltersView } from './round-filters/round-filters';
@@ -26,15 +24,7 @@ import { filterOptions, filterRounds, queryScope } from './rounds-filter.utils';
  */
 @Component({
   selector: 'app-rounds-view',
-  imports: [
-    DataQuality,
-    FilterBar,
-    LucideX,
-    ResourceState,
-    RoundFiltersView,
-    RoundList,
-    RoundSheetView,
-  ],
+  imports: [LucideX, ResourceState, RoundFiltersView, RoundList, RoundSheetView],
   templateUrl: './rounds-view.html',
 })
 export class RoundsView {
@@ -45,7 +35,12 @@ export class RoundsView {
   private readonly state = inject(ReportState);
   private readonly api = inject(ReportApi);
 
-  protected readonly filters = signal<RoundFilters>(DEFAULT_ROUND_FILTERS);
+  /** The list's own filters, starting from the map and side picked in the other views. */
+  protected readonly filters = signal<RoundFilters>({
+    ...DEFAULT_ROUND_FILTERS,
+    map: this.state.filters().map,
+    side: this.state.filters().side,
+  });
   /** Filter carried by a Tableaux cell click, through the router's navigation state. */
   protected readonly query = signal<RoundQuery | null>(this.readQuery());
 
@@ -54,13 +49,9 @@ export class RoundsView {
   protected readonly maps = computed(() => this.meta()?.maps ?? []);
   private readonly allRounds = computed(() => resourceValue(this.index, null)?.rounds ?? []);
   protected readonly options = computed(() => filterOptions(this.allRounds()));
-  protected readonly rows = computed(() => {
-    const report = this.state.filters();
-    return filterRounds(this.allRounds(), this.filters(), [
-      queryScope(this.query(), this.maps()),
-      { map: report.map, side: report.side },
-    ]);
-  });
+  protected readonly rows = computed(() =>
+    filterRounds(this.allRounds(), this.filters(), [queryScope(this.query(), this.maps())]),
+  );
 
   protected readonly selected = computed(() => {
     const fromUrl = parseRoundParam(this.round());

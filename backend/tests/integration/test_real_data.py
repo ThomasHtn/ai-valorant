@@ -1,6 +1,6 @@
 """Every endpoint against the local database; skipped when it is unreachable or empty.
 
-Run after `uv run valostats import-legacy` (or a sync): `uv run pytest -m integration`.
+Run after a sync: `uv run pytest -m integration`.
 """
 
 import pytest

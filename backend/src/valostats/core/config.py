@@ -18,8 +18,6 @@ class Settings(BaseSettings):
     henrik_api_key: str = ""
     # Origins allowed to call the API from a browser (ValoQuests front end, for example).
     cors_origins: list[str] = ["http://localhost:4200"]
-    # Folder of the JSON files written by the legacy scripts, for the one-off import.
-    legacy_data_dir: Path = BACKEND_DIR.parent / "data"
 
 
 @lru_cache

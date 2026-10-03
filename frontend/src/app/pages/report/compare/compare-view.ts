@@ -5,7 +5,6 @@ import { ReportApi } from '@core/report/report-api';
 import { ReportContext } from '@core/report/report-context';
 import { DEFAULT_DOMAIN, REPORT_DOMAINS } from '@core/report/report-domains.constants';
 import { ReportState } from '@core/report/report-state';
-import { DataQuality } from '@shared/data-quality/data-quality';
 import { FilterBar } from '@shared/filter-bar/filter-bar';
 import { ResourceState } from '@shared/resource-state/resource-state';
 
@@ -27,7 +26,7 @@ const COHORT_OPTIONS: CompareOption[] = Object.entries(COMPARE_COHORTS).map(([va
  */
 @Component({
   selector: 'app-compare-view',
-  imports: [FilterBar, DataQuality, ResourceState, SelectionBox, CompareTable],
+  imports: [FilterBar, ResourceState, SelectionBox, CompareTable],
   templateUrl: './compare-view.html',
 })
 export class CompareView {

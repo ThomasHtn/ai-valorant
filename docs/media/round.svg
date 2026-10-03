@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 360" width="1200" height="360" role="img" aria-label="A round sheet: the 2D replay frame next to the win probability curve, which shows where an advantage was thrown.">
+  <rect x="1" y="1" width="1198" height="358" fill="#0b1620" stroke="#253645" stroke-width="2"/>
+  <text x="40" y="58" font-family="Oswald, 'Arial Narrow', Helvetica, Arial, sans-serif" font-size="20" letter-spacing="3" fill="#ece8e1">ROUND 14</text>
+  <text x="206" y="58" font-family="'Barlow Condensed', 'Arial Narrow', Helvetica, Arial, sans-serif" font-size="19" letter-spacing="1" fill="#d9534f">Lead thrown: 4v2 after the plant, round lost</text>
+
+  <rect x="40" y="84" width="500" height="240" fill="#0f1c26" stroke="#253645" stroke-width="1.5"/>
+  <g fill="none" stroke="#33495b" stroke-width="2">
+    <path d="M80 120h120v70h-40v100H80z"/><path d="M200 150h120v40H200"/>
+    <path d="M320 110h170v110H320z"/><path d="M380 220v70h110v-70"/><path d="M200 250h180"/>
+  </g>
+  <g font-family="Oswald, 'Arial Narrow', Helvetica, Arial, sans-serif" font-size="22" fill="#33495b"><text x="128" y="230">A</text><text x="398" y="172">B</text></g>
+  <path d="M405 190l9-9 9 9-9 9z" fill="#d9954a"/>
+  <g fill="#418ad1"><circle cx="352" cy="140" r="7"/><circle cx="460" cy="200" r="7"/><circle cx="430" cy="268" r="7"/><circle cx="350" cy="250" r="7"/></g>
+  <g fill="#c48235"><circle cx="248" cy="170" r="7"/><circle cx="292" cy="250" r="7"/></g>
+  <g stroke="#d9534f" stroke-width="2.5" stroke-linecap="round"><path d="M110 150l10 10m0-10l-10 10"/><path d="M226 240l10 10m0-10l-10 10"/><path d="M150 262l10 10m0-10l-10 10"/></g>
+  <path d="M292 250L350 250" stroke="#c48235" stroke-width="1.5" stroke-dasharray="4 4"/>
+
+  <path d="M600 96v200h540" fill="none" stroke="#33495b" stroke-width="1.5"/>
+  <path d="M600 196h540" stroke="#33495b" stroke-width="1" stroke-dasharray="4 6"/>
+  <text x="590" y="102" text-anchor="end" font-family="'Barlow Condensed', 'Arial Narrow', Helvetica, Arial, sans-serif" font-size="14" fill="#868b8d">100%</text>
+  <text x="590" y="201" text-anchor="end" font-family="'Barlow Condensed', 'Arial Narrow', Helvetica, Arial, sans-serif" font-size="14" fill="#868b8d">50%</text>
+  <path d="M719 96v200" stroke="#5fb88a" stroke-width="1.5" stroke-dasharray="3 5" opacity="0.7"/><text x="725" y="110" font-family="'Barlow Condensed', 'Arial Narrow', Helvetica, Arial, sans-serif" font-size="14" letter-spacing="1" fill="#5fb88a">FIRST BLOOD</text><path d="M881 96v200" stroke="#d9954a" stroke-width="1.5" stroke-dasharray="3 5" opacity="0.7"/><text x="887" y="110" font-family="'Barlow Condensed', 'Arial Narrow', Helvetica, Arial, sans-serif" font-size="14" letter-spacing="1" fill="#d9954a">PLANT B</text><path d="M1021 96v200" stroke="#d9534f" stroke-width="1.5" stroke-dasharray="3 5" opacity="0.7"/><text x="1027" y="110" font-family="'Barlow Condensed', 'Arial Narrow', Helvetica, Arial, sans-serif" font-size="14" letter-spacing="1" fill="#d9534f">1V2 LOST</text>
+  <polyline points="600,196 676,196 719,168 805,182 881,154 956,140 1021,204 1075,236 1140,288" fill="none" stroke="#d9954a" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+  <text x="600" y="324" font-family="'Barlow Condensed', 'Arial Narrow', Helvetica, Arial, sans-serif" font-size="15" letter-spacing="1" fill="#868b8d">chance to win the round, kill after kill</text>
+</svg>

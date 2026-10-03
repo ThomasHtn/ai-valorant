@@ -43,14 +43,6 @@ class MatchSource(StrEnum):
     TOP = "top"
 
 
-class Tone(StrEnum):
-    """Whether a value is good or bad news for the squad."""
-
-    GOOD = "good"
-    BAD = "bad"
-    NEUTRAL = "neutral"
-
-
 class FindingStatus(StrEnum):
     """Confirmed gaps survive the multiple-testing correction; leads are only worth watching."""
 

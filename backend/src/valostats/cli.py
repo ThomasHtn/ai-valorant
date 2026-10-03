@@ -12,7 +12,6 @@ from valostats.core.config import get_settings
 from valostats.core.database import get_session_factory
 from valostats.domain.enums import MatchSource
 from valostats.ingestion.facts_rebuild import rebuild_facts
-from valostats.ingestion.legacy_import import import_legacy
 from valostats.ingestion.maps_sync import sync_maps
 from valostats.ingestion.squad_sync import sync_squad
 from valostats.ingestion.top_sync import sync_top
@@ -56,13 +55,6 @@ def rebuild_facts_command(source: Annotated[MatchSource | None, typer.Argument(h
     with get_session_factory()() as session:
         for s in [source] if source else list(MatchSource):
             rebuild_facts(session, s)
-
-
-@app.command("import-legacy")
-def import_legacy_command() -> None:
-    """One-off import of the legacy JSON files (LEGACY_DATA_DIR, default ../data)."""
-    with get_session_factory()() as session:
-        import_legacy(session, get_settings().legacy_data_dir)
 
 
 @app.command("top-status")

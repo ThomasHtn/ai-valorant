@@ -52,21 +52,6 @@ def _log_choose(n: int, k: int) -> float:
     return math.lgamma(n + 1) - math.lgamma(k + 1) - math.lgamma(n - k + 1)
 
 
-def one_proportion(k: int, n: int, p0: float = 0.5) -> float:
-    """Two-sided p-value of a z-test against a fixed proportion."""
-    return math.erfc(abs(k / n - p0) / math.sqrt(p0 * (1 - p0) / n) / math.sqrt(2))
-
-
-def mean_vs_reference(total: float, n: int, sum_of_squares: float, reference: float) -> float:
-    """Two-sided p-value of a z-test of a sample mean against a reference treated as exact."""
-    if n < 2:
-        return 1.0
-    variance = sum_of_squares / n - (total / n) ** 2
-    if variance <= 0:
-        return 1.0
-    return math.erfc(abs(total / n - reference) / math.sqrt(variance / n) / math.sqrt(2))
-
-
 def benjamini_hochberg[T](tests: Sequence[T], p_value: Callable[[T], float]) -> list[T]:
     """The tests that survive the false discovery rate, smallest p-value first."""
     ranked = sorted(tests, key=p_value)

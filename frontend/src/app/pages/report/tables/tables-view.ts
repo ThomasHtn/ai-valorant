@@ -8,7 +8,7 @@ import { DEFAULT_DOMAIN, REPORT_DOMAINS } from '@core/report/report-domains.cons
 import { ReportState } from '@core/report/report-state';
 import { RoundQuery } from '@core/report/round-query.model';
 import { StatRow } from '@core/report/stat-table.model';
-import { DataQuality } from '@shared/data-quality/data-quality';
+import { DisplayToggles } from '@shared/display-toggles/display-toggles';
 import { FilterBar } from '@shared/filter-bar/filter-bar';
 import { InfoTip } from '@shared/info-tip/info-tip';
 import { ResourceState } from '@shared/resource-state/resource-state';
@@ -18,18 +18,21 @@ import { rowText } from '@shared/stat-table/stat-table.utils';
 import { ToneLegend } from '@shared/tone-legend/tone-legend';
 
 import { DetectionsPanel } from './detections-panel/detections-panel';
+import { detectionGroups } from './detections-panel/detections-panel.utils';
+import { DETECTIONS_KEY } from './tables-view.constants';
 import { scopeFilter } from './tables-view.utils';
 
 /**
  * Tableaux: every metric of one domain of the dictionary as coloured tables, values only.
- * The domain list sits on the left; a cell click opens the Rounds view on the rounds behind it.
+ * The domain list sits on the left, with the period's automatic detections as its first entry;
+ * a cell click opens the Rounds view on the rounds behind it.
  */
 @Component({
   selector: 'app-tables-view',
   imports: [
     RouterLink,
     FilterBar,
-    DataQuality,
+    DisplayToggles,
     ToneLegend,
     StatTableView,
     InfoTip,
@@ -47,20 +50,24 @@ export class TablesView {
   private readonly router = inject(Router);
 
   protected readonly domains = REPORT_DOMAINS;
+  protected readonly detectionsKey = DETECTIONS_KEY;
+  protected readonly showDetections = computed(() => this.domain() === DETECTIONS_KEY);
+  /** Domain whose tables are loaded; null while the detections are shown. */
   protected readonly domainKey = computed(() => {
+    if (this.showDetections()) {
+      return null;
+    }
     const key = this.domain();
     return key && REPORT_DOMAINS.some((d) => d.key === key) ? key : DEFAULT_DOMAIN;
   });
   private readonly api = inject(ReportApi);
   protected readonly tables = this.api.tables(this.context.query, this.domainKey);
-  /** Right panel: repetitions, gaps and links of the period, whatever the domain. */
+  /** Repetitions, gaps and links of the period, whatever the domain; loaded for the entry's count. */
   protected readonly detections = this.api.detections(this.context.query);
-  /** Domain list and tables; a third column for the detections on wide screens. */
-  protected readonly gridClass = computed(() =>
-    this.detections.hasValue()
-      ? 'lg:grid-cols-[13rem_minmax(0,1fr)] xl:grid-cols-[13rem_minmax(0,1fr)_21rem]'
-      : 'lg:grid-cols-[13rem_minmax(0,1fr)]',
-  );
+  protected readonly detectionCount = computed(() => {
+    const value = resourceValue(this.detections, null);
+    return value ? detectionGroups(value).reduce((n, group) => n + group.items.length, 0) : null;
+  });
 
   protected readonly meta = computed(() => resourceValue(this.context.meta, null));
   protected readonly maps = computed(() => this.meta()?.maps ?? []);

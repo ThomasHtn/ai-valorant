@@ -58,7 +58,7 @@
                   <ul class="ml-[1.6rem] flex flex-col gap-1 border-l border-edge py-2 pl-3">
                     <li>
                       <a
-                        routerLink="/report/tables"
+                        routerLink="/report"
                         [queryParams]="{ month: month.key }"
                         class="focus-ring-inset group/row flex items-center gap-3 px-3 py-2.5 !text-text-primary no-underline transition-colors hover:bg-brand-500/8"
                       >
@@ -70,7 +70,7 @@
                         <span class="flex flex-1 flex-col leading-tight">
                           <span class="font-semibold">Rapport du mois</span>
                           <span class="text-sm text-text-muted"
-                            >Tableaux, points forts et faibles, minimap, rounds, joueurs</span
+                            >Résumé, tableaux, points forts et faibles, rounds, joueurs</span
                           >
                         </span>
                         <svg
@@ -136,7 +136,7 @@
             @for (patch of available.patches; track patch) {
               <li>
                 <a
-                  routerLink="/report/tables"
+                  routerLink="/report"
                   [queryParams]="{ patch }"
                   class="focus-ring-inset group/row flex items-center gap-3 bg-text-primary/4 px-4 py-2.5 !text-text-primary no-underline transition-colors hover:bg-brand-500/8"
                 >
@@ -156,7 +156,7 @@
         <section aria-labelledby="home-all">
           <h2 id="home-all" class="!mt-0">Tout l'historique</h2>
           <a
-            routerLink="/report/tables"
+            routerLink="/report"
             [queryParams]="{ start: available.firstDay, end: available.lastDay }"
             class="focus-ring-inset group/row mt-4 flex items-center gap-3 bg-text-primary/4 px-4 py-3 !text-text-primary no-underline transition-colors hover:bg-brand-500/8"
           >

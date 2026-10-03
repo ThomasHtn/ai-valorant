@@ -1,13 +1,14 @@
+<!-- One compact row: each label sits left of its control so the bar costs a single line. -->
 <div
-  class="flex flex-wrap items-end gap-x-4 gap-y-3 bg-text-primary/4 px-4 py-3"
+  class="flex flex-wrap items-center gap-x-5 gap-y-2 bg-text-primary/4 px-3 py-2"
   role="group"
   aria-label="Filtres"
 >
   @if (showMap()) {
-    <label class="flex min-w-0 flex-col gap-1">
+    <label class="flex min-w-0 items-center gap-2">
       <span class="text-sm text-text-muted">Carte</span>
       <select
-        class="field-control min-w-32"
+        class="field-control min-w-28"
         [value]="state.filters().map"
         (change)="setMap($event)"
       >
@@ -19,10 +20,10 @@
     </label>
   }
   @if (showSide()) {
-    <label class="flex min-w-0 flex-col gap-1">
+    <label class="flex min-w-0 items-center gap-2">
       <span class="text-sm text-text-muted">Side</span>
       <select
-        class="field-control min-w-32"
+        class="field-control min-w-28"
         [value]="state.filters().side"
         (change)="setSide($event)"
       >
@@ -33,10 +34,10 @@
     </label>
   }
   @if (showPlayer()) {
-    <label class="flex min-w-0 flex-col gap-1">
+    <label class="flex min-w-0 items-center gap-2">
       <span class="text-sm text-text-muted">Joueur</span>
       <select
-        class="field-control min-w-32"
+        class="field-control min-w-28"
         [value]="state.filters().player"
         (change)="setPlayer($event)"
       >
@@ -48,7 +49,7 @@
     </label>
   }
   @if (showReference()) {
-    <div class="flex flex-col gap-1">
+    <div class="flex items-center gap-2">
       <span class="text-sm text-text-muted">Référence<app-info-tip topic="reference" /></span>
       <div class="inline-flex border border-edge-strong" role="group" aria-label="Référence">
         @for (option of referenceOptions; track option.value) {
@@ -70,18 +71,9 @@
       </div>
     </div>
   }
-  <span class="flex-1"></span>
+  <!-- Controls a view adds to the bar (a view-only filter, a mode switch). -->
+  <ng-content />
   @if (showToggles()) {
-    @for (toggle of toggles; track toggle.key) {
-      <label class="inline-flex h-9 cursor-pointer items-center gap-2 text-text-secondary">
-        <input
-          type="checkbox"
-          class="size-4 accent-brand-500"
-          [checked]="state.preferences()[toggle.key]"
-          (change)="state.toggle(toggle.key)"
-        />
-        {{ toggle.label }}
-      </label>
-    }
+    <app-display-toggles class="ml-auto" />
   }
 </div>

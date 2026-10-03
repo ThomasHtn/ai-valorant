@@ -6,6 +6,7 @@ import { integer } from '@core/format/value-format.utils';
 import { ReportContext } from '@core/report/report-context';
 import { REPORT_VIEWS } from '@core/report/report-views.constants';
 import { PageHeader } from '@layout/page-header/page-header';
+import { DataQuality } from '@shared/data-quality/data-quality';
 import { ResourceState } from '@shared/resource-state/resource-state';
 
 import { PeriodSelector } from './period-selector/period-selector';
@@ -16,7 +17,15 @@ import { PeriodSelector } from './period-selector/period-selector';
  */
 @Component({
   selector: 'app-report-page',
-  imports: [RouterOutlet, RouterLink, RouterLinkActive, PageHeader, ResourceState, PeriodSelector],
+  imports: [
+    RouterOutlet,
+    RouterLink,
+    RouterLinkActive,
+    PageHeader,
+    DataQuality,
+    ResourceState,
+    PeriodSelector,
+  ],
   host: { class: 'page-stack' },
   templateUrl: './report-page.html',
 })

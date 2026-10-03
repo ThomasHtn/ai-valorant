@@ -7,9 +7,6 @@ export type BuyType = 'pistol' | 'eco' | 'force' | 'full';
 /** Squad, its opponents in the same matches, or a top ranked team. */
 export type Cohort = 'squad' | 'opp' | 'top';
 
-/** Whether a value is good or bad news for the squad (tab notes). */
-export type Tone = 'good' | 'bad' | 'neutral';
-
 /** Confirmed gaps survive the multiple-testing correction; leads are only worth watching. */
 export type FindingStatus = 'confirmed' | 'lead';
 
@@ -18,9 +15,6 @@ export type Reference = 'top' | 'opp' | 'hist';
 
 /** Reference of a table column: `none` for plain counts, never coloured. */
 export type ColumnReference = Reference | 'none';
-
-/** What a kill was made with. */
-export type KillMeans = 'weapon' | 'ability' | 'melee' | 'spike' | 'fall' | 'other';
 
 /** Why a round was lost, computed from its timeline. */
 export type LossCause =

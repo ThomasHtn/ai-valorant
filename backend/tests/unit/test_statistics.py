@@ -1,6 +1,6 @@
 import pytest
 
-from valostats.analysis.statistics.proportions import benjamini_hochberg, mean_vs_reference, one_proportion, two_proportions
+from valostats.analysis.statistics.proportions import benjamini_hochberg, two_proportions
 from valostats.analysis.statistics.rates import rate
 
 
@@ -10,15 +10,6 @@ def test_identical_proportions_are_not_significant():
 
 def test_a_large_gap_is_significant():
     assert two_proportions(45, 60, 15, 60) < 0.001
-
-
-def test_one_proportion_against_half():
-    assert one_proportion(50, 100) == pytest.approx(1.0)
-    assert one_proportion(80, 100) < 0.001
-
-
-def test_mean_without_variation_cannot_be_tested():
-    assert mean_vs_reference(total=10, n=5, sum_of_squares=20, reference=1.0) == 1.0
 
 
 def test_benjamini_hochberg_keeps_only_the_p_values_under_the_stepped_threshold():

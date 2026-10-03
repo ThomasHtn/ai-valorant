@@ -23,7 +23,12 @@ export const routes: Routes = [
     loadComponent: () => import('@pages/report/report-page').then((m) => m.ReportPage),
     title: 'Rapport · ValoStats',
     children: [
-      { path: '', pathMatch: 'full', redirectTo: 'tables' },
+      { path: '', pathMatch: 'full', redirectTo: 'summary' },
+      {
+        path: 'summary',
+        loadComponent: () =>
+          import('@pages/report/summary/summary-view').then((m) => m.SummaryView),
+      },
       {
         path: 'tables',
         loadComponent: () => import('@pages/report/tables/tables-view').then((m) => m.TablesView),

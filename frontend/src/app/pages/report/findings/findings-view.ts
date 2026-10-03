@@ -4,7 +4,6 @@ import { resourceValue } from '@core/http/resource-state.utils';
 import { ReportApi } from '@core/report/report-api';
 import { ReportContext } from '@core/report/report-context';
 import { ReportState } from '@core/report/report-state';
-import { DataQuality } from '@shared/data-quality/data-quality';
 import { FilterBar } from '@shared/filter-bar/filter-bar';
 import { InfoTip } from '@shared/info-tip/info-tip';
 import { ResourceState } from '@shared/resource-state/resource-state';
@@ -18,7 +17,7 @@ import { filterFindings, findingColumn } from './findings-view.utils';
  */
 @Component({
   selector: 'app-findings-view',
-  imports: [FilterBar, DataQuality, InfoTip, ResourceState, FindingColumn],
+  imports: [FilterBar, InfoTip, ResourceState, FindingColumn],
   templateUrl: './findings-view.html',
 })
 export class FindingsView {

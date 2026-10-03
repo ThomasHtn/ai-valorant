@@ -38,7 +38,8 @@ export function repetitionItem(r: Repetition, index: number): DetectionItem {
   return {
     key: `rep-${index}`,
     art: r.art,
-    title: r.scope && r.scope !== ALL_MAPS_SCOPE ? `${r.scope} · ${r.label}` : r.label,
+    scope: r.scope && r.scope !== ALL_MAPS_SCOPE ? r.scope : null,
+    title: r.label,
     detail,
     sample: `Sur ${integer(r.baseRounds)} rounds, ${r.matches} matchs`,
     rewatch: r.rewatch,
@@ -52,7 +53,8 @@ export function gapItem(f: Finding, index: number): DetectionItem {
   return {
     key: `gap-${index}`,
     art: f.art,
-    title: `${f.scope} · ${f.metric}`,
+    scope: f.scope,
+    title: f.metric,
     detail: `${rate(f.squad)} contre ${rate(reference)} (${referenceName}), ${rounds(f.gapRounds)}`,
     sample: `Sur ${integer(f.squad.total)}`,
     rewatch: f.rewatch,
@@ -76,7 +78,8 @@ export function linkItem(l: Link, index: number): DetectionItem {
   return {
     key: `link-${index}`,
     art: l.art,
-    title: `${l.player} · ${l.label}`,
+    scope: l.player,
+    title: l.label,
     detail,
     sample,
     rewatch: l.rewatch,

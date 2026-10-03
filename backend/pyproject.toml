@@ -53,7 +53,7 @@ mypy_path = "src"
 packages = ["valostats"]
 
 [[tool.mypy.overrides]]
-module = ["valostats.analysis.extraction.*", "valostats.analysis.session.costly_rounds"]
+module = ["valostats.analysis.extraction.*"]
 # Raw Henrik payloads are plain dicts.
 disallow_any_generics = false
 warn_return_any = false

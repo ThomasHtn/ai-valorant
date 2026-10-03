@@ -19,10 +19,6 @@ export function agentRole(agent: string): AgentRole | null {
   return AGENT_ROLES[agent] ?? null;
 }
 
-export function roleIcon(role: AgentRole): string {
-  return `${ASSETS_ROOT}/roles/${assetSlug(role)}.webp`;
-}
-
 /** Wide strip of a map (456 x 100), used by pickers and table rows. */
 export function mapBanner(map: string): string | null {
   return KNOWN_MAPS.has(map) ? `${ASSETS_ROOT}/maps/${assetSlug(map)}-banner.webp` : null;

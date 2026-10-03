@@ -1,0 +1,49 @@
+# Production stack on the VPS: two images behind the shared Traefik, same origin, /api/* to the backend.
+# The database is the VPS PostgreSQL 17 (dedicated database and role, see .env.example).
+# Usage: cp .env.example .env, fill it, then `docker compose -f docker-compose.prod.yml up -d --build`.
+# Collection jobs: `docker compose -f docker-compose.prod.yml run --rm backend valostats sync`.
+
+services:
+  backend:
+    build: ./backend
+    image: valostats-backend:latest
+    restart: unless-stopped
+    env_file: .env
+    networks:
+      - edge
+      - database
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=${TRAEFIK_NETWORK:-edge}
+      - traefik.http.routers.valostats-api.rule=Host(`${PUBLIC_HOST:-valostats.thomashtn.dev}`) && PathPrefix(`/api`)
+      - traefik.http.routers.valostats-api.entrypoints=${TRAEFIK_ENTRYPOINT:-websecure}
+      - traefik.http.routers.valostats-api.tls.certresolver=${TRAEFIK_CERT_RESOLVER:-letsencrypt}
+      - traefik.http.routers.valostats-api.middlewares=valostats-ratelimit
+      - traefik.http.services.valostats-api.loadbalancer.server.port=8000
+      # A report page fires about ten requests at once; this only stops floods.
+      - traefik.http.middlewares.valostats-ratelimit.ratelimit.average=20
+      - traefik.http.middlewares.valostats-ratelimit.ratelimit.burst=50
+
+  frontend:
+    build: ./frontend
+    image: valostats-frontend:latest
+    restart: unless-stopped
+    depends_on:
+      - backend
+    networks:
+      - edge
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=${TRAEFIK_NETWORK:-edge}
+      - traefik.http.routers.valostats-web.rule=Host(`${PUBLIC_HOST:-valostats.thomashtn.dev}`)
+      - traefik.http.routers.valostats-web.entrypoints=${TRAEFIK_ENTRYPOINT:-websecure}
+      - traefik.http.routers.valostats-web.tls.certresolver=${TRAEFIK_CERT_RESOLVER:-letsencrypt}
+      - traefik.http.services.valostats-web.loadbalancer.server.port=80
+
+networks:
+  edge:
+    external: true
+    name: ${TRAEFIK_NETWORK:-edge}
+  database:
+    external: true
+    name: ${DATABASE_NETWORK:-database}

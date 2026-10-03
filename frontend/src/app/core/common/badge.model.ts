@@ -15,8 +15,3 @@ export type BadgeKind =
   | 'good'
   | 'bad'
   | 'neutral';
-
-export interface BadgeContent {
-  label: string;
-  kind: BadgeKind;
-}

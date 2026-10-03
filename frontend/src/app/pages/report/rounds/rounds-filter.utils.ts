@@ -22,8 +22,8 @@ export function queryScope(query: RoundQuery | null, maps: readonly string[]): R
 }
 
 /**
- * Rounds kept by the list. The view's own map and side win; otherwise the scope (clicked cell, then
- * the report's filter bar) applies.
+ * Rounds kept by the list. The view's own map and side win; otherwise the scope (a clicked cell)
+ * applies.
  */
 export function filterRounds(
   rounds: readonly RoundLine[],
