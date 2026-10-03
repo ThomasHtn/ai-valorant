@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import { LINE_CHART_BOX } from './line-chart.constants';
 import { LinePoint } from './line-chart.model';
-import { buildLineChart, tickLabel } from './line-chart.utils';
+import { bandPolygons, buildLineChart, tickLabel } from './line-chart.utils';
 
 const point = (value: number | null, sample = 100, highlighted = false): LinePoint => ({
   label: 'm',
@@ -39,6 +39,21 @@ describe('buildLineChart', () => {
     expect(view.dots[1].radius).toBeGreaterThan(view.dots[0].radius);
   });
 
+  it('lets a point fade itself whatever its sample', () => {
+    const view = buildLineChart(
+      [
+        { ...point(0.4, 500), faded: true },
+        { ...point(0.5, 5), faded: false },
+      ],
+      'pct',
+      null,
+      'T',
+      [],
+      20,
+    )!;
+    expect(view.dots.map((d) => d.small)).toEqual([true, false]);
+  });
+
   it('places a marker half-way before its point and drops one before the first', () => {
     const points = [point(1), point(2), point(3)];
     const view = buildLineChart(
@@ -54,6 +69,26 @@ describe('buildLineChart', () => {
     )!;
     expect(view.markers).toHaveLength(1);
     expect(view.markers[0].x).toBeCloseTo((view.dots[1].x + view.dots[2].x) / 2);
+  });
+});
+
+describe('bandPolygons', () => {
+  const x = (i: number): number => i * 10;
+  const y = (v: number): number => 100 - v * 100;
+  const bounded = (value: number, low: number, high: number): LinePoint => ({
+    ...point(value),
+    low,
+    high,
+  });
+
+  it('draws one polygon per run of bounded points, upper edge then lower edge back', () => {
+    const points = [bounded(0.5, 0.25, 0.75), bounded(0.5, 0.375, 0.625), point(0.5)];
+    expect(bandPolygons(points, x, y)).toEqual(['0,25 10,37.5 10,62.5 0,75']);
+  });
+
+  it('skips runs of a single point', () => {
+    const points = [bounded(0.5, 0.25, 0.75), point(null), bounded(0.5, 0.25, 0.75)];
+    expect(bandPolygons(points, x, y)).toEqual([]);
   });
 });
 

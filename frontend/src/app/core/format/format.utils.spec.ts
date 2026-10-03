@@ -37,4 +37,11 @@ describe('value format utils', () => {
     expect(formatGap(0, 'int')).toBe('0');
     expect(formatGap(null, 'pct')).toBe('—');
   });
+
+  it('writes a gap that rounds to zero without a sign, and one point in the singular', () => {
+    expect(formatGap(-0.002, 'pct')).toBe('0\u202fpt');
+    expect(formatGap(0.01, 'pct')).toBe('+1\u202fpt');
+    expect(formatGap(-0.02, 'pct')).toBe('−2\u202fpts');
+    expect(formatGap(-0.04, 'dec1')).toBe('0,0');
+  });
 });

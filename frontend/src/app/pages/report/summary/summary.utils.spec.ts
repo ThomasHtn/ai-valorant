@@ -24,6 +24,9 @@ function finding(overrides: Partial<Finding>): Finding {
     metric: 'Rounds gagnés',
     kind: 'rw',
     art: null,
+    mapName: 'Split',
+    scopeSide: null,
+    player: null,
     reference: 'top',
     squad: rate(40, 100),
     opp: rate(60, 100),
@@ -32,6 +35,8 @@ function finding(overrides: Partial<Finding>): Finding {
     gapRounds: -2,
     pValue: 0.2,
     status: 'lead',
+    matches: 4,
+    lostCauses: {},
     rewatch: [],
     ...overrides,
   };
@@ -76,16 +81,23 @@ describe('headlineTiles', () => {
     };
     const tiles = headlineTiles(maps, roundTypes, 'top', true);
     expect(tiles.map((t) => t.label)).toEqual(['Rounds gagnés', 'Full buy contre full buy']);
-    expect(tiles[0].value).toBe('48 %');
+    expect(tiles[0].value).toBe('48 %');
   });
 });
 
 describe('priorityItems', () => {
-  it('ranks by rounds at stake and writes the gap against the tested reference', () => {
+  it('ranks subjects by rounds at stake and writes the gap against the tested reference', () => {
+    const lotus = { scope: 'Lotus', mapName: 'Lotus', reference: 'opp' as const };
     const items = priorityItems(
       [
         finding({ gapRounds: -2 }),
-        finding({ gapRounds: -8.5, scope: 'Lotus', reference: 'opp', status: 'confirmed' }),
+        finding({
+          ...lotus,
+          gapRounds: -8.5,
+          status: 'confirmed',
+          lostCauses: { retake_failed: 3 },
+        }),
+        finding({ scope: 'Split · défense', scopeSide: 'def', gapRounds: -1.5 }),
         finding({ side: 'strong', gapRounds: 12 }),
       ],
       'weak',
@@ -93,7 +105,10 @@ describe('priorityItems', () => {
     );
     expect(items.map((i) => i.scope)).toEqual(['Lotus', 'Split']);
     expect(items[0].gap).toBe('−8,5');
-    expect(items[0].detail).toBe('40 % contre 60 % (adversaires)');
+    expect(items[0].unit).toBe('rounds sur 4 matchs');
+    expect(items[0].detail).toBe('40 % contre 60 % (adversaires)');
     expect(items[0].status).toBe('Écart net');
+    expect(items[0].causes).toBe('Retake raté (3)');
+    expect(items[1].others).toBe(1);
   });
 });

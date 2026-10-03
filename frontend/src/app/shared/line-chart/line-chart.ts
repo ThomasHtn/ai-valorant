@@ -8,7 +8,7 @@ import { buildLineChart } from './line-chart.utils';
 /**
  * A value over time, drawn to scale in inline SVG: one dot per point with its value and sample, gaps
  * where nothing was played, dashed markers (patch changes), a dashed reference line (top ranked).
- * Points under `minSample` turn grey; the report's period is ringed in amber. Hovering or focusing a
+ * Points under `minSample` turn hollow; the report's period is ringed in amber. Hovering or focusing a
  * dot opens its tip.
  */
 @Component({
@@ -23,7 +23,7 @@ export class LineChart {
   public readonly reference = input<number | null>(null);
   public readonly referenceLabel = input('Top ranked');
   public readonly markers = input<ChartMarker[]>([]);
-  /** Sample under which a point turns grey. */
+  /** Sample under which a point turns hollow, unless the point sets `faded` itself. */
   public readonly minSample = input(20);
   /** Accessible name of the chart. */
   public readonly label = input.required<string>();

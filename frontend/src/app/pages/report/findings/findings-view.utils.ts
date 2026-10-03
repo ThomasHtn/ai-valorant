@@ -1,4 +1,4 @@
-import { SIDE_LABELS } from '@core/format/labels.constants';
+import { groupBySubject } from '@core/report/finding-subjects.utils';
 import { Finding, FindingSide } from '@core/report/findings.model';
 import { ReportFilters } from '@core/report/report-preferences.model';
 
@@ -6,56 +6,37 @@ import { FINDING_GROUPS } from './findings.constants';
 import { FindingColumnView } from './findings.model';
 
 /**
- * Keeps the findings matching the scope filters, as the mockup does: a finding naming another map
- * than the chosen one is dropped (one naming no map stays); a player filter only applies to player
- * findings; a side filter only to findings naming a side. `confirmedOnly` keeps net gaps.
+ * Keeps the findings matching the scope filters: a finding on another map, side or player is
+ * dropped, one that names none of them stays. `confirmedOnly` keeps net gaps.
  */
 export function filterFindings(
   findings: Finding[],
   filters: ReportFilters,
-  maps: string[],
   confirmedOnly: boolean,
 ): Finding[] {
-  const sides = Object.values(SIDE_LABELS).map((s) => s.toLowerCase());
   return findings.filter((f) => {
     if (confirmedOnly && f.status !== 'confirmed') {
       return false;
     }
-    const text = `${f.scope} ${f.metric}`.toLowerCase();
-    if (
-      filters.map &&
-      !text.includes(filters.map.toLowerCase()) &&
-      maps.some((m) => text.includes(m.toLowerCase()))
-    ) {
+    if (filters.map && f.mapName && f.mapName !== filters.map) {
       return false;
     }
-    if (filters.player && f.group === 'players' && !text.includes(filters.player.toLowerCase())) {
+    if (filters.side && f.scopeSide && f.scopeSide !== filters.side) {
       return false;
     }
-    if (
-      filters.side &&
-      sides.some((s) => text.includes(s)) &&
-      !text.includes(SIDE_LABELS[filters.side].toLowerCase())
-    ) {
-      return false;
-    }
-    return true;
+    return !(filters.player && f.player && f.player !== filters.player);
   });
 }
 
-/** One column (weaknesses or strengths): findings by group, the costliest in rounds first. */
+/** One column (weaknesses or strengths): subjects by group, the costliest in rounds first. */
 export function findingColumn(findings: Finding[], side: FindingSide): FindingColumnView {
-  const ofSide = findings
-    .filter((f) => f.side === side)
-    .sort((a, b) => Math.abs(b.gapRounds) - Math.abs(a.gapRounds));
-  return {
-    count: ofSide.length,
-    groups: FINDING_GROUPS.map(({ group, label }) => ({
-      group,
-      label,
-      findings: ofSide.filter((f) => f.group === group),
-    })).filter((g) => g.findings.length > 0),
-  };
+  const ofSide = findings.filter((f) => f.side === side);
+  const groups = FINDING_GROUPS.map(({ group, label }) => ({
+    group,
+    label,
+    subjects: groupBySubject(ofSide.filter((f) => f.group === group)),
+  })).filter((g) => g.subjects.length > 0);
+  return { count: groups.reduce((n, g) => n + g.subjects.length, 0), groups };
 }
 
 /** Width of a rate bar in percent; at least 1 so an empty bar is still visible. */

@@ -14,6 +14,7 @@ import { CompareGroup, CompareValue } from '../compare.model';
   selector: 'app-compare-table',
   imports: [InfoTip],
   templateUrl: './compare-table.html',
+  // Capped like the stat tables so labels and figures stay close on wide screens.
   host: { class: 'block min-w-0 overflow-x-auto' },
 })
 export class CompareTable {

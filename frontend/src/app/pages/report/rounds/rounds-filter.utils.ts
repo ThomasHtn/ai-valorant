@@ -1,8 +1,19 @@
-import { LossCause, Side } from '@core/common/enums.model';
+import { BuyType, LossCause, Side } from '@core/common/enums.model';
 import { RoundQuery } from '@core/report/round-query.model';
 import { RoundLine } from '@core/report/rounds.model';
 
-import { RoundFilters, RoundScope } from './rounds-filter.model';
+import {
+  DEFAULT_ROUND_FILTERS,
+  DEFAULT_ROUND_SORT,
+  THROWS_PRESET,
+} from './rounds-filter.constants';
+import {
+  ResultFilter,
+  RoundFilters,
+  RoundParams,
+  RoundScope,
+  RoundSort,
+} from './rounds-filter.model';
 
 /**
  * Map and side named in a table cell's text (a click in Tableaux): a map is kept only when exactly
@@ -34,7 +45,7 @@ export function filterRounds(
   const side = filters.side || scopes.find((s) => s.side)?.side || '';
   return rounds.filter(
     (round) =>
-      (filters.result === 'all' || round.won === (filters.result === 'won')) &&
+      keepsResult(round, filters.result) &&
       (!filters.cause || round.cause === filters.cause) &&
       (!map || round.mapName === map) &&
       (!side || round.side === side) &&
@@ -56,4 +67,64 @@ export function filterOptions(rounds: readonly RoundLine[]): {
     maps.add(round.mapName);
   }
   return { causes: [...causes].sort(), maps: [...maps].sort() };
+}
+
+function keepsResult(round: RoundLine, result: ResultFilter): boolean {
+  switch (result) {
+    case 'all':
+      return true;
+    case 'won':
+      return round.won;
+    case 'lost':
+      return !round.won;
+    case 'thrown':
+      return round.thrown;
+  }
+}
+
+/** The list in the chosen order: as given (newest first) or the biggest fall first. */
+export function sortRounds(rounds: readonly RoundLine[], sort: RoundSort): RoundLine[] {
+  return sort === 'swing' ? [...rounds].sort((a, b) => b.maxDrop - a.maxDrop) : [...rounds];
+}
+
+/**
+ * Filters and sort read from the URL ('?map=Split&side=def&result=lost&preset=throws'), falling back
+ * on the given filters for what the URL leaves out. Unknown values are ignored.
+ */
+export function readRoundParams(
+  params: Partial<RoundParams>,
+  fallback: RoundFilters,
+): { filters: RoundFilters; sort: RoundSort } {
+  const side = params.side === 'att' || params.side === 'def' ? params.side : fallback.side;
+  const results: readonly ResultFilter[] = ['lost', 'won', 'all'];
+  const result: ResultFilter =
+    params.preset === THROWS_PRESET
+      ? 'thrown'
+      : results.includes(params.result as ResultFilter)
+        ? (params.result as ResultFilter)
+        : fallback.result;
+  return {
+    filters: {
+      result,
+      cause: (params.cause as LossCause | null) ?? fallback.cause,
+      map: params.map ?? fallback.map,
+      side,
+      buy: (params.buy as BuyType | null) ?? fallback.buy,
+    },
+    sort: params.sort === 'swing' ? 'swing' : DEFAULT_ROUND_SORT,
+  };
+}
+
+/** Query parameters of the filters and sort; defaults become null so the URL stays short. */
+export function roundParams(filters: RoundFilters, sort: RoundSort): RoundParams {
+  const thrown = filters.result === 'thrown';
+  return {
+    map: filters.map || null,
+    side: filters.side || null,
+    result: thrown || filters.result === DEFAULT_ROUND_FILTERS.result ? null : filters.result,
+    preset: thrown ? THROWS_PRESET : null,
+    cause: filters.cause || null,
+    buy: filters.buy || null,
+    sort: sort === DEFAULT_ROUND_SORT ? null : sort,
+  };
 }

@@ -19,3 +19,19 @@
   /* Top ranked reference in charts and bars. */
   --color-top: #bdbcb6;
 }
+
+/*
+ * Readability floor of the report. Barlow Condensed reads a size smaller than its metrics, so the
+ * two smallest steps are lifted (14px and 15px instead of 12px and 14px) and the muted grey is
+ * lightened, which every caption, sample and unit in the report uses.
+ */
+@theme {
+  --text-xs: 0.875rem;
+  --text-xs--line-height: 1.3;
+  --text-sm: 0.9375rem;
+  --text-sm--line-height: 1.4;
+}
+
+@theme static {
+  --color-text-muted: #979c9d;
+}

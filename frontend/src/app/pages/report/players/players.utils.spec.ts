@@ -1,14 +1,18 @@
 import { describe, expect, it } from 'vitest';
 
-import { FormMatch, HeadlineStat } from '@core/report/players.model';
+import { REFERENCE_SHORT_LABELS } from '@core/format/labels.constants';
+import { DeathZone, FormMatch, HeadlineStat } from '@core/report/players.model';
 
 import {
   clutchBars,
   formTone,
+  headlineColumn,
   headlineTiles,
+  isZoneTooDeadly,
   referenceLine,
   roleLabel,
   sampleLine,
+  zoneRateLine,
 } from './players.utils';
 
 const acs: HeadlineStat = {
@@ -17,6 +21,7 @@ const acs: HeadlineStat = {
   format: 'int',
   better: 1,
   help: 'acs',
+  unit: 'rounds',
   min: 20,
   cell: { v: 281, n: 576, top: 224.6, topN: 147466, opp: 245, oppN: 1071, hist: 298, histN: 1531 },
 };
@@ -43,23 +48,36 @@ describe('roleLabel', () => {
 });
 
 describe('referenceLine and sampleLine', () => {
-  it('writes the reference with its sample', () => {
-    expect(referenceLine(acs.cell, 'top', 'int')).toBe('Top ranked 225 · 147 466');
+  it('writes the reference value without its sample', () => {
+    expect(referenceLine(acs.cell, headlineColumn(acs), 'top')).toBe('Top ranked 225');
+  });
+
+  it('names the reference the column forces, whatever the chosen one', () => {
+    const rounds = { ...headlineColumn(acs), format: 'pct' as const, ref: 'hist' as const };
+    expect(referenceLine({ v: 0.48, hist: 0.5 }, rounds, 'top')).toMatch(/^Historique 50\s%$/u);
   });
 
   it('says when a reference is missing', () => {
-    expect(referenceLine({ v: 0.5, n: 10, hist: null }, 'hist', 'pct')).toBe(
-      'Historique : pas de référence',
+    const rate = { ...headlineColumn(acs), format: 'pct' as const };
+    expect(referenceLine({ v: 0.5, n: 10, hist: null }, rate, 'hist')).toBe(
+      `${REFERENCE_SHORT_LABELS.hist} : pas de référence`,
     );
   });
 
   it('writes the sample', () => {
-    expect(sampleLine(acs.cell)).toBe('Sur 576');
+    expect(sampleLine(acs.cell, 'rounds')).toBe('Sur 576 rounds');
     expect(sampleLine({ v: 1 })).toBeNull();
   });
 });
 
 describe('headlineTiles', () => {
+  it('writes one sample, the squad one, under the reference value', () => {
+    expect(headlineTiles([acs], 'top', true)[0].lines).toEqual([
+      'Top ranked 225',
+      'Sur 576 rounds',
+    ]);
+  });
+
   it('colours the tile against the chosen reference', () => {
     expect(headlineTiles([acs], 'top', true)[0].tone).toBe('good');
     expect(headlineTiles([acs], 'hist', true)[0].tone).toBe('bad');
@@ -85,5 +103,31 @@ describe('clutchBars', () => {
       true,
     );
     expect(bar).toMatchObject({ width: 50, tick: 62, record: '4/8', tone: 'small' });
+  });
+});
+
+describe('death zone rate', () => {
+  const zone: DeathZone = {
+    mapName: 'Summit',
+    zone: 'A Garden',
+    deaths: 11,
+    share: 0.1,
+    firstDeaths: 2,
+    firstDeathShare: 0.18,
+    roundsPlayed: 68,
+    per100Rounds: 16.2,
+    topPer100Rounds: 11.4,
+    rounds: [],
+  };
+
+  it('writes the rate beside top ranked', () => {
+    expect(zoneRateLine(zone)).toBe('16,2 pour 100 rounds · top ranked 11,4');
+    expect(zoneRateLine({ ...zone, topPer100Rounds: null })).toBe('16,2 pour 100 rounds');
+  });
+
+  it('flags a zone only when clearly above top ranked with enough deaths', () => {
+    expect(isZoneTooDeadly(zone)).toBe(true);
+    expect(isZoneTooDeadly({ ...zone, topPer100Rounds: 14 })).toBe(false);
+    expect(isZoneTooDeadly({ ...zone, deaths: 3 })).toBe(false);
   });
 });

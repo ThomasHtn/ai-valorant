@@ -24,7 +24,10 @@
           <span
             ><b class="text-text-primary">{{ integer(meta.rounds) }}</b> rounds</span
           >
-          <span>{{ meta.sessions }} {{ meta.sessions > 1 ? 'soirées' : 'soirée' }}</span>
+          <span
+            ><b class="text-text-primary">{{ meta.sessions }}</b>
+            {{ meta.sessions > 1 ? 'sessions' : 'session' }}</span
+          >
         </p>
         <app-data-quality class="xl:ml-auto" [meta]="meta" />
       }
@@ -34,15 +37,28 @@
       class="flex overflow-x-auto border-b border-edge-strong [scrollbar-width:thin]"
       aria-label="Vues du rapport"
     >
-      @for (view of views; track view.path) {
-        <a
-          [routerLink]="view.path"
-          queryParamsHandling="preserve"
-          routerLinkActive="!border-brand-500 !text-text-primary"
-          ariaCurrentWhenActive="page"
-          class="focus-ring-inset border-b-[3px] border-transparent px-4 pt-2.5 pb-2 font-display text-[0.98rem] font-medium tracking-wide whitespace-nowrap text-text-secondary uppercase no-underline transition-colors hover:text-text-primary"
-          >{{ view.label }}</a
+      @for (group of groups; track group.label; let first = $first) {
+        <div
+          class="flex items-end"
+          [class]="first ? '' : 'ml-3 border-l border-edge pl-3'"
+          role="group"
+          [attr.aria-label]="group.label"
         >
+          <span class="hidden self-center pr-1.5 text-sm text-text-muted xl:inline">{{
+            group.label
+          }}</span>
+          @for (view of group.views; track view.path) {
+            <a
+              [routerLink]="view.path"
+              [queryParams]="periodParams()"
+              routerLinkActive="!border-brand-500 !text-text-primary"
+              ariaCurrentWhenActive="page"
+              [title]="view.hint"
+              class="focus-ring-inset border-b-[3px] border-transparent px-4 pt-2.5 pb-2 font-display text-[0.98rem] font-medium tracking-wide whitespace-nowrap text-text-secondary uppercase no-underline transition-colors hover:border-brand-500/40 hover:bg-text-primary/5 hover:text-text-primary"
+              >{{ view.label }}</a
+            >
+          }
+        </div>
       }
     </nav>
   </div>
@@ -51,6 +67,12 @@
     [resource]="context.meta"
     notFoundText="Aucun match de l'escouade sur cette période."
   >
+    @if (opening()) {
+      <p class="flex items-center gap-3 py-8" role="status">
+        <span class="loader-hex clip-hex" aria-hidden="true"></span>
+        <span class="text-sm text-text-muted">Chargement…</span>
+      </p>
+    }
     <router-outlet />
   </app-resource-state>
 </div>

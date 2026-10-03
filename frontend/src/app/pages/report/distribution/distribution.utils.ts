@@ -3,7 +3,8 @@ import { ROLE_LABELS } from '@core/game-assets/game-assets.constants';
 import { Distribution, Histogram } from '@core/report/distributions.model';
 import { withUnit } from '@shared/histogram/histogram.utils';
 
-import { SQUAD_SUBJECT } from './distribution.constants';
+import { DISTRIBUTION_READINGS, SQUAD_SUBJECT } from './distribution.constants';
+import { ReadingWords } from './distribution.model';
 
 /** The two histograms on screen and how to name them. */
 export interface DistributionSeries {
@@ -47,4 +48,32 @@ export function medianGap(squad: Histogram, top: Histogram, unit: string): strin
   const gap = squad.median - top.median;
   const sign = gap > 0 ? '+' : gap < 0 ? '−' : '';
   return `${sign}${withUnit(Math.abs(gap), unit)}`;
+}
+
+/**
+ * One sentence saying what the gap of medians means in game terms ("L'escouade prend le premier
+ * contact 2 s plus tard que le top ranked."); null without both medians or a template.
+ */
+export function readingSentence(
+  key: string,
+  series: DistributionSeries,
+  unit: string,
+): string | null {
+  const template = DISTRIBUTION_READINGS[key];
+  const { squad, top } = series;
+  if (!template || squad.median === null || top.median === null) {
+    return null;
+  }
+  const team = series.who === "L'escouade";
+  const words: ReadingWords = {
+    who: series.who,
+    of: team ? "de l'escouade" : `de ${series.who}`,
+    top: team ? 'le top ranked' : 'le top ranked du même rôle',
+  };
+  const gap = Math.round(squad.median - top.median);
+  if (gap === 0) {
+    return template.same(words);
+  }
+  const text = withUnit(Math.abs(gap), unit);
+  return gap > 0 ? template.more(text, words) : template.less(text, words);
 }

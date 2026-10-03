@@ -1,4 +1,4 @@
-import { RoundFilters } from './rounds-filter.model';
+import { RoundFilters, RoundSort } from './rounds-filter.model';
 
 /** Lost rounds first: they are the ones worth rewatching. */
 export const DEFAULT_ROUND_FILTERS: RoundFilters = {
@@ -8,3 +8,14 @@ export const DEFAULT_ROUND_FILTERS: RoundFilters = {
   side: '',
   buy: '',
 };
+
+export const DEFAULT_ROUND_SORT: RoundSort = 'date';
+
+/** `preset` query parameter of the throws (lost rounds after 70 %), as linked from other views. */
+export const THROWS_PRESET = 'throws';
+
+/** Sort options of the list, in display order. */
+export const ROUND_SORTS: readonly { value: RoundSort; label: string }[] = [
+  { value: 'date', label: 'Date' },
+  { value: 'swing', label: 'Bascule' },
+];

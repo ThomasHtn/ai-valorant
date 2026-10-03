@@ -84,8 +84,9 @@
         pointer-events="none"
       />
       <text
-        [attr.x]="median.x + 6"
-        [attr.y]="v.top - 14 + median.shift"
+        [attr.x]="median.labelX"
+        [attr.y]="median.labelY"
+        [attr.text-anchor]="median.anchor"
         [attr.fill]="median.colour"
         font-size="13"
         font-weight="600"

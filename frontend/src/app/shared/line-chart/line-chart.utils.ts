@@ -65,6 +65,7 @@ export function buildLineChart(
         : [],
     ),
     line: points.flatMap((p, i) => (p.value === null ? [] : [`${x(i)},${y(p.value)}`])).join(' '),
+    bands: bandPolygons(points, x, (v) => y(Math.min(range.max, Math.max(range.min, v)))),
     dots: points.flatMap((p, i) =>
       p.value === null
         ? []
@@ -77,7 +78,7 @@ export function buildLineChart(
                 : dense
                   ? DOT_RADIUS.dense
                   : DOT_RADIUS.normal,
-              small: p.sample !== null && p.sample < minSample,
+              small: p.faded ?? (p.sample !== null && p.sample < minSample),
               highlighted: p.highlighted,
               valueText: formatValue(p.value, format),
               label: p.label,
@@ -95,4 +96,37 @@ export function buildLineChart(
         ? null
         : { y: y(reference), label: `${referenceLabel} ${formatValue(reference, format)}` },
   };
+}
+
+/**
+ * Confidence bands as SVG polygons: one per run of consecutive points that have both bounds, upper
+ * edge left to right then lower edge back. Bounds are clamped to the axis so a wide band never hides
+ * the scale. A run of a single point gets no band (a vertical sliver says nothing).
+ */
+export function bandPolygons(
+  points: readonly LinePoint[],
+  x: (index: number) => number,
+  y: (value: number) => number,
+): string[] {
+  const runs: number[][] = [];
+  let run: number[] = [];
+  points.forEach((p, i) => {
+    const bounded = p.value !== null && typeof p.low === 'number' && typeof p.high === 'number';
+    if (bounded) {
+      run.push(i);
+    } else if (run.length) {
+      runs.push(run);
+      run = [];
+    }
+  });
+  if (run.length) {
+    runs.push(run);
+  }
+  return runs
+    .filter((r) => r.length > 1)
+    .map((r) => {
+      const upper = r.map((i) => `${x(i)},${y(points[i].high as number)}`);
+      const lower = [...r].reverse().map((i) => `${x(i)},${y(points[i].low as number)}`);
+      return [...upper, ...lower].join(' ');
+    });
 }

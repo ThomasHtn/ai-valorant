@@ -17,10 +17,10 @@ export function periodOptionGroups(periods: ReportPeriods): PeriodOptionGroup[] 
       })),
     },
     {
-      label: 'Soirées',
+      label: 'Sessions',
       options: sessions.map((s) => ({
         value: periodOption({ start: s.day, end: s.day }),
-        label: `Soirée du ${longDay(s.day).toLowerCase()}`,
+        label: `Session du ${longDay(s.day).toLowerCase()}`,
       })),
     },
     {

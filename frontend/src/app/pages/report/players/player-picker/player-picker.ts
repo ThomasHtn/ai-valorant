@@ -21,14 +21,14 @@ import { roleLabel } from '../players.utils';
           [class]="
             active
               ? 'border-brand-500 bg-text-primary/7 !text-text-primary'
-              : 'border-transparent bg-text-primary/4 !text-text-secondary hover:bg-text-primary/7 hover:!text-text-primary'
+              : 'border-transparent bg-text-primary/4 !text-text-secondary hover:border-brand-500/45 hover:bg-text-primary/10 hover:!text-text-primary'
           "
           [attr.aria-current]="active ? 'page' : null"
         >
           <app-agent-icon [agent]="item.mainAgent" size="md" [decorative]="true" />
           <span class="flex flex-col leading-tight">
             <b class="font-semibold">{{ item.name }}</b>
-            <small class="text-[0.82rem] text-text-muted">{{ item.role }}</small>
+            <small class="text-xs text-text-muted">{{ item.role }}</small>
           </span>
         </a>
       }

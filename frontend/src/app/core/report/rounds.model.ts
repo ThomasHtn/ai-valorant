@@ -23,6 +23,10 @@ export interface RoundLine {
   /** Best live situation of the round ('5v3') and the squad's chance of winning from it. */
   bestState: string | null;
   bestProbability: number | null;
+  /** Largest fall of the squad's chance in one event (0..1), the round's end included. */
+  maxDrop: number;
+  /** Lost after the squad's chance reached 70 % (backend THROW_MIN_CHANCE). */
+  thrown: boolean;
 }
 
 /** Every squad round of the period, newest first; every round has a sheet. */

@@ -1,10 +1,7 @@
-<section class="flex flex-col gap-3 bg-text-primary/4 p-4" aria-labelledby="player-opening">
+<section class="flex flex-col gap-1.5" aria-labelledby="player-opening">
   <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
-    <h3
-      id="player-opening"
-      class="!m-0 font-display text-[1.05rem] font-semibold text-text-primary"
-    >
-      Duels d'ouverture<app-info-tip topic="playerOpeningDuels" />
+    <h3 id="player-opening" class="!m-0 font-display text-lg font-semibold text-text-primary">
+      Premiers duels<app-info-tip topic="playerOpeningDuels" />
     </h3>
     <span class="ml-auto text-text-secondary">
       {{ openingDuels().firstBloods }} first bloods · {{ openingDuels().firstDeaths }} first deaths
@@ -23,17 +20,16 @@
   </div>
 </section>
 
-<section class="flex flex-col gap-3 bg-text-primary/4 p-4" aria-labelledby="player-clutches">
+<section class="flex flex-col gap-1.5" aria-labelledby="player-clutches">
   <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
-    <h3
-      id="player-clutches"
-      class="!m-0 font-display text-[1.05rem] font-semibold text-text-primary"
-    >
+    <h3 id="player-clutches" class="!m-0 font-display text-lg font-semibold text-text-primary">
       Clutchs<app-info-tip topic="playerClutches" />
     </h3>
-    <span class="ml-auto text-[0.88rem] text-text-muted">trait : {{ referenceLabel() }}</span>
+    <span class="ml-auto text-sm text-text-muted">trait : {{ referenceLabel() }}</span>
   </div>
-  <div class="grid grid-cols-[3rem_minmax(0,1fr)_4.5rem_4.2rem] items-center gap-x-2.5 gap-y-1.5">
+  <div
+    class="grid grid-cols-[3rem_minmax(0,1fr)_4.5rem_4.2rem] items-center gap-x-2.5 gap-y-1.5 bg-text-primary/4 px-3 py-2.5"
+  >
     @for (bar of bars(); track bar.situation) {
       <b>{{ bar.situation }}</b>
       <span class="relative h-2 bg-text-primary/8" aria-hidden="true">

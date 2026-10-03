@@ -1,12 +1,12 @@
 <ul class="!m-0 flex list-none flex-col gap-0.5 !p-0">
   @for (item of rows(); track item.key) {
     <li
-      class="grid grid-cols-[2rem_minmax(0,1fr)_auto] items-center gap-x-3 gap-y-1.5 bg-text-primary/4 px-3 py-2.5"
+      class="row-hover grid grid-cols-[2rem_minmax(0,1fr)_auto] items-center gap-x-3 gap-y-1.5 bg-text-primary/4 px-3.5 py-3"
     >
       <app-row-art class="!size-8" [art]="item.art" />
       <div class="flex min-w-0 flex-col">
         <span class="flex flex-wrap items-center gap-x-2 gap-y-0.5">
-          <span class="font-semibold">{{ item.scope }}</span>
+          <span class="font-display text-[1.0625rem] font-semibold">{{ item.scope }}</span>
           <app-badge
             [label]="item.status"
             [kind]="item.confirmed ? 'confirmed' : 'lead'"
@@ -17,13 +17,18 @@
           >{{ item.metric }} <span class="text-text-muted">{{ item.detail }}</span></span
         >
       </div>
-      <p
-        class="!m-0 text-right font-display text-xl leading-tight font-semibold tabular-nums"
-        [class]="weak() ? 'text-rating-bad' : 'text-rating-good'"
-      >
-        {{ item.gap }}
-        <span class="block font-sans text-xs font-normal text-text-muted">rounds</span>
-      </p>
+      <app-gap-chip [value]="item.gap" [unit]="item.unit" [tone]="weak() ? 'bad' : 'good'" />
+      @if (item.causes) {
+        <p class="col-span-2 col-start-2 !m-0 text-text-secondary">
+          <span class="text-text-muted">Perdus surtout par :</span> {{ item.causes }}
+        </p>
+      }
+      @if (item.others) {
+        <p class="col-span-2 col-start-2 !m-0 text-sm text-text-muted">
+          +{{ item.others }} {{ item.others > 1 ? 'autres écarts' : 'autre écart' }} sur
+          {{ item.scope }}, détaillés dans Points forts et faibles
+        </p>
+      }
       @if (item.rewatch.length) {
         <app-rewatch-links
           class="col-span-2 col-start-2"

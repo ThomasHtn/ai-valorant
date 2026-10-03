@@ -1,3 +1,5 @@
+import { Side } from '@core/common/enums.model';
+
 /**
  * Distribution view (`GET /report/distributions`), mirror of
  * `backend/src/valostats/schemas/report/distributions.py`: histograms of the squad in the period
@@ -38,4 +40,10 @@ export interface Distribution {
   top: Histogram;
   /** Per squad player (ACS per match only). */
   players: PlayerHistogram[] | null;
+}
+
+/** Map and side the analyst narrowed the view to; empty keeps every map or both sides. */
+export interface DistributionScope {
+  map: string;
+  side: Side | '';
 }

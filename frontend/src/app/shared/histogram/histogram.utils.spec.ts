@@ -3,7 +3,13 @@ import { describe, expect, it } from 'vitest';
 import { Histogram, HistogramBin } from '@core/report/distributions.model';
 
 import { HISTOGRAM_BOX } from './histogram.constants';
-import { buildHistogram, labelEvery, shareAxis, withUnit } from './histogram.utils';
+import {
+  buildHistogram,
+  labelEvery,
+  placeMedianLabels,
+  shareAxis,
+  withUnit,
+} from './histogram.utils';
 
 const bins: HistogramBin[] = [
   { start: 0, end: 5, label: '0-5 s' },
@@ -58,7 +64,30 @@ describe('buildHistogram', () => {
     expect(view.medians[0].label).toBe(`Médiane escouade ${withUnit(7.5, 's')}`);
   });
 
-  it('moves the second median label down when both are close', () => {
-    expect(view.medians[1].shift).toBeGreaterThan(0);
+  it('writes two close medians on two rows beside the outermost line', () => {
+    const [squadMedian, topMedian] = view.medians;
+    expect(squadMedian.labelY).not.toBe(topMedian.labelY);
+    const rightmost = Math.max(squadMedian.x, topMedian.x);
+    expect(squadMedian.labelX).toBeGreaterThan(rightmost);
+    expect(topMedian.labelX).toBe(squadMedian.labelX);
+    expect(squadMedian.anchor).toBe('start');
+  });
+});
+
+describe('placeMedianLabels', () => {
+  const line = (x: number) => ({ x, label: 'm', colour: 'c' });
+
+  it('keeps far apart labels on one row, right of their own line', () => {
+    const [a, b] = placeMedianLabels([line(100), line(500)], 40, 980);
+    expect(a.labelY).toBe(b.labelY);
+    expect(a.labelX).toBeGreaterThan(100);
+    expect(b.labelX).toBeGreaterThan(500);
+  });
+
+  it('writes labels left of the lines near the right edge', () => {
+    const [a, b] = placeMedianLabels([line(900), line(920)], 40, 980);
+    expect(a.anchor).toBe('end');
+    expect(a.labelX).toBeLessThan(900);
+    expect(b.labelX).toBe(a.labelX);
   });
 });

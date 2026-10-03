@@ -1,6 +1,6 @@
-<table class="w-full border-separate border-spacing-y-0.5 tabular-nums">
+<table class="hover-rows w-full border-separate border-spacing-y-0.5 tabular-nums">
   <thead>
-    <tr class="text-[0.92rem] text-text-secondary">
+    <tr class="text-sm text-text-secondary">
       <th scope="col" class="bg-text-primary/8 px-2.5 py-2 text-left font-semibold">Métrique</th>
       <th scope="col" class="bg-text-primary/8 px-2.5 py-2 text-right font-semibold">A</th>
       <th scope="col" class="bg-text-primary/8 px-2.5 py-2 text-right font-semibold">B</th>
@@ -31,6 +31,9 @@
               ·
             }
             {{ line.columnLabel }}<app-info-tip [topic]="line.help" />
+            @if (group.mixed) {
+              <span class="ml-1 text-sm text-text-muted">{{ line.source }}</span>
+            }
           </td>
           <td class="bg-text-primary/4 px-2.5 py-1.5 text-right whitespace-nowrap">
             <b class="font-semibold text-squad">{{ value(line.a, line.format) }}</b>
@@ -42,7 +45,7 @@
           </td>
           <td class="bg-text-primary/4 px-2.5 py-1 text-right">
             <span
-              class="inline-block min-w-18 rounded-full px-2 py-0.5 text-center text-[0.92rem] font-semibold"
+              class="inline-block min-w-18 rounded-full px-2 py-0.5 text-center text-sm font-semibold"
               [class]="
                 line.gap.tone === 'good'
                   ? 'tone-good text-rating-good'

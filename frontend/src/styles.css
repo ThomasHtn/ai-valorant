@@ -812,3 +812,78 @@
   background-color: --alpha(var(--color-text-primary) / 6%);
   color: var(--color-text-muted);
 }
+
+/*
+ * Bar holding a view's filters: one row of label-left controls on the panel fill. Every view uses it
+ * so filters sit at the same place and height on each tab.
+ */
+@utility filter-strip {
+  @apply flex flex-wrap items-center gap-x-5 gap-y-2 bg-text-primary/4 px-3 py-2;
+}
+
+/* Name of a filter, left of its control. */
+@utility filter-label {
+  @apply text-sm whitespace-nowrap text-text-muted;
+}
+
+/*
+ * Segmented control: options side by side in one frame, the held one in amber. Height matches
+ * `field-control` (the frame's two borders plus the option), so selects and switches line up.
+ */
+@utility seg-group {
+  @apply inline-flex border border-edge-strong;
+}
+
+@utility seg-option {
+  @apply h-[2.125rem] cursor-pointer px-3.5 font-semibold whitespace-nowrap text-text-secondary transition-colors not-first:border-l not-first:border-edge-strong hover:bg-text-primary/10 hover:text-text-primary disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-transparent;
+
+  &[aria-pressed='true'] {
+    background-color: var(--color-brand-500);
+    color: var(--color-surface-sunken);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-brand-500);
+    outline-offset: -2px;
+  }
+}
+
+/*
+ * Tables whose rows light up under the pointer, so a figure is easy to follow back to its label on
+ * wide screens. An overlay image rather than a fill, so coloured cells keep their tone.
+ */
+@utility hover-rows {
+  & tbody tr:hover > td,
+  & tbody tr:hover > th {
+    background-image: linear-gradient(
+      --alpha(var(--color-text-primary) / 8%),
+      --alpha(var(--color-text-primary) / 8%)
+    );
+  }
+
+  & tbody tr:hover > :first-child {
+    box-shadow: inset 3px 0 0 var(--color-brand-500);
+  }
+}
+
+/*
+ * A list row that opens something: a clearly stronger fill under the pointer. Rows led by a 3px edge
+ * (`border-l-[3px]`) also turn it amber, so the hovered row reads like the selected one.
+ */
+@utility row-link {
+  @apply cursor-pointer !text-text-primary no-underline transition-colors hover:bg-text-primary/10;
+
+  &.border-transparent:hover {
+    border-color: --alpha(var(--color-brand-500) / 55%);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-brand-500);
+    outline-offset: -2px;
+  }
+}
+
+/* A list row that only holds content: a faint lift under the pointer to keep the eye on it. */
+@utility row-hover {
+  @apply transition-colors hover:bg-text-primary/7;
+}

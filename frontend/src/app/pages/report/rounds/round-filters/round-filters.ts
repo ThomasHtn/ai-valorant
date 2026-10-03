@@ -10,7 +10,7 @@ import { RoundFilters } from '../rounds-filter.model';
 @Component({
   selector: 'app-round-filters',
   templateUrl: './round-filters.html',
-  host: { class: 'grid grid-cols-2 gap-2' },
+  host: { class: 'contents' },
 })
 export class RoundFiltersView {
   public readonly filters = input.required<RoundFilters>();

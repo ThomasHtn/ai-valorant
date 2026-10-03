@@ -36,7 +36,6 @@ export class FindingsView {
     filterFindings(
       resourceValue(this.report, null)?.findings ?? [],
       this.state.filters(),
-      this.maps(),
       this.confirmedOnly(),
     ),
   );

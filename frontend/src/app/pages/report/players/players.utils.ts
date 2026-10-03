@@ -4,12 +4,17 @@ import { ValueFormat } from '@core/format/value-format.model';
 import { formatValue, integer } from '@core/format/value-format.utils';
 import { AgentRole } from '@core/game-assets/game-assets.model';
 import { ROLE_LABELS } from '@core/game-assets/game-assets.constants';
-import { ClutchLine, FormMatch, HeadlineStat } from '@core/report/players.model';
+import { ClutchLine, DeathZone, FormMatch, HeadlineStat } from '@core/report/players.model';
 import { StatCell, StatColumn } from '@core/report/stat-table.model';
-import { cellTone, referenceValue } from '@core/report/tone.utils';
+import { cellTone, columnReference, referenceValue } from '@core/report/tone.utils';
 import { CellTone } from '@core/report/tone.model';
 
-import { CLUTCH_MIN_SAMPLE, PANEL_MIN_SAMPLE } from './players.constants';
+import {
+  CLUTCH_MIN_SAMPLE,
+  PANEL_MIN_SAMPLE,
+  ZONE_HIGH_RATIO,
+  ZONE_MIN_DEATHS,
+} from './players.constants';
 
 /** French role name ('Duelliste'); the API's English name when unknown. */
 export function roleLabel(role: string): string {
@@ -45,19 +50,31 @@ export function figureTone(
   return colours ? cellTone(cell, column, reference) : null;
 }
 
-/** 'Top ranked 186 · 69 755': the reference value and its sample, or why there is none. */
-export function referenceLine(cell: StatCell, reference: Reference, format: ValueFormat): string {
+/**
+ * 'Top ranked 186': the value of the reference the figure is really coloured against (the squad's
+ * history for symmetric figures such as rounds won), or why there is none. Its sample stays out:
+ * a tile shows a single sample, the squad's.
+ */
+export function referenceLine(
+  cell: StatCell,
+  column: StatColumn,
+  chosen: Reference,
+): string | null {
+  const reference = columnReference(column, chosen);
+  if (!reference) {
+    return null;
+  }
   const label = REFERENCE_SHORT_LABELS[reference];
-  const { value, sample } = referenceValue(cell, reference);
+  const { value } = referenceValue(cell, reference);
   if (value === null || value === undefined) {
     return `${label} : pas de référence`;
   }
-  return `${label} ${formatValue(value, format)}${sample ? ` · ${integer(sample)}` : ''}`;
+  return `${label} ${formatValue(value, column.format)}`;
 }
 
-/** 'Sur 445': the sample behind a figure; null when unknown. */
-export function sampleLine(cell: StatCell): string | null {
-  return cell.n ? `Sur ${integer(cell.n)}` : null;
+/** 'Sur 445 rounds': the sample behind a figure, with its unit when known; null when unknown. */
+export function sampleLine(cell: StatCell, unit: string | null = null): string | null {
+  return cell.n ? `Sur ${integer(cell.n)}${unit ? ` ${unit}` : ''}` : null;
 }
 
 /** A figure tile ready to draw (headline band, opening duels). */
@@ -70,7 +87,7 @@ export interface FigureTile {
   lines: string[];
 }
 
-/** Builds a tile from a cell: value, tone and the reference and sample lines. */
+/** Builds a tile from a cell: value, tone, then the reference line and the sample line ('Sur 445 rounds'). */
 export function figureTile(
   key: string,
   label: string,
@@ -79,15 +96,16 @@ export function figureTile(
   column: StatColumn,
   reference: Reference,
   colours: boolean,
+  unit: string | null = null,
 ): FigureTile {
-  const sample = sampleLine(cell);
+  const lines = [referenceLine(cell, column, reference), sampleLine(cell, unit)];
   return {
     key,
     label,
     help,
     value: formatValue(cell.v, column.format),
     tone: figureTone(cell, column, reference, colours),
-    lines: [referenceLine(cell, reference, column.format), ...(sample ? [sample] : [])],
+    lines: lines.filter((line) => line !== null),
   };
 }
 
@@ -106,6 +124,7 @@ export function headlineTiles(
       headlineColumn(stat),
       reference,
       colours,
+      stat.unit,
     ),
   );
 }
@@ -161,4 +180,28 @@ export function formTone(
 /** Column of an opening duel rate: a lower minimum than tables, a player has fewer duels than the squad. */
 export function openingColumn(key: string, label: string): StatColumn {
   return figureColumn(key, label, 'pct', 1, PANEL_MIN_SAMPLE);
+}
+
+/**
+ * '16,2 pour 100 rounds · top ranked 11,4': how often the player dies in the zone on that map, beside
+ * top ranked players of his role; null when he has no rounds there.
+ */
+export function zoneRateLine(zone: DeathZone): string | null {
+  if (zone.per100Rounds === null) {
+    return null;
+  }
+  const own = `${formatValue(zone.per100Rounds, 'dec1')} pour 100 rounds`;
+  return zone.topPer100Rounds === null
+    ? own
+    : `${own} · top ranked ${formatValue(zone.topPer100Rounds, 'dec1')}`;
+}
+
+/** Whether the player dies in the zone clearly more often than top ranked of his role. */
+export function isZoneTooDeadly(zone: DeathZone): boolean {
+  return (
+    zone.deaths >= ZONE_MIN_DEATHS &&
+    zone.per100Rounds !== null &&
+    zone.topPer100Rounds !== null &&
+    zone.per100Rounds > zone.topPer100Rounds * ZONE_HIGH_RATIO
+  );
 }

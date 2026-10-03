@@ -22,7 +22,7 @@
               <li>
                 <details class="group/month" [open]="$index < 2">
                   <summary
-                    class="focus-ring-inset flex cursor-pointer list-none items-center gap-3 bg-text-primary/4 px-4 py-3.5 transition-colors hover:bg-text-primary/7 [&::-webkit-details-marker]:hidden"
+                    class="focus-ring-inset flex cursor-pointer list-none items-center gap-3 bg-text-primary/4 px-4 py-3.5 transition-colors hover:bg-text-primary/10 [&::-webkit-details-marker]:hidden"
                   >
                     <svg
                       class="size-4 shrink-0 -rotate-90 text-text-muted transition-transform group-open/month:rotate-0 motion-reduce:transition-none"
@@ -44,7 +44,7 @@
                     }}</span>
                     <span class="hidden text-sm text-text-muted sm:inline">
                       {{ month.sessions.length }}
-                      {{ month.sessions.length > 1 ? 'soirées' : 'soirée' }}
+                      {{ month.sessions.length > 1 ? 'sessions' : 'session' }}
                     </span>
                     @if (month.matches) {
                       <app-badge
@@ -70,7 +70,7 @@
                         <span class="flex flex-1 flex-col leading-tight">
                           <span class="font-semibold">Rapport du mois</span>
                           <span class="text-sm text-text-muted"
-                            >Résumé, tableaux, points forts et faibles, rounds, joueurs</span
+                            >Résumé, points forts et faibles, rounds, joueurs, stats</span
                           >
                         </span>
                         <svg
@@ -183,7 +183,7 @@
             <dd>{{ freshness(available.freshness) }}</dd>
             <dt class="text-text-muted">Top ranked</dt>
             <dd>{{ integer(available.topMatches) }} matchs</dd>
-            <dt class="text-text-muted">Première soirée</dt>
+            <dt class="text-text-muted">Première session</dt>
             <dd>{{ longDay(available.firstDay) }}</dd>
           </dl>
         </section>

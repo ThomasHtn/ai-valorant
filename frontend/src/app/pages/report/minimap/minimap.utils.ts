@@ -1,6 +1,6 @@
 import { Side } from '@core/common/enums.model';
 import { dayMonth } from '@core/format/format.utils';
-import { formatValue } from '@core/format/value-format.utils';
+import { formatGap, formatValue } from '@core/format/value-format.utils';
 import {
   MapPoint,
   MinimapSide,
@@ -12,13 +12,25 @@ import { roundLink } from '@core/report/round-ref.utils';
 import { HoverTipContent, HoverTipLine } from '@shared/hover-tip/hover-tip.model';
 import { MinimapMarker } from '@shared/minimap-canvas/minimap-canvas.model';
 
-import { MINIMAP_LAYERS, PREFERRED_MAP } from './minimap-layers.constants';
+import { HIDDEN_LAYERS, MINIMAP_LAYERS, PREFERRED_MAP } from './minimap-layers.constants';
 import { MinimapLayer, MinimapLayerKey } from './minimap-layers.model';
+import {
+  MAX_PLAYERS,
+  MAX_REFS,
+  ZONE_EXCESS_ALERT,
+  ZONE_MIN_FIRST_DEATHS,
+} from './zone-table/zone-table.constants';
+import { ZoneLine, ZoneTone } from './zone-table/zone-table.model';
 
 type LayerPoint = MapPoint | PlantPoint;
 
 function isPlant(point: LayerPoint): point is PlantPoint {
   return 'squadPlant' in point;
+}
+
+/** Layers that can hold points on a side (no enemy plant in attack, no squad plant in defense). */
+export function sideLayers(side: Side): MinimapLayer[] {
+  return MINIMAP_LAYERS.filter((layer) => !HIDDEN_LAYERS[side].includes(layer.key));
 }
 
 /** Points of one layer on one side. */
@@ -95,18 +107,20 @@ export function minimapMarkers(
   player: string,
 ): MinimapMarker[] {
   const sideData = view.sides[side];
-  return MINIMAP_LAYERS.filter((layer) => active.has(layer.key)).flatMap((layer) =>
-    layerPoints(sideData, layer.key).map((point, index) => ({
-      id: `${layer.key}-${index}`,
-      x: point.x,
-      y: point.y,
-      shape: layer.shape,
-      color: layer.color,
-      dimmed: !!player && owner(point) !== player,
-      tip: pointTip(layer, point),
-      link: roundLink(point),
-    })),
-  );
+  return sideLayers(side)
+    .filter((layer) => active.has(layer.key))
+    .flatMap((layer) =>
+      layerPoints(sideData, layer.key).map((point, index) => ({
+        id: `${layer.key}-${index}`,
+        x: point.x,
+        y: point.y,
+        shape: layer.shape,
+        color: layer.color,
+        dimmed: !!player && owner(point) !== player,
+        tip: pointTip(layer, point),
+        link: roundLink(point),
+      })),
+    );
 }
 
 /**
@@ -123,11 +137,55 @@ export function pickMap(
   return find(param) ?? find(filter) ?? find(PREFERRED_MAP) ?? maps[0] ?? null;
 }
 
-/** Zones with at least one event, by first deaths then deaths. */
+/** How much more often the squad dies first in the zone than the top ranked (rate points); null without reference. */
+export function zoneExcess(row: ZoneRow): number | null {
+  if (row.firstDeathShare === null || row.topFirstDeathShare === null) {
+    return null;
+  }
+  return row.firstDeathShare - row.topFirstDeathShare;
+}
+
+/** Over-represented past the alert gap on enough first deaths; under-represented past the same gap. */
+export function zoneTone(row: ZoneRow): ZoneTone {
+  const excess = zoneExcess(row);
+  if (excess === null) {
+    return 'even';
+  }
+  if (excess >= ZONE_EXCESS_ALERT && row.firstDeaths >= ZONE_MIN_FIRST_DEATHS) {
+    return 'over';
+  }
+  return excess <= -ZONE_EXCESS_ALERT ? 'under' : 'even';
+}
+
+/**
+ * Zones with at least one event, the biggest excess of first deaths over the top ranked first, zones
+ * without reference last; ties by first deaths then deaths.
+ */
 export function zoneRows(rows: readonly ZoneRow[]): ZoneRow[] {
+  const excess = (row: ZoneRow): number => zoneExcess(row) ?? -Infinity;
   return rows
     .filter((r) => r.firstDeaths || r.deaths || r.kills)
-    .sort((a, b) => b.firstDeaths - a.firstDeaths || b.deaths - a.deaths);
+    .sort((a, b) => excess(b) - excess(a) || b.firstDeaths - a.firstDeaths || b.deaths - a.deaths);
+}
+
+/** Zone rows ready to draw, in the order of `zoneRows`. */
+export function zoneLines(rows: readonly ZoneRow[]): ZoneLine[] {
+  return zoneRows(rows).map((row) => ({
+    row,
+    players: row.players
+      .slice(0, MAX_PLAYERS)
+      .map((p) => `${p.name} ${p.deaths}`)
+      .join(', '),
+    refs: row.refs.slice(0, MAX_REFS),
+    share: formatValue(row.firstDeathShare, 'pct'),
+    topShare: formatValue(row.topFirstDeathShare, 'pct'),
+    excess: formatGap(zoneExcess(row), 'pct'),
+    tone: zoneTone(row),
+    shareWidth: Math.min(100, (row.firstDeathShare ?? 0) * 100),
+    topTick: row.topFirstDeathShare === null ? null : Math.min(100, row.topFirstDeathShare * 100),
+    shareTip: shareTip(row),
+    revenge: formatValue(row.revengeRate, 'pct'),
+  }));
 }
 
 /** Tip of the first-death share bar: squad against top ranked. */

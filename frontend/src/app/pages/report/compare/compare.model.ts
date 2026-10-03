@@ -21,9 +21,14 @@ export interface CompareGap {
   tip: string;
 }
 
+/** How the lines are ordered: as the domain's tables list them, or the biggest gaps first. */
+export type CompareSort = 'tables' | 'gap';
+
 /** One metric of one row compared between A and B. */
 export interface CompareLine {
   key: string;
+  /** Title of the table the line comes from, written when lines of several tables are mixed. */
+  source: string;
   /** Row of the table ('Split', 'Psilonnix'); empty in player mode. */
   rowLabel: string;
   rowSub: string | null;
@@ -40,6 +45,8 @@ export interface CompareGroup {
   id: string;
   title: string;
   lines: CompareLine[];
+  /** Lines come from several tables: write each line's table. */
+  mixed?: boolean;
 }
 
 /** An option of a selection box. */

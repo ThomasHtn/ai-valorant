@@ -13,9 +13,9 @@ import { WeaponName } from '@shared/game-art/weapon-name';
   imports: [AgentIcon, WeaponName],
   template: `
     <div class="overflow-x-auto">
-      <table class="w-full border-separate border-spacing-y-0.5 tabular-nums">
+      <table class="hover-rows w-full border-separate border-spacing-y-0.5 tabular-nums">
         <thead>
-          <tr class="text-[0.92rem] text-text-secondary">
+          <tr class="text-sm text-text-secondary">
             <th scope="col" class="bg-text-primary/8 px-2.5 py-2 text-left font-semibold">
               {{ title() }}
             </th>

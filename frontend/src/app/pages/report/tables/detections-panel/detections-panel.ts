@@ -9,7 +9,7 @@ import { RewatchLinks } from '@shared/rewatch-links/rewatch-links';
 import { detectionGroups } from './detections-panel.utils';
 
 /**
- * Détections entry of the Tableaux view: what the tool finds on its own in the period, without
+ * Alertes entry of the Toutes les stats view: what the tool finds on its own in the period, without
  * interpretation, each line with its figures, its sample and the rounds behind it.
  */
 @Component({

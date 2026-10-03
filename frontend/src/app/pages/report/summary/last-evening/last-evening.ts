@@ -25,7 +25,7 @@ import { MapThumb } from '@shared/game-art/map-thumb';
           <a
             [routerLink]="['/report/matches', match.matchId]"
             queryParamsHandling="preserve"
-            class="focus-ring-inset flex items-center gap-2.5 border-b-[3px] bg-text-primary/4 px-2 py-2 !text-text-primary no-underline transition-colors hover:bg-text-primary/7"
+            class="focus-ring-inset flex items-center gap-2.5 border-b-[3px] bg-text-primary/4 px-2 py-2 !text-text-primary no-underline transition-colors hover:bg-text-primary/10"
             [class]="match.won ? 'border-rating-good' : 'border-rating-bad'"
           >
             <app-map-thumb [map]="match.mapName" size="md" />

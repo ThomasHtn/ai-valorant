@@ -65,6 +65,10 @@
       </text>
     }
 
+    @for (band of v.bands; track $index) {
+      <polygon [attr.points]="band" fill="var(--color-squad)" fill-opacity="0.14" stroke="none" />
+    }
+
     <polyline
       [attr.points]="v.line"
       fill="none"
@@ -101,9 +105,15 @@
         [attr.cx]="dot.x"
         [attr.cy]="dot.y"
         [attr.r]="dot.radius"
-        [attr.fill]="dot.small ? 'var(--color-text-muted)' : 'var(--color-squad)'"
-        [attr.stroke]="dot.highlighted ? 'var(--color-brand-500)' : 'var(--color-surface-950)'"
-        [attr.stroke-width]="dot.highlighted ? 3 : 2"
+        [attr.fill]="dot.small ? 'var(--color-surface-950)' : 'var(--color-squad)'"
+        [attr.stroke]="
+          dot.highlighted
+            ? 'var(--color-brand-500)'
+            : dot.small
+              ? 'var(--color-text-muted)'
+              : 'var(--color-surface-950)'
+        "
+        [attr.stroke-width]="dot.highlighted || dot.small ? 2.5 : 2"
         class="cursor-pointer outline-none focus-visible:stroke-brand-400"
         tabindex="0"
         [attr.aria-label]="dot.label + ' : ' + dot.valueText"
@@ -141,7 +151,7 @@
       <p class="!m-0 text-text-primary">
         {{ dot.valueText }}{{ dot.sampleText ? ' sur ' + dot.sampleText : '' }}
         @if (dot.small) {
-          <span class="text-text-muted">(échantillon trop petit)</span>
+          <span class="text-text-muted">(trop peu de données pour conclure)</span>
         }
       </p>
     </div>

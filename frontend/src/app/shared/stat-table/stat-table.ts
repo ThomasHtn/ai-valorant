@@ -12,16 +12,12 @@ import {
 } from '@angular/core';
 
 import { StatColumn, StatRow, StatTable } from '@core/report/stat-table.model';
+import { columnReference } from '@core/report/tone.utils';
 import { RowArt } from '@shared/game-art/row-art';
 import { InfoTip } from '@shared/info-tip/info-tip';
 import { placeTip } from '@shared/info-tip/info-tip-position.utils';
 
-import {
-  CELL_TIP_DELAY_MS,
-  LABEL_COLUMN_REM,
-  TONE_CLASSES,
-  VALUE_COLUMN_REM,
-} from './stat-table.constants';
+import { CELL_TIP_DELAY_MS, TONE_CLASSES } from './stat-table.constants';
 import { CellView, StatCellClick, StatDisplay, StatSort } from './stat-table.model';
 import { buildRowViews, cellTipLines, nextSort } from './stat-table.utils';
 
@@ -67,10 +63,16 @@ export class StatTableView {
     buildRowViews(this.table(), this.display(), this.playerAgents(), this.rowFilter(), this.sort()),
   );
   protected readonly toneClasses = TONE_CLASSES;
-  /** Caps the table so its label and figures stay close on wide screens. */
-  protected readonly maxWidthRem = computed(
-    () => LABEL_COLUMN_REM + this.table().columns.length * VALUE_COLUMN_REM,
-  );
+  /** Columns coloured against the squad's history whatever the chosen reference (rounds won, pistols). */
+  protected readonly historyColumns = computed(() => {
+    const { reference, colours } = this.display();
+    const keys = this.table()
+      .columns.filter(
+        (c) => colours && reference !== 'hist' && columnReference(c, reference) === 'hist',
+      )
+      .map((c) => c.key);
+    return new Set(keys);
+  });
 
   protected readonly hovered = signal<HoveredCell | null>(null);
   protected readonly tipLines = computed(() => {

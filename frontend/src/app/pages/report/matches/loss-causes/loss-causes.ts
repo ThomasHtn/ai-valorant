@@ -13,7 +13,7 @@ import { lossCauseCounts } from '../matches.utils';
     <h2 class="!m-0 text-lg" id="loss-causes-title">
       Rounds perdus par cause<app-info-tip topic="lossCause" />
     </h2>
-    <p class="!m-0 text-[0.92rem] text-text-muted">{{ lost() }} rounds perdus</p>
+    <p class="!m-0 text-sm text-text-muted">{{ lost() }} rounds perdus</p>
     @if (causes().length) {
       <ul class="m-0 flex list-none flex-col gap-0.5 p-0">
         @for (item of causes(); track item.label) {

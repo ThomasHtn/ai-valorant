@@ -1,32 +1,59 @@
-<div class="grid items-start gap-6 lg:grid-cols-[22rem_minmax(0,1fr)]">
-  <nav class="flex min-w-0 flex-col gap-2.5" aria-label="Liste des rounds">
-    @if (query(); as q) {
-      <div
-        class="flex items-center gap-2 border-l-2 border-brand-500 bg-brand-500/10 px-2.5 py-1.5 text-[0.95rem]"
+<div class="filter-strip" role="group" aria-label="Filtres des rounds">
+  <app-round-filters
+    [filters]="filters()"
+    [causes]="options().causes"
+    [maps]="options().maps"
+    (filtersChange)="filters.set($event)"
+  />
+  @if (query(); as q) {
+    <div
+      class="flex h-9 items-center gap-2 border-l-2 border-brand-500 bg-brand-500/10 pl-2.5 pr-1"
+    >
+      <span>{{ q.title }}</span>
+      <button
+        type="button"
+        class="focus-ring ml-auto cursor-pointer p-1 text-text-secondary hover:text-text-primary"
+        aria-label="Retirer ce filtre"
+        (click)="query.set(null)"
       >
-        <span>{{ q.title }}</span>
-        <button
-          type="button"
-          class="focus-ring ml-auto cursor-pointer p-1 text-text-secondary hover:text-text-primary"
-          aria-label="Retirer ce filtre"
-          (click)="query.set(null)"
-        >
-          <svg class="size-4" lucideX aria-hidden="true"></svg>
-        </button>
-      </div>
-    }
-    <app-round-filters
-      [filters]="filters()"
-      [causes]="options().causes"
-      [maps]="options().maps"
-      (filtersChange)="filters.set($event)"
-    />
+        <svg class="size-4" lucideX aria-hidden="true"></svg>
+      </button>
+    </div>
+  }
+</div>
+
+<div class="mt-4 grid items-start gap-6 lg:grid-cols-[22rem_minmax(0,1fr)]">
+  <nav class="flex min-w-0 flex-col gap-2" aria-label="Liste des rounds">
     <app-resource-state
       [resource]="index"
       notFoundText="Aucun round de l'escouade sur cette période."
     >
-      <p class="!m-0 text-[0.92rem] text-text-muted">{{ rows().length }} rounds</p>
-      <app-round-list class="mt-1.5 block" [rounds]="rows()" [selected]="selected()" />
+      <div class="flex items-center gap-2">
+        <p class="!m-0 font-semibold">
+          {{ rows().length }} <span class="font-normal text-text-muted">rounds</span>
+        </p>
+        <div class="ml-auto flex items-center gap-2" role="group" aria-label="Ordre de la liste">
+          <span class="filter-label">Tri</span>
+          <div class="seg-group">
+            @for (option of sorts; track option.value) {
+              <button
+                type="button"
+                class="seg-option"
+                [attr.aria-pressed]="sort() === option.value"
+                (click)="sort.set(option.value)"
+              >
+                {{ option.label }}
+              </button>
+            }
+          </div>
+        </div>
+      </div>
+      <app-round-list
+        class="mt-1.5 block"
+        [rounds]="rows()"
+        [selected]="selected()"
+        [showSwing]="sort() === 'swing'"
+      />
     </app-resource-state>
   </nav>
 

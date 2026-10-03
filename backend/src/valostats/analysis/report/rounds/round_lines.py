@@ -1,4 +1,4 @@
-"""Rounds list of the Rounds view: one line per squad round of the period, with its cause and best moment."""
+"""Rounds list of the Rounds view: one line per squad round of the period, with its cause, best moment and swing."""
 
 from collections import defaultdict
 from collections.abc import Iterable, Mapping, Sequence
@@ -8,8 +8,14 @@ from valostats.analysis.extraction.win_probability import WinProbabilityTable
 from valostats.analysis.report.foundation.cohorts import FactKind, ReportCohort, ReportCohorts
 from valostats.analysis.report.overview.evenings import evenings
 from valostats.analysis.report.rounds.loss_causes import loss_cause
-from valostats.analysis.report.rounds.round_states import RoundKey, best_moment, kills_by_round, team_states
-from valostats.constants.rounds import PROBABILITY_DECIMALS
+from valostats.analysis.report.rounds.round_states import (
+    RoundKey,
+    best_moment,
+    biggest_drop,
+    kills_by_round,
+    team_states,
+)
+from valostats.constants.rounds import PROBABILITY_DECIMALS, THROW_MIN_CHANCE
 from valostats.domain.facts import KillFact, MatchFact, RoundFact
 from valostats.schemas.report.rounds import RoundIndex, RoundLine
 
@@ -51,7 +57,8 @@ def rounds_index(cohorts: ReportCohorts, table: WinProbabilityTable) -> RoundInd
 
 
 def _line(fact: RoundFact, score_before: str, kills: Sequence[KillFact], table: WinProbabilityTable, days: Mapping[str, date]) -> RoundLine:
-    best = best_moment(fact, team_states(fact, kills), table)
+    states = team_states(fact, kills)
+    best = best_moment(fact, states, table)
     return RoundLine(
         match_id=fact.match_id,
         round_number=fact.round_index + 1,
@@ -68,4 +75,6 @@ def _line(fact: RoundFact, score_before: str, kills: Sequence[KillFact], table: 
         max_advantage=fact.max_advantage,
         best_state=best.state if best else None,
         best_probability=round(best.probability, PROBABILITY_DECIMALS) if best else None,
+        max_drop=round(biggest_drop(fact, states, table), PROBABILITY_DECIMALS),
+        thrown=not fact.won and best is not None and best.probability >= THROW_MIN_CHANCE,
     )

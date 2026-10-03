@@ -32,7 +32,7 @@ export const BADGE_STYLES: Record<BadgeKind, BadgeStyle> = {
 };
 
 export const BADGE_SIZES: Record<BadgeSize, { pill: string; icon: string }> = {
-  sm: { pill: 'gap-1.5 px-2.5 py-0.5 text-[0.8125rem]', icon: 'size-3.5' },
+  sm: { pill: 'gap-1.5 px-2.5 py-0.5 text-xs', icon: 'size-3.5' },
   md: { pill: 'gap-1.5 px-3 py-1 text-[0.9375rem]', icon: 'size-4' },
 };
 

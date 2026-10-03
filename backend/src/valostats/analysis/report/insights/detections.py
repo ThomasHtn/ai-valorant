@@ -1,8 +1,8 @@
 """Automatic detections: what the period shows on its own, without interpretation.
 
-- repetitions: first deaths in the same zone, the same cause of lost rounds on a map and side, the
-  same advantage thrown, at least REPETITION_MIN_COUNT times over REPETITION_MIN_MATCHES matches;
-- gaps: the biggest confirmed findings (completed with leads);
+- repetitions: first deaths in the same zone (only zones above top ranked), the same cause of lost rounds
+  on a map and side, the same advantage thrown, at least REPETITION_MIN_COUNT times over
+  REPETITION_MIN_MATCHES matches;
 - links: the team's rounds won after each player's first blood or first death, and with his ACS above
   or below his median.
 """
@@ -18,12 +18,12 @@ from valostats.analysis.report.rounds.loss_causes import loss_cause
 from valostats.analysis.statistics.proportions import proportions_p_value
 from valostats.constants.findings import (
     ACS_LINK_MIN_MATCHES,
-    DETECTION_GAPS,
     MAX_REWATCH,
     REPETITION_MIN_COUNT,
     REPETITION_MIN_MATCHES,
+    ZONE_EXCESS_MIN_SHARE,
 )
-from valostats.domain.enums import FindingStatus, LossCause, Side
+from valostats.domain.enums import LossCause, Side
 from valostats.domain.facts import MatchFact, RoundFact
 from valostats.schemas.common import Rate
 from valostats.schemas.report.detections import (
@@ -35,7 +35,7 @@ from valostats.schemas.report.detections import (
     Repetition,
     RepetitionKind,
 )
-from valostats.schemas.report.findings import Finding, FindingsReport, RewatchRound
+from valostats.schemas.report.findings import RewatchRound
 
 SIDE_LABELS = {Side.ATTACK: "attaque", Side.DEFENSE: "défense"}
 # French names of the loss causes, used in the repetition labels.
@@ -52,10 +52,9 @@ CAUSE_LABELS = {
 }
 
 
-def detections(cohorts: ReportCohorts, findings: FindingsReport) -> Detections:
+def detections(cohorts: ReportCohorts) -> Detections:
     return Detections(
         repetitions=zone_first_deaths(cohorts) + repeated_loss_causes(cohorts) + thrown_situations(cohorts),
-        gaps=biggest_gaps(findings),
         links=first_duel_links(cohorts) + acs_links(cohorts),
     )
 
@@ -65,7 +64,7 @@ def is_repeated(count: int, matches: int) -> bool:
 
 
 def zone_first_deaths(cohorts: ReportCohorts) -> list[Repetition]:
-    """First deaths in the same zone of a map and side, with the share top ranked players die there first."""
+    """First deaths in the same zone of a map and side, kept when the squad dies there first more often than top ranked."""
     first_deaths = [k for k in cohorts.squad(FactKind.DEATHS) if k.opening]
     by_zone = _group(first_deaths, lambda k: (k.map_name, k.victim_side, k.victim_zone))
     by_scope = Counter((k.map_name, k.victim_side) for k in first_deaths)
@@ -81,6 +80,11 @@ def zone_first_deaths(cohorts: ReportCohorts) -> list[Repetition]:
         if not is_repeated(len(kills), matches):
             continue
         top_total = top_by_scope[(map_name, side)]
+        share = len(kills) / by_scope[(map_name, side)]
+        top_share = top_by_zone[(map_name, side, zone)] / top_total if top_total else None
+        # A zone where top ranked die first just as often is the map's usual contact point, not a habit.
+        if top_share is not None and share - top_share < ZONE_EXCESS_MIN_SHARE:
+            continue
         out.append(
             Repetition(
                 kind=RepetitionKind.ZONE_FIRST_DEATHS,
@@ -93,14 +97,14 @@ def zone_first_deaths(cohorts: ReportCohorts) -> list[Repetition]:
                 matches=matches,
                 base_rounds=len(cohorts.squad(FactKind.ROUNDS, map_name=map_name, side=side)),
                 zone=zone,
-                share=round(len(kills) / by_scope[(map_name, side)], 3),
-                top_share=round(top_by_zone[(map_name, side, zone)] / top_total, 3) if top_total else None,
+                share=round(share, 3),
+                top_share=round(top_share, 3) if top_share is not None else None,
                 avenged=sum(k.avenged for k in kills),
                 players=[PlayerCount(name=n, count=c) for n, c in Counter(k.victim for k in kills).most_common()],
                 rewatch=rewatch_rounds(kills),
             )
         )
-    return sorted(out, key=lambda r: -r.count)
+    return sorted(out, key=lambda r: -((r.share or 0) - (r.top_share or 0)))
 
 
 def repeated_loss_causes(cohorts: ReportCohorts) -> list[Repetition]:
@@ -166,13 +170,6 @@ def thrown_situations(cohorts: ReportCohorts) -> list[Repetition]:
             )
         )
     return sorted(out, key=lambda r: -r.count)
-
-
-def biggest_gaps(findings: FindingsReport) -> list[Finding]:
-    """The biggest confirmed findings, completed with leads up to DETECTION_GAPS (findings are sorted by size)."""
-    confirmed = [f for f in findings.findings if f.status is FindingStatus.CONFIRMED]
-    leads = [f for f in findings.findings if f.status is FindingStatus.LEAD]
-    return (confirmed + leads)[:DETECTION_GAPS]
 
 
 def first_duel_links(cohorts: ReportCohorts) -> list[Link]:

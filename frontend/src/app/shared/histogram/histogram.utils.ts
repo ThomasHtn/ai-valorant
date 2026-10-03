@@ -4,7 +4,10 @@ import { linearScale } from '@shared/charts/chart-scale.utils';
 import {
   BAR_GAP,
   HISTOGRAM_BOX,
+  MEDIAN_LABEL_GAP,
   MEDIAN_LABEL_ROOM,
+  MEDIAN_LABEL_WIDTH,
+  MEDIAN_ROW_HEIGHT,
   SQUAD_COLOUR,
   TOP_COLOUR,
 } from './histogram.constants';
@@ -63,26 +66,22 @@ export function buildHistogram(input: HistogramInput): HistogramView | null {
     xLabels.push({ x: width - right, label: integer(high), anchor: 'end' });
   }
 
-  const medians: MedianView[] = [];
+  const lines: { x: number; label: string; colour: string }[] = [];
   if (squad.median !== null) {
-    medians.push({
+    lines.push({
       x: clampX(squad.median),
       label: `Médiane ${squadName} ${withUnit(squad.median, unit)}`,
       colour: SQUAD_COLOUR,
-      shift: 0,
     });
   }
   if (top && top.median !== null) {
-    const x = clampX(top.median);
-    const close = medians.length > 0 && Math.abs(medians[0].x - x) < MEDIAN_LABEL_ROOM;
-    medians.push({
-      x,
+    lines.push({
+      x: clampX(top.median),
       label: `Médiane top ranked ${withUnit(top.median, unit)}`,
       colour: TOP_COLOUR,
-      shift: close ? 16 : 0,
     });
   }
-
+  const medians = placeMedianLabels(lines, plotTop, width - right);
   return {
     width,
     height,
@@ -118,4 +117,38 @@ export function buildHistogram(input: HistogramInput): HistogramView | null {
     xLabels,
     medians,
   };
+}
+
+/**
+ * Label positions of the median lines, above the plot. Far apart: each label right of its own line,
+ * on one row. Close: two rows, both written beside the outermost line (right of the rightmost, or left
+ * of the leftmost near the right edge), so no label crosses a line.
+ */
+export function placeMedianLabels(
+  lines: readonly { x: number; label: string; colour: string }[],
+  plotTop: number,
+  plotRight: number,
+): MedianView[] {
+  const baseline = plotTop - 14;
+  const close = lines.length === 2 && Math.abs(lines[0].x - lines[1].x) < MEDIAN_LABEL_ROOM;
+  if (!close) {
+    return lines.map((line) => {
+      const flip = line.x + MEDIAN_LABEL_WIDTH > plotRight;
+      return {
+        ...line,
+        labelX: flip ? line.x - MEDIAN_LABEL_GAP : line.x + MEDIAN_LABEL_GAP,
+        labelY: baseline,
+        anchor: flip ? 'end' : 'start',
+      };
+    });
+  }
+  const rightmost = Math.max(...lines.map((l) => l.x));
+  const leftmost = Math.min(...lines.map((l) => l.x));
+  const flip = rightmost + MEDIAN_LABEL_WIDTH > plotRight;
+  return lines.map((line, row) => ({
+    ...line,
+    labelX: flip ? leftmost - MEDIAN_LABEL_GAP : rightmost + MEDIAN_LABEL_GAP,
+    labelY: baseline - (lines.length - 1 - row) * MEDIAN_ROW_HEIGHT,
+    anchor: flip ? 'end' : 'start',
+  }));
 }

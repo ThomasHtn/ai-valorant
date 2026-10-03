@@ -1,4 +1,4 @@
-import { FindingStatus, LossCause, Reference } from '@core/common/enums.model';
+import { FindingStatus, LossCause, Reference, Side } from '@core/common/enums.model';
 
 import { Rate } from './rate.model';
 import { GameArt } from './stat-table.model';
@@ -27,6 +27,10 @@ export interface Finding {
   metric: string;
   kind: string;
   art: GameArt | null;
+  /** Filters behind the scope: they group findings by subject and open the matching views. */
+  mapName: string | null;
+  scopeSide: Side | null;
+  player: string | null;
   /** Reference the test was run against; both are shown. */
   reference: Exclude<Reference, 'hist'>;
   squad: Rate;
@@ -37,6 +41,10 @@ export interface Finding {
   gapRounds: number;
   pValue: number;
   status: FindingStatus;
+  /** Distinct matches behind the squad sample. */
+  matches: number;
+  /** Causes of the lost rounds behind a team weakness, most frequent first; empty otherwise. */
+  lostCauses: Partial<Record<LossCause, number>>;
   rewatch: RewatchRound[];
 }
 

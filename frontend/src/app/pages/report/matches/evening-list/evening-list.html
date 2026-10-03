@@ -16,7 +16,7 @@
             <a
               [routerLink]="['/report/matches', match.matchId]"
               queryParamsHandling="preserve"
-              class="focus-ring-inset flex items-center gap-2.5 border-l-[3px] py-1.5 pr-2.5 pl-1.5 !text-text-primary no-underline transition-colors hover:bg-text-primary/7"
+              class="row-link flex items-center gap-2.5 border-l-[3px] py-1.5 pr-2.5 pl-1.5"
               [class]="
                 active
                   ? 'border-brand-500 bg-text-primary/7'
@@ -27,7 +27,7 @@
               <app-map-thumb [map]="match.mapName" />
               <span class="flex flex-col leading-tight">
                 <span>{{ match.mapName }}</span>
-                <small class="text-text-muted">{{ startTime(match.startedAt) }}</small>
+                <small class="text-sm text-text-muted">{{ startTime(match.startedAt) }}</small>
               </span>
               <span
                 class="ml-auto font-display font-semibold"
@@ -40,6 +40,6 @@
       </ul>
     </section>
   } @empty {
-    <p class="text-text-muted">Aucune soirée sur cette période.</p>
+    <p class="text-text-muted">Aucune session sur cette période.</p>
   }
 </nav>

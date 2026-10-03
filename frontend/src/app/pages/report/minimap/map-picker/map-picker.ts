@@ -13,11 +13,11 @@ import { MapThumb } from '@shared/game-art/map-thumb';
       <a
         [routerLink]="['/report/minimap', map.toLowerCase()]"
         queryParamsHandling="preserve"
-        class="focus-ring-inset flex items-center gap-2 border-b-[3px] py-1 pr-3 pl-1 font-semibold no-underline transition-colors hover:bg-text-primary/7 hover:!text-text-primary"
+        class="focus-ring-inset flex items-center gap-2 border-b-[3px] py-1 pr-3 pl-1 font-semibold no-underline transition-colors hover:bg-text-primary/10 hover:!text-text-primary"
         [class]="
           active
             ? 'border-brand-500 bg-text-primary/7 !text-text-primary'
-            : 'border-transparent bg-text-primary/4 !text-text-secondary'
+            : 'border-transparent bg-text-primary/4 !text-text-secondary hover:border-brand-500/45'
         "
         [attr.aria-current]="active ? 'page' : null"
       >

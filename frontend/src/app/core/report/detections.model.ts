@@ -1,6 +1,6 @@
 import { LossCause, Side } from '@core/common/enums.model';
 
-import { Finding, RewatchRound } from './findings.model';
+import { RewatchRound } from './findings.model';
 import { Rate } from './rate.model';
 import { GameArt } from './stat-table.model';
 
@@ -68,7 +68,5 @@ export interface Link {
 
 export interface Detections {
   repetitions: Repetition[];
-  /** The biggest confirmed gaps. */
-  gaps: Finding[];
   links: Link[];
 }

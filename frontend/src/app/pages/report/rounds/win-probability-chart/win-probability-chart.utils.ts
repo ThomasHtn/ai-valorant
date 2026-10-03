@@ -3,7 +3,8 @@ import { RoundEvent } from '@core/report/rounds.model';
 
 import {
   CHART_SIZE,
-  MIN_ROUND_MS,
+  DROP_LABEL_WIDTH,
+  MIN_AXIS_MS,
   START_PROBABILITY,
   TICK_STEP_MS,
 } from './win-probability-chart.constants';
@@ -12,8 +13,10 @@ export interface ChartPoint {
   x: number;
   y: number;
   index: number;
-  /** CSS colour: green for a squad kill, red for a squad death, grey for a plant or a defuse. */
+  /** CSS colour: green for a squad kill, red for a squad death, amber for a plant or a defuse. */
   color: string;
+  /** Plants and defuses are drawn as diamonds, kills as dots. */
+  spike: boolean;
   label: string;
 }
 
@@ -24,7 +27,8 @@ export interface ChartModel {
   ticks: { x: number; label: string }[];
   points: ChartPoint[];
   /** Event that made the chance fall the most, if any fell. */
-  drop: { x: number; label: string } | null;
+  /** Biggest fall; its label sits left of the line when the line is near the right edge. */
+  drop: { x: number; label: string; labelX: number; anchor: 'start' | 'end' } | null;
   /** Position of the event shown in the replay. */
   cursorX: number | null;
   top: number;
@@ -34,18 +38,19 @@ export interface ChartModel {
 /** Colour of an event point. */
 export function eventColor(event: RoundEvent): string {
   if (event.kind !== 'kill') {
-    return 'var(--color-text-secondary)';
+    return 'var(--color-brand-500)';
   }
   return event.squadActor ? 'var(--color-rating-good)' : 'var(--color-rating-bad)';
 }
 
 /**
- * Geometry of the win probability chart: a step line from 50 % at 0:00, one point per event, the
- * biggest fall marked as the turning point, and a cursor on the selected event.
+ * Geometry of the win probability chart: a step line from 50 % at 0:00 to the round's last event, one
+ * point per event (a diamond for the spike), the biggest fall marked as the turning point, and a
+ * cursor on the selected event.
  */
 export function chartModel(events: readonly RoundEvent[], step: number): ChartModel {
   const { width, height, left, right, top, bottom } = CHART_SIZE;
-  const maxMs = Math.max(MIN_ROUND_MS, ...events.map((e) => e.ms));
+  const maxMs = Math.max(MIN_AXIS_MS, ...events.map((e) => e.ms));
   const x = (ms: number): number => left + (ms / maxMs) * (width - left - right);
   const y = (p: number): number => top + (1 - p) * (height - top - bottom);
 
@@ -64,6 +69,7 @@ export function chartModel(events: readonly RoundEvent[], step: number): ChartMo
       y: y(event.winProbability),
       index,
       color: eventColor(event),
+      spike: event.kind !== 'kill',
       label: `${clock(event.ms)} · ${event.text} · ${Math.round(event.winProbability * 100)} %`,
     };
   });
@@ -80,11 +86,20 @@ export function chartModel(events: readonly RoundEvent[], step: number): ChartMo
     grid: [0, 0.5, 1].map((p) => ({ y: y(p), label: `${p * 100} %`, dashed: p === 0.5 })),
     ticks,
     points,
-    drop: turning
-      ? { x: x(events[turning.index].ms), label: `Bascule −${Math.round(turning.size * 100)} pts` }
-      : null,
+    drop: turning ? dropMarker(x(events[turning.index].ms), turning.size, width - right) : null,
     cursorX: current ? x(current.ms) : null,
     top,
     bottom: height - bottom,
+  };
+}
+
+/** The drop line's label, kept inside the chart: flipped to the left near the right edge. */
+function dropMarker(lineX: number, size: number, plotEnd: number): ChartModel['drop'] {
+  const flip = plotEnd - lineX < DROP_LABEL_WIDTH;
+  return {
+    x: lineX,
+    label: `Bascule −${Math.round(size * 100)} pts`,
+    labelX: flip ? lineX - 4 : lineX + 4,
+    anchor: flip ? 'end' : 'start',
   };
 }

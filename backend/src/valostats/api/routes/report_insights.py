@@ -2,14 +2,15 @@
 
 from typing import Annotated, Any
 
-from fastapi import APIRouter, Depends, Request
+from fastapi import APIRouter, Depends, Query, Request
 
 from valostats.analysis.report.foundation.period_selection import PeriodQuery
 from valostats.analysis.report.insights.detections import detections
-from valostats.analysis.report.insights.distributions import distributions
+from valostats.analysis.report.insights.distributions import DistributionScope, distributions
 from valostats.analysis.report.insights.findings import findings_report
 from valostats.analysis.report.insights.trends import trends
 from valostats.api.dependencies import PeriodQueryDep, ReportServiceDep
+from valostats.domain.enums import Side
 from valostats.schemas.report.detections import Detections
 from valostats.schemas.report.distributions import Distribution
 from valostats.schemas.report.findings import FindingsReport
@@ -38,10 +39,9 @@ def report_findings(service: ReportServiceDep, query: PeriodQueryDep) -> Finding
     return _findings(service, query)
 
 
-@router.get("/detections", summary="What repeats, the biggest gaps and the links between figures", responses=NOT_FOUND)
+@router.get("/detections", summary="What repeats and the links between figures", responses=NOT_FOUND)
 def report_detections(service: ReportServiceDep, query: PeriodQueryDep) -> Detections:
-    findings = _findings(service, query)
-    return service.view(query, "detections", lambda cohorts: detections(cohorts, findings))
+    return service.view(query, "detections", detections)
 
 
 @router.get("/trends", summary="The squad over its whole history; the period's points are highlighted", responses=NOT_FOUND)
@@ -50,5 +50,11 @@ def report_trends(service: ReportServiceDep, query: PeriodQueryDep, store: Facts
 
 
 @router.get("/distributions", summary="Histograms of the period against top ranked", responses=NOT_FOUND)
-def report_distributions(service: ReportServiceDep, query: PeriodQueryDep) -> list[Distribution]:
-    return service.view(query, "distributions", distributions)
+def report_distributions(
+    service: ReportServiceDep,
+    query: PeriodQueryDep,
+    map_name: Annotated[str | None, Query(alias="map", description="One map, e.g. Split")] = None,
+    side: Annotated[Side | None, Query(description="att or def")] = None,
+) -> list[Distribution]:
+    scope = DistributionScope(map_name=map_name, side=side)
+    return service.view(query, scope.cache_key, lambda cohorts: distributions(cohorts, scope))

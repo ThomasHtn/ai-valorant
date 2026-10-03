@@ -26,9 +26,21 @@ export const PLAYERS_HELP: Readonly<Record<string, StatHelp>> = {
     read: "Plus c'est bas, mieux c'est, sauf pour un duelliste qui ouvre les sites.",
   },
   playerOpeningDuels: {
-    title: "Duels d'ouverture",
+    title: 'Premiers duels',
     what: "Les first bloods et first deaths du joueur et ce que l'équipe en fait.",
     how: 'Taux = first bloods / (first bloods + first deaths). Après first blood : rounds gagnés quand il fait le first blood. Après first death : rounds gagnés quand il est le premier mort.',
+  },
+  playerUtilityPerRound: {
+    title: 'Utilitaires par round',
+    what: 'Combien de compétences le joueur lance par round, ultimate exclue.',
+    how: 'Utilisations de C, Q et E sur le match divisées par les rounds du match, cumulées sur la période. Référence : joueurs du même rôle.',
+    read: "Un initiateur ou un contrôleur sous la référence prépare moins les entrées et les retakes de l'équipe.",
+  },
+  playerClutchWon: {
+    title: 'Clutchs gagnés',
+    what: 'La part des clutchs que le joueur gagne quand il se retrouve dernier en vie.',
+    how: 'Clutchs gagnés / clutchs joués, toutes tailles confondues (1v1, 1v2...). Référence : joueurs du même rôle.',
+    read: 'Une sentinelle reste souvent la dernière en vie : ce chiffre pèse plus pour elle.',
   },
   playerClutches: {
     title: 'Clutchs',

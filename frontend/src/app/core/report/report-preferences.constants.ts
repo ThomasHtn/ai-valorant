@@ -5,6 +5,7 @@ export const PREFERENCES_STORAGE_KEY = 'valostats.report.preferences';
 
 export const DEFAULT_PREFERENCES: ReportPreferences = {
   reference: 'top',
+  playerReference: 'opp',
   colours: true,
   samples: false,
   referenceValues: false,

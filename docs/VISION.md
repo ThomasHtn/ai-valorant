@@ -9,7 +9,7 @@ et voir ce qui fonctionne chez les meilleurs joueurs.
 
 | Rapport | Contenu |
 |---|---|
-| Session (après chaque soirée) | Par carte : erreurs qui reviennent souvent, ce qui a été inhabituel, rounds qu'on aurait dû gagner, avec la carte 2D |
+| Session (après chaque session) | Par carte : erreurs qui reviennent souvent, ce qui a été inhabituel, rounds qu'on aurait dû gagner, avec la carte 2D |
 | Période (mois, patch) | Points forts et points faibles, évolution d'une période à l'autre, rounds à revoir |
 
 Règles :

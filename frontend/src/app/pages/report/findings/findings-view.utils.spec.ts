@@ -14,6 +14,9 @@ function finding(overrides: Partial<Finding>): Finding {
     metric: 'Rounds gagnés',
     kind: 'rounds',
     art: null,
+    mapName: 'Split',
+    scopeSide: 'def',
+    player: null,
     reference: 'top',
     squad: rate,
     opp: rate,
@@ -22,54 +25,59 @@ function finding(overrides: Partial<Finding>): Finding {
     gapRounds: -3,
     pValue: 0.01,
     status: 'lead',
+    matches: 3,
+    lostCauses: {},
     rewatch: [],
     ...overrides,
   };
 }
 
 const NO_FILTERS = { map: '', side: '', player: '' } as const;
-const MAPS = ['Split', 'Lotus'];
+const GLOBAL = { scope: 'Global', mapName: null, scopeSide: null } as const;
 
 describe('filterFindings', () => {
   it('drops findings of another map but keeps those naming no map', () => {
-    const list = [finding({}), finding({ scope: 'Lotus' }), finding({ scope: 'Global' })];
-    const kept = filterFindings(list, { ...NO_FILTERS, map: 'Split' }, MAPS, false);
+    const list = [finding({}), finding({ scope: 'Lotus', mapName: 'Lotus' }), finding(GLOBAL)];
+    const kept = filterFindings(list, { ...NO_FILTERS, map: 'Split' }, false);
     expect(kept.map((f) => f.scope)).toEqual(['Split · défense', 'Global']);
   });
 
   it('applies the player filter to player findings only', () => {
     const list = [
-      finding({ group: 'players', scope: 'Psilonnix' }),
-      finding({ group: 'players', scope: 'Izakiel' }),
+      finding({ group: 'players', scope: 'Psilonnix', player: 'Psilonnix', mapName: null }),
+      finding({ group: 'players', scope: 'Izakiel', player: 'Izakiel', mapName: null }),
       finding({}),
     ];
-    const kept = filterFindings(list, { ...NO_FILTERS, player: 'Izakiel' }, MAPS, false);
+    const kept = filterFindings(list, { ...NO_FILTERS, player: 'Izakiel' }, false);
     expect(kept.map((f) => f.scope)).toEqual(['Izakiel', 'Split · défense']);
   });
 
   it('applies the side filter to findings naming a side and keeps net gaps on demand', () => {
     const list = [
       finding({}),
-      finding({ scope: 'Split · attaque', status: 'confirmed' }),
-      finding({ scope: 'Split' }),
+      finding({ scope: 'Split · attaque', scopeSide: 'att', status: 'confirmed' }),
+      finding({ scope: 'Split', scopeSide: null }),
     ];
-    expect(filterFindings(list, { ...NO_FILTERS, side: 'att' }, MAPS, false).length).toBe(2);
-    expect(filterFindings(list, NO_FILTERS, MAPS, true).length).toBe(1);
+    expect(filterFindings(list, { ...NO_FILTERS, side: 'att' }, false).length).toBe(2);
+    expect(filterFindings(list, NO_FILTERS, true).length).toBe(1);
   });
 });
 
 describe('findingColumn', () => {
-  it('groups by team then players, the biggest gap first', () => {
+  it('groups by team then players, one entry per subject, the biggest gap first', () => {
     const list = [
-      finding({ group: 'players', gapRounds: -1 }),
+      finding({ group: 'players', player: 'Alpha', mapName: null, gapRounds: -1 }),
       finding({ gapRounds: -2 }),
+      finding({ scope: 'Lotus', mapName: 'Lotus', gapRounds: -3 }),
       finding({ gapRounds: -8 }),
       finding({ side: 'strong', gapRounds: 4 }),
     ];
     const column = findingColumn(list, 'weak');
     expect(column.count).toBe(3);
     expect(column.groups.map((g) => g.label)).toEqual(['Équipe', 'Joueurs']);
-    expect(column.groups[0].findings.map((f) => f.gapRounds)).toEqual([-8, -2]);
+    const team = column.groups[0].subjects;
+    expect(team.map((s) => s.lead.gapRounds)).toEqual([-8, -3]);
+    expect(team[0].others.map((f) => f.gapRounds)).toEqual([-2]);
   });
 });
 

@@ -11,7 +11,7 @@ import { ReportMeta } from './report-meta.model';
 import { ReportPeriods } from './report-periods.model';
 import { RoundIndex, RoundRef, RoundSheet } from './rounds.model';
 import { DomainTables } from './stat-table.model';
-import { Distribution } from './distributions.model';
+import { Distribution, DistributionScope } from './distributions.model';
 import { PlayerSheet, PlayerSummary } from './players.model';
 import { Trends } from './trends.model';
 import { Detections } from './detections.model';
@@ -142,11 +142,21 @@ export class ReportApi {
     }));
   }
 
-  /** Histograms of the period against top ranked. */
-  public distributions(query: Signal<PeriodQuery>): HttpResourceRef<Distribution[] | undefined> {
-    return httpResource<Distribution[]>(() => ({
-      url: API_ENDPOINTS.reportDistributions,
-      params: periodQueryParams(query()),
-    }));
+  /** Histograms of the period against top ranked, narrowed to one map and one side when given. */
+  public distributions(
+    query: Signal<PeriodQuery>,
+    scope: Signal<DistributionScope>,
+  ): HttpResourceRef<Distribution[] | undefined> {
+    return httpResource<Distribution[]>(() => {
+      const { map, side } = scope();
+      return {
+        url: API_ENDPOINTS.reportDistributions,
+        params: {
+          ...periodQueryParams(query()),
+          ...(map ? { map } : {}),
+          ...(side ? { side } : {}),
+        },
+      };
+    });
   }
 }

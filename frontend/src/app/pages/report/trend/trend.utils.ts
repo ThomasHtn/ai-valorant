@@ -1,4 +1,6 @@
 import { dayMonth } from '@core/format/format.utils';
+import { ValueFormat } from '@core/format/value-format.model';
+import { wilsonInterval } from '@core/report/confidence-interval.utils';
 import { TrendMetric, Trends, TrendValue } from '@core/report/trends.model';
 import { ChartMarker, LinePoint } from '@shared/line-chart/line-chart.model';
 
@@ -8,6 +10,8 @@ import {
   SHORT_MONTHS,
   TEAM_SUBJECT,
   TREND_HELP_FALLBACK,
+  TREND_MAX_MARGIN,
+  TREND_MIN_SAMPLE,
 } from './trend.constants';
 
 /** 'sept. 2026' from '2026-09'. */
@@ -49,8 +53,37 @@ export function trendReference(trends: Trends, subject: string, metric: string):
   return trends.players.find((p) => p.name === subject)?.top[metric] ?? null;
 }
 
-function valuePoint(label: string, value: TrendValue | undefined, highlighted: boolean): LinePoint {
-  return { label, value: value?.v ?? null, sample: value?.n ?? 0, highlighted };
+/**
+ * A month or patch point: rates get their 95 % interval as a band and fade when it is wider than
+ * TREND_MAX_MARGIN on a side; averages fade under TREND_MIN_SAMPLE.
+ */
+export function valuePoint(
+  label: string,
+  value: TrendValue | undefined,
+  highlighted: boolean,
+  format: ValueFormat,
+): LinePoint {
+  const v = value?.v ?? null;
+  const n = value?.n ?? 0;
+  if (format !== 'pct') {
+    return { label, value: v, sample: n, highlighted, faded: n < TREND_MIN_SAMPLE };
+  }
+  const interval = wilsonInterval(v, n);
+  const margin = interval && v !== null ? Math.max(v - interval.low, interval.high - v) : null;
+  return {
+    label,
+    value: v,
+    sample: n,
+    highlighted,
+    faded: margin === null || margin > TREND_MAX_MARGIN,
+    low: interval?.low ?? null,
+    high: interval?.high ?? null,
+  };
+}
+
+/** Format of a metric for a subject, 'pct' when unknown. */
+function metricFormat(trends: Trends, subject: string, metric: string): ValueFormat {
+  return metricsFor(trends, subject).find((m) => m.key === metric)?.format ?? 'pct';
 }
 
 /** The points of the chart for a subject, a metric and a granularity, oldest first. */
@@ -61,8 +94,9 @@ export function trendPoints(
   granularity: Granularity,
 ): LinePoint[] {
   const team = subject === TEAM_SUBJECT;
+  const format = metricFormat(trends, subject, metric);
   if (granularity === 'patch') {
-    return trends.byPatch.map((p) => valuePoint(p.key, p.values[metric], p.inPeriod));
+    return trends.byPatch.map((p) => valuePoint(p.key, p.values[metric], p.inPeriod, format));
   }
   if (granularity === 'match') {
     return trends.series.map((m) => ({
@@ -71,12 +105,14 @@ export function trendPoints(
       value: team ? m.roundsWon / (m.roundsWon + m.roundsLost) : (m.acs[subject] ?? null),
       sample: team ? m.roundsWon + m.roundsLost : null,
       highlighted: m.inPeriod,
+      // One match is always a small sample: the series reads as a whole, no point is faded.
+      faded: false,
     }));
   }
   const months = team
     ? trends.byMonth
     : (trends.players.find((p) => p.name === subject)?.byMonth ?? []);
-  return months.map((p) => valuePoint(monthLabel(p.key), p.values[metric], p.inPeriod));
+  return months.map((p) => valuePoint(monthLabel(p.key), p.values[metric], p.inPeriod, format));
 }
 
 /**
@@ -130,11 +166,10 @@ export interface SparklineView {
 /** Box of a small multiple; stretched to the tile's width (preserveAspectRatio none). */
 const SPARK = { width: 220, height: 52, pad: 6 };
 
-/** Small multiple of a series: min to max of the values (and the reference) on the full height. */
+/** Small multiple of a series: min to max of the values (and the reference) on the full height; faded points stay faded. */
 export function sparkline(
   points: readonly LinePoint[],
   reference: number | null,
-  minSample: number,
 ): SparklineView | null {
   const values = points.flatMap((p) => (p.value === null ? [] : [p.value]));
   if (reference !== null) {
@@ -156,7 +191,7 @@ export function sparkline(
             x: x(i),
             y: y(p.value),
             highlighted: p.highlighted,
-            small: p.sample !== null && p.sample < minSample,
+            small: p.faded ?? false,
           },
         ],
   );

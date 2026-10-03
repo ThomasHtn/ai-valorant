@@ -28,7 +28,7 @@
     >
       <button
         type="button"
-        class="focus-ring cursor-pointer bg-text-primary/4 px-3 py-1.5 text-left font-semibold text-text-secondary hover:bg-text-primary/7 hover:text-text-primary"
+        class="focus-ring cursor-pointer bg-text-primary/4 px-3 py-1.5 text-left font-semibold text-text-secondary hover:bg-text-primary/10 hover:text-text-primary"
         (click)="jump('glossary-parameters')"
       >
         Paramètres
@@ -36,7 +36,7 @@
       @for (section of sections(); track section.key) {
         <button
           type="button"
-          class="focus-ring cursor-pointer bg-text-primary/4 px-3 py-1.5 text-left font-semibold text-text-secondary hover:bg-text-primary/7 hover:text-text-primary"
+          class="focus-ring cursor-pointer bg-text-primary/4 px-3 py-1.5 text-left font-semibold text-text-secondary hover:bg-text-primary/10 hover:text-text-primary"
           (click)="jump('glossary-' + section.key)"
         >
           {{ section.label }}
@@ -48,9 +48,9 @@
       <section id="glossary-parameters" class="flex flex-col gap-3">
         <h2 class="!mt-0">Paramètres</h2>
         <div class="overflow-x-auto">
-          <table class="w-full border-separate border-spacing-y-0.5">
+          <table class="hover-rows w-full border-separate border-spacing-y-0.5">
             <thead>
-              <tr class="text-[0.92rem] text-text-secondary">
+              <tr class="text-sm text-text-secondary">
                 <th scope="col" class="bg-text-primary/8 px-3 py-2 text-left">Paramètre</th>
                 <th scope="col" class="bg-text-primary/8 px-3 py-2 text-left">Valeur</th>
                 <th scope="col" class="bg-text-primary/8 px-3 py-2 text-left">Utilisation</th>

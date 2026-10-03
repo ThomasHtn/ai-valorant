@@ -45,7 +45,12 @@
       stroke="var(--color-rating-bad)"
       stroke-width="1.5"
     />
-    <text [attr.x]="drop.x + 4" [attr.y]="m.top + 10" class="fill-rating-bad font-sans text-[11px]">
+    <text
+      [attr.x]="drop.labelX"
+      [attr.y]="m.top + 10"
+      [attr.text-anchor]="drop.anchor"
+      class="fill-rating-bad font-sans text-[11px]"
+    >
       {{ drop.label }}
     </text>
   }
@@ -61,19 +66,39 @@
   }
 
   @for (point of m.points; track point.index) {
-    <circle
-      [attr.cx]="point.x"
-      [attr.cy]="point.y"
-      [attr.r]="point.index === step() ? 4.5 : 3"
-      [attr.fill]="point.color"
-      class="focus-ring cursor-pointer"
-      tabindex="0"
-      role="button"
-      [attr.aria-label]="point.label"
-      (click)="stepChange.emit(point.index)"
-      (keydown.enter)="stepChange.emit(point.index)"
-    >
-      <title>{{ point.label }}</title>
-    </circle>
+    @let r = point.index === step() ? 4.5 : 3;
+    @if (point.spike) {
+      <rect
+        [attr.x]="point.x - r"
+        [attr.y]="point.y - r"
+        [attr.width]="r * 2"
+        [attr.height]="r * 2"
+        [attr.transform]="'rotate(45 ' + point.x + ' ' + point.y + ')'"
+        [attr.fill]="point.color"
+        class="focus-ring cursor-pointer"
+        tabindex="0"
+        role="button"
+        [attr.aria-label]="point.label"
+        (click)="stepChange.emit(point.index)"
+        (keydown.enter)="stepChange.emit(point.index)"
+      >
+        <title>{{ point.label }}</title>
+      </rect>
+    } @else {
+      <circle
+        [attr.cx]="point.x"
+        [attr.cy]="point.y"
+        [attr.r]="r"
+        [attr.fill]="point.color"
+        class="focus-ring cursor-pointer"
+        tabindex="0"
+        role="button"
+        [attr.aria-label]="point.label"
+        (click)="stepChange.emit(point.index)"
+        (keydown.enter)="stepChange.emit(point.index)"
+      >
+        <title>{{ point.label }}</title>
+      </circle>
+    }
   }
 </svg>

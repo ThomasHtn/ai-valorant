@@ -1,11 +1,13 @@
 @if (lines().length) {
-  <ul class="m-0 flex max-h-[70vh] list-none flex-col gap-0.5 overflow-y-auto p-0 scroll-subtle">
+  <ul
+    class="m-0 flex max-h-[max(24rem,calc(100dvh-20rem))] list-none flex-col gap-0.5 overflow-y-auto p-0"
+  >
     @for (line of lines(); track line.key) {
       <li>
         <a
           [routerLink]="line.link"
           queryParamsHandling="preserve"
-          class="focus-ring-inset grid grid-cols-[2rem_1fr_auto] items-center gap-x-2.5 gap-y-0.5 border-l-[3px] py-1.5 pr-2.5 pl-1.5 !text-text-primary no-underline transition-colors hover:bg-text-primary/7"
+          class="row-link grid grid-cols-[2rem_1fr_auto] items-center gap-x-2.5 gap-y-0.5 border-l-[3px] py-1.5 pr-2.5 pl-1.5"
           [class]="
             line.active
               ? 'border-brand-500 bg-text-primary/7'
@@ -18,14 +20,15 @@
             >{{ line.title }} <span class="font-normal text-text-muted">{{ line.day }}</span></span
           >
           <span
-            class="font-display text-[0.95rem] font-semibold"
+            class="text-right font-display text-[0.95rem] font-semibold whitespace-nowrap"
             [class]="line.round.won ? 'text-rating-good' : 'text-rating-bad'"
-            title="Meilleure situation"
-            >{{ line.round.bestState ?? '' }}</span
+            [title]="line.figureTitle"
+            ><span class="font-sans text-xs font-normal text-text-muted">{{
+              line.figurePrefix
+            }}</span>
+            {{ line.figure }}</span
           >
-          <span class="col-start-2 col-end-4 text-[0.88rem] text-text-muted">{{
-            line.detail
-          }}</span>
+          <span class="col-start-2 col-end-4 text-sm text-text-muted">{{ line.detail }}</span>
         </a>
       </li>
     }

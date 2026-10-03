@@ -23,7 +23,7 @@ import { formTone } from '../players.utils';
       <h2 id="player-form" class="!m-0 text-lg">
         Forme, match par match<app-info-tip topic="playerForm" />
       </h2>
-      <span class="ml-auto text-[0.9rem] text-text-muted"
+      <span class="ml-auto text-sm text-text-muted"
         >Couleur : ACS du match comparé à la référence. Pâle : hors période.</span
       >
     </div>
@@ -37,12 +37,12 @@ import { formTone } from '../players.utils';
           role="listitem"
           [routerLink]="['/report/matches', tile.matchId]"
           queryParamsHandling="preserve"
-          class="focus-ring-inset flex flex-col gap-0.5 border-b-[3px] bg-text-primary/4 px-1.5 py-1.5 !text-text-primary no-underline transition-colors hover:bg-text-primary/7"
+          class="focus-ring-inset flex flex-col gap-0.5 border-b-[3px] bg-text-primary/4 px-1.5 py-1.5 !text-text-primary no-underline transition-colors hover:bg-text-primary/10"
           [class]="tile.classes"
           [title]="tile.title"
           [attr.aria-label]="tile.title"
         >
-          <span class="flex items-center gap-1.5 text-[0.82rem] text-text-secondary">
+          <span class="flex items-center gap-1.5 text-xs text-text-secondary">
             <app-map-thumb [map]="tile.mapName" size="sm" />{{ tile.day }}
           </span>
           <span
@@ -51,7 +51,7 @@ import { formTone } from '../players.utils';
           >
             {{ tile.acs }}
           </span>
-          <span class="text-[0.82rem] text-text-muted">{{ tile.score }} · {{ tile.kda }}</span>
+          <span class="text-xs text-text-muted">{{ tile.score }} · {{ tile.kda }}</span>
         </a>
       }
     </div>

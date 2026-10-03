@@ -1,68 +1,107 @@
 <h2 class="!m-0 text-[1.05rem]" id="zones-title">
   Zones · {{ map() }} en {{ sideLabel() }}<app-info-tip topic="mmZones" />
 </h2>
-<p class="!m-0 text-[0.92rem] text-text-muted">
+<p class="!m-0 text-sm text-text-muted">
   {{ squadFirstDeaths() }} first deaths de l'escouade, {{ integer(topFirstDeaths()) }} en top
-  ranked.
+  ranked. Les zones où l'escouade meurt en premier plus souvent que le top ranked sont en haut.
 </p>
-<div class="max-h-108 overflow-auto scroll-subtle">
-  <table
-    class="w-full border-separate border-spacing-y-0.5 text-[0.95rem] tabular-nums"
-    aria-labelledby="zones-title"
-  >
-    <thead>
-      <tr>
-        <th
-          class="sticky top-0 z-1 bg-surface-950 px-2 py-1.5 text-left font-semibold text-text-secondary"
+<table
+  class="w-full border-separate border-spacing-y-0.5 text-sm tabular-nums"
+  aria-labelledby="zones-title"
+>
+  <thead>
+    <tr class="text-text-secondary">
+      <th class="px-2 py-1.5 text-left font-semibold">Zone</th>
+      <th class="px-2 py-1.5 text-right font-semibold">FD</th>
+      <th class="px-2 py-1.5 text-right font-semibold whitespace-nowrap">
+        Part FD<app-info-tip topic="mmFdShare" />
+      </th>
+      <th class="px-2 py-1.5 text-right font-semibold whitespace-nowrap">Top ranked</th>
+      <th class="px-2 py-1.5 text-right font-semibold">Écart</th>
+      <th class="px-2 py-1.5 text-right font-semibold">Morts</th>
+      <th class="px-2 py-1.5 text-right font-semibold">Kills</th>
+      <th class="px-2 py-1.5 text-right font-semibold">Revenge</th>
+    </tr>
+  </thead>
+  <tbody>
+    @for (line of lines(); track line.row.zone) {
+      <tr
+        class="group"
+        tabindex="0"
+        (pointerenter)="highlight.emit(line.row.zone)"
+        (pointerleave)="highlight.emit(null)"
+        (focus)="highlight.emit(line.row.zone)"
+        (blur)="highlight.emit(null)"
+      >
+        <td
+          class="bg-text-primary/4 px-2 py-1.5 align-top group-hover:bg-text-primary/10 group-focus-within:bg-text-primary/10"
+          [style.box-shadow]="line.tone === 'over' ? 'inset 3px 0 0 var(--color-rating-bad)' : null"
         >
-          Zone
-        </th>
-        <th
-          class="sticky top-0 z-1 bg-surface-950 px-2 py-1.5 text-right font-semibold text-text-secondary"
+          <b class="whitespace-nowrap">{{ line.row.zone }}</b>
+        </td>
+        <td
+          class="bg-text-primary/4 px-2 py-1.5 text-right align-top group-hover:bg-text-primary/10"
         >
-          FD
-        </th>
-        <th
-          class="sticky top-0 z-1 bg-surface-950 px-2 py-1.5 text-right font-semibold whitespace-nowrap text-text-secondary"
+          {{ line.row.firstDeaths }}
+        </td>
+        <td class="bg-text-primary/4 px-2 py-1.5 align-top group-hover:bg-text-primary/10">
+          <span class="flex items-center justify-end gap-1.5" [appHoverTip]="line.shareTip">
+            <span class="relative h-2 w-13 bg-text-primary/7">
+              <i
+                class="absolute inset-y-0 left-0"
+                [class]="line.tone === 'over' ? 'bg-rating-bad' : 'bg-text-secondary'"
+                [style.width.%]="line.shareWidth"
+              ></i>
+              @if (line.topTick !== null) {
+                <b class="absolute -inset-y-1 w-0.5 bg-top" [style.left.%]="line.topTick"></b>
+              }
+            </span>
+            {{ line.share }}
+          </span>
+        </td>
+        <td
+          class="bg-text-primary/4 px-2 py-1.5 text-right align-top text-text-secondary group-hover:bg-text-primary/10"
         >
-          Part FD<app-info-tip topic="mmFdShare" />
-        </th>
-        <th
-          class="sticky top-0 z-1 bg-surface-950 px-2 py-1.5 text-right font-semibold text-text-secondary"
+          {{ line.topShare }}
+        </td>
+        <td class="bg-text-primary/4 px-2 py-1 text-right align-top group-hover:bg-text-primary/10">
+          <app-gap-chip
+            size="sm"
+            [value]="line.excess"
+            [tone]="line.tone === 'over' ? 'bad' : line.tone === 'under' ? 'good' : 'neutral'"
+          />
+        </td>
+        <td
+          class="bg-text-primary/4 px-2 py-1.5 text-right align-top group-hover:bg-text-primary/10"
         >
-          Morts
-        </th>
-        <th
-          class="sticky top-0 z-1 bg-surface-950 px-2 py-1.5 text-right font-semibold text-text-secondary"
+          {{ line.row.deaths }}
+        </td>
+        <td
+          class="bg-text-primary/4 px-2 py-1.5 text-right align-top group-hover:bg-text-primary/10"
         >
-          Kills
-        </th>
-        <th
-          class="sticky top-0 z-1 bg-surface-950 px-2 py-1.5 text-right font-semibold text-text-secondary"
+          {{ line.row.kills }}
+        </td>
+        <td
+          class="bg-text-primary/4 px-2 py-1.5 text-right align-top group-hover:bg-text-primary/10"
         >
-          Revenge
-        </th>
+          {{ line.revenge }}
+        </td>
       </tr>
-    </thead>
-    <tbody>
-      @for (line of lines(); track line.row.zone) {
-        <tr
-          class="group"
-          tabindex="0"
-          (pointerenter)="highlight.emit(line.row.zone)"
-          (pointerleave)="highlight.emit(null)"
-          (focus)="highlight.emit(line.row.zone)"
-          (blur)="highlight.emit(null)"
-        >
+      @if (line.players || line.refs.length) {
+        <!-- Who died there and the rounds behind it, across the whole row so the zone column stays narrow. -->
+        <tr>
           <td
-            class="bg-text-primary/4 px-2 py-1.5 align-top group-hover:bg-text-primary/7 group-focus-within:bg-text-primary/7"
+            colspan="8"
+            class="bg-text-primary/4 px-2 pt-1 pb-1.5 text-xs"
+            [style.box-shadow]="
+              line.tone === 'over' ? 'inset 3px 0 0 var(--color-rating-bad)' : null
+            "
           >
-            <b>{{ line.row.zone }}</b>
             @if (line.players) {
-              <span class="block text-[0.82rem] text-text-muted">{{ line.players }}</span>
+              <span class="text-text-muted">{{ line.players }}</span>
             }
             @if (line.refs.length) {
-              <span class="block text-[0.82rem]">
+              <span class="block">
                 @for (ref of line.refs; track $index) {
                   <app-round-link
                     [matchId]="ref.matchId"
@@ -73,46 +112,12 @@
               </span>
             }
           </td>
-          <td
-            class="bg-text-primary/4 px-2 py-1.5 text-right align-top group-hover:bg-text-primary/7"
-          >
-            {{ line.row.firstDeaths }}
-          </td>
-          <td class="bg-text-primary/4 px-2 py-1.5 align-top group-hover:bg-text-primary/7">
-            <span class="flex items-center justify-end gap-1.5" [appHoverTip]="line.shareTip">
-              <span class="relative h-2 w-13 bg-text-primary/7">
-                <i
-                  class="absolute inset-y-0 left-0 bg-rating-bad"
-                  [style.width.%]="line.shareWidth"
-                ></i>
-                @if (line.topTick !== null) {
-                  <b class="absolute -inset-y-1 w-0.5 bg-top" [style.left.%]="line.topTick"></b>
-                }
-              </span>
-              {{ line.share }}
-            </span>
-          </td>
-          <td
-            class="bg-text-primary/4 px-2 py-1.5 text-right align-top group-hover:bg-text-primary/7"
-          >
-            {{ line.row.deaths }}
-          </td>
-          <td
-            class="bg-text-primary/4 px-2 py-1.5 text-right align-top group-hover:bg-text-primary/7"
-          >
-            {{ line.row.kills }}
-          </td>
-          <td
-            class="bg-text-primary/4 px-2 py-1.5 text-right align-top group-hover:bg-text-primary/7"
-          >
-            {{ line.revenge }}
-          </td>
-        </tr>
-      } @empty {
-        <tr>
-          <td colspan="6" class="px-2 py-3 text-text-muted">Aucun événement.</td>
         </tr>
       }
-    </tbody>
-  </table>
-</div>
+    } @empty {
+      <tr>
+        <td colspan="8" class="px-2 py-3 text-text-muted">Aucun événement.</td>
+      </tr>
+    }
+  </tbody>
+</table>

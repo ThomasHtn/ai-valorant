@@ -3,6 +3,9 @@
 # A lost round is a thrown lead once the team led by this many players.
 LEAD_THROWN_ADVANTAGE = 2
 
+# A lost round is a throw once the squad's chance of winning reached this level.
+THROW_MIN_CHANCE = 0.7
+
 # Round sheets kept in memory (each one is built from the raw payload of its match).
 CACHED_ROUND_SHEETS = 64
 # Match details kept in memory.

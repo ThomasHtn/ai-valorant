@@ -17,8 +17,8 @@ FAST_PLANT_MS = 30_000
 # Repetitions: same zone, cause or situation at least this often, over at least this many matches.
 REPETITION_MIN_COUNT = 4
 REPETITION_MIN_MATCHES = 2
-# Biggest gaps shown in the detections panel.
-DETECTION_GAPS = 5
+# A zone is a first death habit only when the squad's share there beats top ranked by this much.
+ZONE_EXCESS_MIN_SHARE = 0.05
 # Matches a player needs before his ACS is split above / below his median.
 ACS_LINK_MIN_MATCHES = 6
 

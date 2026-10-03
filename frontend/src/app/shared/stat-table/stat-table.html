@@ -1,17 +1,17 @@
-<div class="overflow-x-auto" [style.max-width.rem]="maxWidthRem()">
-  <table class="w-full border-separate border-spacing-y-0.5 tabular-nums">
+<div class="overflow-x-auto">
+  <table class="hover-rows w-full border-separate border-spacing-y-0.5 tabular-nums">
     <thead>
       <tr>
         <th
           scope="col"
-          class="bg-text-primary/8 px-2.5 py-2 text-left text-[0.92rem] font-semibold whitespace-nowrap text-text-secondary"
+          class="bg-text-primary/8 px-2.5 py-2 text-left text-sm font-semibold whitespace-nowrap text-text-secondary"
         >
           {{ table().rowsLabel }}
         </th>
         @for (column of table().columns; track column.key) {
           <th
             scope="col"
-            class="bg-text-primary/8 px-2.5 py-2 text-right text-[0.92rem] font-semibold whitespace-nowrap text-text-secondary"
+            class="bg-text-primary/8 px-2.5 py-2 text-right text-sm font-semibold whitespace-nowrap text-text-secondary"
             [attr.aria-sort]="sortState(column)"
           >
             <button
@@ -22,6 +22,11 @@
               {{ column.label }}
             </button>
             <app-info-tip [topic]="column.help" />
+            @if (historyColumns().has(column.key)) {
+              <span class="block text-xs leading-none font-normal text-text-muted"
+                >vs historique</span
+              >
+            }
           </th>
         }
       </tr>
@@ -39,9 +44,7 @@
               <span class="flex min-w-0 flex-col leading-tight">
                 <span>{{ rowView.row.label }}</span>
                 @if (rowView.row.sub) {
-                  <small class="text-[0.85rem] font-normal text-text-muted">{{
-                    rowView.row.sub
-                  }}</small>
+                  <small class="text-sm font-normal text-text-muted">{{ rowView.row.sub }}</small>
                 }
               </span>
             </div>
@@ -66,12 +69,12 @@
             >
               <span class="font-semibold">{{ cell.text }}</span>
               @if (cell.sample) {
-                <span class="block text-[0.78rem] leading-none font-normal text-text-muted">{{
+                <span class="block text-xs leading-none font-normal text-text-muted">{{
                   cell.sample
                 }}</span>
               }
               @if (cell.reference) {
-                <span class="block text-[0.78rem] leading-none font-normal text-text-secondary">{{
+                <span class="block text-xs leading-none font-normal text-text-secondary">{{
                   cell.reference
                 }}</span>
               }

@@ -7,8 +7,8 @@ import { StatTile } from '@shared/stat-tile/stat-tile';
 import { headlineTiles } from '../players.utils';
 
 /**
- * Headline figures of a player (ACS, K/D, ADR, KAST, HS, FB-FD, revenge, deaths without damage), each
- * coloured against the chosen reference with that reference and the sample written under it.
+ * Headline figures of a player: ACS, K/D, ADR, KAST, then four figures of his role (sent by the API),
+ * each coloured against the chosen reference with that reference and the sample written under it.
  */
 @Component({
   selector: 'app-headline-band',
@@ -25,9 +25,10 @@ import { headlineTiles } from '../players.utils';
         />
       }
     </div>
-    <p class="!m-0 text-[0.92rem] text-text-muted">
-      Top ranked : joueurs du même rôle ({{ roleLabel().toLowerCase() }}). Adversaires : joueurs
-      adverses du même rôle dans vos matchs. Historique : le joueur avant la période.
+    <p class="!m-0 text-sm text-text-muted">
+      Les quatre derniers chiffres dépendent du rôle ({{ roleLabel().toLowerCase() }}). Top ranked :
+      joueurs du même rôle. Adversaires : joueurs adverses du même rôle dans vos matchs. Historique
+      : le joueur avant la période.
     </p>
   `,
   host: { class: 'flex flex-col gap-2' },

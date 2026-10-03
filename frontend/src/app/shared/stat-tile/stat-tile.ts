@@ -14,7 +14,7 @@ import { TONE_TEXT_CLASSES } from './stat-tile.constants';
   selector: 'app-stat-tile',
   imports: [InfoTip],
   template: `
-    <span class="text-[0.92rem] text-text-secondary"
+    <span class="text-sm text-text-secondary"
       >{{ label() }}<app-info-tip [topic]="help()" [content]="helpContent()"
     /></span>
     <span
@@ -23,7 +23,7 @@ import { TONE_TEXT_CLASSES } from './stat-tile.constants';
       >{{ value() }}</span
     >
     @for (line of lines(); track $index) {
-      <span class="text-[0.85rem] text-text-muted">{{ line }}</span>
+      <span class="text-sm text-text-muted">{{ line }}</span>
     }
   `,
   host: { class: 'flex min-w-0 flex-col gap-0.5 bg-text-primary/4 px-3 py-2.5' },

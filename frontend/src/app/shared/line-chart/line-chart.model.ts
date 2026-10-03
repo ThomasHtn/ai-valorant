@@ -12,6 +12,11 @@ export interface LinePoint {
   sample: number | null;
   /** The report's period: drawn larger with an amber ring. */
   highlighted: boolean;
+  /** Too little data to conclude: hollow dot, muted value. Overrides the `minSample` rule when set. */
+  faded?: boolean;
+  /** 95 % interval of the value, drawn as a band around the line; null or missing for none. */
+  low?: number | null;
+  high?: number | null;
 }
 
 /** A vertical dashed line before a point, e.g. a patch change. */
@@ -25,7 +30,7 @@ export interface DotView {
   x: number;
   y: number;
   radius: number;
-  /** Under the minimum sample: grey. */
+  /** Too little data to conclude: hollow and muted. */
   small: boolean;
   highlighted: boolean;
   valueText: string;
@@ -64,6 +69,8 @@ export interface LineChartView {
   xLabels: XLabel[];
   /** SVG `points` attribute of the line, gaps skipped. */
   line: string;
+  /** SVG `points` of each confidence band, one polygon per run of points that have bounds. */
+  bands: string[];
   dots: DotView[];
   markers: MarkerView[];
   reference: { y: number; label: string } | null;

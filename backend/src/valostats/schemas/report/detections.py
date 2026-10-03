@@ -1,4 +1,4 @@
-"""Automatic detections: what repeats across matches, the biggest gaps, and links between figures."""
+"""Automatic detections: what repeats across matches and links between figures."""
 
 from enum import StrEnum
 
@@ -6,7 +6,7 @@ from pydantic import Field
 
 from valostats.domain.enums import LossCause, Side
 from valostats.schemas.common import ApiModel, Rate
-from valostats.schemas.report.findings import Finding, RewatchRound
+from valostats.schemas.report.findings import RewatchRound
 from valostats.schemas.report.tables import GameArt
 
 
@@ -86,6 +86,4 @@ class Link(ApiModel):
 
 class Detections(ApiModel):
     repetitions: list[Repetition]
-    # The biggest confirmed gaps (completed with leads when there are fewer than five).
-    gaps: list[Finding]
     links: list[Link]

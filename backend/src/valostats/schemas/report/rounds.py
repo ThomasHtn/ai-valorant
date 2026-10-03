@@ -32,6 +32,10 @@ class RoundLine(ApiModel):
     # Best live situation of the round (e.g. "5v3") and the squad's chance of winning from it.
     best_state: str | None
     best_probability: float | None
+    # Largest fall of the squad's chance in one event (0..1), the round's end included.
+    max_drop: float = 0.0
+    # Lost after the squad's chance reached THROW_MIN_CHANCE.
+    thrown: bool = False
 
 
 class RoundIndex(ApiModel):

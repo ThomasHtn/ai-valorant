@@ -30,6 +30,8 @@ class HeadlineStat(ApiModel):
     # 1 higher is better, -1 lower is better.
     better: int
     help: str
+    # What the sample counts, written under the tile ("rounds", "morts", "duels"...).
+    unit: str
     # Sample under which the tile stays grey.
     min: int
     cell: StatCell
@@ -71,6 +73,11 @@ class DeathZone(ApiModel):
     share: float
     first_deaths: int
     first_death_share: float
+    # Rounds the player played on that map, and his deaths in the zone per 100 of them.
+    rounds_played: int
+    per_100_rounds: float | None
+    # Same rate for top ranked players of his role on that map; None without top ranked data.
+    top_per_100_rounds: float | None
     rounds: list[ZoneDeath]
 
 

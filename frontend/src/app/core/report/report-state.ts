@@ -31,6 +31,11 @@ export class ReportState {
     this.preferences.update((p) => ({ ...p, reference }));
   }
 
+  /** Reference of the Joueurs view only; the other views keep `reference`. */
+  public setPlayerReference(playerReference: Reference): void {
+    this.preferences.update((p) => ({ ...p, playerReference }));
+  }
+
   /** Flips one display toggle (colours, samples, reference values). */
   public toggle(key: 'colours' | 'samples' | 'referenceValues'): void {
     this.preferences.update((p) => ({ ...p, [key]: !p[key] }));

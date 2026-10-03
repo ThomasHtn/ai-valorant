@@ -35,7 +35,7 @@ from valostats.schemas.report.findings import BonusRoundCheck, Finding, FindingS
 
 
 @dataclass(frozen=True)
-class _Tested:
+class Tested:
     test: FindingTest
     squad: Rate
     opp: Rate
@@ -43,6 +43,7 @@ class _Tested:
     leverage: float
     gap_rounds: float
     p_value: float
+    matches: int
     rewatch_facts: Sequence[Any]
 
 
@@ -118,7 +119,7 @@ def proportion(facts: Sequence[Any], success: Predicate, among: Predicate) -> tu
     return Rate(count=sum(1 for f in base if success(f)), total=len(base)), base
 
 
-def run_test(test: FindingTest, context: FindingContext) -> _Tested | None:
+def run_test(test: FindingTest, context: FindingContext) -> Tested | None:
     """Test one comparison; None when the squad sample is too small or the reference is empty."""
     squad, base = proportion(context.facts(test, ReportCohort.SQUAD), test.success, test.among)
     if squad.total < MIN_FINDING_SAMPLE:
@@ -135,7 +136,8 @@ def run_test(test: FindingTest, context: FindingContext) -> _Tested | None:
     event_helps = leverage >= 0
     show_event = (gap > 0) == event_helps
     rewatch = [f for f in base if bool(test.success(f)) == show_event]
-    return _Tested(test, squad, opp, top, leverage, gap, p_value, rewatch)
+    matches = len({f.match_id for f in base})
+    return Tested(test, squad, opp, top, leverage, gap, p_value, matches, rewatch)
 
 
 def findings_report(cohorts: ReportCohorts) -> FindingsReport:
@@ -187,7 +189,7 @@ def bonus_round_check(cohorts: ReportCohorts) -> BonusRoundCheck:
     )
 
 
-def _finding(t: _Tested, status: FindingStatus) -> Finding:
+def _finding(t: Tested, status: FindingStatus) -> Finding:
     test = t.test
     return Finding(
         side=FindingSide.STRENGTH if t.gap_rounds > 0 else FindingSide.WEAKNESS,
@@ -196,6 +198,9 @@ def _finding(t: _Tested, status: FindingStatus) -> Finding:
         metric=test.metric,
         kind=test.kind,
         art=test.art,
+        map_name=test.map_name,
+        scope_side=test.side,
+        player=test.player.name if test.player else None,
         reference=test.reference,
         squad=t.squad,
         opp=t.opp,
@@ -204,5 +209,15 @@ def _finding(t: _Tested, status: FindingStatus) -> Finding:
         gap_rounds=round(t.gap_rounds, 1),
         p_value=round(t.p_value, 5),
         status=status,
+        matches=t.matches,
+        lost_causes=weakness_loss_causes(t),
         rewatch=rewatch_rounds(t.rewatch_facts),
     )
+
+
+def weakness_loss_causes(t: Tested) -> dict[LossCause, int]:
+    """Why the rounds behind a team weakness were lost, so the analyst sees what to work on."""
+    if t.gap_rounds >= 0 or t.test.unit is not Unit.ROUNDS:
+        return {}
+    causes = Counter(c for r in t.rewatch_facts if (c := loss_cause(r)) is not None)
+    return dict(causes.most_common())

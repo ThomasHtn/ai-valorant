@@ -80,7 +80,7 @@ export class HoverTipLayer {
       nodes.push(table);
     }
     if (content.note) {
-      nodes.push(this.element('p', 'm-0 mt-2 text-[0.9rem] text-text-muted', content.note));
+      nodes.push(this.element('p', 'm-0 mt-2 text-sm text-text-muted', content.note));
     }
     return nodes;
   }

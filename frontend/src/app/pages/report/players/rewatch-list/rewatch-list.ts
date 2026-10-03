@@ -23,7 +23,7 @@ import { MapThumb } from '@shared/game-art/map-thumb';
           <a
             [routerLink]="row.link"
             queryParamsHandling="preserve"
-            class="focus-ring-inset grid grid-cols-[1.75rem_5.5rem_minmax(0,1fr)] items-center gap-2.5 bg-text-primary/4 px-2.5 py-2 !text-text-primary no-underline transition-colors hover:bg-text-primary/7"
+            class="focus-ring-inset grid grid-cols-[1.75rem_5.5rem_minmax(0,1fr)] items-center gap-2.5 bg-text-primary/4 px-2.5 py-2 !text-text-primary no-underline transition-colors hover:bg-text-primary/10"
           >
             <app-map-thumb [map]="row.mapName" size="sm" />
             <span class="tabular-nums">{{ row.when }}</span>

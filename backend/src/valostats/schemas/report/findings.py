@@ -7,7 +7,7 @@ numbers the front formats.
 from datetime import date
 from enum import StrEnum
 
-from valostats.domain.enums import FindingStatus, LossCause, Reference
+from valostats.domain.enums import FindingStatus, LossCause, Reference, Side
 from valostats.schemas.common import ApiModel, Rate
 from valostats.schemas.report.tables import GameArt
 
@@ -41,6 +41,10 @@ class Finding(ApiModel):
     # What the metric measures (rounds, conversion, revenge, firstDeath...), for icons and filters.
     kind: str
     art: GameArt | None
+    # Filters behind the scope, so the front can group findings and open the matching views.
+    map_name: str | None
+    scope_side: Side | None
+    player: str | None
     # Reference the test was run against (top ranked or opponents); the other one is shown too.
     reference: Reference
     squad: Rate
@@ -52,6 +56,10 @@ class Finding(ApiModel):
     gap_rounds: float
     p_value: float
     status: FindingStatus
+    # Distinct matches behind the squad sample, to read the gap per match.
+    matches: int
+    # Causes of the lost rounds behind a team weakness counted in rounds; empty otherwise.
+    lost_causes: dict[LossCause, int]
     rewatch: list[RewatchRound]
 
 

@@ -2,7 +2,15 @@ import { describe, expect, it } from 'vitest';
 
 import { DomainTables, StatColumn } from '@core/report/stat-table.model';
 
-import { cohortValue, compareGap, playerGroups, playerRow, teamGroups } from './compare.utils';
+import {
+  arrangeGroups,
+  cohortValue,
+  compareGap,
+  gapSize,
+  playerGroups,
+  playerRow,
+  teamGroups,
+} from './compare.utils';
 
 const rate: StatColumn = {
   key: 'rw',
@@ -92,7 +100,7 @@ describe('compareGap', () => {
 describe('teamGroups', () => {
   it('compares comparable columns only, skipping lines without any value', () => {
     const groups = teamGroups(domain, 'squad', 'hist', () => null);
-    expect(groups[0].lines.map((l) => l.key)).toEqual(['Split:rw', 'Lotus:rw']);
+    expect(groups[0].lines.map((l) => l.key)).toEqual(['maps:Split:rw', 'maps:Lotus:rw']);
     expect(groups[0].lines[1].b.value).toBeNull();
   });
 
@@ -114,5 +122,48 @@ describe('player mode', () => {
     const groups = playerGroups(domain, 'Psilonnix', 'Izakiel');
     expect(groups.map((g) => g.id)).toEqual(['players']);
     expect(groups[0].lines[0].gap.tone).toBe('good');
+  });
+});
+
+describe('arrangeGroups', () => {
+  const groups = [
+    ...teamGroups(domain, 'squad', 'hist', () => null),
+    ...playerGroups(domain, 'Psilonnix', 'Izakiel'),
+  ];
+
+  it('keeps the tables in order by default', () => {
+    expect(arrangeGroups(groups, 'tables', false)).toEqual(groups);
+  });
+
+  it('hides the gaps that can come from chance', () => {
+    const kept = arrangeGroups(groups, 'tables', true);
+    expect(kept.flatMap((g) => g.lines).every((l) => l.gap.tone !== 'ns')).toBe(true);
+    // Split's 10 pts on 110 rounds can be chance and the team players table has no history: only
+    // the player against player table keeps a line.
+    expect(kept.map((g) => g.id)).toEqual(['players']);
+  });
+
+  it('mixes every table in one list, biggest gap first, missing sides last', () => {
+    const [sorted] = arrangeGroups(groups, 'gap', false);
+    expect(sorted.mixed).toBe(true);
+    expect(sorted.lines.map((l) => l.key)).toEqual([
+      'players::rw',
+      'maps:Split:rw',
+      'maps:Lotus:rw',
+      'players:a:rw',
+      'players:b:rw',
+    ]);
+    expect(sorted.lines[0].source).toBe('Combat par joueur');
+  });
+
+  it('measures a mean gap relatively to B', () => {
+    const [sorted] = arrangeGroups(groups, 'gap', false);
+    const mean = {
+      ...sorted.lines[0],
+      format: 'dec1' as const,
+      a: { value: 220, sample: 1 },
+      b: { value: 200, sample: 1 },
+    };
+    expect(gapSize(mean)).toBeCloseTo(0.1);
   });
 });

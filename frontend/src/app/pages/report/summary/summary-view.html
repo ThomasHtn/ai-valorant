@@ -5,6 +5,7 @@
     <app-tone-legend
       class="order-2 font-sans text-sm font-normal"
       [reference]="state.preferences().reference"
+      [mixed]="true"
     />
   </h2>
   <app-resource-state [resource]="results" notFoundText="Pas de résultats sur cette période.">
@@ -105,7 +106,7 @@
     @if (lastEvening(); as evening) {
       <section aria-labelledby="summary-evening">
         <h2 id="summary-evening">
-          Dernière soirée
+          Dernière session
           <a
             class="order-2 font-sans text-sm font-normal"
             routerLink="/report/matches"

@@ -10,7 +10,7 @@ import { TONE_TEXT_CLASSES } from '@shared/stat-tile/stat-tile.constants';
 import { clutchBars, figureTile, openingColumn } from '../players.utils';
 
 /**
- * Two panels of the player sheet: his opening duels (won, rounds won after his first blood and after
+ * Two panels of the player sheet: his premiers duels (won, rounds won after his first blood and after
  * his first death) and his clutches by size, as bars with a tick at the reference.
  */
 @Component({
@@ -31,18 +31,26 @@ export class OpeningClutch {
   protected readonly openingTiles = computed(() => {
     const duels = this.openingDuels();
     const figures = [
-      { key: 'duelsWon', label: 'Duels gagnés', help: 'playerOpeningDuels', cell: duels.duelsWon },
+      {
+        key: 'duelsWon',
+        label: 'Duels gagnés',
+        help: 'playerOpeningDuels',
+        cell: duels.duelsWon,
+        unit: 'duels',
+      },
       {
         key: 'afterFb',
         label: 'Gagnés après sa FB',
         help: 'wonAfterFirstBlood',
         cell: duels.wonAfterFirstBlood,
+        unit: 'rounds',
       },
       {
         key: 'afterFd',
         label: 'Gagnés après sa FD',
         help: 'wonAfterFirstDeath',
         cell: duels.wonAfterFirstDeath,
+        unit: 'rounds',
       },
     ];
     return figures.map((f) =>
@@ -54,6 +62,7 @@ export class OpeningClutch {
         openingColumn(f.key, f.label),
         this.reference(),
         this.colours(),
+        f.unit,
       ),
     );
   });

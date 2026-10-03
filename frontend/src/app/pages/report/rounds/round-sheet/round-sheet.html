@@ -25,30 +25,28 @@
 
 <div class="grid grid-cols-[repeat(auto-fit,minmax(8.5rem,1fr))] gap-0.5">
   <div class="flex flex-col gap-0.5 bg-text-primary/4 px-3 py-2.5">
-    <span class="text-[0.92rem] text-text-secondary">Résultat</span>
+    <span class="text-sm text-text-secondary">Résultat</span>
     <span
       class="font-display text-[1.6rem] leading-tight font-semibold"
       [class]="r.won ? 'text-rating-good' : 'text-rating-bad'"
       >{{ r.won ? 'Gagné' : 'Perdu' }}</span
     >
-    <span class="text-[0.85rem] text-text-muted">{{ f.result }}</span>
+    <span class="text-sm text-text-muted">{{ f.result }}</span>
   </div>
   <div class="flex flex-col gap-0.5 bg-text-primary/4 px-3 py-2.5">
-    <span class="text-[0.92rem] text-text-secondary">Meilleure situation</span>
+    <span class="text-sm text-text-secondary">Meilleure situation</span>
     <span class="font-display text-[1.6rem] leading-tight font-semibold">{{
       r.bestState ?? '—'
     }}</span>
-    <span class="text-[0.85rem] text-text-muted">{{ f.lead }}</span>
+    <span class="text-sm text-text-muted">{{ f.lead }}</span>
   </div>
   <div class="flex flex-col gap-0.5 bg-text-primary/4 px-3 py-2.5">
-    <span class="text-[0.92rem] text-text-secondary"
-      >Chances max<app-info-tip topic="winProb"
-    /></span>
+    <span class="text-sm text-text-secondary">Chances max<app-info-tip topic="winProb" /></span>
     <span class="font-display text-[1.6rem] leading-tight font-semibold">{{ f.chance }}</span>
-    <span class="text-[0.85rem] text-text-muted">de gagner le round</span>
+    <span class="text-sm text-text-muted">de gagner le round</span>
   </div>
   <div class="flex flex-col gap-0.5 bg-text-primary/4 px-3 py-2.5">
-    <span class="text-[0.92rem] text-text-secondary"
+    <span class="text-sm text-text-secondary"
       >Cause calculée<app-info-tip topic="lossCause"
     /></span>
     <span class="font-display text-[1.2rem] leading-tight font-semibold">{{ f.cause }}</span>
@@ -64,7 +62,7 @@
     [step]="step()"
     (stepChange)="select($event)"
   />
-  <p class="!m-0 flex flex-wrap items-center gap-x-4 gap-y-1 text-[0.9rem] text-text-secondary">
+  <p class="!m-0 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-text-secondary">
     <span class="inline-flex items-center gap-1.5"
       ><i class="h-0.5 w-4 bg-squad"></i>L'escouade</span
     >
@@ -73,6 +71,9 @@
     >
     <span class="inline-flex items-center gap-1.5"
       ><i class="size-2.5 rounded-full bg-rating-bad"></i>Mort</span
+    >
+    <span class="inline-flex items-center gap-1.5"
+      ><i class="size-2 rotate-45 bg-brand-500"></i>Plant ou defuse</span
     >
     <span class="text-text-muted">Chances tirées des matchs top ranked dans la même situation</span>
   </p>

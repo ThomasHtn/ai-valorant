@@ -17,7 +17,11 @@
       [attr.y]="label.y"
       [attr.font-size]="calloutSize"
       text-anchor="middle"
-      class="pointer-events-none fill-text-primary/40 font-sans"
+      stroke="var(--color-surface-sunken)"
+      stroke-width="0.005"
+      stroke-opacity="0.8"
+      paint-order="stroke"
+      class="pointer-events-none fill-text-primary/65 font-sans font-semibold"
     >
       {{ label.name }}
     </text>

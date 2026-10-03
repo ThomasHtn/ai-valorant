@@ -14,9 +14,9 @@ export const CONTEXT_HELP: Readonly<Record<string, StatHelp>> = {
     read: "Avec peu de matchs sans un joueur, l'écart n'est pas fiable.",
   },
   eveningRank: {
-    title: 'Rang du match dans la soirée',
-    what: "Si l'escouade joue mieux en début ou en fin de soirée.",
-    how: "Soirée = matchs d'une même journée, un match lancé avant 6h compte pour la veille. Matchs classés par heure de début.",
+    title: 'Rang du match dans la session',
+    what: "Si l'escouade joue mieux en début ou en fin de session.",
+    how: "Session = matchs d'une même journée, un match lancé avant 6h compte pour la veille. Matchs classés par heure de début.",
   },
   startHour: {
     title: 'Heure de début',

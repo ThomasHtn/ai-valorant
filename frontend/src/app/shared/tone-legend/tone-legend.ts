@@ -25,13 +25,19 @@ const SWATCHES = [
         {{ swatch.label }}
       </span>
     }
-    <span class="text-text-muted">Comparé à : {{ referenceLabel() }}</span>
+    <span class="text-text-muted"
+      >Comparé à : {{ referenceLabel() }}{{ mixed() ? historyNote : '' }}</span
+    >
   `,
   host: { class: 'flex flex-wrap items-center gap-x-4 gap-y-1 text-[0.95rem] text-text-secondary' },
 })
 export class ToneLegend {
   public readonly reference = input.required<Reference>();
+  /** Some figures are always compared with the squad's history (rounds won, pistols): say so. */
+  public readonly mixed = input(false);
 
+  protected readonly historyNote =
+    ", sauf les chiffres marqués « vs historique » : l'escouade avant la période";
   protected readonly swatches = SWATCHES;
   protected readonly referenceLabel = computed(() => REFERENCE_LABELS[this.reference()]);
 }

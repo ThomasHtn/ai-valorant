@@ -64,7 +64,13 @@ export function formatGap(gap: number | null | undefined, format: ValueFormat): 
   const sign = gap > 0 ? '+' : gap < 0 ? '−' : '';
   const size = Math.abs(gap);
   if (format === 'pct') {
-    return `${sign}${INTEGER.format(size * 100)}${UNIT_SPACE}pts`;
+    const points = Math.round(size * 100);
+    if (points === 0) {
+      return `0${UNIT_SPACE}pt`;
+    }
+    return `${sign}${INTEGER.format(points)}${UNIT_SPACE}${points >= 2 ? 'pts' : 'pt'}`;
   }
-  return `${sign}${formatValue(size, format)}`;
+  const text = formatValue(size, format);
+  // A gap that rounds to zero ('0,0') gets no sign: '−0,0' would read as a loss.
+  return /[1-9]/.test(text) ? `${sign}${text}` : text;
 }

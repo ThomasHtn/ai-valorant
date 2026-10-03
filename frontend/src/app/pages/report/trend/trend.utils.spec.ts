@@ -9,6 +9,7 @@ import {
   periodValue,
   sparkline,
   trendMarkers,
+  valuePoint,
   trendPoints,
   trendReference,
 } from './trend.utils';
@@ -128,6 +129,27 @@ describe('trendPoints', () => {
   });
 });
 
+describe('valuePoint', () => {
+  it('bands a rate and fades it when the interval is wide', () => {
+    const small = valuePoint('oct.', { v: 0.64, n: 61 }, false, 'pct');
+    const large = valuePoint('sept.', { v: 0.48, n: 576 }, true, 'pct');
+    expect(small.faded).toBe(true);
+    expect(large.faded).toBe(false);
+    expect(large.low).toBeLessThan(0.48);
+    expect(large.high).toBeGreaterThan(0.48);
+  });
+
+  it('fades an average on a small sample and draws no band', () => {
+    const point = valuePoint('oct.', { v: 230, n: 40 }, false, 'dec1');
+    expect(point.faded).toBe(true);
+    expect(point.low).toBeUndefined();
+  });
+
+  it('never fades a match point', () => {
+    expect(trendPoints(trends, 'team', 'roundsWon', 'match').every((p) => !p.faded)).toBe(true);
+  });
+});
+
 describe('trendMarkers', () => {
   it('marks the month a patch arrived and skips the first patch', () => {
     expect(trendMarkers(trends, 'month')).toEqual([{ index: 1, label: '13.06' }]);
@@ -157,10 +179,9 @@ describe('sparkline', () => {
     const view = sparkline(
       [
         { label: 'a', value: 0.4, sample: 100, highlighted: false },
-        { label: 'b', value: 0.6, sample: 10, highlighted: true },
+        { label: 'b', value: 0.6, sample: 10, highlighted: true, faded: true },
       ],
       0.5,
-      20,
     )!;
     expect(view.dots[0].y).toBeGreaterThan(view.dots[1].y);
     expect(view.referenceY).toBeCloseTo((view.dots[0].y + view.dots[1].y) / 2);

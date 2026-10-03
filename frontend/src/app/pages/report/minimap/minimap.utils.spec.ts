@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
+import { UNIT_SPACE, formatValue } from '@core/format/value-format.utils';
 import {
   MapPoint,
   MinimapSide,
@@ -8,7 +9,15 @@ import {
   ZoneRow,
 } from '@core/report/minimap.model';
 
-import { layerCounts, minimapMarkers, pickMap, zoneRows } from './minimap.utils';
+import {
+  layerCounts,
+  minimapMarkers,
+  pickMap,
+  sideLayers,
+  zoneLines,
+  zoneRows,
+  zoneTone,
+} from './minimap.utils';
 
 function point(player: string, x = 0.5): MapPoint {
   return {
@@ -88,20 +97,53 @@ describe('minimap view utils', () => {
     expect(pickMap(undefined, '', [])).toBeNull();
   });
 
-  it('sorts zones by first deaths then deaths', () => {
-    const row = (zone: string, firstDeaths: number, deaths: number): ZoneRow => ({
-      zone,
-      firstDeaths,
-      deaths,
-      kills: 0,
-      revengeRate: null,
-      revengeSample: 0,
-      players: [],
-      firstDeathShare: null,
-      topFirstDeathShare: null,
-      refs: [],
-    });
-    const sorted = zoneRows([row('A', 1, 9), row('B', 3, 1), row('C', 1, 12), row('D', 0, 0)]);
-    expect(sorted.map((r) => r.zone)).toEqual(['B', 'C', 'A']);
+  it('hides the plants layer that is always empty on a side', () => {
+    expect(sideLayers('att').map((l) => l.key)).not.toContain('plantsEnemy');
+    expect(sideLayers('def').map((l) => l.key)).not.toContain('plantsSquad');
+    expect(sideLayers('def').map((l) => l.key)).toContain('plantsEnemy');
+  });
+
+  const row = (
+    zone: string,
+    firstDeaths: number,
+    deaths: number,
+    share: number | null = null,
+    top: number | null = null,
+  ): ZoneRow => ({
+    zone,
+    firstDeaths,
+    deaths,
+    kills: 0,
+    revengeRate: null,
+    revengeSample: 0,
+    players: [],
+    firstDeathShare: share,
+    topFirstDeathShare: top,
+    refs: [],
+  });
+
+  it('sorts zones by excess over the top ranked, zones without reference last', () => {
+    const sorted = zoneRows([
+      row('A', 5, 9, 0.18, 0.23),
+      row('B', 5, 1, 0.18, 0.11),
+      row('C', 1, 12),
+      row('D', 0, 0),
+      row('E', 3, 4, 0.29, 0.14),
+    ]);
+    expect(sorted.map((r) => r.zone)).toEqual(['E', 'B', 'A', 'C']);
+  });
+
+  it('flags a zone only past the gap and on enough first deaths', () => {
+    expect(zoneTone(row('A', 5, 5, 0.18, 0.11))).toBe('over');
+    expect(zoneTone(row('A', 2, 5, 0.4, 0.1))).toBe('even');
+    expect(zoneTone(row('A', 5, 5, 0.12, 0.11))).toBe('even');
+    expect(zoneTone(row('A', 1, 5, 0.05, 0.2))).toBe('under');
+    expect(zoneTone(row('A', 5, 5, null, 0.2))).toBe('even');
+  });
+
+  it('writes the gap in rate points', () => {
+    const [line] = zoneLines([row('B Garage', 5, 15, 0.18, 0.07)]);
+    expect(line.excess).toBe(`+11${UNIT_SPACE}pts`);
+    expect(line.topShare).toBe(formatValue(0.07, 'pct'));
   });
 });

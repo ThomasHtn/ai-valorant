@@ -6,7 +6,7 @@ export const OPENING_HELP: Readonly<Record<string, StatHelp>> = {
     title: 'First blood pris',
     what: "Part des rounds où l'escouade fait le premier kill du round.",
     how: "Rounds où le premier kill est fait par l'escouade, divisés par les rounds avec au moins un kill.",
-    read: "50 % correspond à un duel d'ouverture équilibré ; au-dessus, l'escouade gagne plus souvent l'ouverture.",
+    read: "50 % correspond à un premier duel équilibré ; au-dessus, l'escouade gagne plus souvent l'ouverture.",
   },
   wonAfterFirstBlood: {
     title: 'Rounds gagnés après first blood',
@@ -33,7 +33,7 @@ export const OPENING_HELP: Readonly<Record<string, StatHelp>> = {
     read: 'Valeur descriptive : un temps court signale un jeu rapide ou des contacts tôt.',
   },
   openingDuels: {
-    title: "Duels d'ouverture",
+    title: 'Premiers duels',
     what: 'Nombre de rounds avec un premier kill.',
     how: "Rounds de l'escouade contenant au moins un kill.",
     read: "Taille de l'échantillon des autres colonnes.",
@@ -52,13 +52,13 @@ export const OPENING_HELP: Readonly<Record<string, StatHelp>> = {
   },
   firstBloodNet: {
     title: 'FB - FD',
-    what: "Bilan des duels d'ouverture du joueur.",
+    what: 'Bilan des premiers duels du joueur.',
     how: 'First bloods moins first deaths sur la période.',
     read: "Positif : le joueur ouvre plus de rounds qu'il n'en offre à l'adversaire.",
   },
   openingDuelsWon: {
-    title: "Duels d'ouverture gagnés",
-    what: "Part des duels d'ouverture gagnés par le joueur quand il y est impliqué.",
+    title: 'Premiers duels gagnés',
+    what: 'Part des premiers duels gagnés par le joueur quand il y est impliqué.',
     how: 'First bloods divisées par (first bloods + first deaths) du joueur. Référence top ranked : joueurs du même rôle.',
     read: "50 % est l'équilibre ; un duelliste doit viser au-dessus.",
   },
@@ -81,8 +81,8 @@ export const OPENING_HELP: Readonly<Record<string, StatHelp>> = {
     read: 'Autour de 0,10 en moyenne, plus haut pour un duelliste.',
   },
   openingWeapons: {
-    title: "Armes des duels d'ouverture",
-    what: "Armes avec lesquelles l'escouade gagne et perd les duels d'ouverture.",
+    title: 'Armes des premiers duels',
+    what: "Armes avec lesquelles l'escouade gagne et perd les premiers duels.",
     how: 'Les capacités, ultimes et chutes sont regroupés sous « Capacités ». Les armes avec moins de 5 duels sont masquées.',
     read: 'Comparer la part des first bloods et des first deaths de chaque arme.',
   },
@@ -99,8 +99,8 @@ export const OPENING_HELP: Readonly<Record<string, StatHelp>> = {
     read: "Une part haute face à l'Operator signale des ouvertures prises dans un angle tenu à l'Operator.",
   },
   openingWeaponDuel: {
-    title: "Duels d'ouverture gagnés avec l'arme",
-    what: "Part des duels d'ouverture gagnés selon l'arme achetée par le joueur.",
+    title: "Premiers duels gagnés avec l'arme",
+    what: "Part des premiers duels gagnés selon l'arme achetée par le joueur.",
     how: "First bloods divisées par (first bloods + first deaths) des joueurs dont l'arme principale achetée au round est cette arme.",
     read: "L'arme achetée n'est pas forcément l'arme en main au moment du duel.",
   },

@@ -8,7 +8,12 @@ import { roundLink, sameRound } from '@core/report/round-ref.utils';
 import { RoundLine, RoundRef } from '@core/report/rounds.model';
 import { MapThumb } from '@shared/game-art/map-thumb';
 
-/** Rounds kept by the filters, newest first; a line opens the round's sheet. */
+import { roundFigure } from './round-list.utils';
+
+/**
+ * Rounds kept by the filters, in the list's order; a line opens the round's sheet. The figure on the
+ * right is the round's best situation, or its biggest fall when the list is sorted by it.
+ */
 @Component({
   selector: 'app-round-list',
   imports: [MapThumb, RouterLink],
@@ -17,6 +22,8 @@ import { MapThumb } from '@shared/game-art/map-thumb';
 export class RoundList {
   public readonly rounds = input.required<readonly RoundLine[]>();
   public readonly selected = input<RoundRef | null>(null);
+  /** Show the biggest fall of the squad's chance instead of the best situation. */
+  public readonly showSwing = input(false);
 
   protected readonly lines = computed(() =>
     this.rounds().map((round) => ({
@@ -26,6 +33,7 @@ export class RoundList {
       active: sameRound(round, this.selected()),
       title: `${round.mapName} R${round.roundNumber}`,
       day: dayMonth(round.day),
+      ...roundFigure(round, this.showSwing()),
       detail: [
         SIDE_LABELS[round.side],
         `${BUY_SENTENCE_LABELS[round.buy]} contre ${BUY_SENTENCE_LABELS[round.oppBuy]}`,

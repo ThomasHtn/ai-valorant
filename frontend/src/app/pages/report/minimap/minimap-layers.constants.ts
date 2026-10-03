@@ -1,3 +1,5 @@
+import { Side } from '@core/common/enums.model';
+
 import { MinimapLayer, MinimapLayerKey } from './minimap-layers.model';
 
 /** Every layer, in the toggle order; shapes keep layers apart without relying on colour alone. */
@@ -59,3 +61,9 @@ export const DEFAULT_LAYERS: ReadonlySet<MinimapLayerKey> = new Set(['firstDeath
 
 /** Map shown when the URL names none and the map filter is empty (the squad's most played). */
 export const PREFERRED_MAP = 'Split';
+
+/** Layers that are always empty on a side, hidden there: the squad never plants in defense, the enemy never in attack. */
+export const HIDDEN_LAYERS: Readonly<Record<Side, readonly MinimapLayerKey[]>> = {
+  att: ['plantsEnemy'],
+  def: ['plantsSquad'],
+};

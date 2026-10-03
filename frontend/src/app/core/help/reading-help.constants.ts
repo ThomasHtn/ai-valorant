@@ -11,22 +11,17 @@ export const READING_HELP: Readonly<Record<string, StatHelp>> = {
   dataQuality: {
     title: 'Données',
     what: 'Sur quoi reposent les chiffres affichés.',
-    how: "Matchs Henrik de l'escouade en 5-stack, rechargés après chaque soirée ; top ranked rechargé chaque semaine.",
+    how: "Matchs Henrik de l'escouade en 5-stack, rechargés après chaque session ; top ranked rechargé chaque semaine.",
   },
   detections: {
-    title: 'Détections automatiques',
+    title: 'Alertes automatiques',
     what: "Ce que l'outil repère seul dans les données de la période, sans interprétation.",
-    how: 'Répétitions sur plusieurs matchs, écarts qui passent un test statistique, liens entre deux chiffres. Chaque ligne donne son échantillon et ses rounds.',
+    how: 'Répétitions sur plusieurs matchs et liens entre deux chiffres. Chaque ligne donne son échantillon et ses rounds. Les écarts testés sont dans Points forts et faibles.',
   },
   detRepeat: {
     title: 'Ce qui se répète',
     what: 'Une même situation qui revient sur plusieurs matchs : first deaths au même endroit, même situation perdue.',
-    how: '4 fois ou plus, sur au moins 2 matchs.',
-  },
-  detGap: {
-    title: 'Écarts nets',
-    what: "Les chiffres qui s'écartent le plus de la référence et passent le test statistique.",
-    how: 'Test de proportions, correction de Benjamini-Hochberg sur tous les tests de la période.',
+    how: "4 fois ou plus, sur au moins 2 matchs. Une zone de first deaths n'apparaît que si l'escouade y meurt en premier au moins 5 points plus souvent que le top ranked : sinon c'est le point de contact habituel de la carte.",
   },
   detLink: {
     title: 'Liens entre chiffres',

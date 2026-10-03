@@ -30,7 +30,7 @@ def test_players_list(client: TestClient) -> None:
 def test_player_sheet(client: TestClient) -> None:
     body = client.get("/api/report/players/Alpha", params={"month": "2026-09"}).json()
     assert body["name"] == "Alpha" and body["rank"] == "Platinum 1"
-    assert [h["key"] for h in body["headline"]] == ["acs", "kd", "adr", "kast", "hs", "fbfd", "revenge", "zeroDmg"]
+    assert [h["key"] for h in body["headline"]] == ["acs", "kd", "adr", "kast", "fb", "openingWon", "revenge", "hs"]
     assert body["headline"][0]["cell"]["v"] == 200 and body["headline"][0]["format"] == "int"
     assert body["byMap"]["rows"][0]["art"] == {"type": "map", "slug": "ascent"}
     assert [f["inPeriod"] for f in body["form"]] == [False, True, True, True]

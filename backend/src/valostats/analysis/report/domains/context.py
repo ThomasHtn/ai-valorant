@@ -148,12 +148,12 @@ def _evening_rank(cohorts: ReportCohorts) -> StatTable:
     history = [*cohorts.select(FactKind.MATCHES, ReportCohort.HISTORY), *_squad_matches(cohorts)]
     rank = {m.match_id: i for evening in evenings(history) for i, m in enumerate(evening.matches, start=1)}
     rows: list[ContextRow] = [
-        ("1", "1er match de la soirée", lambda m: rank.get(m.match_id) == 1, None),
+        ("1", "1er match de la session", lambda m: rank.get(m.match_id) == 1, None),
         ("2", "2e match", lambda m: rank.get(m.match_id) == 2, None),
         ("3", "3e match", lambda m: rank.get(m.match_id) == 3, None),
         (str(LAST_EVENING_RANK), f"{LAST_EVENING_RANK}e match et plus", lambda m: rank.get(m.match_id, 0) >= LAST_EVENING_RANK, None),
     ]
-    return _results_table(cohorts, TableBuilder("context-evening", "Rang du match dans la soirée", "Match", help="eveningRank"), rows)
+    return _results_table(cohorts, TableBuilder("context-evening", "Rang du match dans la session", "Match", help="eveningRank"), rows)
 
 
 def _start_hour(cohorts: ReportCohorts) -> StatTable:

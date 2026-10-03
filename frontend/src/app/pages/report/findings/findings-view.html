@@ -16,7 +16,9 @@
 </app-filter-bar>
 
 <app-resource-state [resource]="report" notFoundText="Aucun écart testé sur cette période.">
-  <div class="mt-4 grid items-start gap-6 xl:grid-cols-2">
+  <!-- On wide screens both columns fill the screen and scroll on their own, so neither leaves a
+       blank half while the other runs on. -->
+  <div class="mt-4 grid gap-5 xl:h-[calc(100dvh-18rem)] xl:min-h-[30rem] xl:grid-cols-2">
     <app-finding-column
       heading="Points faibles"
       [weak]="true"

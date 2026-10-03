@@ -42,18 +42,18 @@ valorant-api ┘                     └── win_probability                  
 | Sous-dossier | Contenu |
 |---|---|
 | `foundation/` | Cohortes d'une période (`cohorts.py`), cases avec références (`cells.py`), constructeur de tableaux (`table_builder.py`), règles communes (`death_rules.py`), période (`period_selection.py`) |
-| `domains/` | Vue Tableaux : un module par domaine du dictionnaire (`results.py`, `combat.py`...), registre dans `__init__.py` |
+| `domains/` | Vue Toutes les stats : un module par domaine du dictionnaire (`results.py`, `combat.py`...), registre dans `__init__.py` |
 | `rounds/` | Causes des rounds perdus, matchs, fiche de round (depuis le payload), minimap |
 | `insights/` | Points forts et faibles (tests statistiques), détections automatiques, tendances, distributions |
 | `players/` | Fiche joueur |
-| `overview/` | Arbre de l'accueil (soirées, mois) et en-tête du rapport (période, qualité des données) |
+| `overview/` | Arbre de l'accueil (sessions, mois) et en-tête du rapport (période, qualité des données) |
 
 ### Vocabulaire des faits
 
 - `cohort` : `squad` (l'escouade), `opp` (ses adversaires dans les mêmes matchs), `top` (matchs du top ranked).
 - `side` : `att` ou `def`. `round_index` commence à 0 ; l'API affiche `roundNumber` = index + 1.
 - Un kill est `avenged` (revenge) si un coéquipier de la victime tue le tueur dans les 3 secondes.
-- Distances en unités du jeu (100 = 1 m). Les dates sont en heure de Paris (soirées, mois).
+- Distances en unités du jeu (100 = 1 m). Les dates sont en heure de Paris (sessions, mois).
 
 ### Références de comparaison
 
@@ -65,7 +65,11 @@ référence choisie par l'analyste.
 - Mesures symétriques (rounds gagnés, pistols, first blood pris tous sides confondus) : comparées à l'historique, car le
   top ranked y vaut toujours 50 % et les adversaires sont le miroir.
 - Points forts et faibles : test de proportions, correction de Benjamini-Hochberg (« écart net ») ou p < 0,05 seul
-  (« à confirmer »). Adversaires pour le jeu d'équipe, top ranked pour les mesures à somme nulle et la méta.
+  (« à confirmer »). Adversaires pour le jeu d'équipe, top ranked pour les mesures à somme nulle et la méta. Le front
+  regroupe les écarts par sujet (carte, joueur) : le plus coûteux mène, les autres comptent les mêmes rounds et ne
+  s'additionnent pas.
+- Le front écrit « vs historique » sous les colonnes comparées à l'historique quelle que soit la référence choisie.
+  La vue Joueurs a sa propre référence, « Adversaires » par défaut.
 
 ### Ajouter une stat : exemple
 
@@ -99,7 +103,7 @@ le calculer dans `analysis/extraction/`, créer une migration (`uv run alembic r
 | `core/help/` | Explications des stats en langage de joueur, un fichier par domaine ; infobulles « i » et Glossaire |
 | `core/game-assets/` | Chemin des images du jeu (agents, cartes, minimaps, armes, rôles, rangs) |
 | `shared/` | Composants réutilisables : tableau coloré (`stat-table`), barre de filtres, légende, qualité des données, icône de rang, minimap avec points, graphiques (`line-chart`, `histogram`), tuile de chiffre, liens de round |
-| `pages/home`, `pages/glossary` | Accueil (mois, soirées, patchs) et glossaire |
+| `pages/home`, `pages/glossary` | Accueil (mois, sessions, patchs) et glossaire |
 | `pages/report/` | Coque du rapport (sélecteur de période, onglets) et une page par vue : `summary` (onglet par défaut, assemblé à partir des autres endpoints), `tables`, `findings`, `compare`, `minimap`, `rounds`, `matches`, `players`, `trend`, `distribution` |
 | `layout/` | Barre du haut (Accueil, Glossaire), en-tête de page |
 | `src/styles*` | Copiés de ValoQuests ; seuls `styles/valostats.css` et la dernière section de `styles.css` sont propres au projet |
@@ -109,7 +113,9 @@ toutes les URL dans `core/http/api-endpoints.ts`, un composant = `x.ts` + `x.htm
 `*.utils.spec.ts`.
 
 Navigation : l'accueil liste les rapports ; un rapport s'ouvre sur `/report/<vue>` avec la période dans l'URL
-(`?month=2026-09`, `?patch=13.06`, `?start=…&end=…`, une soirée étant `start=end`). Les onglets du rapport n'existent pas
+(`?month=2026-09`, `?patch=13.06`, `?start=…&end=…`, une session étant `start=end`). Les onglets sont groupés
+(Diagnostic, Revoir, Explorer, `report-views.constants.ts`) et ne gardent que la période. Les liens profonds ajoutent
+des filtres : `/report/rounds?map=Split&side=def&result=lost|won&preset=throws`, `/report/minimap/Split?side=def&player=X`. Les onglets du rapport n'existent pas
 sur l'accueil. Couleurs : vert bien, orange moyen (à moins de 3 points de la référence, 5 % pour une moyenne), rouge pas
 bien, gris sous l'échantillon minimum. Les champs de saisie n'utilisent jamais la surface bleue `surface-800`.
 

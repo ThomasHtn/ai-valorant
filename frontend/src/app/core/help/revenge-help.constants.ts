@@ -6,7 +6,7 @@ export const REVENGE_HELP: Readonly<Record<string, StatHelp>> = {
     title: 'Morts avec revenge',
     what: "Part des morts suivies d'une revenge par un coéquipier.",
     how: 'Morts dont le tueur est tué par un coéquipier de la victime dans les 3 secondes, divisées par les morts (suicides et kills alliés exclus).',
-    read: 'Plus haut est meilleur : la mort est rendue tout de suite et le round reste équilibré.',
+    read: "Plus haut est meilleur : la mort est rendue tout de suite et le round reste équilibré. Un 5-stack joue plus groupé que des adversaires en solo queue : un avantage ici face aux adversaires est attendu, il ne vaut un point fort que s'il tient aussi face au top ranked.",
   },
   revengesGiven: {
     title: 'Revenges données',
@@ -23,7 +23,7 @@ export const REVENGE_HELP: Readonly<Record<string, StatHelp>> = {
     title: 'Morts isolées',
     what: 'Part des morts sans coéquipier à proximité.',
     how: "Morts où aucun coéquipier vivant n'est à moins de 15 m de la victime, divisées par les morts où au moins un coéquipier est encore vivant.",
-    read: 'Plus bas est meilleur : une mort isolée ne peut presque jamais recevoir de revenge.',
+    read: 'Plus bas est meilleur : une mort isolée ne peut presque jamais recevoir de revenge. Comme pour la revenge, un 5-stack part avantagé face à des adversaires en solo queue.',
   },
   nearestMate: {
     title: 'Coéquipier le plus proche',

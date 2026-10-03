@@ -1,4 +1,13 @@
-import { Component, computed, inject, input, signal } from '@angular/core';
+import {
+  Component,
+  computed,
+  effect,
+  inject,
+  input,
+  linkedSignal,
+  signal,
+  untracked,
+} from '@angular/core';
 
 import { Side } from '@core/common/enums.model';
 import { SIDE_LABELS } from '@core/format/labels.constants';
@@ -14,7 +23,7 @@ import { LayerToggles } from './layer-toggles/layer-toggles';
 import { MapPicker } from './map-picker/map-picker';
 import { DEFAULT_LAYERS } from './minimap-layers.constants';
 import { MinimapLayerKey } from './minimap-layers.model';
-import { layerCounts, minimapMarkers, pickMap } from './minimap.utils';
+import { layerCounts, minimapMarkers, pickMap, sideLayers } from './minimap.utils';
 import { ZoneTable } from './zone-table/zone-table';
 
 /**
@@ -29,12 +38,15 @@ import { ZoneTable } from './zone-table/zone-table';
 export class MinimapView {
   /** Route parameter: the map, any case ('split'). */
   public readonly map = input<string>();
+  /** Query parameters of a deep link (Points forts et faibles): 'att' or 'def', and a squad player. */
+  public readonly sideParam = input<string | undefined>(undefined, { alias: 'side' });
+  public readonly playerParam = input<string | undefined>(undefined, { alias: 'player' });
 
   protected readonly context = inject(ReportContext);
   protected readonly state = inject(ReportState);
   private readonly api = inject(ReportApi);
 
-  protected readonly side = signal<Side>('att');
+  protected readonly side = linkedSignal<Side>(() => (this.sideParam() === 'def' ? 'def' : 'att'));
   protected readonly layers = signal<ReadonlySet<MinimapLayerKey>>(DEFAULT_LAYERS);
   /** Zone hovered in the table, circled on the map. */
   private readonly hoveredZone = signal<string | null>(null);
@@ -51,6 +63,7 @@ export class MinimapView {
   private readonly data = computed(() => resourceValue(this.view, null));
   protected readonly sideData = computed(() => this.data()?.sides[this.side()]);
   protected readonly counts = computed(() => layerCounts(this.sideData()));
+  protected readonly visibleLayers = computed(() => sideLayers(this.side()));
   protected readonly markers = computed(() => {
     const data = this.data();
     return data
@@ -66,6 +79,16 @@ export class MinimapView {
   protected readonly sideLabel = computed(() => SIDE_LABELS[this.side()].toLowerCase());
   protected readonly sides: readonly Side[] = ['att', 'def'];
   protected readonly sideLabels = SIDE_LABELS;
+
+  constructor() {
+    // A linked player becomes the player filter once; the select changes it afterwards.
+    effect(() => {
+      const player = this.playerParam();
+      if (player) {
+        untracked(() => this.state.setFilter('player', player));
+      }
+    });
+  }
 
   protected toggleLayer(key: MinimapLayerKey): void {
     this.layers.update((current) => {

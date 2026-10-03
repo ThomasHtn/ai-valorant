@@ -2,12 +2,13 @@ import { formatGap } from '@core/format/value-format.utils';
 import { twoProportionPValue } from '@core/report/proportion-test.utils';
 import { DomainTables, StatCell, StatColumn, StatRow } from '@core/report/stat-table.model';
 
-import { MAX_ROWS_PER_TABLE, SIGNIFICANCE_LEVEL } from './compare.constants';
+import { MAX_ROWS_PER_TABLE, SIGNIFICANCE_LEVEL, SORTED_GROUP_TITLE } from './compare.constants';
 import {
   CompareCohort,
   CompareGap,
   CompareGroup,
   CompareLine,
+  CompareSort,
   CompareValue,
 } from './compare.model';
 
@@ -60,13 +61,16 @@ function comparableColumns(columns: StatColumn[]): StatColumn[] {
 }
 
 function line(
+  table: { id: string; title: string },
   row: StatRow | null,
   column: StatColumn,
   a: CompareValue,
   b: CompareValue,
 ): CompareLine {
   return {
-    key: `${row?.key ?? ''}:${column.key}`,
+    // Table id first: once every table is mixed in one list, keys stay unique.
+    key: `${table.id}:${row?.key ?? ''}:${column.key}`,
+    source: table.title,
     rowLabel: row?.label ?? '',
     rowSub: row?.sub ?? null,
     columnLabel: column.label,
@@ -102,7 +106,7 @@ export function teamGroups(
         const va = cohortValue(row.cells[column.key], a);
         const vb = cohortValue(row.cells[column.key], b);
         if (va.value !== null || vb.value !== null) {
-          lines.push(line(row, column, va, vb));
+          lines.push(line(table, row, column, va, vb));
         }
       }
     }
@@ -136,6 +140,7 @@ export function playerGroups(
       .filter((c) => rowA.cells[c.key] && rowB.cells[c.key])
       .map((c) =>
         line(
+          table,
           null,
           c,
           cohortValue(rowA.cells[c.key], 'squad'),
@@ -147,4 +152,44 @@ export function playerGroups(
     }
   }
   return groups;
+}
+
+/**
+ * Size of a gap, comparable across formats: points for a rate (0.05 = 5 points), the relative gap
+ * for a mean (0.05 = 5 % of B). Null when a side is missing.
+ */
+export function gapSize(line: CompareLine): number | null {
+  const { value: a } = line.a;
+  const { value: b } = line.b;
+  if (typeof a !== 'number' || typeof b !== 'number') {
+    return null;
+  }
+  if (line.format === 'pct') {
+    return Math.abs(a - b);
+  }
+  return b === 0 ? Math.abs(a) : Math.abs(a - b) / Math.abs(b);
+}
+
+/**
+ * Lines as the analyst asked: only the gaps that hold (not grey) when `netOnly`, and either the
+ * domain's tables in order or a single list of every table, biggest gap first. A gap that holds
+ * comes before a grey one of the same size.
+ */
+export function arrangeGroups(
+  groups: readonly CompareGroup[],
+  sort: CompareSort,
+  netOnly: boolean,
+): CompareGroup[] {
+  const kept = groups
+    .map((g) => ({ ...g, lines: netOnly ? g.lines.filter((l) => l.gap.tone !== 'ns') : g.lines }))
+    .filter((g) => g.lines.length);
+  if (sort === 'tables') {
+    return kept;
+  }
+  const lines = kept
+    .flatMap((g) => g.lines)
+    .map((l) => ({ line: l, size: gapSize(l) ?? -1, net: l.gap.tone !== 'ns' }))
+    .sort((x, y) => y.size - x.size || Number(y.net) - Number(x.net))
+    .map((x) => x.line);
+  return lines.length ? [{ id: 'sorted', title: SORTED_GROUP_TITLE, lines, mixed: true }] : [];
 }

@@ -24,8 +24,8 @@ export const AGENTS_HELP: Readonly<Record<string, StatHelp>> = {
     how: 'First blood = premier kill du round ; first death = première mort du round.',
   },
   openingWon: {
-    title: "Duels d'ouverture gagnés",
-    what: "La part des duels d'ouverture que le joueur gagne quand il est impliqué.",
+    title: 'Premiers duels gagnés',
+    what: 'La part des premiers duels que le joueur gagne quand il est impliqué.',
     how: 'First bloods / (first bloods + first deaths).',
     read: "Au-dessus de 50 %, le joueur gagne plus d'ouvertures qu'il n'en perd.",
   },

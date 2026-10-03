@@ -1,11 +1,19 @@
 import { Reference } from '@core/common/enums.model';
 import { STATUS_LABELS } from '@core/format/labels.constants';
-import { formatGap, formatValue } from '@core/format/value-format.utils';
+import { formatGap } from '@core/format/value-format.utils';
+import {
+  detailLabel,
+  gapUnit,
+  groupBySubject,
+  mainCauses,
+  referenceText,
+  subjectLabel,
+} from '@core/report/finding-subjects.utils';
 import { Finding, FindingSide } from '@core/report/findings.model';
 import { StatTable } from '@core/report/stat-table.model';
 
 import { FigureTile, figureTile } from '../players/players.utils';
-import { HEADLINE_MAP_COLUMNS, HEADLINE_ROUND_TYPE } from './summary.constants';
+import { HEADLINE_MAP_COLUMNS, HEADLINE_ROUND_TYPE, HEADLINE_UNITS } from './summary.constants';
 import { PriorityItem } from './summary.model';
 
 /** The table with only the given columns, in that order; rows are kept as they are. */
@@ -33,7 +41,16 @@ export function headlineTiles(
     const cell = total?.cells[key];
     if (column && cell) {
       tiles.push(
-        figureTile(key, column.label, column.help ?? null, cell, column, reference, colours),
+        figureTile(
+          key,
+          column.label,
+          column.help ?? null,
+          cell,
+          column,
+          reference,
+          colours,
+          HEADLINE_UNITS[key],
+        ),
       );
     }
   }
@@ -49,35 +66,36 @@ export function headlineTiles(
         rw,
         reference,
         colours,
+        HEADLINE_UNITS['fullbuy'],
       ),
     );
   }
   return tiles;
 }
 
-/** The `count` costliest weaknesses (or biggest strengths) in rounds, ready to draw. */
+/**
+ * The `count` costliest subjects of the weaknesses (or strengths), each led by its biggest finding;
+ * overlapping findings on the same map or player are counted once, not listed again.
+ */
 export function priorityItems(
   findings: readonly Finding[],
   side: FindingSide,
   count: number,
 ): PriorityItem[] {
-  return findings
-    .filter((f) => f.side === side)
-    .sort((a, b) => Math.abs(b.gapRounds) - Math.abs(a.gapRounds))
+  return groupBySubject(findings.filter((f) => f.side === side))
     .slice(0, count)
-    .map((f, index) => {
-      const reference = f.reference === 'opp' ? f.opp : f.top;
-      const referenceName = f.reference === 'opp' ? 'adversaires' : 'top ranked';
-      return {
-        key: `${side}-${index}`,
-        art: f.art,
-        scope: f.scope,
-        metric: f.metric,
-        status: STATUS_LABELS[f.status],
-        confirmed: f.status === 'confirmed',
-        detail: `${formatValue(f.squad.value, 'pct')} contre ${formatValue(reference.value, 'pct')} (${referenceName})`,
-        gap: formatGap(f.gapRounds, 'dec1'),
-        rewatch: f.rewatch,
-      };
-    });
+    .map(({ key, lead, others }) => ({
+      key,
+      art: lead.art,
+      scope: subjectLabel(lead),
+      metric: detailLabel(lead),
+      status: STATUS_LABELS[lead.status],
+      confirmed: lead.status === 'confirmed',
+      detail: referenceText(lead),
+      gap: formatGap(lead.gapRounds, 'dec1'),
+      unit: gapUnit(lead),
+      causes: mainCauses(lead),
+      others: others.length,
+      rewatch: lead.rewatch,
+    }));
 }

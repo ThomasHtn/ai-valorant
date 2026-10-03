@@ -62,7 +62,13 @@ export class TablesView {
   });
   private readonly api = inject(ReportApi);
   protected readonly tables = this.api.tables(this.context.query, this.domainKey);
-  /** Repetitions, gaps and links of the period, whatever the domain; loaded for the entry's count. */
+  /** Whether a table of the domain has columns always compared with the squad's history. */
+  protected readonly hasHistoryColumns = computed(() =>
+    (resourceValue(this.tables, null)?.tables ?? []).some((t) =>
+      t.columns.some((c) => c.ref === 'hist'),
+    ),
+  );
+  /** Repetitions and links of the period, whatever the domain; loaded for the entry's count. */
   protected readonly detections = this.api.detections(this.context.query);
   protected readonly detectionCount = computed(() => {
     const value = resourceValue(this.detections, null);

@@ -9,9 +9,9 @@ import { FilterBar } from '@shared/filter-bar/filter-bar';
 import { ResourceState } from '@shared/resource-state/resource-state';
 
 import { scopeFilter } from '../tables/tables-view.utils';
-import { COMPARE_COHORTS, COMPARE_MODES } from './compare.constants';
-import { CompareCohort, CompareMode, CompareOption } from './compare.model';
-import { playerGroups, teamGroups } from './compare.utils';
+import { COMPARE_COHORTS, COMPARE_MODES, COMPARE_SORTS } from './compare.constants';
+import { CompareCohort, CompareMode, CompareOption, CompareSort } from './compare.model';
+import { arrangeGroups, playerGroups, teamGroups } from './compare.utils';
 import { CompareTable } from './compare-table/compare-table';
 import { SelectionBox } from './selection-box/selection-box';
 
@@ -23,6 +23,7 @@ const COHORT_OPTIONS: CompareOption[] = Object.entries(COMPARE_COHORTS).map(([va
 /**
  * Comparateur: the metrics of one domain for two selections side by side, either two teams or
  * periods read in the same cells (squad, history, opponents, top ranked), or two squad players.
+ * Lines follow the domain's tables or come biggest gap first, optionally only the gaps that hold.
  */
 @Component({
   selector: 'app-compare-view',
@@ -34,6 +35,7 @@ export class CompareView {
   private readonly state = inject(ReportState);
 
   protected readonly modes = COMPARE_MODES;
+  protected readonly sorts = COMPARE_SORTS;
   protected readonly domains = REPORT_DOMAINS;
   protected readonly cohortOptions = COHORT_OPTIONS;
 
@@ -41,6 +43,9 @@ export class CompareView {
   protected readonly domain = signal<string>(DEFAULT_DOMAIN);
   protected readonly cohortA = signal<CompareCohort>('squad');
   protected readonly cohortB = signal<CompareCohort>('hist');
+  protected readonly sort = signal<CompareSort>('tables');
+  /** Hide the gaps that can come from chance. */
+  protected readonly netOnly = signal(false);
   /** Chosen players; empty means the first (A) or second (B) player of the period. */
   private readonly chosenA = signal('');
   private readonly chosenB = signal('');
@@ -56,7 +61,13 @@ export class CompareView {
   protected readonly playerA = computed(() => this.chosenA() || this.players()[0] || '');
   protected readonly playerB = computed(() => this.chosenB() || this.players()[1] || '');
 
-  protected readonly groups = computed(() => {
+  protected readonly groups = computed(() =>
+    arrangeGroups(this.allGroups(), this.sort(), this.netOnly()),
+  );
+  /** Something to compare before the net-only filter, to tell an empty domain from a quiet one. */
+  protected readonly hasLines = computed(() => this.allGroups().length > 0);
+
+  private readonly allGroups = computed(() => {
     const domain = resourceValue(this.tables, null);
     if (!domain) {
       return [];

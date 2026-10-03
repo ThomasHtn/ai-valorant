@@ -27,7 +27,7 @@ import { rewatchGroups } from './rewatch-links.utils';
           >
           @for (round of group.rounds; track round.key) {
             <a
-              class="focus-ring bg-brand-500/12 px-1.5 text-[0.85rem] leading-6 font-semibold tabular-nums no-underline transition-colors hover:bg-brand-500/25"
+              class="focus-ring bg-brand-500/12 px-1.5 text-sm leading-6 font-semibold tabular-nums no-underline transition-colors hover:bg-brand-500/25"
               [routerLink]="round.commands"
               queryParamsHandling="preserve"
               [attr.aria-label]="group.label + ', round ' + round.label.slice(1)"
@@ -38,7 +38,7 @@ import { rewatchGroups } from './rewatch-links.utils';
       }
     }
   `,
-  host: { class: 'flex flex-wrap items-center gap-x-3.5 gap-y-1 text-[0.92rem]' },
+  host: { class: 'flex flex-wrap items-center gap-x-3.5 gap-y-1 text-sm' },
 })
 export class RewatchLinks {
   public readonly rounds = input.required<RewatchRound[]>();

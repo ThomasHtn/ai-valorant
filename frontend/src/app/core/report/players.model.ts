@@ -30,6 +30,8 @@ export interface HeadlineStat {
   /** 1 higher is better, -1 lower is better. */
   better: number;
   help: string;
+  /** What the sample counts, written under the tile ('rounds', 'morts', 'duels'...). */
+  unit: string;
   /** Sample under which the tile stays grey. */
   min: number;
   cell: StatCell;
@@ -72,6 +74,12 @@ export interface DeathZone {
   share: number;
   firstDeaths: number;
   firstDeathShare: number;
+  /** Rounds the player played on that map. */
+  roundsPlayed: number;
+  /** His deaths in the zone per 100 rounds on that map. */
+  per100Rounds: number | null;
+  /** Same rate for top ranked players of his role; null without top ranked data. */
+  topPer100Rounds: number | null;
   rounds: ZoneDeath[];
 }
 

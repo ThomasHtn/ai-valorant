@@ -10,8 +10,14 @@ export const GRANULARITIES: readonly { key: Granularity; label: string }[] = [
   { key: 'match', label: 'Match' },
 ];
 
-/** Points under this sample turn grey (rounds, or player-rounds for individual stats). */
-export const TREND_MIN_SAMPLE = 20;
+/** Averages (ACS, ADR...) under this sample are too thin to conclude: hollow point. */
+export const TREND_MIN_SAMPLE = 100;
+
+/**
+ * Rates whose 95 % interval reaches further than this on either side are too thin to conclude:
+ * hollow point. 10 points is a 50 % rate on about 100 rounds.
+ */
+export const TREND_MAX_MARGIN = 0.1;
 
 /** Squad metrics drawn as small multiples under the chart, by month. */
 export const SMALL_MULTIPLES: readonly string[] = [

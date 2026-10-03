@@ -1,10 +1,22 @@
 import { Component, computed, input } from '@angular/core';
+import { RouterLink } from '@angular/router';
 
 import { STATUS_LABELS } from '@core/format/labels.constants';
 import { formatValue, integer } from '@core/format/value-format.utils';
+import { FindingSubject } from '@core/report/finding-subjects.model';
+import {
+  detailLabel,
+  findingLinks,
+  fiveStackCaveat,
+  gapUnit,
+  mainCauses,
+  referenceText,
+  subjectLabel,
+} from '@core/report/finding-subjects.utils';
 import { Finding } from '@core/report/findings.model';
 import { Rate } from '@core/report/rate.model';
 import { Badge } from '@shared/badge/badge';
+import { GapChip } from '@shared/gap-chip/gap-chip';
 import { resolveArt } from '@shared/game-art/art.utils';
 import { RowArt } from '@shared/game-art/row-art';
 import { RewatchLinks } from '@shared/rewatch-links/rewatch-links';
@@ -22,38 +34,65 @@ interface RateBar {
   isSquad: boolean;
 }
 
+/** A finding of the same subject, folded under the lead as one line. */
+interface OtherLine {
+  label: string;
+  detail: string;
+  gap: string;
+  confirmed: boolean;
+}
+
 const ONE_DECIMAL = new Intl.NumberFormat('fr-FR', {
   minimumFractionDigits: 1,
   maximumFractionDigits: 1,
 });
 
+/** '−8,5', '+12,7': rounds won or lost against the reference. */
+function signedRounds(gap: number): string {
+  return `${gap > 0 ? '+' : gap < 0 ? '−' : ''}${ONE_DECIMAL.format(Math.abs(gap))}`;
+}
+
 /**
- * A strength or weakness: scope and status, the metric, the rounds at stake, the squad's rate as a
- * bar beside the two fixed references (adversaires, top ranked), and the rounds to rewatch.
+ * Everything the period says about one subject (a map, a player, a global scope). The costliest
+ * finding leads with its bars against both references, why its rounds were lost and where to look;
+ * the other findings of the subject follow as single lines since they count the same rounds.
  */
 @Component({
   selector: 'app-finding-card',
-  imports: [Badge, RowArt, RewatchLinks],
+  imports: [Badge, GapChip, RowArt, RewatchLinks, RouterLink],
   templateUrl: './finding-card.html',
   host: {
     class:
-      'grid grid-cols-[2.25rem_minmax(0,1fr)_auto] items-start gap-x-3 gap-y-1 bg-text-primary/4 px-3.5 py-3',
+      'row-hover grid grid-cols-[2.25rem_minmax(0,1fr)_auto] items-start gap-x-3 gap-y-1.5 bg-text-primary/4 px-4 py-3.5',
   },
 })
 export class FindingCard {
-  public readonly finding = input.required<Finding>();
+  public readonly subject = input.required<FindingSubject>();
   public readonly playerAgents = input<Record<string, string>>({});
 
-  protected readonly art = computed(() => resolveArt(this.finding().art, this.playerAgents()));
-  protected readonly isWeak = computed(() => this.finding().side === 'weak');
-  protected readonly statusLabel = computed(() => STATUS_LABELS[this.finding().status]);
-  protected readonly gapText = computed(() => {
-    const gap = this.finding().gapRounds;
-    return `${gap > 0 ? '+' : gap < 0 ? '−' : ''}${ONE_DECIMAL.format(Math.abs(gap))}`;
-  });
+  protected readonly lead = computed<Finding>(() => this.subject().lead);
+  protected readonly title = computed(() => subjectLabel(this.lead()));
+  protected readonly metric = computed(() => detailLabel(this.lead()));
+  protected readonly art = computed(() => resolveArt(this.lead().art, this.playerAgents()));
+  protected readonly isWeak = computed(() => this.lead().side === 'weak');
+  protected readonly statusLabel = computed(() => STATUS_LABELS[this.lead().status]);
+  protected readonly gapText = computed(() => signedRounds(this.lead().gapRounds));
+  protected readonly gapUnit = computed(() => gapUnit(this.lead()));
+  protected readonly causes = computed(() => mainCauses(this.lead()));
+  protected readonly caveat = computed(() => fiveStackCaveat(this.lead()));
+  protected readonly links = computed(() => findingLinks(this.lead()));
+
+  protected readonly others = computed<OtherLine[]>(() =>
+    this.subject().others.map((f) => ({
+      label: detailLabel(f),
+      detail: referenceText(f),
+      gap: signedRounds(f.gapRounds),
+      confirmed: f.status === 'confirmed',
+    })),
+  );
 
   protected readonly bars = computed<RateBar[]>(() => {
-    const f = this.finding();
+    const f = this.lead();
     const bar = (label: string, rate: Rate, fill: string, isSquad = false): RateBar => ({
       label,
       value: formatValue(rate.value, 'pct'),

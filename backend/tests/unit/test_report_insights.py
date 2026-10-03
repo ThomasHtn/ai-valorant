@@ -11,9 +11,9 @@ from valostats.analysis.report.foundation.period_selection import PeriodQuery, r
 from valostats.analysis.report.insights.detections import zone_first_deaths
 from valostats.analysis.report.insights.distributions import Binning, histogram, round_length_ms
 from valostats.analysis.report.insights.finding_tests import FindingTest, Unit, always
-from valostats.analysis.report.insights.findings import FindingContext, run_test
+from valostats.analysis.report.insights.findings import FindingContext, run_test, weakness_loss_causes
 from valostats.analysis.statistics.proportions import fisher_exact, proportions_p_value, two_proportions
-from valostats.domain.enums import Cohort, KillerCohort, Reference, Side
+from valostats.domain.enums import Cohort, KillerCohort, LossCause, Reference, Side
 from valostats.schemas.report.detections import RepetitionKind
 from valostats.schemas.report.findings import FindingGroup
 
@@ -59,6 +59,9 @@ def test_gap_in_rounds_is_rate_gap_times_sample_for_round_outcomes() -> None:
     assert tested.leverage == 1.0
     # The rounds to rewatch are the lost retakes.
     assert all(not r.won for r in tested.rewatch_facts)
+    assert tested.matches == 1
+    # Every lost retake was planted while even: the weakness points at the retake itself.
+    assert weakness_loss_causes(tested) == {LossCause.RETAKE_FAILED: 16}
 
 
 def test_too_small_samples_are_not_tested() -> None:
@@ -90,6 +93,23 @@ def test_zone_first_deaths_need_four_deaths_over_two_matches() -> None:
     found = zone_first_deaths(cohorts_with(repeated))
     assert [(r.kind, r.zone, r.count, r.matches) for r in found] == [(RepetitionKind.ZONE_FIRST_DEATHS, "A Main", 4, 2)]
     assert zone_first_deaths(cohorts_with(one_match)) == []
+
+
+def test_zone_first_deaths_skip_zones_where_top_ranked_die_as_often() -> None:
+    def first_death(match_id: str, round_index: int, zone: str, cohort: Cohort = Cohort.SQUAD) -> Any:
+        return kill_fact(match_id=match_id, round_index=round_index, killer_cohort=KillerCohort.OPPONENT, victim_cohort=cohort,
+                         victim="Alpha", victim_side=Side.ATTACK, victim_zone=zone, started_at=SEPTEMBER)  # fmt: skip
+
+    squad = [first_death(m, i, "A Main") for m in ("m1", "m2") for i in range(2)]
+    squad += [first_death(m, i, "B Main") for m in ("m1", "m2") for i in range(2, 4)]
+    # Top ranked die first at A Main half the time, like the squad, and never at B Main.
+    top = [first_death("t1", i, "A Main" if i % 2 else "Mid", Cohort.TOP) for i in range(10)]
+    matches = [match_fact(), match_fact(match_id="m2"), match_fact(match_id="old", started_at=AUGUST)]
+    window = resolve(PeriodQuery(month="2026-09"), [m.started_at for m in matches], [m.patch for m in matches])
+    facts = {FactKind.MATCHES: matches, FactKind.ROUNDS: [], FactKind.KILLS: squad, FactKind.PLAYER_ROUNDS: [],
+             FactKind.PLAYER_MATCHES: []}  # fmt: skip
+    cohorts = build_cohorts(window, facts, build_index([], [], top, [], [], Cohort.TOP))
+    assert [r.zone for r in zone_first_deaths(cohorts)] == ["B Main"]
 
 
 def test_histogram_puts_large_values_in_the_open_last_bin() -> None:

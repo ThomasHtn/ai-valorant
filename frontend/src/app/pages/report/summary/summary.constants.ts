@@ -8,6 +8,16 @@ export const SUMMARY_TABLES = {
 /** Headline tiles read on the "Toutes les cartes" row of the maps table. */
 export const HEADLINE_MAP_COLUMNS = ['rw', 'diff', 'att', 'def', 'pistol'] as const;
 
+/** What the sample of each headline tile counts ('Sur 576 rounds', 'Sur 27 matchs'). */
+export const HEADLINE_UNITS: Record<string, string> = {
+  rw: 'rounds',
+  diff: 'matchs',
+  att: 'rounds',
+  def: 'rounds',
+  pistol: 'pistols',
+  fullbuy: 'rounds',
+};
+
 /** Round type row shown as a headline tile beside the map figures. */
 export const HEADLINE_ROUND_TYPE = 'Full buy contre full buy';
 

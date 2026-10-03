@@ -90,7 +90,6 @@ describe('detectionGroups', () => {
   it('puts zone repetitions first and drops empty lists', () => {
     const detections: Detections = {
       repetitions: [repetition({}), repetition({ kind: 'zone_first_deaths', label: 'zone' })],
-      gaps: [],
       links: [],
     };
     const groups = detectionGroups(detections);

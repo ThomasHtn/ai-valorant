@@ -3,7 +3,14 @@ import { describe, expect, it } from 'vitest';
 import { RoundLine } from '@core/report/rounds.model';
 
 import { DEFAULT_ROUND_FILTERS } from './rounds-filter.constants';
-import { filterOptions, filterRounds, queryScope } from './rounds-filter.utils';
+import {
+  filterOptions,
+  filterRounds,
+  queryScope,
+  readRoundParams,
+  roundParams,
+  sortRounds,
+} from './rounds-filter.utils';
 
 function line(partial: Partial<RoundLine>): RoundLine {
   return {
@@ -22,6 +29,8 @@ function line(partial: Partial<RoundLine>): RoundLine {
     maxAdvantage: 0,
     bestState: null,
     bestProbability: null,
+    maxDrop: 0,
+    thrown: false,
     ...partial,
   };
 }
@@ -61,6 +70,48 @@ describe('rounds filters', () => {
     expect(filterOptions(rounds)).toEqual({
       causes: ['clutch_lost', 'opening_lost'],
       maps: ['Lotus', 'Split'],
+    });
+  });
+
+  it('keeps the throws only with the throws filter', () => {
+    const list = [line({ roundNumber: 1, thrown: true }), line({ roundNumber: 2 })];
+    const filters = { ...DEFAULT_ROUND_FILTERS, result: 'thrown' as const };
+    expect(filterRounds(list, filters, []).map((r) => r.roundNumber)).toEqual([1]);
+  });
+
+  it('sorts by the biggest fall', () => {
+    const list = [line({ roundNumber: 1, maxDrop: 0.2 }), line({ roundNumber: 2, maxDrop: 0.6 })];
+    expect(sortRounds(list, 'swing').map((r) => r.roundNumber)).toEqual([2, 1]);
+    expect(sortRounds(list, 'date').map((r) => r.roundNumber)).toEqual([1, 2]);
+  });
+
+  it('reads a deep link from another view', () => {
+    const { filters, sort } = readRoundParams(
+      { map: 'Split', side: 'def', result: 'lost', preset: 'throws', player: 'x' } as never,
+      DEFAULT_ROUND_FILTERS,
+    );
+    expect(filters).toEqual({
+      ...DEFAULT_ROUND_FILTERS,
+      map: 'Split',
+      side: 'def',
+      result: 'thrown',
+    });
+    expect(sort).toBe('date');
+    expect(readRoundParams({ result: 'won' }, DEFAULT_ROUND_FILTERS).filters.result).toBe('won');
+    expect(readRoundParams({}, DEFAULT_ROUND_FILTERS).filters.result).toBe('lost');
+  });
+
+  it('writes only what differs from the defaults', () => {
+    expect(
+      roundParams({ ...DEFAULT_ROUND_FILTERS, result: 'thrown', map: 'Split' }, 'swing'),
+    ).toEqual({
+      map: 'Split',
+      side: null,
+      result: null,
+      preset: 'throws',
+      cause: null,
+      buy: null,
+      sort: 'swing',
     });
   });
 });

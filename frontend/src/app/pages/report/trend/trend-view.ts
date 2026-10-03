@@ -10,13 +10,7 @@ import { InfoTip } from '@shared/info-tip/info-tip';
 import { LineChart } from '@shared/line-chart/line-chart';
 import { ResourceState } from '@shared/resource-state/resource-state';
 
-import {
-  Granularity,
-  GRANULARITIES,
-  SMALL_MULTIPLES,
-  TEAM_SUBJECT,
-  TREND_MIN_SAMPLE,
-} from './trend.constants';
+import { Granularity, GRANULARITIES, SMALL_MULTIPLES, TEAM_SUBJECT } from './trend.constants';
 import { TrendSparkline } from './trend-sparkline';
 import {
   availableGranularities,
@@ -32,7 +26,7 @@ import {
 /**
  * Tendance: one metric over the whole history, for the squad or a player, one point per month,
  * patch or match, with its sample, patch changes, the top ranked line and the report's period
- * ringed. Small multiples of six squad figures by month sit under the chart.
+ * ringed. Rates carry their 95 % interval as a band; points with too little data are hollow. Small multiples of six squad figures by month sit under the chart.
  */
 @Component({
   selector: 'app-trend-view',
@@ -45,7 +39,6 @@ export class TrendView {
   private readonly data = computed<Trends | null>(() => resourceValue(this.trends, null) ?? null);
 
   protected readonly granularities = GRANULARITIES;
-  protected readonly minSample = TREND_MIN_SAMPLE;
   protected readonly teamSubject = TEAM_SUBJECT;
 
   /** 'team' or a player's name. */
@@ -84,6 +77,11 @@ export class TrendView {
     return definition ? metricHelp(definition) : null;
   });
   protected readonly isTeam = computed(() => this.subject() === TEAM_SUBJECT);
+  /** Patches the top ranked line is measured on ('13.06'), from the report header. */
+  protected readonly topPatches = computed(() => {
+    const meta = resourceValue(this.context.meta, null);
+    return meta?.quality.topPatches.join(', ') ?? '';
+  });
 
   protected readonly chart = computed(() => {
     const data = this.data();
@@ -97,6 +95,7 @@ export class TrendView {
       markers: trendMarkers(data, granularity),
       reference: trendReference(data, this.subject(), definition.key),
       format: definition.format,
+      banded: definition.format === 'pct' && granularity !== 'match',
     };
   });
 
@@ -112,11 +111,7 @@ export class TrendView {
         return [];
       }
       const current = periodValue(data, key);
-      const view = sparkline(
-        trendPoints(data, TEAM_SUBJECT, key, 'month'),
-        definition.top,
-        TREND_MIN_SAMPLE,
-      );
+      const view = sparkline(trendPoints(data, TEAM_SUBJECT, key, 'month'), definition.top);
       return view
         ? [
             {

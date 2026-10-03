@@ -1,7 +1,7 @@
 import { RewatchRound } from '@core/report/findings.model';
 import { GameArt } from '@core/report/stat-table.model';
 
-/** One weakness or strength of the summary, ready to draw. */
+/** One subject (map, player...) of the summary's weaknesses or strengths, ready to draw. */
 export interface PriorityItem {
   key: string;
   art: GameArt | null;
@@ -14,5 +14,11 @@ export interface PriorityItem {
   detail: string;
   /** '−8,5'. */
   gap: string;
+  /** 'rounds sur 5 matchs'. */
+  unit: string;
+  /** Main causes of the lost rounds behind a weakness, or null. */
+  causes: string | null;
+  /** Other findings on the same subject, folded in the Points forts et faibles view. */
+  others: number;
   rewatch: RewatchRound[];
 }

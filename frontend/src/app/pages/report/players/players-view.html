@@ -1,6 +1,8 @@
-@let display = state.preferences();
+@let display = sheetDisplay();
 
-<app-filter-bar [showMap]="false" [showSide]="false" [showPlayer]="false" />
+<app-filter-bar [showMap]="false" [showSide]="false" [showPlayer]="false" [showReference]="false">
+  <app-player-reference />
+</app-filter-bar>
 
 <app-resource-state
   [resource]="players"
@@ -26,16 +28,18 @@
             [roleLabel]="roleLabel()"
           />
 
-          <div class="grid items-start gap-5 xl:grid-cols-[minmax(0,1.45fr)_minmax(0,1fr)]">
+          <app-tone-legend [reference]="display.reference" />
+          <div
+            class="grid items-start gap-x-8 gap-y-5 xl:grid-cols-[minmax(0,1.45fr)_minmax(0,1fr)]"
+          >
             <div class="flex min-w-0 flex-col gap-5">
-              <app-tone-legend [reference]="display.reference" />
               @for (table of tables(); track table.id) {
                 <section
                   class="flex min-w-0 flex-col gap-1.5"
                   [attr.aria-labelledby]="'player-' + table.id"
                 >
                   <h3
-                    class="!m-0 font-display text-[1.05rem] font-semibold text-text-primary"
+                    class="!m-0 font-display text-lg font-semibold text-text-primary"
                     [id]="'player-' + table.id"
                   >
                     {{ table.title }}

@@ -1,6 +1,5 @@
 import { formatValue, integer } from '@core/format/value-format.utils';
 import { Detections, Link, Repetition } from '@core/report/detections.model';
-import { Finding } from '@core/report/findings.model';
 import { Rate } from '@core/report/rate.model';
 
 import {
@@ -10,21 +9,12 @@ import {
 } from './detections-panel.constants';
 import { DetectionGroup, DetectionItem } from './detections-panel.model';
 
-const ONE_DECIMAL = new Intl.NumberFormat('fr-FR', {
-  minimumFractionDigits: 1,
-  maximumFractionDigits: 1,
-});
-
 function pct(value: number | null | undefined): string {
   return formatValue(value ?? null, 'pct');
 }
 
 function rate(r: Rate | null | undefined): string {
   return pct(r?.value);
-}
-
-function rounds(gap: number): string {
-  return `${gap > 0 ? '+' : gap < 0 ? '−' : ''}${ONE_DECIMAL.format(Math.abs(gap))} rounds`;
 }
 
 /** First deaths in one spot, a repeated cause of lost rounds, a situation lost again and again. */
@@ -43,21 +33,6 @@ export function repetitionItem(r: Repetition, index: number): DetectionItem {
     detail,
     sample: `Sur ${integer(r.baseRounds)} rounds, ${r.matches} matchs`,
     rewatch: r.rewatch,
-  };
-}
-
-/** A confirmed gap: the squad's rate against the reference it was tested on, and the rounds at stake. */
-export function gapItem(f: Finding, index: number): DetectionItem {
-  const reference = f.reference === 'opp' ? f.opp : f.top;
-  const referenceName = f.reference === 'opp' ? 'adversaires' : 'top ranked';
-  return {
-    key: `gap-${index}`,
-    art: f.art,
-    scope: f.scope,
-    title: f.metric,
-    detail: `${rate(f.squad)} contre ${rate(reference)} (${referenceName}), ${rounds(f.gapRounds)}`,
-    sample: `Sur ${integer(f.squad.total)}`,
-    rewatch: f.rewatch,
   };
 }
 
@@ -86,7 +61,7 @@ export function linkItem(l: Link, index: number): DetectionItem {
   };
 }
 
-/** The panel's three lists, each cut to its first items; empty lists are left out. */
+/** The panel's two lists, each cut to its first items; empty lists are left out. */
 export function detectionGroups(detections: Detections): DetectionGroup[] {
   const repetitions = [...detections.repetitions].sort(
     (a, b) => REPETITION_ORDER[a.kind] - REPETITION_ORDER[b.kind],
@@ -97,12 +72,6 @@ export function detectionGroups(detections: Detections): DetectionGroup[] {
       title: 'Ce qui se répète',
       help: 'detRepeat',
       items: repetitions.slice(0, MAX_DETECTIONS_PER_GROUP).map(repetitionItem),
-    },
-    {
-      key: 'gaps',
-      title: 'Écarts nets avec la référence',
-      help: 'detGap',
-      items: detections.gaps.slice(0, MAX_DETECTIONS_PER_GROUP).map(gapItem),
     },
     {
       key: 'links',

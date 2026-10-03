@@ -1,22 +1,28 @@
-<h2 class="!mt-0 !mb-1 flex items-center gap-2">
-  <span
-    class="size-3 rounded-full"
-    [class]="weak() ? 'bg-rating-bad' : 'bg-rating-good'"
-    aria-hidden="true"
-  ></span>
-  {{ heading() }}
-  <span class="font-sans text-base font-normal text-text-muted">{{ column().count }}</span>
-</h2>
+<header
+  class="flex items-center gap-3 border-b-2 bg-text-primary/8 px-4 py-2.5"
+  [class]="weak() ? 'border-rating-bad' : 'border-rating-good'"
+>
+  <h2 class="!m-0 text-xl after:!hidden">{{ heading() }}</h2>
+  <app-badge [label]="countLabel()" [kind]="weak() ? 'bad' : 'good'" size="sm" />
+</header>
 
-@for (group of column().groups; track group.group) {
-  <p class="!mt-2.5 !mb-0.5 text-[0.95rem] text-text-secondary">
-    {{ group.label }} · {{ group.findings.length }}
-  </p>
-  @for (finding of group.findings; track $index) {
-    <app-finding-card [finding]="finding" [playerAgents]="playerAgents()" />
+<div class="flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain">
+  @for (group of column().groups; track group.group) {
+    <!-- Stays at the top of the column while its cards scroll under it. -->
+    <h3
+      class="sticky top-0 z-10 !m-0 flex items-center gap-2 border-b border-edge bg-surface-950 px-4 py-2 font-display text-base font-semibold text-text-primary"
+    >
+      {{ group.label }}
+      <span class="font-sans text-sm font-normal text-text-muted">{{ group.subjects.length }}</span>
+    </h3>
+    <div class="flex flex-col gap-0.5 p-0.5">
+      @for (subject of group.subjects; track subject.key) {
+        <app-finding-card [subject]="subject" [playerAgents]="playerAgents()" />
+      }
+    </div>
+  } @empty {
+    <p class="!m-auto px-6 py-10 text-center text-text-muted">
+      Aucun écart à afficher avec ces filtres.
+    </p>
   }
-} @empty {
-  <p class="!m-0 bg-text-primary/4 px-6 py-6 text-center text-text-muted">
-    Aucun écart à afficher avec ces filtres.
-  </p>
-}
+</div>

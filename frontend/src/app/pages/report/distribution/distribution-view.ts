@@ -5,27 +5,45 @@ import { resourceValue } from '@core/http/resource-state.utils';
 import { Distribution } from '@core/report/distributions.model';
 import { ReportApi } from '@core/report/report-api';
 import { ReportContext } from '@core/report/report-context';
+import { ReportState } from '@core/report/report-state';
+import { FilterBar } from '@shared/filter-bar/filter-bar';
 import { HistogramChart } from '@shared/histogram/histogram';
 import { withUnit } from '@shared/histogram/histogram.utils';
 import { InfoTip } from '@shared/info-tip/info-tip';
 import { ResourceState } from '@shared/resource-state/resource-state';
 import { StatTile } from '@shared/stat-tile/stat-tile';
 
-import { DISTRIBUTION_NOTES, distributionHelp, SQUAD_SUBJECT } from './distribution.constants';
-import { distributionSeries, medianGap } from './distribution.utils';
+import {
+  DISTRIBUTION_NOTES,
+  distributionHelp,
+  NO_PLANT_IN_DEFENSE,
+  SQUAD_SUBJECT,
+} from './distribution.constants';
+import { distributionSeries, medianGap, readingSentence } from './distribution.utils';
 
 /**
  * Distribution: how a value spreads (first kill time, plant time, kill distance, damage before
- * death, ACS per match, round length), the squad against top ranked, with both medians.
+ * death, ACS per match, round length), the squad against top ranked, with both medians and one
+ * sentence saying what their gap means. Map and side filters narrow both cohorts.
  */
 @Component({
   selector: 'app-distribution-view',
-  imports: [ResourceState, HistogramChart, InfoTip, StatTile],
+  imports: [FilterBar, ResourceState, HistogramChart, InfoTip, StatTile],
   templateUrl: './distribution-view.html',
 })
 export class DistributionView {
   private readonly context = inject(ReportContext);
-  protected readonly distributions = inject(ReportApi).distributions(this.context.query);
+  private readonly state = inject(ReportState);
+  /** Map and side of the shared filter bar; the player filter does not apply here. */
+  private readonly scope = computed(() => {
+    const { map, side } = this.state.filters();
+    return { map, side };
+  });
+  protected readonly distributions = inject(ReportApi).distributions(
+    this.context.query,
+    this.scope,
+  );
+  protected readonly maps = computed(() => resourceValue(this.context.meta, null)?.maps ?? []);
 
   private readonly all = computed(() => resourceValue(this.distributions, null) ?? []);
   /** Key of the histogram shown; the first one until the analyst picks another. */
@@ -50,6 +68,17 @@ export class DistributionView {
     return current ? distributionHelp(current.key, current.label) : null;
   });
   protected readonly note = computed(() => DISTRIBUTION_NOTES[this.current()?.key ?? ''] ?? '');
+  protected readonly reading = computed(() => {
+    const current = this.current();
+    const series = this.series();
+    return current && series ? readingSentence(current.key, series, current.unit) : null;
+  });
+  /** The plant histogram is empty in defense: say why instead of an empty chart. */
+  protected readonly emptyReason = computed(() =>
+    this.current()?.key === 'plantTime' && this.state.filters().side === 'def'
+      ? NO_PLANT_IN_DEFENSE
+      : null,
+  );
   protected readonly squadSubject = SQUAD_SUBJECT;
 
   protected readonly tiles = computed(() => {

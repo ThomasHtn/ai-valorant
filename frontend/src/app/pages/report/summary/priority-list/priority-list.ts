@@ -1,6 +1,7 @@
 import { Component, computed, input } from '@angular/core';
 
 import { Badge } from '@shared/badge/badge';
+import { GapChip } from '@shared/gap-chip/gap-chip';
 import { resolveArt } from '@shared/game-art/art.utils';
 import { RowArt } from '@shared/game-art/row-art';
 import { RewatchLinks } from '@shared/rewatch-links/rewatch-links';
@@ -14,7 +15,7 @@ import { PriorityItem } from '../summary.model';
  */
 @Component({
   selector: 'app-priority-list',
-  imports: [Badge, RowArt, RewatchLinks],
+  imports: [Badge, GapChip, RowArt, RewatchLinks],
   templateUrl: './priority-list.html',
   host: { class: 'block' },
 })

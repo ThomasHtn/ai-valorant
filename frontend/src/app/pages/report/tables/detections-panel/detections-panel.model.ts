@@ -15,7 +15,7 @@ export interface DetectionItem {
 
 /** One list of the panel with its heading and glossary key. */
 export interface DetectionGroup {
-  key: 'repetitions' | 'gaps' | 'links';
+  key: 'repetitions' | 'links';
   title: string;
   help: string;
   items: DetectionItem[];

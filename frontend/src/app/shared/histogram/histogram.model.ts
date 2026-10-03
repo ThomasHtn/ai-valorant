@@ -48,8 +48,10 @@ export interface MedianView {
   label: string;
   /** CSS colour of the line and its label. */
   colour: string;
-  /** Extra vertical offset of the label so two close medians do not overlap. */
-  shift: number;
+  /** Where the label is written; two close medians get two rows beside both lines, never over them. */
+  labelX: number;
+  labelY: number;
+  anchor: 'start' | 'end';
 }
 
 export interface HistogramView {

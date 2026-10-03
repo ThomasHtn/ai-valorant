@@ -11,7 +11,7 @@ from valostats.analysis.report.foundation.death_rules import is_isolated
 from valostats.analysis.report.rounds.loss_causes import loss_cause
 from valostats.analysis.report.rounds.minimap import _Projector
 from valostats.analysis.report.rounds.round_sheet import round_sheet
-from valostats.analysis.report.rounds.round_states import best_moment, team_states
+from valostats.analysis.report.rounds.round_states import best_moment, biggest_drop, team_states
 from valostats.domain.enums import BuyType, LossCause, Side
 from valostats.domain.facts import Location, WinProbabilityCell
 from valostats.schemas.report.rounds import EventKind, RoundLine
@@ -59,6 +59,19 @@ def test_best_moment_reads_the_state_before_each_kill() -> None:
     best = best_moment(fact, states, table)
     assert best is not None and best.state == "5v3"
     assert best.probability == pytest.approx(10 / 12)
+
+
+def test_biggest_drop_counts_the_end_of_a_lost_round() -> None:
+    fact = round_fact(team_id="Red", side=Side.ATTACK, won=False, alive_end=0, opp_alive_end=2)
+    kills = [
+        kill_fact(ms=10_000, victim_team="Blue", killer_team="Red", victim_team_alive=5, killer_team_alive=5),
+        kill_fact(ms=20_000, victim_team="Red", killer_team="Blue", victim_team_alive=5, killer_team_alive=4),
+    ]
+    table = WinProbabilityTable([WinProbabilityCell(5, 5, Side.ATTACK, False, 5, 10), WinProbabilityCell(5, 4, Side.ATTACK, False, 8, 10)])
+    states = team_states(fact, kills)
+    assert [s.label for s in states] == ["5v5", "5v5", "5v4", "0v2"]
+    # The lost end falls from the 5v4 chance to 0, more than any kill did.
+    assert biggest_drop(fact, states, table) == pytest.approx(table.probability(5, 4, Side.ATTACK, False))
 
 
 def test_round_sheet_events_positions_and_economy() -> None:

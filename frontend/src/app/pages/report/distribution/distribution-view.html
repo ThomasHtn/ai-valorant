@@ -1,26 +1,28 @@
+<app-filter-bar
+  [maps]="maps()"
+  [showPlayer]="false"
+  [showReference]="false"
+  [showToggles]="false"
+/>
+
 <app-resource-state
+  class="mt-4 block"
   [resource]="distributions"
   notFoundText="Pas de distribution sur cette période."
 >
   @if (current(); as d) {
-    <div class="flex flex-col gap-5">
+    <div class="flex flex-col gap-4">
       <div
-        class="flex flex-wrap items-end gap-x-4 gap-y-2.5 bg-text-primary/4 px-3.5 py-3"
+        class="flex flex-wrap items-center gap-x-5 gap-y-2"
         role="group"
-        aria-label="Choix de la distribution"
+        aria-label="Choix de la répartition"
       >
-        <div class="flex flex-wrap gap-0.5">
+        <div class="seg-group flex-wrap">
           @for (item of distributions.value(); track item.key) {
-            @let active = item.key === d.key;
             <button
               type="button"
-              class="focus-ring cursor-pointer border px-2.5 py-1.5 text-left font-semibold transition-colors"
-              [class]="
-                active
-                  ? 'border-brand-500 bg-brand-500/10 text-text-primary'
-                  : 'border-transparent bg-text-primary/4 text-text-secondary hover:bg-text-primary/7 hover:text-text-primary'
-              "
-              [attr.aria-pressed]="active"
+              class="seg-option"
+              [attr.aria-pressed]="item.key === d.key"
               (click)="pick(item.key)"
             >
               {{ item.label }}
@@ -28,9 +30,13 @@
           }
         </div>
         @if (d.players) {
-          <label class="flex flex-col gap-1">
-            <span class="text-sm text-text-muted">Qui</span>
-            <select id="distribution-subject" class="field-control" (change)="setSubject($event)">
+          <label class="flex items-center gap-2">
+            <span class="filter-label">Qui</span>
+            <select
+              id="distribution-subject"
+              class="field-control min-w-28"
+              (change)="setSubject($event)"
+            >
               <option [value]="squadSubject" [selected]="subject() === squadSubject">
                 L'escouade
               </option>
@@ -67,16 +73,20 @@
               </span>
             </div>
           </div>
-          <app-histogram
-            [bins]="d.bins"
-            [binSize]="d.binSize"
-            [unit]="d.unit"
-            [label]="d.label"
-            [squad]="s.squad"
-            [top]="s.top"
-            [squadLabel]="s.who"
-          />
-          <p class="!m-0 text-[0.92rem] text-text-muted">
+          @if (emptyReason(); as reason) {
+            <p class="!m-0 py-8 text-center text-text-muted">{{ reason }}</p>
+          } @else {
+            <app-histogram
+              [bins]="d.bins"
+              [binSize]="d.binSize"
+              [unit]="d.unit"
+              [label]="d.label"
+              [squad]="s.squad"
+              [top]="s.top"
+              [squadLabel]="s.who"
+            />
+          }
+          <p class="!m-0 text-sm text-text-muted">
             Hauteur : part des valeurs dans chaque tranche, pour comparer deux échantillons de
             tailles différentes. {{ note() }}
           </p>
@@ -94,6 +104,9 @@
           />
           <app-stat-tile label="Écart des médianes" [value]="t.gap.value" [lines]="t.gap.lines" />
         </div>
+      }
+      @if (reading(); as sentence) {
+        <p class="!m-0 text-[1.05rem] text-text-primary">{{ sentence }}</p>
       }
     </div>
   }

@@ -77,7 +77,7 @@ def test_findings_report_shape(client: TestClient) -> None:
 
 def test_detections_trends_and_distributions(client: TestClient) -> None:
     detections = client.get("/api/report/detections", params={"month": "2026-09"}).json()
-    assert set(detections) == {"repetitions", "gaps", "links"}
+    assert set(detections) == {"repetitions", "links"}
 
     trends = client.get("/api/report/trends", params={"month": "2026-09"}).json()
     assert [p["key"] for p in trends["byMonth"]] == ["2026-08", "2026-09"]
@@ -93,3 +93,12 @@ def test_detections_trends_and_distributions(client: TestClient) -> None:
 
 def test_unknown_period_is_404(client: TestClient) -> None:
     assert client.get("/api/report/findings", params={"month": "2020-01"}).status_code == 404
+
+
+def test_distributions_narrow_to_one_side(client: TestClient) -> None:
+    params = {"month": "2026-09"}
+    attack = client.get("/api/report/distributions", params={**params, "side": "att"}).json()
+    defense = client.get("/api/report/distributions", params={**params, "side": "def"}).json()
+    assert attack[0]["squad"]["n"] == 12
+    assert defense[0]["squad"]["n"] == 12
+    assert client.get("/api/report/distributions", params={**params, "side": "mid"}).status_code == 422

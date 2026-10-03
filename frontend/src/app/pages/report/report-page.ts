@@ -1,19 +1,34 @@
-import { Component, inject } from '@angular/core';
-import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { Component, computed, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import {
+  NavigationCancel,
+  NavigationEnd,
+  NavigationError,
+  NavigationStart,
+  Router,
+  RouterLink,
+  RouterLinkActive,
+  RouterOutlet,
+} from '@angular/router';
+import { filter, map, of, switchMap, timer } from 'rxjs';
 
 import { freshness } from '@core/format/format.utils';
 import { integer } from '@core/format/value-format.utils';
 import { ReportContext } from '@core/report/report-context';
-import { REPORT_VIEWS } from '@core/report/report-views.constants';
+import { periodQueryParams } from '@core/report/period-query.utils';
+import { REPORT_VIEW_GROUPS } from '@core/report/report-views.constants';
 import { PageHeader } from '@layout/page-header/page-header';
 import { DataQuality } from '@shared/data-quality/data-quality';
 import { ResourceState } from '@shared/resource-state/resource-state';
 
 import { PeriodSelector } from './period-selector/period-selector';
 
+/** A view taking longer than this to open shows the loader; quicker ones do not flash it. */
+const LOADER_DELAY_MS = 200;
+
 /**
  * Frame of every report view: the period as a title, its facts, and the view tabs (ValoQuests
- * overview tabs). The period stays in the URL's query when moving between views.
+ * overview tabs) grouped by job. The period stays in the URL's query when moving between views.
  */
 @Component({
   selector: 'app-report-page',
@@ -31,7 +46,25 @@ import { PeriodSelector } from './period-selector/period-selector';
 })
 export class ReportPage {
   protected readonly context = inject(ReportContext);
-  protected readonly views = REPORT_VIEWS;
+  protected readonly groups = REPORT_VIEW_GROUPS;
+  /** Tabs keep the period only: a view's own filters (map, side, round) do not leak into the next. */
+  protected readonly periodParams = computed(() => periodQueryParams(this.context.query()));
+  /** True while a view's code is being fetched, so the page never sits empty. */
+  protected readonly opening = toSignal(
+    inject(Router).events.pipe(
+      filter(
+        (e) =>
+          e instanceof NavigationStart ||
+          e instanceof NavigationEnd ||
+          e instanceof NavigationCancel ||
+          e instanceof NavigationError,
+      ),
+      switchMap((e) =>
+        e instanceof NavigationStart ? timer(LOADER_DELAY_MS).pipe(map(() => true)) : of(false),
+      ),
+    ),
+    { initialValue: false },
+  );
   protected readonly integer = integer;
   protected readonly freshness = freshness;
 }

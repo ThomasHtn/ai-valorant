@@ -1,12 +1,13 @@
 """Situations a team went through in a round (players alive, spike), rebuilt from the kill facts.
 
-Used by the rounds list to find each round's best moment: the live situation where the team's chance
-of winning, read from the top ranked win probability table, was the highest.
+Used by the rounds list to find each round's best moment (the live situation where the team's chance
+of winning, read from the top ranked win probability table, was the highest) and its biggest swing.
 """
 
 from collections import defaultdict
 from collections.abc import Iterable, Sequence
 from dataclasses import dataclass
+from itertools import pairwise
 
 from valostats.analysis.extraction.win_probability import WinProbabilityTable
 from valostats.constants.game import TEAM_SIZE
@@ -70,3 +71,11 @@ def best_moment(fact: RoundFact, states: Sequence[TeamState], table: WinProbabil
         if best is None or probability > best.probability:
             best = BestMoment(state.label, probability)
     return best
+
+
+def biggest_drop(fact: RoundFact, states: Sequence[TeamState], table: WinProbabilityTable) -> float:
+    """Largest fall of the team's chance between two consecutive moments, the round's end counting as 1 or 0."""
+    chances = [table.probability(s.own, s.opp, fact.side, s.planted) for s in states if s.own and s.opp]
+    chances.append(1.0 if fact.won else 0.0)
+    drops = [before - after for before, after in pairwise(chances)]
+    return max([0.0, *drops])
