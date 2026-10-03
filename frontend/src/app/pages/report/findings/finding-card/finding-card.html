@@ -1,6 +1,6 @@
 <app-row-art class="!size-9" [art]="art()" />
 
-<!-- Identity: the subject, then in plain words which way the squad differs and which way is better. -->
+<!-- Identity: the subject, then which way the squad differs and which way is better. -->
 <span class="flex min-w-0 flex-wrap items-center gap-x-2.5 gap-y-1 self-center sm:self-start">
   <span class="font-display text-lg leading-tight font-semibold">{{ title() }}</span>
   <app-badge
@@ -17,11 +17,13 @@
   [tone]="isWeak() ? 'bad' : 'good'"
 />
 
-<p class="col-span-3 !m-0 mt-2 sm:col-span-1 sm:col-start-2 sm:mt-1">
+<p
+  class="col-span-3 !m-0 mt-2 flex flex-wrap items-baseline gap-x-3 gap-y-0.5 sm:col-span-1 sm:col-start-2 sm:mt-1"
+>
   <b class="font-semibold" [class]="isWeak() ? 'text-rating-bad' : 'text-rating-good'">{{
     verdict().comparison
-  }}</b
-  ><span class="text-text-secondary">{{ verdict().direction }}</span>
+  }}</b>
+  <app-better-hint [better]="verdict().better" />
 </p>
 
 <!-- Figures and context share one label column, so every line of the card starts at the same place. -->

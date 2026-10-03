@@ -21,6 +21,7 @@
             >
               {{ column.label }}
             </button>
+            <app-better-hint class="ml-0.5" [better]="column.better" [compact]="true" />
             <app-info-tip [topic]="column.help" />
             @if (historyColumns().has(column.key)) {
               <span class="block text-xs leading-none font-normal text-text-muted"

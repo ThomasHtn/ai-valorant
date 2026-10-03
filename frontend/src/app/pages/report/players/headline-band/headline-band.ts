@@ -22,12 +22,12 @@ import { headlineTiles } from '../players.utils';
           [tone]="tile.tone"
           [lines]="tile.lines"
           [help]="tile.help"
+          [better]="tile.better"
         />
       }
     </div>
     <p class="!m-0 text-sm text-text-muted">
-      Les quatre derniers chiffres dépendent du rôle ({{ roleLabel().toLowerCase() }}). Top ranked :
-      joueurs du même rôle. Adversaires : joueurs adverses du même rôle dans vos matchs. Historique
+      Top ranked et adversaires : joueurs du même rôle ({{ roleLabel().toLowerCase() }}). Historique
       : le joueur avant la période.
     </p>
   `,

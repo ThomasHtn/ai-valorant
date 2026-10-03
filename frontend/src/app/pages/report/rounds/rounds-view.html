@@ -62,11 +62,38 @@
   </nav>
 
   @if (selected()) {
-    <app-resource-state [resource]="sheet" notFoundText="Ce round est introuvable.">
-      @if (sheet.hasValue()) {
-        <app-round-sheet [sheet]="sheet.value()" />
-      }
-    </app-resource-state>
+    <div class="flex min-w-0 flex-col gap-4">
+      <!-- The round inside its match, and the rounds before and after it in the list. -->
+      <app-breadcrumb [crumbs]="crumbs()">
+        <span class="seg-group">
+          <a
+            class="seg-option inline-flex items-center gap-1 no-underline"
+            [class.pointer-events-none]="!neighbours().previous"
+            [class.opacity-40]="!neighbours().previous"
+            [routerLink]="neighbours().previous"
+            queryParamsHandling="preserve"
+            [attr.aria-disabled]="!neighbours().previous"
+            title="Round précédent de la liste"
+            ><svg lucideChevronLeft class="size-4" aria-hidden="true"></svg>Précédent</a
+          >
+          <a
+            class="seg-option inline-flex items-center gap-1 no-underline"
+            [class.pointer-events-none]="!neighbours().next"
+            [class.opacity-40]="!neighbours().next"
+            [routerLink]="neighbours().next"
+            queryParamsHandling="preserve"
+            [attr.aria-disabled]="!neighbours().next"
+            title="Round suivant de la liste"
+            >Suivant<svg lucideChevronRight class="size-4" aria-hidden="true"></svg
+          ></a>
+        </span>
+      </app-breadcrumb>
+      <app-resource-state [resource]="sheet" notFoundText="Ce round est introuvable.">
+        @if (sheet.hasValue()) {
+          <app-round-sheet [sheet]="sheet.value()" />
+        }
+      </app-resource-state>
+    </div>
   } @else {
     <p class="bg-text-primary/4 px-4 py-6 text-center text-text-muted">Aucun round à afficher.</p>
   }

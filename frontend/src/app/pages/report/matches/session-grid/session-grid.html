@@ -1,0 +1,52 @@
+@for (session of sessions(); track session.day) {
+  <section class="view-section" [attr.aria-labelledby]="'session-' + session.day">
+    <h2 [id]="'session-' + session.day">
+      {{ session.title }}
+      <app-badge [label]="session.record" [kind]="session.good ? 'good' : 'bad'" size="sm" />
+      <span class="order-2 font-sans text-sm font-normal text-text-muted">{{ session.count }}</span>
+    </h2>
+    <ul
+      class="m-0 grid list-none grid-cols-[repeat(auto-fill,minmax(min(100%,19rem),1fr))] gap-0.5 p-0"
+    >
+      @for (card of session.cards; track card.matchId) {
+        <li>
+          <a
+            [routerLink]="['/report/matches', card.matchId]"
+            queryParamsHandling="preserve"
+            class="row-link flex h-full flex-col gap-2.5 border-l-[3px] bg-text-primary/4 px-3 py-2.5"
+            [class]="card.won ? 'border-rating-good/70' : 'border-rating-bad/70'"
+          >
+            <span class="flex items-center gap-2.5">
+              <app-map-thumb [map]="card.mapName" />
+              <span class="flex flex-col leading-tight">
+                <span class="font-semibold">{{ card.mapName }}</span>
+                <small class="text-sm text-text-muted">{{ card.time }}</small>
+              </span>
+              <span
+                class="ml-auto font-display text-[1.35rem] font-semibold"
+                [class]="card.won ? 'text-rating-good' : 'text-rating-bad'"
+                >{{ card.score }}</span
+              >
+            </span>
+            @if (card.squares.length) {
+              <span class="flex flex-wrap gap-px" aria-hidden="true">
+                @for (square of card.squares; track square.key) {
+                  @if (square.won === null) {
+                    <i class="w-1.5"></i>
+                  } @else {
+                    <i
+                      class="block h-3 w-2"
+                      [class]="square.won ? 'bg-rating-good/80' : 'bg-rating-bad/75'"
+                    ></i>
+                  }
+                }
+              </span>
+            }
+          </a>
+        </li>
+      }
+    </ul>
+  </section>
+} @empty {
+  <p class="text-text-muted">Aucune session sur cette période.</p>
+}

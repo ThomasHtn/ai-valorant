@@ -4,7 +4,9 @@ import { RoundStripCell } from '@core/report/matches.model';
 import { RoundLine } from '@core/report/rounds.model';
 
 import {
-  defaultMatchId,
+  matchesInOrder,
+  matchNeighbours,
+  scoreGaps,
   lossCauseCounts,
   lostRoundRows,
   matchLength,
@@ -34,36 +36,34 @@ function round(
 }
 
 describe('matches view utils', () => {
-  it('opens the latest match of the newest evening', () => {
+  it('orders matches oldest first and finds the neighbours of one', () => {
+    const summary = (matchId: string) => ({
+      matchId,
+      startedAt: '',
+      mapName: 'Split',
+      won: true,
+      roundsWon: 13,
+      roundsLost: 5,
+    });
     const list = {
       evenings: [
-        {
-          day: '2026-09-30',
-          wins: 1,
-          losses: 1,
-          matches: [
-            {
-              matchId: 'a',
-              startedAt: '',
-              mapName: 'Split',
-              won: true,
-              roundsWon: 13,
-              roundsLost: 5,
-            },
-            {
-              matchId: 'b',
-              startedAt: '',
-              mapName: 'Lotus',
-              won: false,
-              roundsWon: 5,
-              roundsLost: 13,
-            },
-          ],
-        },
+        { day: '2026-09-30', wins: 2, losses: 0, matches: [summary('c'), summary('d')] },
+        { day: '2026-09-28', wins: 2, losses: 0, matches: [summary('a'), summary('b')] },
       ],
     };
-    expect(defaultMatchId(list)).toBe('b');
-    expect(defaultMatchId(null)).toBeNull();
+    expect(matchesInOrder(list).map((m) => m.match.matchId)).toEqual(['a', 'b', 'c', 'd']);
+    const around = matchNeighbours(list, 'b');
+    expect(around.previous?.match.matchId).toBe('a');
+    expect(around.next?.match.matchId).toBe('c');
+    expect(around.next?.day).toBe('2026-09-30');
+    expect(matchNeighbours(list, 'a').previous).toBeNull();
+    expect(matchNeighbours(null, 'a')).toEqual({ previous: null, next: null });
+  });
+
+  it('follows the score gap round after round', () => {
+    expect(
+      scoreGaps([{ won: true }, { won: true }, { won: false }, { won: false }, { won: false }]),
+    ).toEqual([1, 2, 1, 0, -1]);
   });
 
   it('marks half time and each overtime swap', () => {

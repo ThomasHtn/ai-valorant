@@ -17,13 +17,19 @@ export const PLAYERS_HELP: Readonly<Record<string, StatHelp>> = {
     title: 'Morts avec revenge',
     what: 'La part des morts du joueur où un coéquipier tue son tueur juste après.',
     how: "Morts suivies d'une revenge (le tueur meurt sous les coups d'un coéquipier dans les 3 secondes) / morts.",
-    read: "Plus c'est haut, plus le joueur meurt à portée de ses coéquipiers.",
+    read: 'Plus haut = mieux : le joueur meurt à portée de ses coéquipiers.',
   },
   fdPerRound: {
     title: 'First deaths par round',
     what: 'La fréquence à laquelle le joueur est le premier mort du round.',
     how: 'First deaths / rounds joués.',
-    read: "Plus c'est bas, mieux c'est, sauf pour un duelliste qui ouvre les sites.",
+    read: 'Plus bas = mieux, sauf pour un duelliste qui ouvre les sites.',
+  },
+  playerProfile: {
+    title: 'Profil (radar)',
+    what: 'Les chiffres clés du joueur sur une seule toile, chacun comparé à la référence de son rôle.',
+    how: "Chaque branche place le joueur selon son écart à la référence : le cercle pointillé est la référence, chaque cercle vaut 20 % d'écart, de -40 % au centre à +40 % au bord. Pour un chiffre où plus bas = mieux (morts à 0 dégât), le rapport est inversé.",
+    read: "Plus loin du centre = mieux. Une branche rentrée montre le point faible à travailler. Un point creux repose sur trop peu de données ou n'a pas de référence.",
   },
   playerOpeningDuels: {
     title: 'Premiers duels',

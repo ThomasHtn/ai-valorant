@@ -12,7 +12,7 @@ export const SPIKE_HELP: Readonly<Record<string, StatHelp>> = {
     title: 'Post-plants gagnés',
     what: "Les rounds d'attaque gagnés une fois le spike posé.",
     how: "Rounds d'attaque gagnés avec un plant (sur ce site ou dans cette situation), divisés par les rounds d'attaque avec un plant.",
-    read: "Plus c'est haut, mieux l'escouade tient le spike.",
+    read: "Plus haut = mieux : l'escouade tient le spike.",
   },
   spikeSiteTaken: {
     title: 'Plants subis',
@@ -24,7 +24,7 @@ export const SPIKE_HELP: Readonly<Record<string, StatHelp>> = {
     title: 'Retakes réussies',
     what: 'Les rounds de défense gagnés alors que les adversaires ont posé le spike.',
     how: "Rounds de défense gagnés après un plant adverse (sur ce site ou dans cette situation), divisés par les rounds de défense avec un plant adverse. L'écart au plant est vu depuis la défense.",
-    read: "Plus c'est haut, mieux l'escouade reprend les sites.",
+    read: "Plus haut = mieux : l'escouade reprend les sites.",
   },
   spikeDefuses: {
     title: 'Defuses',

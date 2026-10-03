@@ -1,5 +1,4 @@
 import { Component, computed, input, linkedSignal } from '@angular/core';
-import { RouterLink } from '@angular/router';
 
 import { longDay } from '@core/format/format.utils';
 import { BUY_SENTENCE_LABELS } from '@core/format/round-labels.constants';
@@ -21,7 +20,7 @@ import { roundSummary } from './round-sheet.utils';
  */
 @Component({
   selector: 'app-round-sheet',
-  imports: [Badge, EconomyTable, EventTimeline, InfoTip, Replay2d, RouterLink, WinProbabilityChart],
+  imports: [Badge, EconomyTable, EventTimeline, InfoTip, Replay2d, WinProbabilityChart],
   templateUrl: './round-sheet.html',
   host: { class: 'flex min-w-0 flex-col gap-8' },
 })

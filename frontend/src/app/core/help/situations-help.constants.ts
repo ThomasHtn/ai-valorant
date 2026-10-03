@@ -23,7 +23,7 @@ export const SITUATIONS_HELP: Readonly<Record<string, StatHelp>> = {
     title: 'Throws',
     what: 'Part des rounds perdus après avoir eu 2 joueurs vivants de plus.',
     how: "Rounds perdus parmi les rounds où l'écart de vivants atteint +2 ou plus.",
-    read: 'Plus bas est meilleur.',
+    read: 'Plus bas = mieux.',
   },
   reachMinus2: {
     title: 'Rounds avec -2 joueurs',

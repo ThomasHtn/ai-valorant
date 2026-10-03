@@ -5,7 +5,7 @@ import {
   CEREMONY_LABELS,
   RESULT_LABELS,
 } from '@core/format/round-labels.constants';
-import { MatchList, RoundStripCell } from '@core/report/matches.model';
+import { MatchList, MatchSummary, RoundStripCell } from '@core/report/matches.model';
 import { roundLink } from '@core/report/round-ref.utils';
 import { RoundLine } from '@core/report/rounds.model';
 import { HoverTipContent } from '@shared/hover-tip/hover-tip.model';
@@ -15,17 +15,12 @@ const HALF_LENGTH = 12;
 const OVERTIME_START = 24;
 
 /** A round of the strip, or the gap drawn where the teams swap sides. */
-export type StripItem = { kind: 'round'; cell: RoundStripCell } | { kind: 'swap'; key: string };
+export type StripItem<T = RoundStripCell> =
+  { kind: 'round'; cell: T } | { kind: 'swap'; key: string };
 
-/** The match opened by default: the latest one of the newest evening. */
-export function defaultMatchId(list: MatchList | null | undefined): string | null {
-  const evening = list?.evenings[0];
-  return evening?.matches.at(-1)?.matchId ?? null;
-}
-
-/** Rounds with a gap at half time and at each side swap of the overtime. */
-export function stripItems(rounds: readonly RoundStripCell[]): StripItem[] {
-  const items: StripItem[] = [];
+/** Rounds, in game order, with a gap at half time and at each side swap of the overtime. */
+export function stripItems<T>(rounds: readonly T[]): StripItem<T>[] {
+  const items: StripItem<T>[] = [];
   rounds.forEach((cell, index) => {
     if (index === HALF_LENGTH || (index >= OVERTIME_START && index % 2 === 0)) {
       items.push({ kind: 'swap', key: `swap-${index}` });
@@ -33,6 +28,55 @@ export function stripItems(rounds: readonly RoundStripCell[]): StripItem[] {
     items.push({ kind: 'round', cell });
   });
   return items;
+}
+
+/** A match in the period's order (oldest first), with the evening it belongs to. */
+export interface MatchInOrder {
+  match: MatchSummary;
+  day: string;
+}
+
+/** Every match of the period, oldest first; evenings come newest first from the API. */
+export function matchesInOrder(list: MatchList | null | undefined): MatchInOrder[] {
+  return [...(list?.evenings ?? [])]
+    .reverse()
+    .flatMap((evening) => evening.matches.map((match) => ({ match, day: evening.day })));
+}
+
+/** The matches played right before and after one, for the previous / next buttons. */
+export function matchNeighbours(
+  list: MatchList | null | undefined,
+  matchId: string,
+): { previous: MatchInOrder | null; next: MatchInOrder | null } {
+  const ordered = matchesInOrder(list);
+  const index = ordered.findIndex((m) => m.match.matchId === matchId);
+  if (index < 0) {
+    return { previous: null, next: null };
+  }
+  return { previous: ordered[index - 1] ?? null, next: ordered[index + 1] ?? null };
+}
+
+/**
+ * Score gap after each round, from the squad's side: +2 after leading 4-2. The strip draws it as a
+ * bar over each round, so the match's momentum reads along with its rounds.
+ */
+export function scoreGaps(rounds: readonly Pick<RoundStripCell, 'won'>[]): number[] {
+  let gap = 0;
+  return rounds.map((round) => (gap += round.won ? 1 : -1));
+}
+
+/** Rounds of the period grouped by match, in game order, for the mini strips of the match cards. */
+export function roundsByMatch(rounds: readonly RoundLine[]): Map<string, RoundLine[]> {
+  const byMatch = new Map<string, RoundLine[]>();
+  for (const round of rounds) {
+    const list = byMatch.get(round.matchId) ?? [];
+    list.push(round);
+    byMatch.set(round.matchId, list);
+  }
+  for (const list of byMatch.values()) {
+    list.sort((a, b) => a.roundNumber - b.roundNumber);
+  }
+  return byMatch;
 }
 
 /** One bar of the "lost rounds by cause" list; `share` is relative to the most frequent cause. */
@@ -92,14 +136,22 @@ export function lostRoundRows(rounds: readonly RoundLine[], matchId: string): Lo
     }));
 }
 
-/** Tip of a round of the strip: side and buys, how it ended, its cause, best lead, ceremony. */
-export function roundTip(round: RoundStripCell): HoverTipContent {
+/**
+ * Tip of a round of the strip: side and buys, how it ended, the score after it when the gap is
+ * known, its cause, best lead, ceremony.
+ */
+export function roundTip(round: RoundStripCell, gap: number | null = null): HoverTipContent {
   const lines = [
     {
       label: 'Fin',
       value: `${RESULT_LABELS[round.result] ?? round.result}${round.planted && round.plantSite ? ` · plant en ${round.plantSite}` : ''}`,
     },
   ];
+  if (gap !== null) {
+    // Wins minus losses is the gap and wins plus losses the round number.
+    const wins = (round.roundNumber + gap) / 2;
+    lines.push({ label: 'Score', value: `${wins}-${round.roundNumber - wins}` });
+  }
   if (round.cause) {
     lines.push({ label: 'Cause', value: LOSS_CAUSE_LABELS[round.cause] });
   }

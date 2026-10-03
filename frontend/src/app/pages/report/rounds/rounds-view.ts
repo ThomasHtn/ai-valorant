@@ -1,15 +1,19 @@
 import { DOCUMENT } from '@angular/common';
 import { Component, computed, effect, inject, input, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { LucideChevronLeft } from '@lucide/angular';
+import { LucideChevronLeft, LucideChevronRight } from '@lucide/angular';
+
+import { longDay } from '@core/format/format.utils';
 
 import { resourceValue } from '@core/http/resource-state.utils';
 import { ReportApi } from '@core/report/report-api';
 import { ReportContext } from '@core/report/report-context';
 import { ReportOriginTracker } from '@core/report/report-origin';
 import { ReportState } from '@core/report/report-state';
-import { parseRoundParam } from '@core/report/round-ref.utils';
+import { parseRoundParam, roundLink, sameRound } from '@core/report/round-ref.utils';
 import { RoundQuery } from '@core/report/round-query.model';
+import { Breadcrumb } from '@shared/breadcrumb/breadcrumb';
+import { Crumb } from '@shared/breadcrumb/breadcrumb.model';
 import { ResourceState } from '@shared/resource-state/resource-state';
 
 import { RoundCauses } from './round-causes/round-causes';
@@ -40,7 +44,9 @@ import {
 @Component({
   selector: 'app-rounds-view',
   imports: [
+    Breadcrumb,
     LucideChevronLeft,
+    LucideChevronRight,
     ResourceState,
     RoundCauses,
     RoundFiltersView,
@@ -111,6 +117,29 @@ export class RoundsView {
     return fromUrl ?? (first ? { matchId: first.matchId, roundNumber: first.roundNumber } : null);
   });
   protected readonly sheet = this.api.roundSheet(this.selected);
+
+  /** Links of the rounds listed right before and after the open one; null at either end. */
+  protected readonly neighbours = computed(() => {
+    const rows = this.rows();
+    const index = rows.findIndex((row) => sameRound(row, this.selected()));
+    const at = (i: number) => (index >= 0 && rows[i] ? roundLink(rows[i]) : null);
+    return { previous: at(index - 1), next: at(index + 1) };
+  });
+  /** 'Matchs › Mercredi 30 septembre › Split › Round 19': the round inside its match. */
+  protected readonly crumbs = computed<Crumb[]>(() => {
+    const ref = this.selected();
+    const round =
+      resourceValue(this.sheet, null)?.round ?? this.allRounds().find((r) => sameRound(r, ref));
+    if (!ref || !round) {
+      return [{ label: 'Rounds', link: null }];
+    }
+    return [
+      { label: 'Matchs', link: ['/report/matches'] },
+      { label: longDay(round.day), link: null },
+      { label: round.mapName, link: ['/report/matches', round.matchId] },
+      { label: `Round ${round.roundNumber}`, link: null },
+    ];
+  });
 
   constructor() {
     // Keep the URL in step with the list so a round click (which rebuilds the view) keeps it.

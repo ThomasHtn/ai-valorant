@@ -85,6 +85,8 @@ export interface FigureTile {
   value: string;
   tone: CellTone | null;
   lines: string[];
+  /** 1 higher is better, -1 lower is better. */
+  better: number;
 }
 
 /** Builds a tile from a cell: value, tone, then the reference line and the sample line ('Sur 445 rounds'). */
@@ -106,6 +108,7 @@ export function figureTile(
     value: formatValue(cell.v, column.format),
     tone: figureTone(cell, column, reference, colours),
     lines: lines.filter((line) => line !== null),
+    better: column.better,
   };
 }
 

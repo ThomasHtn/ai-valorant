@@ -5,8 +5,8 @@ export const VIEWS_HELP: Readonly<Record<string, StatHelp>> = {
   roundStrip: {
     title: 'Rounds du match',
     what: "Un carré par round, vert gagné, rouge perdu, avec le side et l'achat de l'escouade.",
-    how: 'P pistol, E eco, F force buy, FB full buy. Un clic ouvre la fiche du round.',
-    read: 'Une série de carrés rouges en début de mi-temps montre souvent un pistol perdu puis un R2 et un R3 perdus.',
+    how: "P pistol, E eco, F force buy, FB full buy. La barre au-dessus d'un carré est l'écart au score après ce round : vers le haut quand l'escouade mène, vers le bas quand elle est menée. Un clic ouvre la fiche du round.",
+    read: 'Une série de carrés rouges en début de mi-temps montre souvent un pistol perdu puis un R2 et un R3 perdus. Des barres qui passent du haut vers le bas montrent une avance perdue.',
   },
   lossCause: {
     title: 'Cause du round perdu',

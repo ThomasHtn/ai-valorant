@@ -33,26 +33,13 @@
           <app-tone-legend [reference]="display.reference" />
         </div>
 
-        <div
-          class="grid items-start gap-x-10 gap-y-10 xl:grid-cols-[minmax(0,1.45fr)_minmax(0,1fr)]"
-        >
-          <div class="flex min-w-0 flex-col gap-10">
-            @for (table of tables(); track table.id) {
-              <section class="view-section" [attr.aria-labelledby]="'player-' + table.id">
-                <h3
-                  class="font-display text-lg font-semibold text-text-primary"
-                  [id]="'player-' + table.id"
-                >
-                  {{ table.title }}
-                </h3>
-                <app-stat-table
-                  [table]="table"
-                  [display]="display"
-                  [playerAgents]="context.playerAgents()"
-                />
-              </section>
-            }
-          </div>
+        <!-- His profile at a glance, beside his duels, clutches and weapons. -->
+        <div class="grid items-start gap-x-10 gap-y-10 xl:grid-cols-2">
+          <app-profile-radar
+            [series]="radarSeries()"
+            [reference]="display.reference"
+            [colours]="display.colours"
+          />
           <div class="flex min-w-0 flex-col gap-10">
             <app-opening-clutch
               [openingDuels]="p.openingDuels"
@@ -61,9 +48,27 @@
               [colours]="display.colours"
             />
             <app-weapons-panel [weapons]="p.weapons" />
-            <app-death-zones [deathZones]="p.deathZones" />
           </div>
         </div>
+
+        <!-- Tables take the full width so their columns never scroll sideways. -->
+        @for (table of tables(); track table.id) {
+          <section class="view-section" [attr.aria-labelledby]="'player-' + table.id">
+            <h3
+              class="font-display text-lg font-semibold text-text-primary"
+              [id]="'player-' + table.id"
+            >
+              {{ table.title }}
+            </h3>
+            <app-stat-table
+              [table]="table"
+              [display]="display"
+              [playerAgents]="context.playerAgents()"
+            />
+          </section>
+        }
+
+        <app-death-zones [deathZones]="p.deathZones" />
 
         <app-form-tiles
           [form]="p.form"

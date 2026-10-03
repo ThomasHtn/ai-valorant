@@ -113,10 +113,13 @@ toutes les URL dans `core/http/api-endpoints.ts`, un composant = `x.ts` + `x.htm
 `*.utils.spec.ts`.
 
 Navigation : l'accueil liste les rapports ; un rapport s'ouvre sur `/report/<vue>` avec la période dans l'URL
-(`?month=2026-09`, `?patch=13.06`, `?start=…&end=…`, une session étant `start=end`). Les onglets sont groupés
-(Diagnostic, Revoir, Explorer, `report-views.constants.ts`) et ne gardent que la période. Les liens profonds ajoutent
+(`?month=2026-09`, `?patch=13.06`, `?start=…&end=…`, une session étant `start=end`). Les onglets (vues à gauche,
+outils à droite, `report-views.constants.ts`) ne gardent que la période. Les liens profonds ajoutent
 des filtres : `/report/rounds?map=Split&side=def&result=lost|won&preset=throws`, `/report/minimap/Split?side=def&player=X`. Les onglets du rapport n'existent pas
-sur l'accueil. Couleurs : vert bien, orange moyen (à moins de 3 points de la référence, 5 % pour une moyenne), rouge pas
+sur l'accueil. `/report/matches` liste les sessions en cartes de match ; `/report/matches/<id>` montre le match seul, sous un
+fil d'Ariane (`shared/breadcrumb`) avec le match précédent et suivant. La fiche de round a le même fil d'Ariane et passe
+au round précédent ou suivant de la liste filtrée. Le sens d'une stat s'affiche avec `shared/better-hint`
+(« Plus haut = mieux »), jamais en phrase. Couleurs : vert bien, orange moyen (à moins de 3 points de la référence, 5 % pour une moyenne), rouge pas
 bien, gris sous l'échantillon minimum. Les champs de saisie n'utilisent jamais la surface bleue `surface-800`.
 
 Images du jeu : `frontend/public/assets/valorant/`, tirées de Data Dragon et de valorant-api (rangs, minimaps, rôles)

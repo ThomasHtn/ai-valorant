@@ -8,6 +8,9 @@ import { ReportState } from '@core/report/report-state';
 import { FilterBar } from '@shared/filter-bar/filter-bar';
 import { ResourceState } from '@shared/resource-state/resource-state';
 
+import { ProfileRadar } from '../players/profile-radar/profile-radar';
+import { RadarSeries } from '../players/profile-radar/profile-radar.model';
+import { radarStats } from '../players/profile-radar/profile-radar.utils';
 import { scopeFilter } from '../tables/tables-view.utils';
 import { COMPARE_COHORTS, COMPARE_MODES, COMPARE_SORTS } from './compare.constants';
 import { CompareCohort, CompareMode, CompareOption, CompareSort } from './compare.model';
@@ -22,12 +25,13 @@ const COHORT_OPTIONS: CompareOption[] = Object.entries(COMPARE_COHORTS).map(([va
 
 /**
  * Comparateur: the metrics of one domain for two selections side by side, either two teams or
- * periods read in the same cells (squad, history, opponents, top ranked), or two squad players.
+ * periods read in the same cells (squad, history, opponents, top ranked), or two squad players, whose
+ * profiles then overlap on one radar.
  * Lines follow the domain's tables or come biggest gap first, optionally only the gaps that hold.
  */
 @Component({
   selector: 'app-compare-view',
-  imports: [FilterBar, ResourceState, SelectionBox, CompareTable],
+  imports: [FilterBar, ResourceState, SelectionBox, CompareTable, ProfileRadar],
   // Narrow centred column: four short columns would otherwise sit far from their labels.
   host: { class: 'view-body mx-auto w-full max-w-[64rem]' },
   templateUrl: './compare-view.html',
@@ -52,7 +56,8 @@ export class CompareView {
   private readonly chosenA = signal('');
   private readonly chosenB = signal('');
 
-  protected readonly tables = inject(ReportApi).tables(this.context.query, this.domain);
+  private readonly api = inject(ReportApi);
+  protected readonly tables = this.api.tables(this.context.query, this.domain);
 
   protected readonly meta = computed(() => resourceValue(this.context.meta, null));
   protected readonly maps = computed(() => this.meta()?.maps ?? []);
@@ -62,6 +67,34 @@ export class CompareView {
   );
   protected readonly playerA = computed(() => this.chosenA() || this.players()[0] || '');
   protected readonly playerB = computed(() => this.chosenB() || this.players()[1] || '');
+
+  /** Both player sheets, fetched only when comparing players, for the radar. */
+  private readonly sheetA = this.api.player(
+    this.context.query,
+    computed(() => (this.mode() === 'players' ? this.playerA() || null : null)),
+  );
+  private readonly sheetB = this.api.player(
+    this.context.query,
+    computed(() => (this.mode() === 'players' ? this.playerB() || null : null)),
+  );
+  /** Same reference as the Joueurs view: each player against players of his role. */
+  protected readonly radarReference = computed(() => this.state.preferences().playerReference);
+  /** Player A in the squad blue, B in orange, the colours of their selection boxes. */
+  protected readonly radarSeries = computed<RadarSeries[]>(() => {
+    const a = resourceValue(this.sheetA, null);
+    const b = resourceValue(this.sheetB, null);
+    if (!a || !b || a.name === b.name) {
+      return [];
+    }
+    return [
+      { name: a.name, stats: radarStats(a.headline, a.openingDuels), colour: 'var(--color-squad)' },
+      {
+        name: b.name,
+        stats: radarStats(b.headline, b.openingDuels),
+        colour: 'var(--color-opponent)',
+      },
+    ];
+  });
 
   protected readonly groups = computed(() =>
     arrangeGroups(this.allGroups(), this.sort(), this.netOnly()),

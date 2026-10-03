@@ -23,7 +23,7 @@ export const COMBAT_HELP: Readonly<Record<string, StatHelp>> = {
     title: 'Morts par round',
     what: 'Fréquence à laquelle le joueur meurt.',
     how: 'Morts divisées par les rounds joués.',
-    read: 'Plus bas est meilleur.',
+    read: 'Plus bas = mieux.',
   },
   assistsPerRound: {
     title: 'Assists par round',
@@ -39,7 +39,7 @@ export const COMBAT_HELP: Readonly<Record<string, StatHelp>> = {
     title: 'Dégâts subis par round',
     what: 'Dégâts reçus en moyenne par round.',
     how: 'Somme des dégâts reçus des adversaires divisée par les rounds joués.',
-    read: "Plus bas est meilleur ; un rôle d'entrée en subit naturellement plus.",
+    read: "Plus bas = mieux ; un rôle d'entrée en subit naturellement plus.",
   },
   damageEfficiency: {
     title: 'Efficacité des dégâts',
@@ -62,13 +62,13 @@ export const COMBAT_HELP: Readonly<Record<string, StatHelp>> = {
     title: 'HS subis %',
     what: 'Part des balles reçues qui touchent la tête du joueur.',
     how: 'Tirs reçus à la tête divisés par tous les tirs reçus qui touchent.',
-    read: 'Plus bas est meilleur : une valeur haute signale un placement de viseur adverse facile (angles prévisibles, peeks larges).',
+    read: 'Plus bas = mieux : une valeur haute signale un placement de viseur adverse facile (angles prévisibles, peeks larges).',
   },
   zeroDamageDeaths: {
     title: 'Morts à 0 dégât',
     what: "Part des morts où le joueur n'a infligé aucun dégât dans le round.",
     how: 'Rounds où le joueur meurt avec 0 dégât infligé, divisés par ses morts.',
-    read: 'Plus bas est meilleur : ce sont des morts sans contrepartie.',
+    read: 'Plus bas = mieux : ce sont des morts sans contrepartie.',
   },
   survival: {
     title: 'Survie',
@@ -89,7 +89,7 @@ export const COMBAT_HELP: Readonly<Record<string, StatHelp>> = {
     title: 'Régularité',
     what: "Écart de l'ACS d'un match à l'autre.",
     how: "Écart type de l'ACS par match (3 matchs minimum). Référence top ranked : médiane des écarts types des joueurs du même rôle avec 5 matchs ou plus.",
-    read: 'Plus bas est meilleur : le joueur produit le même niveau chaque match.',
+    read: 'Plus bas = mieux : le joueur produit le même niveau chaque match.',
   },
   multiKills: {
     title: 'Multi-kills',

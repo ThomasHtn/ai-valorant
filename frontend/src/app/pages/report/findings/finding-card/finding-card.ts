@@ -17,6 +17,7 @@ import {
 import { Finding } from '@core/report/findings.model';
 import { Rate } from '@core/report/rate.model';
 import { Badge } from '@shared/badge/badge';
+import { BetterHint } from '@shared/better-hint/better-hint';
 import { GapChip } from '@shared/gap-chip/gap-chip';
 import { resolveArt } from '@shared/game-art/art.utils';
 import { RowArt } from '@shared/game-art/row-art';
@@ -60,7 +61,7 @@ function signedRounds(gap: number): string {
  */
 @Component({
   selector: 'app-finding-card',
-  imports: [Badge, GapChip, RowArt, RewatchLinks, RouterLink],
+  imports: [Badge, BetterHint, GapChip, RowArt, RewatchLinks, RouterLink],
   templateUrl: './finding-card.html',
   host: {
     class:

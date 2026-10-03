@@ -13,6 +13,7 @@ import {
 
 import { StatColumn, StatRow, StatTable } from '@core/report/stat-table.model';
 import { columnReference } from '@core/report/tone.utils';
+import { BetterHint } from '@shared/better-hint/better-hint';
 import { RowArt } from '@shared/game-art/row-art';
 import { InfoTip } from '@shared/info-tip/info-tip';
 import { placeTip } from '@shared/info-tip/info-tip-position.utils';
@@ -39,7 +40,7 @@ interface HoveredCell {
  */
 @Component({
   selector: 'app-stat-table',
-  imports: [RowArt, InfoTip],
+  imports: [BetterHint, RowArt, InfoTip],
   templateUrl: './stat-table.html',
   host: { class: 'block min-w-0' },
 })

@@ -72,7 +72,7 @@ describe('finding texts', () => {
     expect(higherIsBetter(finding({}))).toBe(true);
     expect(verdictText(finding({}))).toEqual({
       comparison: 'Moins de rounds gagnés que le top ranked',
-      direction: ", alors que plus c'est mieux.",
+      better: 1,
     });
     const noDamage = finding({
       side: 'strong',
@@ -83,7 +83,7 @@ describe('finding texts', () => {
     expect(higherIsBetter(noDamage)).toBe(false);
     expect(verdictText(noDamage)).toEqual({
       comparison: 'Moins de morts sans dégâts que le top ranked',
-      direction: ", et ici moins c'est mieux.",
+      better: -1,
     });
     expect(verdictText(finding({ reference: 'opp', metric: 'ACS' })).comparison).toBe(
       'Moins de ACS que les adversaires',

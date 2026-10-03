@@ -2,6 +2,7 @@ import { Component, computed, input } from '@angular/core';
 
 import { StatHelp } from '@core/help/stat-help.model';
 import { CellTone } from '@core/report/tone.model';
+import { BetterHint } from '@shared/better-hint/better-hint';
 import { InfoTip } from '@shared/info-tip/info-tip';
 
 import { TONE_TEXT_CLASSES } from './stat-tile.constants';
@@ -12,10 +13,13 @@ import { TONE_TEXT_CLASSES } from './stat-tile.constants';
  */
 @Component({
   selector: 'app-stat-tile',
-  imports: [InfoTip],
+  imports: [BetterHint, InfoTip],
   template: `
     <span class="text-sm text-text-secondary"
-      >{{ label() }}<app-info-tip [topic]="help()" [content]="helpContent()"
+      >{{ label()
+      }}<app-better-hint class="ml-1" [better]="better()" [compact]="true" /><app-info-tip
+        [topic]="help()"
+        [content]="helpContent()"
     /></span>
     <span
       class="font-display text-[1.6rem] leading-tight font-semibold tabular-nums"
@@ -36,6 +40,8 @@ export class StatTile {
   public readonly tone = input<CellTone | null>(null);
   /** Extra classes of the value, e.g. the top ranked colour. */
   public readonly colourClass = input<string | null>(null);
+  /** 1 higher is better, -1 lower is better: an arrow beside the label; 0 draws none. */
+  public readonly better = input(0);
   /** Lines under the value: reference, sample. */
   public readonly lines = input<string[]>([]);
   /** Glossary key of the "i" tip... */

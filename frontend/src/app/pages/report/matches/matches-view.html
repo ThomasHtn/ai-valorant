@@ -1,7 +1,31 @@
 <app-resource-state [resource]="list" notFoundText="Aucun match de l'escouade sur cette période.">
   @if (list.hasValue()) {
-    <div class="grid items-start gap-x-10 gap-y-6 lg:grid-cols-[20rem_minmax(0,1fr)]">
-      <app-evening-list [evenings]="list.value().evenings" [selected]="selectedId()" />
+    @if (match()) {
+      <!-- One match on its own page: where it sits in the period, and the matches around it. -->
+      <app-breadcrumb [crumbs]="crumbs()">
+        <span class="seg-group">
+          @if (neighbours().previous; as previous) {
+            <a
+              class="seg-option inline-flex items-center gap-1 no-underline"
+              [routerLink]="['/report/matches', previous.match.matchId]"
+              queryParamsHandling="preserve"
+              [title]="'Match précédent : ' + previous.match.mapName + ', ' + longDay(previous.day)"
+              ><svg lucideChevronLeft class="size-4" aria-hidden="true"></svg
+              >{{ previous.match.mapName }}</a
+            >
+          }
+          @if (neighbours().next; as next) {
+            <a
+              class="seg-option inline-flex items-center gap-1 no-underline"
+              [routerLink]="['/report/matches', next.match.matchId]"
+              queryParamsHandling="preserve"
+              [title]="'Match suivant : ' + next.match.mapName + ', ' + longDay(next.day)"
+              >{{ next.match.mapName
+              }}<svg lucideChevronRight class="size-4" aria-hidden="true"></svg
+            ></a>
+          }
+        </span>
+      </app-breadcrumb>
 
       <app-resource-state [resource]="detail" notFoundText="Ce match est introuvable.">
         @if (detail.hasValue()) {
@@ -24,6 +48,7 @@
                   <span class="inline-flex items-center gap-1.5"
                     ><i class="tone-bad size-3.5 ring-1 ring-rating-bad ring-inset"></i>Perdu</span
                   >
+                  <span>Barres : écart au score après le round</span>
                   <span class="text-text-muted">P pistol, E eco, F force buy, FB full buy</span>
                 </span>
               </div>
@@ -45,6 +70,8 @@
           </div>
         }
       </app-resource-state>
-    </div>
+    } @else {
+      <app-session-grid [evenings]="list.value().evenings" [rounds]="roundsMap()" />
+    }
   }
 </app-resource-state>

@@ -16,13 +16,16 @@ import { OpeningClutch } from './opening-clutch/opening-clutch';
 import { PlayerHeader } from './player-header/player-header';
 import { PlayerPicker } from './player-picker/player-picker';
 import { PlayerReference } from './player-reference/player-reference';
+import { ProfileRadar } from './profile-radar/profile-radar';
+import { RadarSeries } from './profile-radar/profile-radar.model';
+import { radarStats } from './profile-radar/profile-radar.utils';
 import { roleLabel } from './players.utils';
 import { RewatchList } from './rewatch-list/rewatch-list';
 import { WeaponsPanel } from './weapons-panel/weapons-panel';
 
 /**
  * Joueurs: the sheet of one squad player. Every figure sits beside the view's own reference
- * (opponents of his role by default, top ranked of his role, or his own history): headline band, results by map, agent and side,
+ * (opponents of his role by default, top ranked of his role, or his own history): headline band, profile radar, results by map, agent and side,
  * opening duels, clutches, weapons, death zones, form match by match and first deaths to rewatch.
  */
 @Component({
@@ -36,6 +39,7 @@ import { WeaponsPanel } from './weapons-panel/weapons-panel';
     PlayerReference,
     PlayerHeader,
     HeadlineBand,
+    ProfileRadar,
     OpeningClutch,
     WeaponsPanel,
     DeathZones,
@@ -84,6 +88,13 @@ export class PlayersView {
     return sheet.agents.length > 1
       ? [sheet.byMap, sheet.byAgent, sheet.bySide]
       : [sheet.byMap, sheet.bySide];
+  });
+  /** The player alone on his radar, his points coloured like his tiles. */
+  protected readonly radarSeries = computed<RadarSeries[]>(() => {
+    const sheet = resourceValue(this.sheet, null);
+    return sheet
+      ? [{ name: sheet.name, stats: radarStats(sheet.headline, sheet.openingDuels), colour: null }]
+      : [];
   });
   protected readonly acs = computed(() =>
     resourceValue(this.sheet, null)?.headline.find((h) => h.key === 'acs'),

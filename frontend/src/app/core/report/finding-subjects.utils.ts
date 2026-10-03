@@ -80,19 +80,15 @@ function lowerFirst(text: string): string {
 }
 
 /**
- * Why the finding is good or bad, in two parts so the comparison can be coloured:
- * 'Moins de morts sans dégâts que le top ranked' + ', et ici moins c'est mieux.'
+ * Why the finding is good or bad: 'Moins de morts sans dégâts que le top ranked', and which way the
+ * metric is better (1 higher, -1 lower) for the "Plus bas = mieux" hint beside it.
  */
-export function verdictText(f: Finding): { comparison: string; direction: string } {
+export function verdictText(f: Finding): { comparison: string; better: 1 | -1 } {
   const reference = testedReference(f);
   const more = squadAbove(f);
-  const better = higherIsBetter(f) ? 'plus' : 'moins';
   return {
     comparison: `${more ? 'Plus' : 'Moins'} de ${lowerFirst(f.metric)} que ${reference.name}`,
-    direction:
-      f.side === 'strong'
-        ? `, et ici ${better} c'est mieux.`
-        : `, alors que ${better} c'est mieux.`,
+    better: higherIsBetter(f) ? 1 : -1,
   };
 }
 

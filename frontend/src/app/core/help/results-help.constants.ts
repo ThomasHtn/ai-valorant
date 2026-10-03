@@ -9,7 +9,7 @@ export const RESULTS_HELP: Readonly<Record<string, StatHelp>> = {
     read: 'Comparé à votre historique : le top ranked et les adversaires seraient toujours à 50 % ou au miroir.',
   },
   roundDiff: {
-    title: 'Écart par match',
+    title: 'Écart moyen au score',
     what: 'Différence moyenne entre rounds gagnés et rounds perdus dans un match.',
     how: 'Rounds gagnés moins rounds perdus, moyenne par match.',
     read: "+2 veut dire qu'un match finit en moyenne autour de 13-11.",

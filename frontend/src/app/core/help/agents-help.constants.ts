@@ -63,7 +63,7 @@ export const AGENTS_HELP: Readonly<Record<string, StatHelp>> = {
     title: "Kills de l'agent par round",
     what: "Combien de joueurs de l'escouade cet agent adverse tue par round.",
     how: "Kills de l'agent sur l'escouade / rounds joués contre lui. Référence top ranked : kills par round de cet agent en top ranked.",
-    read: "Plus c'est bas, mieux l'escouade contient cet agent.",
+    read: "Plus bas = mieux : l'escouade contient cet agent.",
   },
   topPresence: {
     title: 'Présence des agents en top ranked',

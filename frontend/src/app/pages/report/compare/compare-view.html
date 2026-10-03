@@ -93,6 +93,14 @@
     </div>
   </div>
 
+  @if (mode() === 'players' && radarSeries().length === 2) {
+    <app-profile-radar
+      title="Profils comparés"
+      [series]="radarSeries()"
+      [reference]="radarReference()"
+    />
+  }
+
   <app-resource-state
     [resource]="tables"
     notFoundText="Ce domaine n'a pas de données sur cette période."
