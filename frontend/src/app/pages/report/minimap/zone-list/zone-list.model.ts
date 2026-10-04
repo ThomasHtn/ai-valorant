@@ -27,20 +27,22 @@ export interface ZonePlayerLine {
   more: number;
 }
 
-/** A zone row ready to draw. */
+/** A zone ready to draw as one bar row of the list. */
 export interface ZoneLine {
   row: ZoneRow;
   players: ZonePlayerLine[];
-  /** False when nobody of the squad and almost no top ranked died first there: the comparison cells stay empty. */
-  compared: boolean;
+  /** Squad share of the side's first deaths in the zone: '18 %'. */
   share: string;
-  /** '1 sur 3': the zone's first deaths out of the side's. */
-  sample: string;
-  topShare: string;
-  /** '+11 pts', or '–' without a top ranked share. */
-  excess: string;
+  /** '5 sur 28 first deaths'. */
+  count: string;
+  /** 'Top ranked 11 %', or why there is none. */
+  top: string;
+  /** Bar width and top ranked tick, in % of the list's largest share. */
+  bar: number;
+  tick: number | null;
   tone: ZoneTone;
-  revenge: string;
+  /** Deaths, kills and revenge in the zone, written once the row is open. */
+  summary: string;
 }
 
 /** The sentence over the zones: what to look at, or why nothing can be said yet. */

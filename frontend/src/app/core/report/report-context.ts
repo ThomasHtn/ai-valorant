@@ -7,6 +7,7 @@ import { resourceValue } from '@core/http/resource-state.utils';
 
 import { PeriodQuery } from './period-query.model';
 import { periodQueryFromParams, samePeriodQuery } from './period-query.utils';
+import { historyLabel } from './history-label.utils';
 import { ReportApi } from './report-api';
 
 /** Path prefix of every report view. */
@@ -46,6 +47,11 @@ export class ReportContext {
   public readonly periods = this.api.periods;
   /** Header facts, filter options and data quality of the period. */
   public readonly meta = this.api.meta(this.query);
+
+  /** What the squad's history covers here: 'Avant septembre'. */
+  public readonly historyLabel = computed(() =>
+    historyLabel(this.query(), resourceValue(this.periods, null)?.months[0]?.key ?? null),
+  );
 
   /** Squad player name -> avatar agent, for the picture of player rows. */
   public readonly playerAgents = computed<Record<string, string>>(() =>

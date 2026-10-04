@@ -18,3 +18,10 @@ export const ROUND_CHIP_CLASSES = {
   first: `${ROUND_CHIP} bg-rating-bad/30 !text-text-primary hover:bg-rating-bad/50`,
   other: `${ROUND_CHIP} bg-text-primary/8 !text-text-secondary hover:bg-text-primary/16 hover:!text-text-primary`,
 } as const;
+
+/** Fill of a zone bar: red where the squad dies first clearly more often than the top ranked. */
+export const ZONE_BAR_CLASSES = {
+  over: 'bg-rating-bad',
+  under: 'bg-text-secondary/55',
+  even: 'bg-text-secondary/55',
+} as const;

@@ -10,7 +10,12 @@
         </th>
         @for (column of table().columns; track column.key) {
           @if (column.format === 'record') {
-            <app-win-loss-header />
+            <th
+              scope="col"
+              class="bg-text-primary/8 px-2.5 py-2 text-center text-sm font-semibold whitespace-nowrap text-text-secondary"
+            >
+              V-D
+            </th>
           } @else {
             <th
               scope="col"
@@ -28,7 +33,7 @@
               <app-info-tip [topic]="column.help" />
               @if (historyColumns().has(column.key)) {
                 <span class="block text-xs leading-none font-normal text-text-muted"
-                  >vs historique</span
+                  >vs {{ historyName() }}</span
                 >
               }
             </th>
@@ -67,10 +72,19 @@
           </td>
           @for (cell of rowView.cells; track cell.key) {
             @if (cell.column.format === 'record') {
-              <app-win-loss-cells
-                [value]="cell.cell?.v"
-                [ground]="rowView.row.total ? 'bg-text-primary/9' : 'bg-text-primary/4'"
-              />
+              <!-- Matches won and lost, painted like any other cell: green with more wins. -->
+              <td
+                class="px-2.5 py-1.5 text-center font-semibold whitespace-nowrap"
+                [class]="
+                  cell.tone
+                    ? toneClasses[cell.tone]
+                    : rowView.row.total
+                      ? 'bg-text-primary/9'
+                      : 'bg-text-primary/4'
+                "
+              >
+                {{ cell.text }}
+              </td>
             } @else {
               <td
                 class="focus-ring-inset cursor-pointer px-2.5 py-1.5 text-right whitespace-nowrap hover:outline hover:-outline-offset-1 hover:outline-edge-strong"
@@ -90,16 +104,6 @@
                 (blur)="hideTip()"
               >
                 <span class="font-semibold">{{ cell.text }}</span>
-                @if (cell.sample) {
-                  <span class="block text-xs leading-none font-normal text-text-muted">{{
-                    cell.sample
-                  }}</span>
-                }
-                @if (cell.reference) {
-                  <span class="block text-xs leading-none font-normal text-text-secondary">{{
-                    cell.reference
-                  }}</span>
-                }
               </td>
             }
           }

@@ -18,9 +18,6 @@ export interface StatSort {
 /** How the table is read, from the view's `ViewState`. */
 export interface StatDisplay {
   reference: Reference;
-  colours: boolean;
-  samples: boolean;
-  referenceValues: boolean;
 }
 
 /** A cell ready to draw: no formatting or colouring left to do in the template. */
@@ -30,10 +27,6 @@ export interface CellView {
   cell: StatCell | undefined;
   text: string;
   tone: CellTone | null;
-  /** Sample line under the value, when asked and meaningful. */
-  sample: string | null;
-  /** Reference value line under the value, when asked. */
-  reference: string | null;
 }
 
 export interface RowView {

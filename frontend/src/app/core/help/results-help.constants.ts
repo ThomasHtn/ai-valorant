@@ -6,7 +6,7 @@ export const RESULTS_HELP: Readonly<Record<string, StatHelp>> = {
     title: 'Rounds gagnés',
     what: "Part des rounds joués que l'escouade gagne.",
     how: 'Rounds gagnés divisés par rounds joués.',
-    read: 'Comparé à votre historique : le top ranked et les adversaires seraient toujours à 50 % ou au miroir.',
+    read: "Comparé à l'escouade avant la période : le top ranked et les adversaires seraient toujours à 50 % ou au miroir.",
   },
   roundDiff: {
     title: 'Écart moyen au score',

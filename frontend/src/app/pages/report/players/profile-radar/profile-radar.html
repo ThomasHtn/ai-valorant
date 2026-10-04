@@ -1,115 +1,116 @@
 <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
   <h3 [id]="titleId" class="!m-0 font-display text-lg font-semibold text-text-primary">
-    {{ title() }}<app-info-tip topic="playerProfile" />
+    {{ title() }}<app-info-tip [content]="help" />
   </h3>
-  <span class="ml-auto flex flex-wrap items-center gap-x-4 text-sm text-text-secondary">
+  <span class="ml-auto flex flex-wrap items-center gap-x-4 text-[0.95rem] text-text-secondary">
     @for (item of legend(); track item.name) {
       <span class="inline-flex items-center gap-1.5"
-        ><i class="inline-block h-0.5 w-4" [style.background]="item.colour" aria-hidden="true"></i
+        ><i class="inline-block h-1 w-5" [style.background]="item.colour" aria-hidden="true"></i
         >{{ item.name }}</span
       >
     }
-    <span class="inline-flex items-center gap-1.5"
-      ><i class="inline-block w-4 border-t-2 border-dashed border-top" aria-hidden="true"></i
-      >{{ referenceLabel() }}</span
-    >
+    @if (view()?.reference) {
+      <span class="inline-flex items-center gap-1.5"
+        ><i
+          class="inline-block w-5 border-t-2 border-dashed"
+          [style.border-color]="referenceColour"
+          aria-hidden="true"
+        ></i
+        >{{ referenceName() }}</span
+      >
+    }
   </span>
 </div>
 
 @if (view(); as v) {
-  <!-- With projected content (the figures behind the web), both sit side by side on wide screens. -->
   <div
-    class="bg-text-primary/4 px-2 py-3"
-    [class]="
-      split()
-        ? 'grid items-center gap-x-8 gap-y-4 lg:grid-cols-[minmax(0,19rem)_minmax(0,1fr)] lg:px-5'
-        : ''
-    "
+    class="flex flex-1 flex-col justify-center bg-text-primary/4 px-2 py-4"
     role="region"
     [attr.aria-labelledby]="titleId"
   >
-    <div class="min-w-0">
-      <svg
-        class="mx-auto block h-auto w-full max-w-[32rem] font-sans"
-        [attr.viewBox]="'0 0 ' + v.width + ' ' + v.height"
-        role="img"
-        [attr.aria-label]="label()"
-      >
-        @for (ring of v.rings; track $index) {
-          <polygon
-            [attr.points]="ring.points"
-            fill="none"
-            [attr.stroke]="ring.reference ? 'var(--color-top)' : 'var(--color-edge-strong)'"
-            [attr.stroke-width]="ring.reference ? 1.5 : 1"
-            [attr.stroke-dasharray]="ring.reference ? '5 4' : null"
-          />
-        }
-        @for (axis of v.axes; track axis.key) {
-          <line
-            [attr.x1]="v.cx"
-            [attr.y1]="v.cy"
-            [attr.x2]="axis.rimX"
-            [attr.y2]="axis.rimY"
-            stroke="var(--color-edge)"
-          />
-        }
+    <svg
+      class="mx-auto block h-auto w-full max-w-[40rem] font-sans"
+      [attr.viewBox]="'0 0 ' + v.width + ' ' + v.height"
+      role="img"
+      [attr.aria-label]="label()"
+    >
+      @for (ring of v.rings; track $index) {
+        <polygon [attr.points]="ring" fill="none" stroke="var(--color-edge)" />
+      }
+      @for (axis of v.axes; track axis.key) {
+        <line
+          [attr.x1]="v.cx"
+          [attr.y1]="v.cy"
+          [attr.x2]="axis.rimX"
+          [attr.y2]="axis.rimY"
+          stroke="var(--color-edge)"
+        />
+      }
 
-        @for (shape of v.shapes; track shape.name) {
-          <polygon
-            [attr.points]="shape.points"
-            [attr.fill]="shape.colour"
-            fill-opacity="0.18"
-            [attr.stroke]="shape.colour"
-            stroke-width="2"
-            stroke-linejoin="round"
-          />
-        }
+      @if (v.reference; as ref) {
+        <polygon
+          [attr.points]="ref.points"
+          fill="none"
+          [attr.stroke]="ref.colour"
+          stroke-width="2"
+          stroke-dasharray="6 5"
+          stroke-linejoin="round"
+        />
+      }
+      @for (shape of v.shapes; track shape.name) {
+        <polygon
+          [attr.points]="shape.points"
+          [attr.fill]="shape.colour"
+          fill-opacity="0.2"
+          [attr.stroke]="shape.colour"
+          stroke-width="2.5"
+          stroke-linejoin="round"
+        />
+      }
 
-        @for (axis of v.axes; track axis.key) {
+      @for (axis of v.axes; track axis.key) {
+        <text
+          [attr.x]="axis.labelX"
+          [attr.y]="split() ? axis.nameY : axis.labelY"
+          [attr.text-anchor]="axis.anchor"
+          fill="var(--color-text-secondary)"
+          font-size="17"
+        >
+          {{ axis.label }}
+        </text>
+        <!-- One value per player in their colours; left out when the figures sit beside the web. -->
+        @if (!split()) {
           <text
             [attr.x]="axis.labelX"
-            [attr.y]="split() ? axis.nameY : axis.labelY"
+            [attr.y]="axis.valueY"
             [attr.text-anchor]="axis.anchor"
-            fill="var(--color-text-secondary)"
-            font-size="14"
+            font-size="17"
+            font-weight="600"
           >
-            {{ axis.label }}
+            @for (point of axis.points; track $index) {
+              <tspan [attr.fill]="point.fill">{{ $index ? '  ' : '' }}{{ point.value }}</tspan>
+            }
           </text>
-          <!-- One value per player in their colours; left out when the figures sit beside the web. -->
-          @if (!split()) {
-            <text
-              [attr.x]="axis.labelX"
-              [attr.y]="axis.valueY"
-              [attr.text-anchor]="axis.anchor"
-              font-size="15"
-              font-weight="600"
-            >
-              @for (point of axis.points; track $index) {
-                <tspan [attr.fill]="point.fill">{{ $index ? '  ' : '' }}{{ point.value }}</tspan>
-              }
-            </text>
-          }
-          @for (point of axis.points; track $index) {
-            <circle
-              [attr.cx]="point.x"
-              [attr.cy]="point.y"
-              r="5"
-              [attr.fill]="point.faint ? 'var(--color-surface-950)' : point.fill"
-              [attr.stroke]="point.faint ? 'var(--color-text-muted)' : 'var(--color-surface-950)'"
-              stroke-width="2"
-              class="cursor-pointer outline-none focus-visible:stroke-brand-400"
-              tabindex="0"
-              [attr.aria-label]="point.tip.title + ' : ' + point.value"
-              [appHoverTip]="point.tip"
-            />
-          }
         }
-      </svg>
-      <p class="!m-0 px-2 text-center text-sm text-text-muted">
-        Sur le pointillé : égal à la référence. Dehors : mieux, dedans : moins bien. Chaque cercle
-        vaut 20 % d'écart.
-      </p>
-    </div>
-    <ng-content />
+        @for (point of axis.points; track $index) {
+          <circle
+            [attr.cx]="point.x"
+            [attr.cy]="point.y"
+            r="6"
+            [attr.fill]="point.faint ? 'var(--color-surface-950)' : point.fill"
+            [attr.stroke]="point.faint ? 'var(--color-text-muted)' : 'var(--color-surface-950)'"
+            stroke-width="2"
+            class="cursor-pointer outline-none focus-visible:stroke-brand-400"
+            tabindex="0"
+            [attr.aria-label]="point.tip.title + ' : ' + point.value"
+            [appHoverTip]="point.tip"
+          />
+        }
+      }
+    </svg>
+    <p class="!m-0 px-2 text-center text-sm text-text-muted">
+      Plus loin du centre = mieux. Chaque branche a sa propre échelle, du niveau faible au centre au
+      très bon niveau au bord.
+    </p>
   </div>
 }

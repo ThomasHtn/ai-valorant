@@ -7,7 +7,7 @@ totals (C = grenade, Q = ability 1, E = ability 2, X = ultimate) divided by the 
 from collections.abc import Callable, Sequence
 
 from valostats.analysis.report.domains._lookups import KillsByRole, kill_bucket, measured_cell
-from valostats.analysis.report.domains._players import player_art, role_label
+from valostats.analysis.report.domains._players import agent_role_label, player_art, role_label
 from valostats.analysis.report.foundation.art import agent_art
 from valostats.analysis.report.foundation.cells import Measure, Metric, cell, fixed, ratio
 from valostats.analysis.report.foundation.cohorts import FactKind, ReportCohort, ReportCohorts, SquadPlayer
@@ -81,7 +81,7 @@ def casts_table(cohorts: ReportCohorts, players: Sequence[SquadPlayer]) -> StatT
                 key: cell(cohorts, FactKind.PLAYER_MATCHES, metric, where=is_player, reference_where=_anyone, agent=agent)
                 for key, metric in metrics.items()
             }
-            table.row(f"{player.name}-{agent}", f"{player.name} · {agent}", cells, art=agent_art(agent), sub=agent)
+            table.row(f"{player.name}-{agent}", f"{player.name} · {agent}", cells, art=agent_art(agent), sub=agent_role_label(agent))
     return table.build()
 
 

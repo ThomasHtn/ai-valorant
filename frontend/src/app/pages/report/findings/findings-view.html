@@ -1,20 +1,21 @@
-<p class="!m-0 text-sm text-text-muted">
-  Écart en rounds : gagnés ou perdus par rapport à la référence sur le même
-  échantillon.<app-info-tip topic="findingStatus" />
+<!-- One sentence says what the two lists are, then weaknesses beside strengths. -->
+<p class="!m-0 max-w-[60rem] text-[1.0625rem] text-text-secondary">
+  Les situations où l'escouade fait clairement moins bien, ou mieux, que la référence. La barre et
+  le chiffre comptent les rounds perdus ou gagnés en plus sur la période. Clique une ligne pour voir
+  pourquoi et les rounds à revoir.<app-info-tip topic="findingStatus" />
 </p>
 
 <app-resource-state [resource]="report" notFoundText="Aucun écart testé sur cette période.">
-  <!-- Weaknesses, then strengths, one under the other; only the page scrolls. -->
-  <div class="flex flex-col gap-10">
+  <div class="block-grid">
     <app-finding-column
-      heading="Points faibles"
+      heading="Ce qui coûte des rounds"
       [weak]="true"
       [column]="weaknesses()"
       [openKey]="target().side === 'weak' ? target().key : null"
       [playerAgents]="context.playerAgents()"
     />
     <app-finding-column
-      heading="Points forts"
+      heading="Ce qui rapporte des rounds"
       [weak]="false"
       [column]="strengths()"
       [openKey]="target().side === 'strong' ? target().key : null"

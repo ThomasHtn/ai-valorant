@@ -1,57 +1,83 @@
-@if (showDetections()) {
-  <div class="flex min-w-0 flex-col gap-6">
-    <p class="!m-0 text-text-secondary">
-      Ce que l'outil repère seul sur toute la période, sans tenir compte des filtres.<app-info-tip
-        topic="detections"
-      />
-      Les écarts testés avec la référence sont dans
-      <a routerLink="/report/findings" queryParamsHandling="preserve">Points forts et faibles</a>.
-    </p>
-    <app-resource-state [resource]="detections" notFoundText="Rien de détecté sur cette période.">
-      @if (detections.hasValue()) {
-        <app-detections-panel
-          [detections]="detections.value()"
-          [playerAgents]="context.playerAgents()"
-        />
-      }
-    </app-resource-state>
-  </div>
-} @else {
-  <div class="view-body">
-    <!-- What is shown (filters), then how it reads (reference and colours), over every table. -->
-    <div class="flex flex-col gap-3">
-      <app-filter-bar [maps]="maps()" [players]="players()" />
-      <app-reading-bar [mixed]="hasHistoryColumns()" />
-    </div>
-    <app-resource-state
-      [resource]="tables"
-      notFoundText="Ce domaine n'a pas de données sur cette période."
+<!-- Themes stay on the left while the tables scroll, Alertes apart at the top. -->
+<nav class="side-rail" aria-label="Thèmes des stats">
+  <a
+    class="side-tab lg:mb-2"
+    [routerLink]="['/report/tables', detectionsKey]"
+    queryParamsHandling="preserve"
+    [attr.aria-current]="showDetections() ? 'page' : null"
+  >
+    {{ detectionsLabel }}
+    @if (detectionCount(); as count) {
+      <span class="ml-auto text-sm font-normal text-text-muted tabular-nums">{{ count }}</span>
+    }
+  </a>
+  @for (item of domains; track item.key) {
+    <a
+      class="side-tab"
+      [routerLink]="['/report/tables', item.key]"
+      queryParamsHandling="preserve"
+      [attr.aria-current]="item.key === domainKey() ? 'page' : null"
+      >{{ item.label }}</a
     >
-      @if (tables.hasValue()) {
-        <div class="block-grid">
-          @for (table of tables.value().tables; track table.id) {
-            <section
-              class="view-section"
-              [class.block-wide]="isWide(table)"
-              [attr.aria-labelledby]="'table-' + table.id"
-            >
-              <h2 class="text-lg" [id]="'table-' + table.id">
-                {{ table.title }}<app-info-tip [topic]="table.help" />
-              </h2>
-              <app-stat-table
-                [table]="table"
-                [display]="state.preferences()"
-                [playerAgents]="context.playerAgents()"
-                [rowFilter]="rowFilters().get(table.id) ?? null"
-                (cellClick)="openRounds($event)"
-              />
-              @if (table.note) {
-                <p class="!m-0 text-sm text-text-muted">{{ table.note }}</p>
-              }
-            </section>
-          }
-        </div>
-      }
-    </app-resource-state>
-  </div>
-}
+  }
+</nav>
+
+<div class="min-w-0">
+  @if (showDetections()) {
+    <div class="flex min-w-0 flex-col gap-6">
+      <p class="!m-0 text-text-secondary">
+        Ce que l'outil repère seul sur toute la période, sans tenir compte des filtres.<app-info-tip
+          topic="detections"
+        />
+        Les écarts testés avec la référence sont dans
+        <a routerLink="/report/findings" queryParamsHandling="preserve">Points forts et faibles</a>.
+      </p>
+      <app-resource-state [resource]="detections" notFoundText="Rien de détecté sur cette période.">
+        @if (detections.hasValue()) {
+          <app-detections-panel
+            [detections]="detections.value()"
+            [playerAgents]="context.playerAgents()"
+          />
+        }
+      </app-resource-state>
+    </div>
+  } @else {
+    <div class="view-body">
+      <!-- What is shown (filters), then how it reads (reference and colours), over every table. -->
+      <div class="flex flex-col gap-3">
+        <app-filter-bar [maps]="maps()" [players]="players()" />
+        <app-reading-bar [mixed]="hasHistoryColumns()" />
+      </div>
+      <app-resource-state
+        [resource]="tables"
+        notFoundText="Ce domaine n'a pas de données sur cette période."
+      >
+        @if (tables.hasValue()) {
+          <div class="block-grid">
+            @for (table of tables.value().tables; track table.id) {
+              <section
+                class="view-section"
+                [class.block-wide]="isWide(table)"
+                [attr.aria-labelledby]="'table-' + table.id"
+              >
+                <h2 class="text-lg" [id]="'table-' + table.id">
+                  {{ table.title }}<app-info-tip [topic]="table.help" />
+                </h2>
+                <app-stat-table
+                  [table]="table"
+                  [display]="state.preferences()"
+                  [playerAgents]="context.playerAgents()"
+                  [rowFilter]="rowFilters().get(table.id) ?? null"
+                  (cellClick)="openRounds($event)"
+                />
+                @if (table.note) {
+                  <p class="!m-0 text-sm text-text-muted">{{ table.note }}</p>
+                }
+              </section>
+            }
+          </div>
+        }
+      </app-resource-state>
+    </div>
+  }
+</div>

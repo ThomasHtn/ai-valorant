@@ -24,8 +24,11 @@ import { TONE_TEXT_CLASSES } from './stat-tile.constants';
     <span
       class="font-display text-[1.6rem] leading-tight font-semibold tabular-nums"
       [class]="valueClass()"
-      >{{ value() }}</span
-    >
+      >{{ value() }}
+      @if (unit(); as unit) {
+        <small class="ml-1.5 font-sans text-base font-medium">{{ unit }}</small>
+      }
+    </span>
     @for (line of lines(); track $index) {
       <span class="text-sm text-text-muted">{{ line }}</span>
     }
@@ -36,6 +39,8 @@ export class StatTile {
   public readonly label = input.required<string>();
   /** Already formatted value ('281', '56 %'). */
   public readonly value = input.required<string>();
+  /** Unit written small after a value that has none of its own ('rounds par match'). */
+  public readonly unit = input<string | null>(null);
   /** Colour of the value; null leaves it uncoloured. */
   public readonly tone = input<CellTone | null>(null);
   /** Extra classes of the value, e.g. the top ranked colour. */

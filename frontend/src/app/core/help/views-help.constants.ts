@@ -51,11 +51,6 @@ export const VIEWS_HELP: Readonly<Record<string, StatHelp>> = {
     what: "Où les équipes du top ranked posent le spike sur cette carte, pour comparer avec les plants de l'escouade ou des adversaires.",
     how: 'Positions des plants de tous les matchs top ranked de la carte, additionnées par carré de la minimap. Plus la tache est grande et claire, plus le spot est utilisé.',
   },
-  mmZones: {
-    title: 'Zones',
-    what: "Ce qui se passe dans chaque zone de la carte pour l'escouade, sur le side choisi.",
-    how: "Chaque position est rattachée au callout le plus proche (valorant-api). Morts : position de la victime. Kills : position du tueur de l'escouade.",
-  },
   mmFdShare: {
     title: 'Part des first deaths',
     what: "Part des first deaths de l'escouade qui ont lieu dans cette zone, à comparer au top ranked sur la même carte et le même side.",

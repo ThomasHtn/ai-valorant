@@ -1,6 +1,7 @@
 import {
   AGENT_ROLES,
   ASSETS_ROOT,
+  KNOWN_ARMORS,
   KNOWN_MAPS,
   KNOWN_WEAPONS,
   ROLE_LABELS,
@@ -43,6 +44,11 @@ export function mapSplash(map: string): string | null {
 /** White kill-feed silhouette of a weapon. */
 export function weaponIcon(weapon: string): string | null {
   return KNOWN_WEAPONS.has(weapon) ? `${ASSETS_ROOT}/weapons/${assetSlug(weapon)}.webp` : null;
+}
+
+/** White shield glyph of an armor ('Heavy Armor'), or null for one the assets do not know. */
+export function armorIcon(armor: string): string | null {
+  return KNOWN_ARMORS.has(armor) ? `${ASSETS_ROOT}/armors/${assetSlug(armor)}.webp` : null;
 }
 
 /** Picture of a table row from the API's art slug; players are drawn by their avatar agent elsewhere. */

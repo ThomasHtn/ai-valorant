@@ -112,7 +112,7 @@ describe('matches view utils', () => {
       key: 'r3',
       link: ['/report/matches', 'm', 'rounds', '3'],
       number: 'R3',
-      detail: 'Attaque · full buy contre eco',
+      detail: 'Attaque, full buy contre eco',
       cause: 'Avantage perdu',
       chance: 'Throw à 84 %',
     });
@@ -121,8 +121,8 @@ describe('matches view utils', () => {
 
   it('writes the round tip in French', () => {
     const tip = roundTip({ ...round(14, false, 'retake_failed'), maxAdvantage: 1 });
-    expect(tip.title).toBe('Round 14 · perdu');
-    expect(tip.text).toBe('Défense · full buy contre force buy');
+    expect(tip.title).toBe('Round 14 perdu');
+    expect(tip.text).toBe('Défense, full buy contre force buy');
     expect(tip.lines).toContainEqual({ label: 'Cause', value: 'Retake raté' });
     expect(tip.lines).toContainEqual({ label: 'Avantage', value: '+1 au mieux' });
   });

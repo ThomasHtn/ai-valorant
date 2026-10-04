@@ -18,7 +18,7 @@ export function roundSummary(
 ): RoundSummary {
   return {
     won: round.won,
-    outcome: `${round.won ? 'Gagné' : 'Perdu'} · ${RESULT_LABELS[round.result] ?? round.result}`,
+    outcome: `${round.won ? 'Gagné' : 'Perdu'} (${(RESULT_LABELS[round.result] ?? round.result).toLowerCase()})`,
     cause: round.cause
       ? { label: LOSS_CAUSE_LABELS[round.cause], reason: LOSS_CAUSE_REASONS[round.cause] }
       : null,

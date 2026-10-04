@@ -5,13 +5,28 @@
         <th scope="col" class="px-2.5 py-1.5 font-semibold">Round</th>
         <th scope="col" class="px-2.5 py-1.5 font-semibold">Jour</th>
         <th scope="col" class="px-2.5 py-1.5 font-semibold">Side</th>
-        <th scope="col" class="hidden px-2.5 py-1.5 font-semibold md:table-cell">Achats</th>
+        <th scope="col" class="hidden px-2.5 py-1.5 font-semibold md:table-cell">
+          Achats
+          <span class="block text-xs leading-none font-normal text-text-muted"
+            >escouade contre adversaires</span
+          >
+        </th>
         <th scope="col" class="hidden px-2.5 py-1.5 text-right font-semibold sm:table-cell">
-          Score avant
+          Score avant le round
+          <span class="block text-xs leading-none font-normal text-text-muted"
+            >escouade-adversaires</span
+          >
         </th>
         <th scope="col" class="px-2.5 py-1.5 font-semibold">Résultat</th>
-        <th scope="col" class="hidden px-2.5 py-1.5 text-right font-semibold lg:table-cell">
+        <th
+          scope="col"
+          class="hidden px-2.5 py-1.5 text-right font-semibold lg:table-cell"
+          [appHoverTip]="throwTip"
+        >
           Throw
+          <span class="block text-xs leading-none font-normal text-text-muted"
+            >meilleure chance de gagner</span
+          >
         </th>
       </tr>
     </thead>
@@ -42,7 +57,7 @@
           </td>
           <td
             class="hidden px-2.5 py-1 text-right whitespace-nowrap text-brand-400 lg:table-cell"
-            [title]="line.chance ? throwTip : ''"
+            [appHoverTip]="line.chance ? throwTip : null"
           >
             {{ line.chance ?? '' }}
           </td>

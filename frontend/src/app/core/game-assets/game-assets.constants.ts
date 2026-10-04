@@ -75,6 +75,7 @@ export const KNOWN_WEAPONS: ReadonlySet<string> = new Set([
   'Judge',
   'Bulldog',
   'Guardian',
+  'Warden',
   'Phantom',
   'Vandal',
   'Marshal',
@@ -83,4 +84,11 @@ export const KNOWN_WEAPONS: ReadonlySet<string> = new Set([
   'Ares',
   'Odin',
   'Melee',
+]);
+
+/** Shields with an icon in the assets folder. */
+export const KNOWN_ARMORS: ReadonlySet<string> = new Set([
+  'Light Armor',
+  'Heavy Armor',
+  'Regen Shield',
 ]);

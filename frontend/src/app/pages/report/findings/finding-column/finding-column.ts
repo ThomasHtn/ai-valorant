@@ -1,31 +1,32 @@
 import { Component, computed, input } from '@angular/core';
-import { LucideDynamicIcon, LucideUser, LucideUsers } from '@lucide/angular';
-
-import { Badge } from '@shared/badge/badge';
 
 import { FindingCard } from '../finding-card/finding-card';
 import { FindingColumnView } from '../findings.model';
 
+/** Gives each list its own heading id. */
+let columnCount = 0;
+
 /**
- * One block of the view, weaknesses or strengths: a header with its count, then its groups (team,
- * players) side by side on wide screens, folded cards under a quiet divider, the block's costliest
- * card opened unless a link asked for another.
+ * One list of the view, weaknesses or strengths: a heading with its count, then one folded line per
+ * subject, the costliest first. Only the card a Résumé link asked for opens.
  */
 @Component({
   selector: 'app-finding-column',
-  imports: [Badge, FindingCard, LucideDynamicIcon],
+  imports: [FindingCard],
   templateUrl: './finding-column.html',
-  host: { class: 'flex min-w-0 flex-col border border-edge' },
+  host: { class: 'view-section min-w-0', '[attr.aria-labelledby]': 'headingId' },
 })
 export class FindingColumn {
   public readonly heading = input.required<string>();
   public readonly weak = input.required<boolean>();
   public readonly column = input.required<FindingColumnView>();
-  /** Subject whose card opens and comes into view instead of the costliest one. */
+  /** Subject whose card opens and comes into view. */
   public readonly openKey = input<string | null>(null);
   public readonly playerAgents = input<Record<string, string>>({});
 
-  protected readonly teamIcon = LucideUsers;
-  protected readonly playerIcon = LucideUser;
-  protected readonly countLabel = computed(() => String(this.column().count));
+  protected readonly headingId = `findings-${++columnCount}`;
+  protected readonly countLabel = computed(() => {
+    const count = this.column().subjects.length;
+    return `${count} sujet${count > 1 ? 's' : ''}`;
+  });
 }

@@ -50,7 +50,7 @@
                     type="button"
                     class="seg-option"
                     [attr.aria-pressed]="appliedSort() === option.value"
-                    [title]="option.hint"
+                    [appHoverTip]="{ title: option.label, text: option.hint }"
                     (click)="sort.set(option.value)"
                   >
                     {{ option.label }}

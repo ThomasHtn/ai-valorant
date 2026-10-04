@@ -1,37 +1,106 @@
-<div class="flex flex-col gap-4">
-  <app-breadcrumb [crumbs]="crumbs()">
-    <span class="seg-group">
-      @if (neighbours().previous; as previous) {
-        <a
-          class="seg-option inline-flex items-center gap-1 no-underline"
-          [routerLink]="previous.link"
-          queryParamsHandling="preserve"
-          title="Round précédent"
-          ><svg lucideChevronLeft class="size-4" aria-hidden="true"></svg>R{{ previous.number }}</a
-        >
-      }
-      @if (neighbours().next; as next) {
-        <a
-          class="seg-option inline-flex items-center gap-1 no-underline"
-          [routerLink]="next.link"
-          queryParamsHandling="preserve"
-          title="Round suivant"
-          >R{{ next.number }}<svg lucideChevronRight class="size-4" aria-hidden="true"></svg
-        ></a>
-      }
-    </span>
-  </app-breadcrumb>
-  @if (detail.hasValue()) {
-    <app-round-strip
-      [matchId]="detail.value().matchId"
-      [rounds]="detail.value().rounds"
-      [current]="roundNumber()"
-    />
-  }
-</div>
+<!-- Where the match sits in the period, with the matches played before and after it. -->
+<app-breadcrumb [crumbs]="crumbs()">
+  <span class="seg-group">
+    @if (matchNeighbours().previous; as previous) {
+      <a
+        class="seg-option inline-flex items-center gap-1 no-underline"
+        [routerLink]="['/report/matches', previous.match.matchId]"
+        queryParamsHandling="preserve"
+        [attr.aria-label]="'Match précédent : ' + previous.match.mapName"
+        ><svg lucideChevronLeft class="size-4" aria-hidden="true"></svg
+        >{{ previous.match.mapName }}</a
+      >
+    }
+    @if (matchNeighbours().next; as next) {
+      <a
+        class="seg-option inline-flex items-center gap-1 no-underline"
+        [routerLink]="['/report/matches', next.match.matchId]"
+        queryParamsHandling="preserve"
+        [attr.aria-label]="'Match suivant : ' + next.match.mapName"
+        >{{ next.match.mapName }}<svg lucideChevronRight class="size-4" aria-hidden="true"></svg
+      ></a>
+    }
+  </span>
+</app-breadcrumb>
 
-<app-resource-state [resource]="sheet" notFoundText="Ce round est introuvable.">
-  @if (sheet.hasValue()) {
-    <app-round-sheet [sheet]="sheet.value()" />
+<app-resource-state [resource]="detail" notFoundText="Ce match est introuvable.">
+  @if (detail.hasValue()) {
+    @let m = detail.value();
+    <div class="flex min-w-0 flex-col gap-6">
+      <app-match-header [match]="m" />
+
+      <!-- Both scoreboards first: who played how, before reading the rounds. -->
+      <div class="grid items-start gap-x-8 gap-y-4 xl:grid-cols-2">
+        <app-scoreboard title="L'escouade" [lines]="m.squad" [squad]="true" />
+        <app-scoreboard title="Adversaires" [lines]="m.opponents" />
+      </div>
+
+      <!-- The strip picks the round opened right under it. -->
+      <section class="flex flex-col gap-2" aria-labelledby="match-rounds-title">
+        <div class="flex flex-wrap items-baseline gap-x-4 gap-y-1">
+          <h2 class="!m-0 text-lg" id="match-rounds-title">
+            Rounds<app-info-tip topic="roundStrip" />
+          </h2>
+          <span class="text-sm text-text-secondary">Clique un round pour l'ouvrir ci-dessous.</span>
+          <span class="ml-auto flex items-center gap-x-4 text-sm text-text-secondary">
+            <span class="inline-flex items-center gap-1.5"
+              ><i class="tone-good size-3.5 ring-1 ring-rating-good ring-inset"></i>Gagné</span
+            >
+            <span class="inline-flex items-center gap-1.5"
+              ><i class="tone-bad size-3.5 ring-1 ring-rating-bad ring-inset"></i>Perdu</span
+            >
+          </span>
+        </div>
+        <app-round-strip [matchId]="m.matchId" [rounds]="m.rounds" [current]="roundNumber()" />
+      </section>
+
+      <!-- The open round, framed under the strip. -->
+      <section
+        class="flex min-w-0 flex-col gap-4 border-t-2 border-brand-500 bg-text-primary/2 px-4 pt-3 pb-5"
+        aria-labelledby="open-round-title"
+      >
+        <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
+          <h2 class="!m-0 font-display text-2xl font-semibold" id="open-round-title">
+            Round {{ roundNumber() }}
+          </h2>
+          <span class="seg-group ml-auto">
+            @if (roundNeighbours().previous; as previous) {
+              <a
+                class="seg-option inline-flex items-center gap-1 no-underline"
+                [routerLink]="previous.link"
+                queryParamsHandling="preserve"
+                aria-label="Round précédent"
+                ><svg lucideChevronLeft class="size-4" aria-hidden="true"></svg>R{{
+                  previous.number
+                }}</a
+              >
+            }
+            @if (roundNeighbours().next; as next) {
+              <a
+                class="seg-option inline-flex items-center gap-1 no-underline"
+                [routerLink]="next.link"
+                queryParamsHandling="preserve"
+                aria-label="Round suivant"
+                >R{{ next.number }}<svg lucideChevronRight class="size-4" aria-hidden="true"></svg
+              ></a>
+            }
+          </span>
+        </div>
+
+        <!-- The last sheet stays while the next one loads, so the page keeps its height. -->
+        @if (shownSheet(); as shown) {
+          <app-round-sheet
+            class="transition-opacity"
+            [class.opacity-50]="sheet.isLoading()"
+            [sheet]="shown"
+          />
+        } @else {
+          <app-resource-state [resource]="sheet" notFoundText="Ce round est introuvable." />
+        }
+      </section>
+
+      <!-- The whole match: its lost rounds, by cause then one by one. -->
+      <app-lost-rounds [rounds]="m.rounds" [rows]="lostRows()" />
+    </div>
   }
 </app-resource-state>

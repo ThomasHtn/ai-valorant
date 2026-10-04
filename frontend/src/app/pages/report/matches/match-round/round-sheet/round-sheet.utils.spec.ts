@@ -21,7 +21,7 @@ describe('round sheet summary', () => {
   const summary = roundSummary(round, events, { index: 1, from: 0.48, to: 0.22 });
 
   it('says how the round ended and why it was lost', () => {
-    expect(summary.outcome).toBe('Perdu · Élimination');
+    expect(summary.outcome).toBe('Perdu (élimination)');
     expect(summary.cause).toEqual({
       label: 'Clutch perdu',
       reason: "le round est allé jusqu'au 1v1",

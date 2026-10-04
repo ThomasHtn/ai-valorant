@@ -1,53 +1,24 @@
-<header
-  class="flex items-center gap-3 border-b-2 bg-text-primary/8 px-4 py-2.5"
-  [class]="weak() ? 'border-rating-bad' : 'border-rating-good'"
->
-  <h2 class="!m-0 text-xl after:!hidden">{{ heading() }}</h2>
-  <app-badge [label]="countLabel()" [kind]="weak() ? 'bad' : 'good'" size="sm" />
-</header>
+<h2 [id]="headingId">
+  {{ heading() }}
+  <span class="order-2 font-sans text-sm font-normal text-text-muted">{{ countLabel() }}</span>
+</h2>
 
-<!-- The team and its players side by side: each card fills half the width, never the whole line. -->
-<div
-  class="grid items-start"
-  [class.xl:grid-cols-2]="column().groups.length > 1"
-  [class.xl:divide-x]="column().groups.length > 1"
-  [class.divide-edge]="column().groups.length > 1"
->
-  @for (group of column().groups; track group.group; let first = $first) {
-    <div class="flex min-w-0 flex-col">
-      <!-- Quiet divider: who the cards are about, then a hairline fading out. -->
-      <h3
-        class="!m-0 flex items-center gap-2 px-3 pt-4 pb-2 font-display text-base font-semibold text-text-primary"
-      >
-        <svg
-          class="size-4 shrink-0"
-          [class]="weak() ? 'text-rating-bad' : 'text-rating-good'"
-          [lucideIcon]="group.group === 'team' ? teamIcon : playerIcon"
-          aria-hidden="true"
-        ></svg>
-        {{ group.label }}
-        <span class="font-sans text-sm font-normal text-text-muted">{{
-          group.subjects.length
-        }}</span>
-        <span
-          class="h-px flex-1 bg-linear-to-r from-edge-strong to-transparent"
-          aria-hidden="true"
-        ></span>
-      </h3>
-      <div class="flex flex-col gap-1 px-2 pb-2">
-        @for (subject of group.subjects; track subject.key; let top = $first) {
-          <app-finding-card
-            [subject]="subject"
-            [playerAgents]="playerAgents()"
-            [initiallyOpen]="openKey() ? subject.key === openKey() : first && top"
-            [focused]="subject.key === openKey()"
-          />
-        }
-      </div>
-    </div>
+<div class="flex flex-col gap-0.5">
+  @for (subject of column().subjects; track subject.key) {
+    <app-finding-card
+      [subject]="subject"
+      [scale]="column().scale"
+      [playerAgents]="playerAgents()"
+      [initiallyOpen]="subject.key === openKey()"
+      [focused]="subject.key === openKey()"
+    />
   } @empty {
-    <p class="!m-auto px-6 py-10 text-center text-text-muted">
-      Aucun écart à afficher avec ces filtres.
+    <p class="!m-0 bg-text-primary/4 px-4 py-6 text-center text-text-muted">
+      {{
+        weak()
+          ? 'Aucun point faible net sur cette période.'
+          : 'Aucun point fort net sur cette période.'
+      }}
     </p>
   }
 </div>

@@ -3,7 +3,7 @@ import { hasFilters, parsePreferences } from './report-preferences.utils';
 
 describe('report preferences utils', () => {
   it('reads saved preferences', () => {
-    const saved = { reference: 'hist', colours: false, samples: true, referenceValues: true };
+    const saved = { reference: 'hist' };
     expect(parsePreferences(JSON.stringify(saved), DEFAULT_PREFERENCES)).toEqual(saved);
   });
 
@@ -11,9 +11,7 @@ describe('report preferences utils', () => {
     const defaults = { ...DEFAULT_PREFERENCES, reference: 'opp' as const };
     expect(parsePreferences(null, defaults)).toEqual(defaults);
     expect(parsePreferences('{oops', defaults)).toEqual(defaults);
-    expect(
-      parsePreferences(JSON.stringify({ reference: 'moon', colours: 'yes' }), defaults),
-    ).toEqual(defaults);
+    expect(parsePreferences(JSON.stringify({ reference: 'moon' }), defaults)).toEqual(defaults);
   });
 
   it('tells when a filter narrows the view', () => {

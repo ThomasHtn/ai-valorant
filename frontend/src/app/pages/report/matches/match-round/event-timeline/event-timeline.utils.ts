@@ -1,4 +1,6 @@
+import { formatValue } from '@core/format/value-format.utils';
 import { RoundEvent } from '@core/report/rounds.model';
+import { HoverTipContent } from '@shared/hover-tip/hover-tip.model';
 
 /** Kind of a timeline line, seen from the squad: its label and the classes of its tag. */
 export interface EventTag {
@@ -30,5 +32,27 @@ export function chanceShift(from: number, to: number): ChanceShift {
     label: `${before} → ${after} %`,
     className:
       after > before ? 'text-rating-good' : after < before ? 'text-rating-bad' : 'text-text-muted',
+  };
+}
+
+/** Tip of the chance column: the squad's chance to win the round before and after the event. */
+export function chanceTip(from: number, to: number): HoverTipContent {
+  return {
+    title: 'Chances de gagner le round',
+    lines: [
+      { label: 'Avant', value: formatValue(from, 'pct') },
+      { label: 'Après', value: formatValue(to, 'pct') },
+    ],
+  };
+}
+
+/** Tip of the alive column: players left on each team after the event. */
+export function aliveTip(own: number, opp: number): HoverTipContent {
+  return {
+    title: 'Joueurs en vie',
+    lines: [
+      { label: "L'escouade", value: String(own) },
+      { label: 'Adversaires', value: String(opp) },
+    ],
   };
 }

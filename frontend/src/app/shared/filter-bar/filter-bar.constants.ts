@@ -12,13 +12,3 @@ export const SIDE_OPTIONS: readonly { value: Side | ''; label: string }[] = [
   { value: 'att', label: SIDE_LABELS.att },
   { value: 'def', label: SIDE_LABELS.def },
 ];
-
-/** Display toggles, in order. */
-export const DISPLAY_TOGGLES: readonly {
-  key: 'colours' | 'samples' | 'referenceValues';
-  label: string;
-}[] = [
-  { key: 'colours', label: 'Couleurs' },
-  { key: 'samples', label: 'Échantillons' },
-  { key: 'referenceValues', label: 'Valeur de référence' },
-];

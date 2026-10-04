@@ -13,5 +13,5 @@ export const CAUSE_MIN = 3;
 /** Rounds won on an eco or force buy against a full buy before it counts as a fact. */
 export const UNDERDOG_MIN = 2;
 
-/** Facts shown per match: the card stays a summary, the match page has the rest. */
-export const MAX_FACTS = 3;
+/** Facts shown per match: the row stays a summary, the match page has the rest. */
+export const MAX_FACTS = 1;

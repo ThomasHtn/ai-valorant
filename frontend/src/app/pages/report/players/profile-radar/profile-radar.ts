@@ -1,11 +1,10 @@
 import { Component, computed, input } from '@angular/core';
 
 import { Reference } from '@core/common/enums.model';
-import { REFERENCE_ROLE_SENTENCES } from '@core/format/labels.constants';
 import { HoverTip } from '@shared/hover-tip/hover-tip';
 import { InfoTip } from '@shared/info-tip/info-tip';
 
-import { RADAR_SQUAD_COLOUR } from './profile-radar.constants';
+import { RADAR_HELP, RADAR_REFERENCE_COLOUR, RADAR_SQUAD_COLOUR } from './profile-radar.constants';
 import { RadarSeries } from './profile-radar.model';
 import { buildRadar } from './profile-radar.utils';
 
@@ -13,10 +12,9 @@ import { buildRadar } from './profile-radar.utils';
 let radarCount = 0;
 
 /**
- * Kiviat chart of one or two players: their headline figures on one web, each placed by how much
- * better or worse than the reference of their role they are, so strong and weak sides read at a
- * glance. One player alone gets his points coloured like his tiles; players compared get their own
- * colour.
+ * Kiviat chart of one or two players: their key figures on one web, each on its own fixed scale, so
+ * strong and weak sides read at a glance. A lone player is drawn over his reference (dashed) with his
+ * points coloured like his figures; players compared get their own colour.
  */
 @Component({
   selector: 'app-profile-radar',
@@ -27,20 +25,16 @@ let radarCount = 0;
 export class ProfileRadar {
   public readonly series = input.required<RadarSeries[]>();
   public readonly reference = input.required<Reference>();
-  public readonly colours = input(true);
-  /** True when the figures are projected beside the web: the web then shows axis names only. */
+  /** Who the reference is, for the legend and tips ('Initiateurs adverses'). */
+  public readonly referenceName = input('Référence');
+  /** True when the values are written beside the web: the web then shows axis names only. */
   public readonly split = input(false);
   /** Block title; the id of its heading names the region. */
   public readonly title = input('Profil');
 
   protected readonly titleId = `radar-${++radarCount}`;
-  /**
-   * The dashed ring is not the reference's own profile: every figure is divided by the reference, so
-   * the reference always lands on the same ring. The legend says "equal to", not "the reference".
-   */
-  protected readonly referenceLabel = computed(
-    () => `Égal ${REFERENCE_ROLE_SENTENCES[this.reference()]}`,
-  );
+  protected readonly help = RADAR_HELP;
+  protected readonly referenceColour = RADAR_REFERENCE_COLOUR;
   protected readonly legend = computed(() =>
     this.series().map((one) => ({ name: one.name, colour: one.colour ?? RADAR_SQUAD_COLOUR })),
   );
@@ -48,9 +42,9 @@ export class ProfileRadar {
     () =>
       `Profil de ${this.series()
         .map((s) => s.name)
-        .join(' et ')} face à la référence`,
+        .join(' et ')}`,
   );
   protected readonly view = computed(() =>
-    buildRadar(this.series(), this.reference(), this.colours()),
+    buildRadar(this.series(), this.reference(), this.referenceName()),
   );
 }

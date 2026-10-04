@@ -30,35 +30,22 @@ function scoreAt(roundNumber: number, gap: number): string {
   return `${wins}-${roundNumber - wins}`;
 }
 
-/** Halves (start side first), pistols and opening duels: the figures every card shows. */
-export function digestFigures(match: MatchSummary, rounds: readonly DigestRound[]): DigestFigure[] {
-  const figures: DigestFigure[] = [];
+/** Rounds won and lost on each half, start side first: the only figures a row shows. */
+export function digestFigures(rounds: readonly DigestRound[]): DigestFigure[] {
   const start = rounds[0]?.side;
-  if (start) {
-    const sides: Side[] = start === 'att' ? ['att', 'def'] : ['def', 'att'];
-    for (const side of sides) {
-      const played = rounds.filter((r) => r.side === side);
-      const won = played.filter((r) => r.won).length;
-      figures.push({
-        label: SIDE_LABELS[side],
-        value: `${won}-${played.length - won}`,
-        tone: balanceTone(won, played.length - won),
-      });
-    }
-    const pistols = rounds.filter((r) => r.buy === 'pistol');
-    const pistolsWon = pistols.filter((r) => r.won).length;
-    figures.push({
-      label: 'Pistols',
-      value: `${pistolsWon} sur ${pistols.length}`,
-      tone: balanceTone(pistolsWon, pistols.length - pistolsWon),
-    });
+  if (!start) {
+    return [];
   }
-  figures.push({
-    label: 'Premiers duels',
-    value: `${match.openingWon}-${match.openingLost}`,
-    tone: balanceTone(match.openingWon, match.openingLost),
+  const sides: Side[] = start === 'att' ? ['att', 'def'] : ['def', 'att'];
+  return sides.map((side) => {
+    const played = rounds.filter((r) => r.side === side);
+    const won = played.filter((r) => r.won).length;
+    return {
+      label: SIDE_LABELS[side],
+      value: `${won}-${played.length - won}`,
+      tone: balanceTone(won, played.length - won),
+    };
   });
-  return figures;
 }
 
 /** A won match the squad was well behind in, or a lost one it led well. */
@@ -159,7 +146,7 @@ function causeFact(rounds: readonly DigestRound[]): DigestFact | null {
 }
 
 /**
- * What a match card says before the match is opened: its key figures, then up to three facts, the
+ * What a match row says before the match is opened: its halves, then the most telling fact, the
  * score swing first, then what decided the result.
  */
 export function matchDigest(match: MatchSummary, rounds: readonly DigestRound[]): MatchDigest {
@@ -171,7 +158,7 @@ export function matchDigest(match: MatchSummary, rounds: readonly DigestRound[])
     ? [swingFact(match, ordered), ...(match.won ? [...good, ...bad] : [...bad, ...good])]
     : [];
   return {
-    figures: digestFigures(match, ordered),
+    figures: digestFigures(ordered),
     facts: candidates.filter((fact): fact is DigestFact => fact !== null).slice(0, MAX_FACTS),
   };
 }

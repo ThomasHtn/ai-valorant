@@ -8,7 +8,7 @@ import {
   linkedSignal,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { LucideChevronDown } from '@lucide/angular';
+import { LucideChevronDown, LucideUsers } from '@lucide/angular';
 
 import { STATUS_LABELS } from '@core/format/labels.constants';
 import { formatValue, integer } from '@core/format/value-format.utils';
@@ -17,7 +17,6 @@ import {
   detailLabel,
   findingLinks,
   fiveStackCaveat,
-  gapUnit,
   mainCauses,
   referenceText,
   subjectLabel,
@@ -27,10 +26,11 @@ import { Finding } from '@core/report/findings.model';
 import { Rate } from '@core/report/rate.model';
 import { Badge } from '@shared/badge/badge';
 import { BetterHint } from '@shared/better-hint/better-hint';
-import { GapChip } from '@shared/gap-chip/gap-chip';
 import { resolveArt } from '@shared/game-art/art.utils';
 import { RowArt } from '@shared/game-art/row-art';
 import { RewatchLinks } from '@shared/rewatch-links/rewatch-links';
+import { roundsGapText } from '@shared/rounds-gap/rounds-gap.utils';
+import { RoundsGap } from '@shared/rounds-gap/rounds-gap';
 
 import { barWidth } from '../findings-view.utils';
 
@@ -56,32 +56,39 @@ interface OtherLine {
 /** Gives each card's folding body a unique id. */
 let cardCount = 0;
 
-const ONE_DECIMAL = new Intl.NumberFormat('fr-FR', {
-  minimumFractionDigits: 1,
-  maximumFractionDigits: 1,
-});
-
-/** '−8,5', '+12,7': rounds won or lost against the reference. */
-function signedRounds(gap: number): string {
-  return `${gap > 0 ? '+' : gap < 0 ? '−' : ''}${ONE_DECIMAL.format(Math.abs(gap))}`;
+/** '8 rounds perdus': rounds won or lost against the reference, in words. */
+function roundsText(gap: number): string {
+  const text = roundsGapText(gap);
+  return `${text.count} ${text.words}`;
 }
 
 /**
  * Everything the period says about one subject (a map, a player, a global scope), folded to one
- * line so the list reads at a glance. Opened, the costliest finding shows its bars against both
+ * line with a bar of the rounds at stake. Opened, the costliest finding shows its bars against both
  * references, why its rounds were lost and where to look; the other findings of the subject follow
  * as single lines since they count the same rounds.
  */
 @Component({
   selector: 'app-finding-card',
-  imports: [Badge, BetterHint, GapChip, LucideChevronDown, RowArt, RewatchLinks, RouterLink],
+  imports: [
+    Badge,
+    BetterHint,
+    LucideChevronDown,
+    LucideUsers,
+    RoundsGap,
+    RowArt,
+    RewatchLinks,
+    RouterLink,
+  ],
   templateUrl: './finding-card.html',
   host: { class: 'block bg-text-primary/4' },
 })
 export class FindingCard {
   public readonly subject = input.required<FindingSubject>();
+  /** Largest gap of the period in rounds: the length of a full bar. */
+  public readonly scale = input(1);
   public readonly playerAgents = input<Record<string, string>>({});
-  /** Opened at first (the top card of a column), folded otherwise. */
+  /** Opened at first (the card a Résumé link asked for), folded otherwise. */
   public readonly initiallyOpen = input(false);
   /** Brought into view once drawn: the card a Résumé line asked for. */
   public readonly focused = input(false);
@@ -96,8 +103,10 @@ export class FindingCard {
   protected readonly art = computed(() => resolveArt(this.lead().art, this.playerAgents()));
   protected readonly isWeak = computed(() => this.lead().side === 'weak');
   protected readonly statusLabel = computed(() => STATUS_LABELS[this.lead().status]);
-  protected readonly gapText = computed(() => signedRounds(this.lead().gapRounds));
-  protected readonly gapUnit = computed(() => gapUnit(this.lead()));
+  protected readonly comparison = computed(() => referenceText(this.lead()));
+  protected readonly gapWidth = computed(() =>
+    Math.max(2, Math.min(100, (Math.abs(this.lead().gapRounds) / this.scale()) * 100)),
+  );
   protected readonly causes = computed(() => mainCauses(this.lead()));
   protected readonly caveat = computed(() => fiveStackCaveat(this.lead()));
   protected readonly links = computed(() => findingLinks(this.lead()));
@@ -107,7 +116,7 @@ export class FindingCard {
     this.subject().others.map((f) => ({
       label: detailLabel(f),
       detail: referenceText(f),
-      gap: signedRounds(f.gapRounds),
+      gap: roundsText(f.gapRounds),
       confirmed: f.status === 'confirmed',
     })),
   );

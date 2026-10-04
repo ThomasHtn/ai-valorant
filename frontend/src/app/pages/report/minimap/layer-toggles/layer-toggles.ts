@@ -5,7 +5,7 @@ import { InfoTip } from '@shared/info-tip/info-tip';
 import { MinimapLayer, MinimapLayerKey } from '../minimap-layers.model';
 import { LayerSymbol } from './layer-symbol';
 
-/** One checkbox per layer of the side with its symbol, its "i" and its number of points, in one row. */
+/** One checkbox per layer of the side with its symbol and its "i", in one row; the count shows on hover. */
 @Component({
   selector: 'app-layer-toggles',
   imports: [InfoTip, LayerSymbol],
@@ -15,6 +15,7 @@ import { LayerSymbol } from './layer-symbol';
       <label
         class="flex cursor-pointer items-center gap-1.5 bg-text-primary/4 px-2 py-1 text-sm transition-colors hover:bg-text-primary/10"
         [class]="on ? 'text-text-primary' : 'text-text-secondary'"
+        [title]="layer.label + ' : ' + counts()[layer.key] + ' sur la carte'"
       >
         <input
           type="checkbox"
@@ -26,7 +27,6 @@ import { LayerSymbol } from './layer-symbol';
         <app-layer-symbol [shape]="layer.shape" [color]="layer.color" />
         <span>{{ layer.label }}</span>
         <app-info-tip [topic]="layer.help" />
-        <span class="ml-1 text-sm text-text-muted tabular-nums">{{ counts()[layer.key] }}</span>
       </label>
     }
   `,

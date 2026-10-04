@@ -1,6 +1,6 @@
 import { Side } from '@core/common/enums.model';
 import { dayMonth } from '@core/format/format.utils';
-import { formatGap, formatValue, integer } from '@core/format/value-format.utils';
+import { formatValue, integer } from '@core/format/value-format.utils';
 import {
   DensityCell,
   MapPoint,
@@ -22,14 +22,14 @@ import {
   ZONE_MIN_FIRST_DEATHS,
   ZONE_MIN_SIDE_FIRST_DEATHS,
   ZONE_MIN_TOP_SHARE,
-} from './zone-table/zone-table.constants';
+} from './zone-list/zone-list.constants';
 import {
   ZoneLine,
   ZoneMatchGroup,
   ZonePlayerLine,
   ZoneTone,
   ZoneVerdict,
-} from './zone-table/zone-table.model';
+} from './zone-list/zone-list.model';
 
 type LayerPoint = MapPoint | PlantPoint;
 
@@ -209,22 +209,49 @@ export function zoneRows(rows: readonly ZoneRow[]): ZoneRow[] {
     .sort((a, b) => excess(b) - excess(a) || b.firstDeaths - a.firstDeaths || b.deaths - a.deaths);
 }
 
+/** Bar width of a share, against the largest share drawn in the list. */
+function barPercent(share: number | null, scale: number): number {
+  return share === null || scale <= 0 ? 0 : Math.round((share / scale) * 1000) / 10;
+}
+
+/** '15 morts et 9 kills ici, 20 % des morts avec revenge.': what else happened in the zone. */
+export function zoneSummary(row: ZoneRow): string {
+  const deaths = `${integer(row.deaths)} mort${row.deaths > 1 ? 's' : ''}`;
+  const kills = `${integer(row.kills)} kill${row.kills > 1 ? 's' : ''}`;
+  const revenge =
+    row.revengeRate !== null && row.deaths > 0
+      ? `, ${formatValue(row.revengeRate, 'pct')} des morts avec revenge`
+      : '';
+  return `${deaths} et ${kills} ici${revenge}.`;
+}
+
 /**
- * Zone rows ready to draw, in the order of `zoneRows`; `firstDeaths` is the side's total. Below
+ * Zones worth comparing, in the order of `zoneRows`, ready to draw as bars; `firstDeaths` is the
+ * side's total. A zone is kept when the squad died first there or the top ranked often do. Below
  * the side minimum no zone is coloured, matching the verdict that says it is too early.
  */
 export function zoneLines(rows: readonly ZoneRow[], firstDeaths: number): ZoneLine[] {
   const compare = firstDeaths >= ZONE_MIN_SIDE_FIRST_DEATHS;
-  return zoneRows(rows).map((row) => ({
+  const kept = zoneRows(rows).filter(
+    (row) => row.firstDeaths > 0 || (row.topFirstDeathShare ?? 0) >= ZONE_MIN_TOP_SHARE,
+  );
+  const scale = Math.max(
+    0,
+    ...kept.flatMap((row) => [row.firstDeathShare ?? 0, row.topFirstDeathShare ?? 0]),
+  );
+  return kept.map((row) => ({
     row,
     players: zonePlayers(row),
-    compared: row.firstDeaths > 0 || (row.topFirstDeathShare ?? 0) >= ZONE_MIN_TOP_SHARE,
-    share: formatValue(row.firstDeathShare, 'pct'),
-    sample: `${row.firstDeaths} sur ${firstDeaths}`,
-    topShare: formatValue(row.topFirstDeathShare, 'pct'),
-    excess: formatGap(zoneExcess(row), 'pct'),
+    share: formatValue(row.firstDeathShare ?? 0, 'pct'),
+    count: `${integer(row.firstDeaths)} sur ${integer(firstDeaths)} first deaths`,
+    top:
+      row.topFirstDeathShare === null
+        ? 'Pas de donnée top ranked'
+        : `Top ranked ${formatValue(row.topFirstDeathShare, 'pct')}`,
+    bar: barPercent(row.firstDeathShare ?? 0, scale),
+    tick: row.topFirstDeathShare === null ? null : barPercent(row.topFirstDeathShare, scale),
     tone: compare ? zoneTone(row) : 'even',
-    revenge: formatValue(row.revengeRate, 'pct'),
+    summary: zoneSummary(row),
   }));
 }
 
@@ -270,29 +297,25 @@ export function zoneMatchCount(rows: readonly ZoneRow[]): number {
  * The sentence over the zones: too few first deaths to compare, the zones where the squad dies
  * first well above the top ranked, or none.
  */
-export function zoneVerdict(
-  lines: readonly ZoneLine[],
-  firstDeaths: number,
-  side: string,
-): ZoneVerdict {
+export function zoneVerdict(lines: readonly ZoneLine[], firstDeaths: number): ZoneVerdict {
   if (firstDeaths < ZONE_MIN_SIDE_FIRST_DEATHS) {
     const count = firstDeaths === 1 ? '1 first death' : `${firstDeaths} first deaths`;
     return {
-      text: `Seulement ${count} en ${side} sur la période : trop peu pour comparer les zones au top ranked.`,
+      text: `seulement ${count} sur la période, trop peu pour comparer les zones au top ranked.`,
       alert: false,
     };
   }
   const over = lines.filter((line) => line.tone === 'over').slice(0, VERDICT_ZONES);
   if (!over.length) {
     return {
-      text: "Aucune zone où l'escouade meurt en premier nettement plus souvent que le top ranked.",
+      text: "aucune zone où l'escouade meurt en premier nettement plus souvent que le top ranked.",
       alert: false,
     };
   }
-  const names = over.map((line) => `${line.row.zone} (${line.excess})`);
+  const names = over.map((line) => line.row.zone);
   const list = names.length > 1 ? `${names.slice(0, -1).join(', ')} et ${names.at(-1)}` : names[0];
   return {
-    text: `L'escouade meurt en premier bien plus souvent que le top ranked à ${list}.`,
+    text: `l'escouade meurt en premier plus souvent que le top ranked à ${list}.`,
     alert: true,
   };
 }

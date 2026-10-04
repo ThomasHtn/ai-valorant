@@ -33,20 +33,18 @@ function finding(overrides: Partial<Finding>): Finding {
 }
 
 describe('findingColumn', () => {
-  it('groups by team then players, one entry per subject, the biggest gap first', () => {
+  it('mixes team and players, one entry per subject, the biggest gap first', () => {
     const list = [
-      finding({ group: 'players', player: 'Alpha', mapName: null, gapRounds: -1 }),
+      finding({ group: 'players', player: 'Alpha', mapName: null, gapRounds: -5 }),
       finding({ gapRounds: -2 }),
       finding({ scope: 'Lotus', mapName: 'Lotus', gapRounds: -3 }),
       finding({ gapRounds: -8 }),
-      finding({ side: 'strong', gapRounds: 4 }),
+      finding({ side: 'strong', gapRounds: 12 }),
     ];
     const column = findingColumn(list, 'weak');
-    expect(column.count).toBe(3);
-    expect(column.groups.map((g) => g.label)).toEqual(['Équipe', 'Joueurs']);
-    const team = column.groups[0].subjects;
-    expect(team.map((s) => s.lead.gapRounds)).toEqual([-8, -3]);
-    expect(team[0].others.map((f) => f.gapRounds)).toEqual([-2]);
+    expect(column.subjects.map((s) => s.lead.gapRounds)).toEqual([-8, -5, -3]);
+    expect(column.subjects[0].others.map((f) => f.gapRounds)).toEqual([-2]);
+    expect(column.scale).toBe(12);
   });
 });
 

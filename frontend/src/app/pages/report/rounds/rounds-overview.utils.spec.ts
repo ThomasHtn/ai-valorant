@@ -2,7 +2,13 @@ import { describe, expect, it } from 'vitest';
 
 import { RoundLine } from '@core/report/rounds.model';
 
-import { buyMatrix, costlyMoments, momentKeys } from './rounds-overview.utils';
+import {
+  buyMatrix,
+  costlyMoments,
+  matrixCellTip,
+  momentKeys,
+  wonRecord,
+} from './rounds-overview.utils';
 
 function round(n: number, won: boolean, extra: Partial<RoundLine> = {}): RoundLine {
   return {
@@ -55,6 +61,24 @@ describe('rounds overview', () => {
       streak: '1',
       throws: '1',
     });
+  });
+
+  it('writes what each moment counts beside its figure', () => {
+    const units = Object.fromEntries(costlyMoments(rounds).map((m) => [m.key, m.unit]));
+    expect(units).toMatchObject({ pistols: 'pistols', streak: 'série', throws: 'round' });
+  });
+
+  it('spells a matrix cell out in words', () => {
+    const cell = { buy: 'full' as const, won: 18, played: 37, tone: 'neutral' as const };
+    const row = { map: 'Split', side: 'def' as const, cells: [cell], total: cell };
+    expect(wonRecord(cell)).toBe('18 sur 37');
+    expect(matrixCellTip(row, cell, true)).toMatchObject({
+      title: 'Split, défense, full buy',
+      text: '18 rounds gagnés sur 37 joués.',
+    });
+    expect(matrixCellTip({ ...row, map: '' }, cell, false).title).toBe(
+      'Toutes les cartes, défense',
+    );
   });
 
   it('colours a map cell against every map, never the total rows', () => {

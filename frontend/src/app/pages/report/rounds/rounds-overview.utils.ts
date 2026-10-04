@@ -1,7 +1,9 @@
 import { BuyType, Side } from '@core/common/enums.model';
+import { SIDE_LABELS } from '@core/format/labels.constants';
 import { RoundLine } from '@core/report/rounds.model';
 
 import {
+  MATRIX_BUY_LABELS,
   MATRIX_BUYS,
   MATRIX_GAP_POINTS,
   MATRIX_MIN_ROUNDS,
@@ -10,6 +12,7 @@ import {
   STREAK_MIN_ROUNDS,
 } from './rounds-overview.constants';
 import { CostlyMoment, MatrixCell, MatrixRow, MomentKind } from './rounds-overview.model';
+import { HoverTipContent } from '@shared/hover-tip/hover-tip.model';
 
 /** Key of a round, unique over the period. */
 export function roundKey(round: Pick<RoundLine, 'matchId' | 'roundNumber'>): string {
@@ -42,6 +45,24 @@ function rate(rounds: readonly RoundLine[]): number | null {
  * Rounds won by map, side and buy. Each cell is coloured against the same side and buy over every
  * map, so a red cell is a map problem rather than the buy's natural rate (an eco is rarely won).
  */
+/** '1 sur 3': rounds won out of rounds played in a matrix cell. */
+export function wonRecord(cell: MatrixCell): string {
+  return `${cell.won} sur ${cell.played}`;
+}
+
+/** Tip of a matrix cell: 'Split, défense, full buy', then '18 rounds gagnés sur 37 joués.' */
+export function matrixCellTip(row: MatrixRow, cell: MatrixCell, withBuy: boolean): HoverTipContent {
+  const where = [row.map || 'Toutes les cartes', SIDE_LABELS[row.side].toLowerCase()];
+  if (withBuy) {
+    where.push(MATRIX_BUY_LABELS[cell.buy].toLowerCase());
+  }
+  return {
+    title: where.join(', '),
+    text: `${cell.won} rounds gagnés sur ${cell.played} joués.`,
+    note: 'Clic : ses rounds perdus.',
+  };
+}
+
 export function buyMatrix(rounds: readonly RoundLine[]): MatrixRow[] {
   const maps = [...new Set(rounds.map((r) => r.mapName))].sort();
   const row = (map: string, side: Side, compare: boolean): MatrixRow => {
@@ -138,40 +159,46 @@ export function costlyMoments(rounds: readonly RoundLine[]): CostlyMoment[] {
   const afterLoss = pick('after_pistol_loss');
   const bonus = pick('bonus');
   const streakRounds = pick('streak');
+  const streaks = streakCount(rounds);
   return [
     {
       key: 'pistols',
-      label: 'Pistols',
+      label: 'Pistol rounds gagnés',
       figure: wonOf(pistols),
-      detail: 'gagnés',
+      unit: 'pistols',
+      detail: 'rounds 1 et 13 de chaque match',
       bad: false,
     },
     {
       key: 'after_pistol_loss',
       label: 'Round après un pistol perdu',
       figure: wonOf(afterLoss),
-      detail: 'gagnés, souvent contre un full buy adverse',
+      unit: 'gagnés',
+      detail: 'souvent en eco face à un full buy adverse',
       bad: false,
     },
     {
       key: 'bonus',
       label: 'Round bonus',
       figure: wonOf(bonus),
-      detail: 'gagnés après pistol et round 2 gagnés',
+      unit: 'gagnés',
+      detail: 'le round 3 ou 15, après pistol et round 2 gagnés',
       bad: false,
     },
     {
       key: 'streak',
-      label: `Séries de ${STREAK_MIN_ROUNDS} rounds perdus ou plus`,
-      figure: String(streakCount(rounds)),
-      detail: `séries, ${streakRounds.length} rounds perdus`,
+      label: `Séries de ${STREAK_MIN_ROUNDS} rounds perdus d'affilée ou plus`,
+      figure: String(streaks),
+      unit: streaks > 1 ? 'séries' : 'série',
+      detail: `${streakRounds.length} rounds perdus dans ces séries`,
       bad: streakRounds.length > 0,
     },
     {
       key: 'throws',
       label: 'Throws',
       figure: String(thrown),
-      detail: `rounds perdus après 70 % de chances, sur ${lost} perdus`,
+      unit: thrown > 1 ? 'rounds' : 'round',
+      detail: `perdus avec au moins 70 % de chances de gagner, sur ${lost} rounds perdus`,
       bad: thrown > 0,
     },
   ];

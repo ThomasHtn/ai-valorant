@@ -1009,6 +1009,43 @@
   @apply grid items-start gap-x-10 gap-y-10 xl:grid-cols-2;
 }
 
+/*
+ * A view led by a vertical list on its left (stat themes, players, minimap filters). The list stays
+ * in place while the content scrolls, so the next choice is always at hand.
+ */
+@utility with-side-rail {
+  @apply grid items-start gap-x-8 gap-y-6 lg:grid-cols-[13rem_minmax(0,1fr)];
+}
+
+/* The list itself: a row of tabs on phones, a sticky column from `lg` up. */
+@utility side-rail {
+  @apply flex min-w-0 flex-wrap gap-0.5 lg:sticky lg:top-0 lg:max-h-[calc(100dvh-8.5rem)] lg:flex-col lg:flex-nowrap lg:overflow-y-auto;
+}
+
+/* A small title over a group of the list ('Carte', 'Side'), apart from the group above. */
+@utility side-rail-title {
+  @apply w-full px-3 pt-3 pb-1 text-sm text-text-muted first:pt-0;
+}
+
+/*
+ * One entry of the list, a link or a button: amber edge and lighter ground when it is the current
+ * one (`aria-current` or `aria-pressed`), a fainter edge under the pointer otherwise.
+ */
+@utility side-tab {
+  @apply flex min-h-10 cursor-pointer items-center gap-2.5 border-l-[3px] border-transparent bg-text-primary/4 px-3 py-2 text-left font-semibold !text-text-secondary no-underline transition-colors hover:border-brand-500/45 hover:bg-text-primary/10 hover:!text-text-primary;
+
+  &[aria-current='page'],
+  &[aria-current='true'],
+  &[aria-pressed='true'] {
+    @apply border-brand-500 bg-text-primary/9 !text-text-primary;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-brand-500);
+    outline-offset: -2px;
+  }
+}
+
 @utility block-wide {
   @apply xl:col-span-2;
 }

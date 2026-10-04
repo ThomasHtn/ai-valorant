@@ -20,18 +20,18 @@ interface SessionBlock {
 
 /**
  * Index of the Matchs view: every session of the period, newest first, each match as a row that
- * sums it up (score, rounds, halves, what decided it, lineup), so a match reads before it is opened.
+ * sums it up (score, halves, what decided it, lineup), so a match reads before it is opened.
  * A row opens the match on its own page.
  */
 @Component({
   selector: 'app-session-grid',
   imports: [Badge, MatchRow],
   templateUrl: './session-grid.html',
-  host: { class: 'flex flex-col gap-10' },
+  host: { class: 'flex flex-col gap-8' },
 })
 export class SessionGrid {
   public readonly evenings = input.required<readonly EveningMatches[]>();
-  /** Rounds of the period by match, in game order; a match without them draws no strip or facts. */
+  /** Rounds of the period by match, in game order; a match without them shows no halves or fact. */
   public readonly rounds = input<ReadonlyMap<string, readonly RoundLine[]>>(new Map());
 
   protected readonly sessions = computed<SessionBlock[]>(() =>

@@ -10,10 +10,11 @@
       >
         <span class="truncate">{{ moment.label }}</span>
         <span
-          class="row-span-2 self-center text-right font-display text-xl font-medium tabular-nums"
+          class="row-span-2 self-center text-right whitespace-nowrap"
           [class.text-rating-bad]="moment.bad"
           [class.text-text-primary]="!moment.bad"
-          >{{ moment.figure }}</span
+          ><b class="font-display text-xl font-medium tabular-nums">{{ moment.figure }}</b>
+          {{ moment.unit }}</span
         >
         <span class="truncate text-sm font-normal text-text-muted">{{ moment.detail }}</span>
       </button>

@@ -1,18 +1,14 @@
 import { describe, expect, it } from 'vitest';
 
-import { REFERENCE_SHORT_LABELS } from '@core/format/labels.constants';
-import { UNIT_SPACE } from '@core/format/value-format.utils';
-import { DeathZone, HeadlineStat, OpeningDuels } from '@core/report/players.model';
+import { DeathZone, HeadlineStat } from '@core/report/players.model';
 
 import {
-  clutchBars,
-  headlineColumn,
-  headlineTiles,
+  clutchFigures,
+  clutchSample,
+  economyFormat,
+  headlineFigure,
   isZoneTooDeadly,
-  profileRows,
-  referenceLine,
   roleLabel,
-  sampleLine,
   zoneRateLine,
 } from './players.utils';
 
@@ -34,55 +30,19 @@ describe('roleLabel', () => {
   });
 });
 
-describe('referenceLine and sampleLine', () => {
-  it('writes the reference value without its sample', () => {
-    expect(referenceLine(acs.cell, headlineColumn(acs), 'top')).toBe('Top ranked 225');
+describe('player figures', () => {
+  it('reads a headline figure and writes economy means in credits', () => {
+    const figure = headlineFigure(acs);
+    expect(figure).toMatchObject({ key: 'acs', unit: 'rounds', help: 'acs' });
+    expect(economyFormat(figure)).toBe('cr');
+    expect(economyFormat({ ...figure, format: 'pct' })).toBe('pct');
   });
 
-  it('names the reference the column forces, whatever the chosen one', () => {
-    const rounds = { ...headlineColumn(acs), format: 'pct' as const, ref: 'hist' as const };
-    expect(referenceLine({ v: 0.48, hist: 0.5 }, rounds, 'top')).toMatch(/^Historique 50\s%$/u);
-  });
-
-  it('says when a reference is missing', () => {
-    const rate = { ...headlineColumn(acs), format: 'pct' as const };
-    expect(referenceLine({ v: 0.5, n: 10, hist: null }, rate, 'hist')).toBe(
-      `${REFERENCE_SHORT_LABELS.hist} : pas de référence`,
-    );
-  });
-
-  it('writes the sample', () => {
-    expect(sampleLine(acs.cell, 'rounds')).toBe('Sur 576 rounds');
-    expect(sampleLine({ v: 1 })).toBeNull();
-  });
-});
-
-describe('headlineTiles', () => {
-  it('writes one sample, the squad one, under the reference value', () => {
-    expect(headlineTiles([acs], 'top', true)[0].lines).toEqual([
-      'Top ranked 225',
-      'Sur 576 rounds',
-    ]);
-  });
-
-  it('colours the tile against the chosen reference', () => {
-    expect(headlineTiles([acs], 'top', true)[0].tone).toBe('good');
-    expect(headlineTiles([acs], 'hist', true)[0].tone).toBe('bad');
-  });
-
-  it('leaves tiles uncoloured when colours are off', () => {
-    expect(headlineTiles([acs], 'top', false)[0].tone).toBeNull();
-  });
-});
-
-describe('clutchBars', () => {
-  it('places the bar and the reference tick in percent', () => {
-    const [bar] = clutchBars(
-      [{ situation: '1v1', won: 4, played: 8, cell: { v: 0.5, n: 8, top: 0.62 } }],
-      'top',
-      true,
-    );
-    expect(bar).toMatchObject({ width: 50, tick: 62, record: '4/8', tone: 'small' });
+  it('names each clutch size and writes its record in words', () => {
+    const line = { situation: '1v1', won: 2, played: 5, cell: { v: 0.4, n: 5 } };
+    expect(clutchFigures([line])[0].label).toBe('Clutchs 1v1 gagnés');
+    expect(clutchSample(line)).toBe('2 gagnés sur 5');
+    expect(clutchSample({ ...line, won: 1 })).toBe('1 gagné sur 5');
   });
 });
 
@@ -101,43 +61,15 @@ describe('death zone rate', () => {
   };
 
   it('writes the rate beside top ranked', () => {
-    expect(zoneRateLine(zone)).toBe('16,2 pour 100 rounds · top ranked 11,4');
-    expect(zoneRateLine({ ...zone, topPer100Rounds: null })).toBe('16,2 pour 100 rounds');
+    expect(zoneRateLine(zone)).toBe('16 morts pour 100 rounds sur Summit, top ranked 11');
+    expect(zoneRateLine({ ...zone, topPer100Rounds: null })).toBe(
+      '16 morts pour 100 rounds sur Summit',
+    );
   });
 
   it('flags a zone only when clearly above top ranked with enough deaths', () => {
     expect(isZoneTooDeadly(zone)).toBe(true);
     expect(isZoneTooDeadly({ ...zone, topPer100Rounds: 14 })).toBe(false);
     expect(isZoneTooDeadly({ ...zone, deaths: 3 })).toBe(false);
-  });
-});
-
-describe('profileRows', () => {
-  const duels: OpeningDuels = {
-    firstBloods: 12,
-    firstDeaths: 31,
-    duelsWon: { v: 0.28, n: 43, opp: 0.38, oppN: 91 },
-    wonAfterFirstBlood: { v: null },
-    wonAfterFirstDeath: { v: null },
-  };
-
-  it('lists the headline figures then the duels won, each once with reference and sample', () => {
-    const rows = profileRows([acs], duels, 'opp', true);
-    expect(rows.map((r) => r.key)).toEqual(['acs', 'duelsWon']);
-    expect(rows[0]).toMatchObject({ value: '281', reference: '245', tone: 'good', better: 1 });
-    expect(rows[0].sample).toContain('576');
-    expect(rows[1]).toMatchObject({
-      value: `28${UNIT_SPACE}%`,
-      reference: `38${UNIT_SPACE}%`,
-      tone: 'bad',
-    });
-  });
-
-  it('does not add the duels twice when the role already has them', () => {
-    const opening: HeadlineStat = { ...acs, key: 'openingWon', format: 'pct' };
-    expect(profileRows([acs, opening], duels, 'opp', true).map((r) => r.key)).toEqual([
-      'acs',
-      'openingWon',
-    ]);
   });
 });

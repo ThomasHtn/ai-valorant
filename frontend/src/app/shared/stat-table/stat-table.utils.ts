@@ -3,6 +3,7 @@ import { REFERENCE_LABELS } from '@core/format/labels.constants';
 import { formatValue, integer } from '@core/format/value-format.utils';
 import { GameArt, StatCell, StatColumn, StatRow, StatTable } from '@core/report/stat-table.model';
 import { cellTone, columnReference, referenceValue } from '@core/report/tone.utils';
+import { CellTone } from '@core/report/tone.model';
 
 import { parseRecord } from '@shared/win-loss/win-loss.utils';
 
@@ -100,30 +101,30 @@ export function buildRowViews(
     art: resolveRowArt(row, playerAgents),
     cells: table.columns.map((column) => {
       const cell = row.cells[column.key];
-      const reference = columnReference(column, display.reference);
-      const referenceCell = cell && reference ? referenceValue(cell, reference).value : null;
-      const countLike =
-        column.format === 'int' || column.format === 'text' || column.format === 'record';
       return {
         key: column.key,
         column,
         cell,
         text: formatValue(cell?.v, column.format),
-        tone: display.colours ? cellTone(cell, column, display.reference) : null,
-        sample:
-          display.samples && !countLike && cell?.n !== null && cell?.n !== undefined
-            ? integer(cell.n)
-            : null,
-        reference:
-          display.referenceValues &&
-          column.better !== 0 &&
-          referenceCell !== null &&
-          referenceCell !== undefined
-            ? formatValue(referenceCell, column.format)
-            : null,
+        tone:
+          column.format === 'record'
+            ? recordTone(cell?.v)
+            : cellTone(cell, column, display.reference),
       };
     }),
   }));
+}
+
+/** Colour of a won-lost record: green with more wins, red with more losses, orange when even. */
+export function recordTone(value: StatCell['v'] | undefined): CellTone | null {
+  const record = parseRecord(value);
+  if (!record || record.wins + record.losses === 0) {
+    return null;
+  }
+  if (record.wins === record.losses) {
+    return 'avg';
+  }
+  return record.wins > record.losses ? 'good' : 'bad';
 }
 
 /** Lines of a cell tip: the squad, then every reference with a value, the colour's one marked. */

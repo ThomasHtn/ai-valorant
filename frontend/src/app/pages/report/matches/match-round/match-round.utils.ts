@@ -2,19 +2,15 @@ import { longDay } from '@core/format/format.utils';
 import { MatchDetail } from '@core/report/matches.model';
 import { Crumb } from '@shared/breadcrumb/breadcrumb.model';
 
-/** 'Matchs › Mercredi 30 septembre › Abyss 3-13 › Round 4', the match step leading back to it. */
-export function roundCrumbs(match: MatchDetail | null, roundNumber: number): Crumb[] {
+/** 'Matchs > Mercredi 30 septembre > Abyss 3-13': the steps above the open match. */
+export function matchCrumbs(match: MatchDetail | null): Crumb[] {
   const steps: Crumb[] = [{ label: 'Matchs', link: ['/report/matches'] }];
   if (match) {
     steps.push(
       { label: longDay(match.day), link: null },
-      {
-        label: `${match.mapName} ${match.roundsWon}-${match.roundsLost}`,
-        link: ['/report/matches', match.matchId],
-      },
+      { label: `${match.mapName} ${match.roundsWon}-${match.roundsLost}`, link: null },
     );
   }
-  steps.push({ label: `Round ${roundNumber}`, link: null });
   return steps;
 }
 

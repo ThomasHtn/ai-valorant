@@ -47,7 +47,7 @@ export class ToneLegend {
       title: 'Couleurs',
       what: `Chaque chiffre est comparé ${sentence}.`,
       how: this.mixed()
-        ? "Gris : trop peu de données pour juger. « vs historique » sous une colonne : comparé à l'escouade avant la période."
+        ? "Gris : trop peu de données pour juger. « vs avant … » sous une colonne : comparé à l'escouade avant la période."
         : 'Gris : trop peu de données pour juger.',
     };
   });

@@ -39,22 +39,22 @@ export function groupBySubject(findings: readonly Finding[]): FindingSubject[] {
   return [...subjects.values()];
 }
 
-/** What the finding measures inside its subject: 'Défense · Rounds gagnés', or the metric alone. */
+/** What the finding measures inside its subject: 'Défense, rounds gagnés', or the metric alone. */
 export function detailLabel(f: Finding): string {
   const subject = subjectLabel(f);
   const prefix = `${subject} · `;
   if (f.scope.startsWith(prefix)) {
     const rest = f.scope.slice(prefix.length);
-    return `${rest.charAt(0).toUpperCase()}${rest.slice(1)} · ${f.metric}`;
+    return `${rest.charAt(0).toUpperCase()}${rest.slice(1)}, ${lowerFirst(f.metric)}`;
   }
-  return f.scope === subject ? f.metric : `${f.scope} · ${f.metric}`;
+  return f.scope === subject ? f.metric : `${f.scope}, ${lowerFirst(f.metric)}`;
 }
 
-/** '40 % contre 50 % (top ranked)': the squad against the reference the test used. */
+/** '40 % contre 50 % au top ranked': the squad against the reference the test used. */
 export function referenceText(f: Finding): string {
   const reference = f.reference === 'opp' ? f.opp : f.top;
-  const name = f.reference === 'opp' ? 'adversaires' : 'top ranked';
-  return `${formatValue(f.squad.value, 'pct')} contre ${formatValue(reference.value, 'pct')} (${name})`;
+  const name = f.reference === 'opp' ? 'chez les adversaires' : 'au top ranked';
+  return `${formatValue(f.squad.value, 'pct')} contre ${formatValue(reference.value, 'pct')} ${name}`;
 }
 
 /** Rate the finding was tested against, and how the text names it. */
@@ -92,12 +92,7 @@ export function verdictText(f: Finding): { comparison: string; better: 1 | -1 } 
   };
 }
 
-/** Unit under the gap: 'rounds sur 5 matchs'. */
-export function gapUnit(f: Finding): string {
-  return `rounds sur ${f.matches} match${f.matches > 1 ? 's' : ''}`;
-}
-
-/** 'Retake raté (3), duels perdus (2)': the main causes of the lost rounds behind a weakness. */
+/** 'Retake raté (3 rounds), duels perdus (2 rounds)': the main causes of the lost rounds behind a weakness. */
 export function mainCauses(f: Finding): string | null {
   const causes = (Object.entries(f.lostCauses) as [LossCause, number][])
     .sort((a, b) => b[1] - a[1])
@@ -108,7 +103,7 @@ export function mainCauses(f: Finding): string | null {
   return causes
     .map(([cause, count], i) => {
       const label = LOSS_CAUSE_LABELS[cause];
-      return `${i ? label.toLowerCase() : label} (${count})`;
+      return `${i ? label.toLowerCase() : label} (${count} round${count > 1 ? 's' : ''})`;
     })
     .join(', ');
 }

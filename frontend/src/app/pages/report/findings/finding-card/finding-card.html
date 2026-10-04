@@ -1,48 +1,62 @@
-<!-- Folded, the card is one line read left to right: who, the gap in rounds, which way the squad
-     differs. On phones the gap moves to the end of the line. -->
+<!-- Folded, the card is one line: who, what against whom, a bar and the rounds at stake. -->
 <button
   type="button"
-  class="focus-ring-inset grid w-full cursor-pointer grid-cols-[2.25rem_minmax(0,1fr)_auto] items-center gap-x-3.5 gap-y-2 px-4 py-3 text-left transition-colors hover:bg-text-primary/6 sm:grid-cols-[2.25rem_8.5rem_minmax(0,1fr)_1.25rem]"
+  class="focus-ring-inset grid w-full cursor-pointer grid-cols-[2.25rem_minmax(0,1fr)_auto] items-center gap-x-3.5 px-3 py-2.5 text-left transition-colors hover:bg-text-primary/6 sm:grid-cols-[2.25rem_minmax(0,1fr)_auto_1.25rem]"
   [attr.aria-expanded]="open()"
   [attr.aria-controls]="bodyId"
   (click)="open.set(!open())"
 >
-  <app-row-art class="!size-9" [art]="art()" />
-  <span class="flex min-w-0 flex-col gap-1 sm:col-start-3 sm:row-start-1">
-    <span class="flex flex-wrap items-center gap-x-2.5 gap-y-1">
-      <span class="font-display text-lg leading-tight font-semibold">{{ title() }}</span>
+  @if (art()) {
+    <app-row-art class="!size-9" [art]="art()" />
+  } @else {
+    <!-- Findings about the whole squad (Global, Pistol, Force buy) get the squad icon. -->
+    <span class="grid size-9 place-items-center bg-text-primary/8 text-text-secondary">
+      <svg lucideUsers class="size-5" aria-hidden="true"></svg>
+    </span>
+  }
+  <span class="flex min-w-0 flex-col gap-1">
+    <span class="flex min-w-0 items-center gap-2">
+      <b class="truncate font-display text-[1.0625rem] leading-tight font-semibold">{{
+        title()
+      }}</b>
       <app-badge
         [label]="statusLabel()"
         [kind]="lead().status === 'confirmed' ? 'confirmed' : 'lead'"
         size="sm"
       />
     </span>
-    <span class="flex flex-wrap items-baseline gap-x-3 gap-y-0.5">
-      <b class="font-semibold" [class]="isWeak() ? 'text-rating-bad' : 'text-rating-good'">{{
-        verdict().comparison
-      }}</b>
-      <app-better-hint [better]="verdict().better" />
+    <span class="truncate text-[0.95rem] leading-tight text-text-secondary"
+      >{{ metric() }} : {{ comparison() }}</span
+    >
+    <!-- Rounds at stake on the scale of the biggest gap of the period. -->
+    <span class="relative mt-0.5 h-1.5 bg-text-primary/8" aria-hidden="true">
+      <i
+        class="absolute inset-y-0 left-0 block"
+        [class]="isWeak() ? 'bg-rating-bad' : 'bg-rating-good'"
+        [style.width.%]="gapWidth()"
+      ></i>
     </span>
   </span>
-  <app-gap-chip
-    class="sm:col-start-2 sm:row-start-1"
-    [value]="gapText()"
-    [unit]="gapUnit()"
-    [tone]="isWeak() ? 'bad' : 'good'"
-  />
+  <app-rounds-gap class="min-w-[8.5rem]" [gap]="lead().gapRounds" [matches]="lead().matches" />
   <svg
     lucideChevronDown
-    class="hidden size-5 text-text-muted transition-transform sm:col-start-4 sm:row-start-1 sm:block"
+    class="hidden size-5 text-text-muted transition-transform sm:block"
     [class.rotate-180]="open()"
     aria-hidden="true"
   ></svg>
 </button>
 
 @if (open()) {
-  <!-- Figures and context share one label column, so every line of the card starts at the same place. -->
-  <!-- Under the gap chip, so it fits half the page; capped when the block is a single column. -->
-  <div [id]="bodyId" class="flex flex-col px-4 pb-4 sm:max-w-[60rem] sm:pl-[4.125rem]">
-    <div class="finding-grid gap-y-2.5 border-t border-edge py-3.5">
+  <!-- Under the subject's name, so the details read as part of the line above. -->
+  <div [id]="bodyId" class="flex flex-col gap-3 px-3 pb-4 sm:pl-[4.125rem]">
+    <p class="!m-0 flex flex-wrap items-baseline gap-x-3 border-t border-edge pt-3">
+      <b class="font-semibold" [class]="isWeak() ? 'text-rating-bad' : 'text-rating-good'">{{
+        verdict().comparison
+      }}</b>
+      <app-better-hint [better]="verdict().better" />
+    </p>
+
+    <div class="finding-grid gap-y-2.5">
       @for (bar of bars(); track bar.label) {
         <span [class]="bar.isSquad ? 'font-semibold' : 'text-text-secondary'">{{ bar.label }}</span>
         <span class="relative h-2.5 bg-text-primary/8" aria-hidden="true">
@@ -52,7 +66,6 @@
             [style.width.%]="bar.width"
           ></i>
         </span>
-        <!-- Rate and sample in columns of their own, so each reads apart and lines up across bars. -->
         <b
           class="text-right text-[1.0625rem] font-semibold whitespace-nowrap tabular-nums"
           [class]="bar.isSquad ? 'text-text-primary' : 'text-text-secondary'"
@@ -67,7 +80,7 @@
     @if (hasContext()) {
       <dl class="finding-grid !m-0 border-t border-edge pt-3">
         @if (causes(); as causes) {
-          <dt>Perdu par</dt>
+          <dt>Perdu surtout par</dt>
           <dd>{{ causes }}</dd>
         }
 
@@ -82,24 +95,13 @@
         }
 
         @if (others().length) {
-          <dt>Autres écarts</dt>
+          <dt>Aussi</dt>
           <dd class="flex flex-col gap-0.5">
             @for (other of others(); track $index) {
-              <span
-                class="grid grid-cols-[minmax(0,1fr)_3.5rem] items-baseline gap-x-3 sm:grid-cols-[minmax(0,1fr)_auto_3.5rem]"
-              >
-                <span class="min-w-0 truncate">
-                  {{ other.label }}
-                  @if (other.confirmed) {
-                    <span class="text-sm text-text-muted">(écart net)</span>
-                  }
-                </span>
-                <span
-                  class="col-start-1 row-start-2 text-sm text-text-muted sm:col-start-auto sm:row-start-auto sm:whitespace-nowrap"
-                  >{{ other.detail }}</span
-                >
+              <span class="flex flex-wrap items-baseline justify-between gap-x-3">
+                <span class="min-w-0">{{ other.label }} : {{ other.detail }}</span>
                 <b
-                  class="text-right font-semibold tabular-nums"
+                  class="font-semibold whitespace-nowrap"
                   [class]="isWeak() ? 'text-rating-bad' : 'text-rating-good'"
                   >{{ other.gap }}</b
                 >

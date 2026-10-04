@@ -7,9 +7,6 @@ export const PREFERENCES_STORAGE_PREFIX = 'valostats.report.view.';
 
 export const DEFAULT_PREFERENCES: ReportPreferences = {
   reference: 'top',
-  colours: true,
-  samples: false,
-  referenceValues: false,
 };
 
 /** Player views compare with opponents of the same role: top ranked paints every cell red. */

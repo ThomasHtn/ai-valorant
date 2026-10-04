@@ -1,9 +1,7 @@
 import { Reference } from '@core/common/enums.model';
 import { STATUS_LABELS } from '@core/format/labels.constants';
-import { formatGap } from '@core/format/value-format.utils';
 import {
   detailLabel,
-  gapUnit,
   groupBySubject,
   referenceText,
   subjectLabel,
@@ -11,8 +9,14 @@ import {
 import { Finding, FindingSide } from '@core/report/findings.model';
 import { StatTable } from '@core/report/stat-table.model';
 
-import { FigureTile, figureTile } from '../players/players.utils';
-import { HEADLINE_MAP_COLUMNS, HEADLINE_ROUND_TYPE, HEADLINE_UNITS } from './summary.constants';
+import { HeadlineTile } from './headline-tile/headline-tile.model';
+import { headlineTile } from './headline-tile/headline-tile.utils';
+import {
+  HEADLINE_MAP_COLUMNS,
+  HEADLINE_ROUND_TYPE,
+  HEADLINE_UNITS,
+  HEADLINE_VALUE_UNITS,
+} from './summary.constants';
 import { PriorityItem } from './summary.model';
 
 /** The table with only the given columns, in that order; rows are kept as they are. */
@@ -23,6 +27,14 @@ export function pickColumns(table: StatTable, keys: readonly string[]): StatTabl
   return { ...table, columns };
 }
 
+/** The table with some columns renamed, by key; other columns keep the API's label. */
+export function relabelColumns(table: StatTable, labels: Record<string, string>): StatTable {
+  return {
+    ...table,
+    columns: table.columns.map((c) => (labels[c.key] ? { ...c, label: labels[c.key] } : c)),
+  };
+}
+
 /**
  * Headline tiles of the period: rounds won, gap per match, attack, defense and pistols over every
  * map, then full buy against full buy, each coloured like its table cell.
@@ -31,24 +43,25 @@ export function headlineTiles(
   maps: StatTable | undefined,
   roundTypes: StatTable | undefined,
   reference: Reference,
-  colours: boolean,
-): FigureTile[] {
-  const tiles: FigureTile[] = [];
+  historyName: string,
+): HeadlineTile[] {
+  const tiles: HeadlineTile[] = [];
   const total = maps?.rows.find((r) => r.total);
   for (const key of HEADLINE_MAP_COLUMNS) {
     const column = maps?.columns.find((c) => c.key === key);
     const cell = total?.cells[key];
     if (column && cell) {
       tiles.push(
-        figureTile(
+        headlineTile(
           key,
           column.label,
           column.help ?? null,
           cell,
           column,
           reference,
-          colours,
+          historyName,
           HEADLINE_UNITS[key],
+          HEADLINE_VALUE_UNITS[key] ?? null,
         ),
       );
     }
@@ -57,15 +70,16 @@ export function headlineTiles(
   const rw = roundTypes?.columns.find((c) => c.key === 'rw');
   if (fullBuy && rw && fullBuy.cells['rw']) {
     tiles.push(
-      figureTile(
+      headlineTile(
         'fullbuy',
         fullBuy.label,
         rw.help ?? null,
         fullBuy.cells['rw'],
         rw,
         reference,
-        colours,
+        historyName,
         HEADLINE_UNITS['fullbuy'],
+        null,
       ),
     );
   }
@@ -91,7 +105,7 @@ export function priorityItems(
       status: STATUS_LABELS[lead.status],
       confirmed: lead.status === 'confirmed',
       detail: referenceText(lead),
-      gap: formatGap(lead.gapRounds, 'dec1'),
-      unit: gapUnit(lead),
+      gapRounds: lead.gapRounds,
+      matches: lead.matches,
     }));
 }

@@ -1,22 +1,27 @@
 @let r = round();
 @let c = context();
 @let s = summary();
-<!-- What happened in the round, read as one block; the page above names the round. -->
-<div class="flex flex-col gap-3">
-  <p class="!m-0 flex flex-wrap items-center gap-x-3 gap-y-1 text-text-secondary">
-    <app-badge
-      [label]="r.side === 'att' ? 'attaque' : 'défense'"
-      [kind]="r.side === 'att' ? 'attack' : 'defense'"
-      size="sm"
-    />
-    <span>{{ c.buys }}</span>
-    <span
-      >Score avant le round : <b class="text-text-primary">{{ r.scoreBefore }}</b></span
-    >
-  </p>
+<!-- The round's context in one line; the panel title above names the round. -->
+<p class="!m-0 flex flex-wrap items-center gap-x-3 gap-y-1 text-text-secondary">
+  <app-badge
+    [label]="r.side === 'att' ? 'attaque' : 'défense'"
+    [kind]="r.side === 'att' ? 'attack' : 'defense'"
+    size="sm"
+  />
+  <span>{{ c.buys }}</span>
+  <span
+    >Score avant le round : <b class="text-text-primary">{{ r.scoreBefore }}</b>
+    <span class="ml-1 text-sm text-text-muted">(escouade-adversaires)</span></span
+  >
+</p>
 
+<!-- What each player carried into the round, before what happened in it. -->
+<app-round-loadouts [squad]="sheet().squadEconomy" [opponents]="sheet().oppEconomy" />
+
+<!-- How the round ended beside how the squad's chances moved. -->
+<div class="grid items-stretch gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(0,1.5fr)]">
   <dl
-    class="m-0 grid grid-cols-[auto_minmax(0,1fr)] items-baseline gap-x-5 gap-y-1.5 bg-text-primary/4 px-4 py-3"
+    class="m-0 grid content-start grid-cols-[auto_minmax(0,1fr)] items-baseline gap-x-5 gap-y-1.5 bg-text-primary/4 px-4 py-3"
   >
     <dt class="text-sm text-text-secondary">Résultat</dt>
     <dd class="m-0 font-semibold" [class]="s.won ? 'text-rating-good' : 'text-rating-bad'">
@@ -57,30 +62,33 @@
       </dd>
     }
   </dl>
-</div>
 
-<section class="flex flex-col gap-3 bg-text-primary/4 px-4 py-4" aria-labelledby="win-chart-title">
-  <h2 class="!m-0 text-lg" id="win-chart-title">
-    Chances de gagner le round<app-info-tip topic="winProb" />
-  </h2>
-  <app-win-probability-chart
-    [events]="sheet().events"
-    [step]="step()"
-    [keyMoment]="key()"
-    (stepChange)="select($event)"
-  />
-  <p class="!m-0 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-text-secondary">
-    <span class="inline-flex items-center gap-1.5"
-      ><i class="size-2.5 rounded-full bg-rating-good"></i>Kill de l'escouade</span
-    >
-    <span class="inline-flex items-center gap-1.5"
-      ><i class="size-2.5 rounded-full bg-rating-bad"></i>Mort</span
-    >
-    <span class="inline-flex items-center gap-1.5"
-      ><i class="size-2 rotate-45 bg-brand-500"></i>Plant ou defuse</span
-    >
-  </p>
-</section>
+  <section
+    class="flex min-w-0 flex-col gap-2 bg-text-primary/4 px-4 py-3"
+    aria-labelledby="win-chart-title"
+  >
+    <h3 class="!m-0 font-display text-base font-semibold" id="win-chart-title">
+      Chances de gagner le round<app-info-tip topic="winProb" />
+    </h3>
+    <app-win-probability-chart
+      [events]="sheet().events"
+      [step]="step()"
+      [keyMoment]="key()"
+      (stepChange)="select($event)"
+    />
+    <p class="!m-0 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-text-secondary">
+      <span class="inline-flex items-center gap-1.5"
+        ><i class="size-2.5 rounded-full bg-rating-good"></i>Kill de l'escouade</span
+      >
+      <span class="inline-flex items-center gap-1.5"
+        ><i class="size-2.5 rounded-full bg-rating-bad"></i>Mort</span
+      >
+      <span class="inline-flex items-center gap-1.5"
+        ><i class="size-2 rotate-45 bg-brand-500"></i>Plant ou defuse</span
+      >
+    </p>
+  </section>
+</div>
 
 <div class="grid items-start gap-x-8 gap-y-10 xl:grid-cols-[minmax(0,26rem)_minmax(0,1fr)]">
   <app-replay-2d
@@ -97,11 +105,3 @@
     (stepChange)="select($event)"
   />
 </div>
-
-<section class="view-section" aria-labelledby="economy-title">
-  <h2 class="!m-0 text-lg" id="economy-title">Économie du round</h2>
-  <div class="grid gap-5 [grid-template-columns:repeat(auto-fit,minmax(min(100%,30rem),1fr))]">
-    <app-economy-table title="L'escouade" [lines]="sheet().squadEconomy" />
-    <app-economy-table title="Adversaires" [lines]="sheet().oppEconomy" />
-  </div>
-</section>

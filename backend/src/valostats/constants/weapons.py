@@ -5,7 +5,7 @@ WEAPON_CLASSES: tuple[tuple[str, str, tuple[str, ...]], ...] = (
     ("pistols", "Pistolets", ("Classic", "Shorty", "Frenzy", "Ghost", "Bandit", "Sheriff")),
     ("smg", "SMG", ("Stinger", "Spectre")),
     ("shotguns", "Fusils à pompe", ("Bucky", "Judge")),
-    ("rifles", "Fusils", ("Bulldog", "Guardian", "Phantom", "Vandal")),
+    ("rifles", "Fusils", ("Bulldog", "Guardian", "Warden", "Phantom", "Vandal")),
     ("snipers", "Snipers", ("Marshal", "Outlaw", "Operator")),
     ("machine_guns", "Mitrailleuses", ("Ares", "Odin")),
 )

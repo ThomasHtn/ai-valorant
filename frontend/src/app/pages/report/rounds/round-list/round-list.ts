@@ -7,6 +7,8 @@ import { BUY_SENTENCE_LABELS } from '@core/format/round-labels.constants';
 import { roundLink } from '@core/report/round-ref.utils';
 import { RoundLine } from '@core/report/rounds.model';
 import { MapThumb } from '@shared/game-art/map-thumb';
+import { HoverTip } from '@shared/hover-tip/hover-tip';
+import { HoverTipContent } from '@shared/hover-tip/hover-tip.model';
 
 import { ROUND_LIST_PAGE } from './round-list.constants';
 import { roundOutcome } from './round-list.utils';
@@ -18,7 +20,7 @@ import { roundOutcome } from './round-list.utils';
  */
 @Component({
   selector: 'app-round-list',
-  imports: [MapThumb, RouterLink],
+  imports: [HoverTip, MapThumb, RouterLink],
   templateUrl: './round-list.html',
 })
 export class RoundList {
@@ -29,7 +31,7 @@ export class RoundList {
     source: this.rounds,
     computation: () => ROUND_LIST_PAGE,
   });
-  protected readonly throwTip = THROW_TIP;
+  protected readonly throwTip: HoverTipContent = { title: 'Throw', text: THROW_TIP };
   protected readonly lines = computed(() =>
     this.rounds()
       .slice(0, this.shown())

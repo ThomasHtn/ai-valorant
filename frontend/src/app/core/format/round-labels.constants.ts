@@ -2,12 +2,12 @@ import { BuyType, LossCause } from '@core/common/enums.model';
 
 /** French labels of the round fields the Matches and Rounds views show. */
 
-/** One-letter buy marks of the round strip. */
+/** Short buy names of the round strip, readable without a legend. */
 export const BUY_SHORT_LABELS: Record<BuyType, string> = {
-  pistol: 'P',
-  eco: 'E',
-  force: 'F',
-  full: 'FB',
+  pistol: 'Pistol',
+  eco: 'Eco',
+  force: 'Force',
+  full: 'Full',
 };
 
 /** Buys inside a sentence ('force buy contre full buy'). */

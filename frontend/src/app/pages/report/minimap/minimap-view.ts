@@ -8,7 +8,8 @@ import {
   signal,
   untracked,
 } from '@angular/core';
-import { Router } from '@angular/router';
+import { DOCUMENT } from '@angular/common';
+import { LucideRotateCw } from '@lucide/angular';
 
 import { Side } from '@core/common/enums.model';
 import { SIDE_LABELS } from '@core/format/labels.constants';
@@ -17,12 +18,12 @@ import { ReportApi } from '@core/report/report-api';
 import { ReportContext } from '@core/report/report-context';
 import { ViewState } from '@core/report/view-state';
 import { provideViewState } from '@core/report/view-states';
-import { MapSelect } from '@shared/map-select/map-select';
 import { MinimapCanvas } from '@shared/minimap-canvas/minimap-canvas';
 import { MinimapHighlight } from '@shared/minimap-canvas/minimap-canvas.model';
 import { ResourceState } from '@shared/resource-state/resource-state';
 
 import { LayerToggles } from './layer-toggles/layer-toggles';
+import { MinimapRail } from './minimap-rail/minimap-rail';
 import { DEFAULT_LAYERS } from './minimap-layers.constants';
 import { MinimapLayerKey } from './minimap-layers.model';
 import {
@@ -34,15 +35,18 @@ import {
   zoneLines,
   zoneVerdict,
 } from './minimap.utils';
-import { ZoneTable } from './zone-table/zone-table';
+import { readRotation, turnMap } from './minimap-rotation.utils';
+import { ZoneList } from './zone-list/zone-list';
 
 /**
  * Minimap: the squad's deaths, kills and plants of the period on the real minimap of one map and
- * side, by layer, the top ranked plants as density spots, with a zone summary compared with the top ranked. A point opens its round.
+ * side, by layer, the top ranked plants as density spots, beside the zones where the squad dies first
+ * more often than the top ranked. Map, side and player are picked in a sticky list on the left; the
+ * map can be turned. A point opens its round.
  */
 @Component({
   selector: 'app-minimap-view',
-  imports: [LayerToggles, MapSelect, MinimapCanvas, ResourceState, ZoneTable],
+  imports: [LayerToggles, LucideRotateCw, MinimapCanvas, MinimapRail, ResourceState, ZoneList],
   host: { class: 'view-body' },
   providers: [provideViewState('minimap')],
   templateUrl: './minimap-view.html',
@@ -57,18 +61,23 @@ export class MinimapView {
   protected readonly context = inject(ReportContext);
   protected readonly state = inject(ViewState);
   private readonly api = inject(ReportApi);
-  private readonly router = inject(Router);
+  private readonly storage = inject(DOCUMENT).defaultView?.localStorage ?? null;
 
   protected readonly side = linkedSignal<Side>(() => (this.sideParam() === 'def' ? 'def' : 'att'));
   protected readonly layers = signal<ReadonlySet<MinimapLayerKey>>(DEFAULT_LAYERS);
-  /** Zone hovered in the table, circled on the map. */
+  /** Zone hovered in the list, circled on the map. */
   private readonly hoveredZone = signal<string | null>(null);
 
   protected readonly maps = computed(() => resourceValue(this.context.meta, null)?.maps ?? []);
   protected readonly players = computed(
-    () => resourceValue(this.context.meta, null)?.players.map((p) => p.name) ?? [],
+    () => resourceValue(this.context.meta, null)?.players ?? [],
   );
   protected readonly mapName = computed(() => pickMap(this.map(), this.maps()));
+  /** Quarter turns of the map, remembered per map in this browser. */
+  protected readonly rotation = linkedSignal(() => {
+    const map = this.mapName();
+    return map ? readRotation(map, this.storage) : 0;
+  });
   protected readonly view = this.api.minimap(this.context.query, this.mapName);
 
   private readonly data = computed(() => resourceValue(this.view, null));
@@ -88,9 +97,7 @@ export class MinimapView {
   /** The sentence the view opens on: zones where the squad dies first well above the top ranked. */
   protected readonly verdict = computed(() => {
     const zones = this.zones();
-    return zones
-      ? zoneVerdict(zoneLines(zones.rows, zones.firstDeaths), zones.firstDeaths, this.sideLabel())
-      : null;
+    return zones ? zoneVerdict(zoneLines(zones.rows, zones.firstDeaths), zones.firstDeaths) : null;
   });
   protected readonly highlight = computed<MinimapHighlight | null>(() => {
     const zone = this.hoveredZone();
@@ -102,7 +109,7 @@ export class MinimapView {
   protected readonly sideLabels = SIDE_LABELS;
 
   constructor() {
-    // A linked player becomes the player filter once; the select changes it afterwards.
+    // A linked player becomes the player filter once; the rail changes it afterwards.
     effect(() => {
       const player = this.playerParam();
       if (player) {
@@ -123,14 +130,8 @@ export class MinimapView {
     });
   }
 
-  protected openMap(map: string): void {
-    void this.router.navigate(['/report/minimap', map.toLowerCase()], {
-      queryParamsHandling: 'preserve',
-    });
-  }
-
-  protected setPlayer(event: Event): void {
-    this.state.setFilter('player', (event.target as HTMLSelectElement).value);
+  protected rotate(map: string): void {
+    this.rotation.set(turnMap(map, this.rotation(), this.storage));
   }
 
   protected setHighlight(zone: string | null): void {

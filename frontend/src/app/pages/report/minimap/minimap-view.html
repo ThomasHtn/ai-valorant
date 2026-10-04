@@ -1,86 +1,80 @@
-<div class="filter-strip">
-  <app-map-select
+<!-- Filters on the left, always at hand; the map and its zones on the right. -->
+<div class="with-side-rail">
+  <app-minimap-rail
     [maps]="maps()"
-    [selected]="mapName()"
-    [allowAll]="false"
-    (selectedChange)="openMap($event)"
+    [selectedMap]="mapName()"
+    [side]="side()"
+    [players]="players()"
+    [player]="state.filters().player"
+    (sideChange)="side.set($event)"
+    (playerChange)="state.setFilter('player', $event)"
   />
-  <label class="flex items-center gap-2">
-    <span class="filter-label">Joueur</span>
-    <select id="minimap-player" class="field-control min-w-28" (change)="setPlayer($event)">
-      <option value="" [selected]="!state.filters().player">Toute l'escouade</option>
-      @for (player of players(); track player) {
-        <option [value]="player" [selected]="state.filters().player === player">
-          {{ player }}
-        </option>
-      }
-    </select>
-  </label>
-  <div class="seg-group" role="group" aria-label="Side">
-    @for (option of sides; track option) {
-      <button
-        type="button"
-        class="seg-option"
-        [attr.aria-pressed]="option === side()"
-        (click)="side.set(option)"
-      >
-        {{ sideLabels[option] }}
-      </button>
-    }
-  </div>
-</div>
 
-<app-resource-state
-  [resource]="view"
-  notFoundText="Pas de données pour cette carte sur cette période."
->
-  @if (view.hasValue()) {
-    @let data = view.value();
-    <!-- What the map says first, in one sentence; then the layers, the map and its zones. -->
-    @if (verdict(); as v) {
-      <p class="!m-0 -mb-5 text-[1.1rem]">
-        <b class="font-display font-semibold">{{ data.mapName }} en {{ sideLabel() }} :</b>
-        <span [class]="v.alert ? 'text-rating-bad' : 'text-text-secondary'"> {{ v.text }}</span>
-      </p>
-    }
-    <!-- Layers in one row over the map, so the map gets their column; both read as one block. -->
-    <div class="flex min-w-0 flex-col gap-3">
-      <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
+  <app-resource-state
+    [resource]="view"
+    notFoundText="Pas de données pour cette carte sur cette période."
+  >
+    @if (view.hasValue()) {
+      @let data = view.value();
+      <div class="flex min-w-0 flex-col gap-3">
+        <!-- What the map says first, in one sentence; then the layers, the map and its zones. -->
+        @if (verdict(); as v) {
+          <p class="!m-0 mb-1 text-[1.1rem]">
+            <b class="font-display font-semibold">{{ data.mapName }} en {{ sideLabel() }} :</b>
+            <span [class]="v.alert ? 'text-text-primary' : 'text-text-secondary'">
+              {{ v.text }}</span
+            >
+          </p>
+        }
         <app-layer-toggles
           [layers]="visibleLayers()"
           [active]="layers()"
           [counts]="counts()"
           (toggle)="toggleLayer($event)"
         />
+        <!-- What the points cover. -->
         <p class="!m-0 text-sm text-text-muted">
-          {{ sideData()?.layers?.rounds ?? 0 }} rounds en {{ sideLabel() }}. Clic sur un point : le
-          round.
+          {{ sideData()?.layers?.rounds ?? 0 }} rounds en {{ sideLabel() }}. Clic sur un point pour
+          ouvrir son round.
           @if (state.filters().player; as player) {
-            Points de {{ player }} en avant.
+            Les points de {{ player }} sont en avant.
           }
         </p>
+        <!-- On wide screens the map fits the screen height and the zones scroll beside it, so both stay in view. -->
+        <div
+          class="grid items-start gap-6 [--map-size:clamp(22rem,calc(100dvh-17rem),calc(100vw-57rem))] xl:h-(--map-size) xl:grid-cols-[auto_minmax(0,1fr)]"
+        >
+          <!-- The turn button sits on the map's corner, where the eye already is. -->
+          <div class="relative mx-auto w-full max-w-[36rem] xl:size-(--map-size) xl:max-w-none">
+            <app-minimap-canvas
+              class="block size-full"
+              [map]="data.mapName"
+              [markers]="markers()"
+              [density]="density()"
+              [labels]="data.callouts"
+              [highlight]="highlight()"
+              [rotation]="rotation()"
+            />
+            <button
+              type="button"
+              class="focus-ring absolute top-2 right-2 inline-flex cursor-pointer items-center gap-1.5 border border-edge-strong bg-surface-sunken/90 px-2.5 py-1 text-sm text-text-secondary hover:bg-surface-sunken hover:text-text-primary"
+              aria-label="Tourner la carte d'un quart de tour"
+              (click)="rotate(data.mapName)"
+            >
+              <svg class="size-4" lucideRotateCw aria-hidden="true"></svg>
+              Pivoter
+            </button>
+          </div>
+          @if (zones(); as z) {
+            <app-zone-list
+              class="xl:max-h-full xl:overflow-y-auto xl:overscroll-contain"
+              [rows]="z.rows"
+              [squadFirstDeaths]="z.firstDeaths"
+              (highlight)="setHighlight($event)"
+            />
+          }
+        </div>
       </div>
-      <!-- On wide screens the map fits the screen height and the zones scroll beside it, so both stay in view. -->
-      <div
-        class="grid items-start gap-6 [--map-size:clamp(24rem,calc(100dvh-20rem),calc(100vw-42rem))] xl:h-(--map-size) xl:grid-cols-[auto_minmax(0,1fr)]"
-      >
-        <app-minimap-canvas
-          class="mx-auto max-w-[36rem] xl:size-(--map-size) xl:max-w-none"
-          [map]="data.mapName"
-          [markers]="markers()"
-          [density]="density()"
-          [labels]="data.callouts"
-          [highlight]="highlight()"
-        />
-        @if (zones(); as z) {
-          <app-zone-table
-            class="xl:max-h-full xl:overflow-y-auto xl:overscroll-contain"
-            [rows]="z.rows"
-            [squadFirstDeaths]="z.firstDeaths"
-            (highlight)="setHighlight($event)"
-          />
-        }
-      </div>
-    </div>
-  }
-</app-resource-state>
+    }
+  </app-resource-state>
+</div>

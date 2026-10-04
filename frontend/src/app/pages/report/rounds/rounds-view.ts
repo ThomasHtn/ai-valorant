@@ -6,6 +6,7 @@ import { resourceValue } from '@core/http/resource-state.utils';
 import { ReportApi } from '@core/report/report-api';
 import { ReportContext } from '@core/report/report-context';
 import { RoundQuery } from '@core/report/round-query.model';
+import { HoverTip } from '@shared/hover-tip/hover-tip';
 import { ResourceState } from '@shared/resource-state/resource-state';
 
 import { BuyMatrix, MatrixPick } from './buy-matrix/buy-matrix';
@@ -41,6 +42,7 @@ import { CostlyMoment } from './rounds-overview.model';
   imports: [
     BuyMatrix,
     CostlyMoments,
+    HoverTip,
     ResourceState,
     RoundCauses,
     RoundFiltersView,

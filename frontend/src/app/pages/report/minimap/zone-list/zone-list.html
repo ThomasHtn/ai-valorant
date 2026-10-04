@@ -1,0 +1,125 @@
+<div class="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+  <h2 class="!m-0 text-[1.05rem]" id="zones-title">
+    Où l'escouade meurt en premier<app-info-tip topic="mmFdShare" />
+  </h2>
+  <!-- Visual key of the bars instead of a sentence. -->
+  <span class="flex items-center gap-4 text-sm text-text-secondary" aria-hidden="true">
+    <span class="inline-flex items-center gap-1.5">
+      <i class="block h-2.5 w-4 bg-text-secondary/55"></i>Escouade
+    </span>
+    <span class="inline-flex items-center gap-1.5">
+      <i class="block h-3.5 w-0.5 bg-text-primary"></i>Top ranked
+    </span>
+    <span class="inline-flex items-center gap-1.5">
+      <i class="block h-2.5 w-4 bg-rating-bad"></i>À travailler
+    </span>
+  </span>
+</div>
+
+<ul class="!m-0 flex list-none flex-col gap-0.5 !p-0" aria-labelledby="zones-title">
+  @for (line of lines(); track line.row.zone) {
+    @let open = openZone() === line.row.zone;
+    <li
+      class="bg-text-primary/4"
+      [style.box-shadow]="line.tone === 'over' ? 'inset 3px 0 0 var(--color-rating-bad)' : null"
+      (pointerenter)="highlight.emit(line.row.zone)"
+      (pointerleave)="highlight.emit(null)"
+      (focusin)="highlight.emit(line.row.zone)"
+      (focusout)="highlight.emit(null)"
+    >
+      <!-- Zone and its count, the bar, then the share beside the top ranked one. -->
+      <button
+        type="button"
+        class="focus-ring-inset grid w-full cursor-pointer grid-cols-[minmax(6.5rem,9rem)_minmax(4rem,1fr)_auto_1rem] items-center gap-x-4 px-3 py-1.5 text-left transition-colors hover:bg-text-primary/6"
+        [attr.aria-expanded]="open"
+        (click)="toggle(line.row.zone)"
+      >
+        <span class="flex min-w-0 flex-col leading-tight">
+          <b class="truncate font-semibold">{{ line.row.zone }}</b>
+          <span class="text-sm text-text-muted">{{ line.count }}</span>
+        </span>
+        <span class="relative h-3 bg-text-primary/8" aria-hidden="true">
+          <i
+            class="absolute inset-y-0 left-0 block"
+            [class]="bar[line.tone]"
+            [style.width.%]="line.bar"
+          ></i>
+          @if (line.tick !== null) {
+            <i
+              class="absolute -top-1 -bottom-1 block w-0.5 -translate-x-1/2 bg-text-primary"
+              [style.left.%]="line.tick"
+            ></i>
+          }
+        </span>
+        <span class="flex flex-col items-end leading-tight tabular-nums">
+          <b
+            class="font-display text-lg font-semibold"
+            [class]="line.tone === 'over' ? 'text-rating-bad' : 'text-text-primary'"
+            >{{ line.share }}</b
+          >
+          <span class="text-sm whitespace-nowrap text-text-muted">{{ line.top }}</span>
+        </span>
+        <svg
+          lucideChevronDown
+          class="size-4 text-text-muted transition-transform"
+          [class.rotate-180]="open"
+          aria-hidden="true"
+        ></svg>
+      </button>
+
+      @if (open) {
+        <!-- Who died there and in which rounds; red rounds are the player's first death. -->
+        <div class="flex flex-col gap-1.5 border-t border-edge px-3 pt-2 pb-3 text-sm">
+          <p class="!m-0 text-text-secondary">{{ line.summary }}</p>
+          @for (player of line.players; track player.name) {
+            <div class="grid grid-cols-[minmax(6.5rem,9rem)_minmax(0,1fr)] items-start gap-x-4">
+              <span class="leading-6 text-text-secondary">{{ player.name }}</span>
+              <span class="flex flex-wrap items-center gap-x-3 gap-y-1">
+                @for (group of player.groups; track group.key) {
+                  <span class="inline-flex items-center gap-1 whitespace-nowrap">
+                    @if (showMatch()) {
+                      <a
+                        class="focus-ring mr-0.5 !text-text-muted no-underline hover:!text-text-primary hover:underline"
+                        [routerLink]="group.commands"
+                        queryParamsHandling="preserve"
+                        >{{ group.label }}</a
+                      >
+                    }
+                    @for (round of group.rounds; track round.key) {
+                      <a
+                        class="focus-ring"
+                        [class]="round.firstDeath ? chip.first : chip.other"
+                        [routerLink]="round.commands"
+                        queryParamsHandling="preserve"
+                        [attr.aria-label]="
+                          player.name +
+                          ', ' +
+                          group.label +
+                          ' round ' +
+                          round.label.slice(1) +
+                          (round.firstDeath ? ', first death' : '')
+                        "
+                        >{{ round.label }}</a
+                      >
+                    }
+                  </span>
+                }
+                @if (player.more) {
+                  <span class="text-text-muted">+{{ player.more }}</span>
+                }
+              </span>
+            </div>
+          }
+          @if (line.players.length) {
+            <p class="!m-0 flex items-center gap-1.5 text-text-muted">
+              <i class="inline-block size-3 bg-rating-bad/30" aria-hidden="true"></i>Round en rouge
+              : il y est mort en premier.
+            </p>
+          }
+        </div>
+      }
+    </li>
+  } @empty {
+    <li class="px-3 py-4 text-text-muted">Aucune first death de l'escouade sur ce side.</li>
+  }
+</ul>

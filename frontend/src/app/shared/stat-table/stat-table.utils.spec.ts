@@ -30,7 +30,7 @@ const table: StatTable = {
   columns: [column],
   rows: [row('Toutes', 0.48, true), row('Ascent', 0.49), row('Split', 0.4), row('Haven', null)],
 };
-const display = { reference: 'top' as const, colours: true, samples: true, referenceValues: true };
+const display = { reference: 'top' as const };
 
 describe('stat table utils', () => {
   it('sorts on a column with missing values last and the total row at the bottom', () => {
@@ -65,8 +65,6 @@ describe('stat table utils', () => {
     const split = views[1].cells[0];
     expect(split.text).toBe('40 %');
     expect(split.tone).toBe('bad');
-    expect(split.sample).toBe('100');
-    expect(split.reference).toBe('50 %');
   });
 
   it('lists the squad and every reference in a cell tip, marking the one used', () => {
@@ -78,7 +76,7 @@ describe('stat table utils', () => {
     expect(lines.map((l) => [l.label, l.isReference])).toEqual([
       ["L'escouade", false],
       ['Top ranked', true],
-      ["Historique de l'escouade", false],
+      ["L'escouade avant la période", false],
     ]);
   });
 });

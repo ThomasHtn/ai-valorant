@@ -7,8 +7,8 @@ import { ReportFilters, ReportPreferences, ReportScope } from './report-preferen
 import { hasFilters, parsePreferences } from './report-preferences.utils';
 
 /**
- * Filters and display options of one report view. A choice made on a view only changes that view:
- * display options are remembered for it in this browser, filters for the session.
+ * Filters and reference of one report view. A choice made on a view only changes that view: the
+ * reference is remembered for it in this browser, filters for the session.
  */
 export class ViewState {
   public readonly preferences: WritableSignal<ReportPreferences>;
@@ -28,11 +28,6 @@ export class ViewState {
 
   public setReference(reference: Reference): void {
     this.updatePreferences({ reference });
-  }
-
-  /** Flips one display toggle (colours, samples, reference values). */
-  public toggle(key: 'colours' | 'samples' | 'referenceValues'): void {
-    this.updatePreferences({ [key]: !this.preferences()[key] });
   }
 
   public setFilter<K extends keyof ReportFilters>(key: K, value: ReportFilters[K]): void {

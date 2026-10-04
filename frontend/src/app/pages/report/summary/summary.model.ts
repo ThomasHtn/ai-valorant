@@ -9,10 +9,10 @@ export interface PriorityItem {
   /** 'Écart net' or 'À confirmer'. */
   status: string;
   confirmed: boolean;
-  /** '38 % contre 53 % (top ranked)'. */
+  /** '38 % contre 53 % au top ranked'. */
   detail: string;
-  /** '−8,5'. */
-  gap: string;
-  /** 'rounds sur 5 matchs'. */
-  unit: string;
+  /** Rounds won (+) or lost (-) against the reference. */
+  gapRounds: number;
+  /** Distinct matches behind the gap. */
+  matches: number;
 }

@@ -35,11 +35,15 @@ COMPETITIVE_MAPS = {
 # Shop weapons and the knife; event and ability weapons are skipped.
 WEAPONS = {
     "Classic", "Shorty", "Frenzy", "Ghost", "Bandit", "Sheriff", "Stinger", "Spectre", "Bucky",
-    "Judge", "Bulldog", "Guardian", "Phantom", "Vandal", "Marshal", "Outlaw", "Operator", "Ares",
+    "Judge", "Bulldog", "Guardian", "Warden", "Phantom", "Vandal", "Marshal", "Outlaw", "Operator", "Ares",
     "Odin", "Melee",
 }
 
+# Shields bought in the shop; the catalog lists only these three.
+ARMORS = {"Light Armor", "Heavy Armor", "Regen Shield"}
+
 AGENT_SIZE = 128
+ARMOR_SIZE = 64
 RANK_SIZE = 64
 # Minimaps are drawn at most ~540 px wide; 1024 keeps them sharp on high density screens.
 MINIMAP_SIZE = (1024, 1024)
@@ -108,6 +112,11 @@ def main() -> None:
         if target.exists():
             continue  # Classic is listed twice
         save(fetch(f"{DDRAGON}/Weapons/{weapon['id']}_killstream.png"), target)
+
+    for armor in catalog["armors"]:
+        if name_of(armor) in ARMORS:
+            save(fetch(f"{DDRAGON}/Armors/{armor['id']}.png"),
+                 OUT / "armors" / f"{slug(name_of(armor))}.webp", (ARMOR_SIZE, ARMOR_SIZE))
 
     for game_map in json.loads(fetch(MAPS_API))["data"]:
         name = game_map["displayName"]

@@ -11,6 +11,7 @@ import {
   viewChild,
 } from '@angular/core';
 
+import { ReportContext } from '@core/report/report-context';
 import { StatColumn, StatRow, StatTable } from '@core/report/stat-table.model';
 import { columnReference } from '@core/report/tone.utils';
 import { BetterHint } from '@shared/better-hint/better-hint';
@@ -18,8 +19,6 @@ import { AgentIcon } from '@shared/game-art/agent-icon';
 import { RowArt } from '@shared/game-art/row-art';
 import { InfoTip } from '@shared/info-tip/info-tip';
 import { placeTip } from '@shared/info-tip/info-tip-position.utils';
-import { WinLossCells } from '@shared/win-loss/win-loss-cells';
-import { WinLossHeader } from '@shared/win-loss/win-loss-header';
 
 import { CELL_TIP_DELAY_MS, TONE_CLASSES } from './stat-table.constants';
 import { CellView, StatCellClick, StatDisplay, StatSort } from './stat-table.model';
@@ -37,20 +36,21 @@ interface HoveredCell {
  * - A picture column aligns the rows (map, agent, weapon, role; players by their avatar agent);
  *   a composition row lists its agents with their portraits.
  * - Headers sort the rows (descending, ascending, API order); the total row stays last.
- * - Cells are coloured against the chosen reference, may show their sample and reference value,
+ * - Cells are coloured against the chosen reference,
  *   explain themselves in a tip (squad, top ranked, opponents, history with their samples) and
  *   emit `cellClick` so the page can open the rounds behind them.
  * - Wide tables scroll inside their own box, never the page.
  */
 @Component({
   selector: 'app-stat-table',
-  imports: [AgentIcon, BetterHint, RowArt, InfoTip, WinLossCells, WinLossHeader],
+  imports: [AgentIcon, BetterHint, RowArt, InfoTip],
   templateUrl: './stat-table.html',
   host: { class: 'block min-w-0' },
 })
 export class StatTableView {
+  private readonly context = inject(ReportContext);
   public readonly table = input.required<StatTable>();
-  /** Reference, colours and extra lines, usually the view's `ViewState.preferences()`. */
+  /** Reference the cells are coloured against, usually the view's `ViewState.preferences()`. */
   public readonly display = input.required<StatDisplay>();
   /** Squad player name -> avatar agent, to draw player rows. */
   public readonly playerAgents = input<Record<string, string>>({});
@@ -68,13 +68,13 @@ export class StatTableView {
     buildRowViews(this.table(), this.display(), this.playerAgents(), this.rowFilter(), this.sort()),
   );
   protected readonly toneClasses = TONE_CLASSES;
+  /** 'avant septembre', under the columns compared with the squad's history. */
+  protected readonly historyName = computed(() => this.context.historyLabel().toLowerCase());
   /** Columns coloured against the squad's history whatever the chosen reference (rounds won, pistols). */
   protected readonly historyColumns = computed(() => {
-    const { reference, colours } = this.display();
+    const { reference } = this.display();
     const keys = this.table()
-      .columns.filter(
-        (c) => colours && reference !== 'hist' && columnReference(c, reference) === 'hist',
-      )
+      .columns.filter((c) => reference !== 'hist' && columnReference(c, reference) === 'hist')
       .map((c) => c.key);
     return new Set(keys);
   });

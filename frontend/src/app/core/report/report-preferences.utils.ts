@@ -21,16 +21,11 @@ export function parsePreferences(
       return defaults;
     }
     const saved = value as Partial<Record<keyof ReportPreferences, unknown>>;
-    const flag = (key: 'colours' | 'samples' | 'referenceValues'): boolean =>
-      typeof saved[key] === 'boolean' ? saved[key] : defaults[key];
     return {
       reference:
         typeof saved.reference === 'string' && REFERENCES.has(saved.reference)
           ? (saved.reference as Reference)
           : defaults.reference,
-      colours: flag('colours'),
-      samples: flag('samples'),
-      referenceValues: flag('referenceValues'),
     };
   } catch {
     return defaults;

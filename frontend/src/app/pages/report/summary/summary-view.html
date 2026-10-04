@@ -9,16 +9,9 @@
     />
   </h2>
   <app-resource-state [resource]="results" notFoundText="Pas de résultats sur cette période.">
-    <div class="grid grid-cols-[repeat(auto-fit,minmax(9.5rem,1fr))] gap-0.5">
+    <div class="grid grid-cols-[repeat(auto-fit,minmax(13rem,1fr))] gap-0.5">
       @for (tile of tiles(); track tile.key) {
-        <app-stat-tile
-          [label]="tile.label"
-          [value]="tile.value"
-          [tone]="tile.tone"
-          [lines]="tile.lines"
-          [help]="tile.help"
-          [better]="tile.better"
-        />
+        <app-headline-tile [tile]="tile" />
       }
     </div>
   </app-resource-state>
@@ -39,6 +32,7 @@
     <app-resource-state [resource]="findings" notFoundText="Aucun écart testé sur cette période.">
       <app-priority-list
         [items]="weaknesses()"
+        [scale]="gapScale()"
         [weak]="true"
         [playerAgents]="context.playerAgents()"
       />
@@ -58,6 +52,7 @@
     <app-resource-state [resource]="findings" notFoundText="Aucun écart testé sur cette période.">
       <app-priority-list
         [items]="strengths()"
+        [scale]="gapScale()"
         [weak]="false"
         [playerAgents]="context.playerAgents()"
       />
@@ -74,11 +69,7 @@
       >
     </h2>
     @if (mapsTable(); as table) {
-      <app-stat-table
-        [table]="table"
-        [display]="state.preferences()"
-        [playerAgents]="context.playerAgents()"
-      />
+      <app-map-bars [table]="table" [historyName]="context.historyLabel()" />
     }
   </section>
 

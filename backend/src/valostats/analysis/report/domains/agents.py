@@ -7,6 +7,7 @@ compositions are compared on their round win rate only where the same compo exis
 from collections import Counter, defaultdict
 from collections.abc import Iterable, Sequence
 
+from valostats.analysis.report.domains._players import agent_role_label
 from valostats.analysis.report.foundation.art import agent_art, map_art
 from valostats.analysis.report.foundation.cells import Measure, Metric, cell, fixed, ratio
 from valostats.analysis.report.foundation.cohort_cell import CohortMeasure, cohort_cell
@@ -14,7 +15,7 @@ from valostats.analysis.report.foundation.cohorts import FactKind, ReportCohort,
 from valostats.analysis.report.foundation.kill_roles import killer_agent
 from valostats.analysis.report.foundation.player_metrics import acs, kd, opening_duels_won, rounds_won
 from valostats.analysis.report.foundation.table_builder import TableBuilder
-from valostats.constants.agents import ROLE_LABELS, role_of
+from valostats.constants.agents import role_of
 from valostats.constants.compositions import MIN_OPENING_DUELS, ROLE_ORDER, TOP_AGENTS
 from valostats.constants.report import MIN_PLAYER_SAMPLE
 from valostats.domain.enums import Reference
@@ -56,11 +57,6 @@ def round_rate(matches: Sequence[MatchFact]) -> Measure:
     return (sum(m.rounds_won for m in matches) / rounds if rounds else None), rounds
 
 
-def _role_label(agent: str) -> str:
-    role = role_of(agent)
-    return ROLE_LABELS.get(role, role)
-
-
 def _agents_played(cohorts: ReportCohorts) -> StatTable:
     table = (
         TableBuilder("agents-played", "Agents joués par l'escouade", "Agent", help="agentsPlayed")
@@ -85,7 +81,7 @@ def _agents_played(cohorts: ReportCohorts) -> StatTable:
                 "players": fixed(", ".join(f"{n} ({c})" for n, c in sorted(who.items(), key=lambda x: (-x[1], x[0].lower()))), len(mine)),
             },
             art=agent_art(agent),
-            sub=_role_label(agent),
+            sub=agent_role_label(agent),
         )
     return table.build()
 
@@ -276,7 +272,7 @@ def _opponent_agents(cohorts: ReportCohorts) -> StatTable:
                 "kpr": cohort_cell(kills_per_round, (ReportCohort.TOP, ReportCohort.HISTORY)),
             },
             art=agent_art(agent),
-            sub=_role_label(agent),
+            sub=agent_role_label(agent),
         )
     return table.build()
 

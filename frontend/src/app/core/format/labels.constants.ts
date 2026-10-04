@@ -7,14 +7,14 @@ export const SIDE_LABELS: Record<Side, string> = { att: 'Attaque', def: 'Défens
 export const REFERENCE_LABELS: Record<Reference, string> = {
   top: 'Top ranked',
   opp: 'Adversaires',
-  hist: "Historique de l'escouade",
+  hist: "L'escouade avant la période",
 };
 
 /** Short names, for table columns. */
 export const REFERENCE_SHORT_LABELS: Record<Reference, string> = {
   top: 'Top ranked',
   opp: 'Adversaires',
-  hist: 'Historique',
+  hist: 'Avant la période',
 };
 
 /** Options of the "Comparer à" switch: they must say who the squad is measured against. */

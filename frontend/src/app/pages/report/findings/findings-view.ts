@@ -10,9 +10,9 @@ import { FindingColumn } from './finding-column/finding-column';
 import { findingColumn, openTarget } from './findings-view.utils';
 
 /**
- * Points forts et faibles: every gap of the period that passes a statistical test, weaknesses first
- * then strengths, one block under the other, the team and its players side by side in each.
- * A Résumé line arrives with `?open=weak:<subject>` and opens that card.
+ * Points forts et faibles: every gap of the period that passes a statistical test, weaknesses beside
+ * strengths, one folded line per subject with a bar of the rounds at stake. A Résumé line arrives
+ * with `?open=weak:<subject>` and opens that card.
  */
 @Component({
   selector: 'app-findings-view',

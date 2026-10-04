@@ -27,6 +27,9 @@ export interface CostlyMoment {
   label: string;
   /** Main figure ('12', '21 sur 54'). */
   figure: string;
+  /** What the figure counts, written right after it ('séries', 'gagnés'). */
+  unit: string;
+  /** What the line covers, under its label. */
   detail: string;
   /** Bad when it marks rounds thrown away, null when the figure only counts. */
   bad: boolean;

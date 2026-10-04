@@ -18,6 +18,16 @@ export const HEADLINE_UNITS: Record<string, string> = {
   fullbuy: 'rounds',
 };
 
+/** Unit after a headline value that does not carry one ('−1,0 rounds'). */
+export const HEADLINE_VALUE_UNITS: Record<string, string> = {
+  diff: 'rounds',
+};
+
+/** Clearer names for API columns whose figure has no unit of its own. */
+export const COLUMN_LABELS: Record<string, string> = {
+  diff: 'Écart de rounds par match',
+};
+
 /** Round type row shown as a headline tile beside the map figures. */
 export const HEADLINE_ROUND_TYPE = 'Full buy contre full buy';
 

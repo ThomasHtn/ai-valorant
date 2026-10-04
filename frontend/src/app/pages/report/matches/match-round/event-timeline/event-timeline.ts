@@ -2,9 +2,10 @@ import { Component, computed, input, output } from '@angular/core';
 
 import { clock } from '@core/format/format.utils';
 import { RoundEvent } from '@core/report/rounds.model';
+import { HoverTip } from '@shared/hover-tip/hover-tip';
 
 import { chancesBefore } from '../round-moments.utils';
-import { chanceShift, eventTag } from './event-timeline.utils';
+import { aliveTip, chanceShift, chanceTip, eventTag } from './event-timeline.utils';
 
 /**
  * Every kill, plant and defuse of the round with the players alive after it and how the squad's
@@ -12,6 +13,7 @@ import { chanceShift, eventTag } from './event-timeline.utils';
  */
 @Component({
   selector: 'app-event-timeline',
+  imports: [HoverTip],
   templateUrl: './event-timeline.html',
   host: { class: 'flex flex-col gap-3' },
 })
@@ -30,7 +32,9 @@ export class EventTimeline {
       tag: eventTag(event),
       text: event.text,
       chance: chanceShift(before[index], event.winProbability),
+      chanceTip: chanceTip(before[index], event.winProbability),
       state: `${event.ownAlive}v${event.oppAlive}`,
+      stateTip: aliveTip(event.ownAlive, event.oppAlive),
     }));
   });
 }

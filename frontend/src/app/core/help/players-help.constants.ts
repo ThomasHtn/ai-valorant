@@ -27,9 +27,9 @@ export const PLAYERS_HELP: Readonly<Record<string, StatHelp>> = {
   },
   playerProfile: {
     title: 'Profil (radar)',
-    what: 'Les chiffres clés du joueur sur une seule toile, chacun comparé à la référence de son rôle.',
-    how: "Chaque chiffre du joueur est divisé par celui de la référence. Le cercle pointillé veut donc dire « égal à la référence » sur toutes les branches : c'est un étalon, pas le profil de la référence, d'où sa forme toujours régulière. Chaque cercle vaut 20 % d'écart, de -40 % au centre à +40 % au bord. Pour un chiffre où plus bas = mieux (morts à 0 dégât), le rapport est inversé.",
-    read: "Plus loin du centre = mieux. Une branche rentrée montre le point faible à travailler. Un point creux repose sur trop peu de données ou n'a pas de référence.",
+    what: 'Les chiffres clés du joueur sur une seule toile, face à la référence de son rôle.',
+    how: "Chaque branche a sa propre échelle, d'un niveau faible au centre à un très bon niveau en ranked au bord (inversée quand plus bas = mieux). Le joueur et la référence sont placés sur les mêmes échelles, donc la forme pointillée est le vrai profil de la référence.",
+    read: 'Plus loin du centre = mieux. Là où le trait du joueur passe sous le pointillé, il fait moins bien que la référence.',
   },
   playerOpeningDuels: {
     title: 'Premiers duels',

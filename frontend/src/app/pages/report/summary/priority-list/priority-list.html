@@ -6,11 +6,17 @@
         routerLink="/report/findings"
         [queryParams]="{ open: side() + ':' + item.key }"
         queryParamsHandling="merge"
-        class="row-link grid grid-cols-[2rem_minmax(0,1fr)_auto] items-center gap-x-3 border-l-[3px] border-transparent bg-text-primary/4 py-2 pr-2 pl-2.5"
-        [title]="item.metric + ' : ' + item.detail"
+        class="row-link grid grid-cols-[2.25rem_minmax(0,1fr)_auto] items-center gap-x-3.5 border-l-[3px] border-transparent bg-text-primary/4 py-2.5 pr-3 pl-2.5"
       >
-        <app-row-art class="!size-8" [art]="item.art" />
-        <span class="flex min-w-0 flex-col leading-tight">
+        @if (item.art) {
+          <app-row-art class="!size-9" [art]="item.art" />
+        } @else {
+          <!-- Findings about the whole squad (Global, Pistol, Force buy) get the squad icon. -->
+          <span class="grid size-9 place-items-center bg-text-primary/8 text-text-secondary">
+            <svg lucideUsers class="size-5" aria-hidden="true"></svg>
+          </span>
+        }
+        <span class="flex min-w-0 flex-col gap-0.5 leading-tight">
           <span class="flex min-w-0 items-center gap-2">
             <b class="truncate font-display text-[1.0625rem] font-semibold">{{ item.scope }}</b>
             <app-badge
@@ -19,9 +25,19 @@
               size="sm"
             />
           </span>
-          <span class="truncate text-sm text-text-secondary">{{ item.metric }}</span>
+          <span class="truncate text-[0.95rem] text-text-secondary"
+            >{{ item.metric }} : {{ item.detail }}</span
+          >
+          <!-- Rounds at stake on the scale of the biggest gap of the Résumé. -->
+          <span class="relative mt-1 h-1.5 bg-text-primary/8" aria-hidden="true">
+            <i
+              class="absolute inset-y-0 left-0 block"
+              [class]="weak() ? 'bg-rating-bad' : 'bg-rating-good'"
+              [style.width.%]="item.width"
+            ></i>
+          </span>
         </span>
-        <app-gap-chip [value]="item.gap" [unit]="item.unit" [tone]="weak() ? 'bad' : 'good'" />
+        <app-rounds-gap class="min-w-[8.5rem]" [gap]="item.gapRounds" [matches]="item.matches" />
       </a>
     </li>
   } @empty {

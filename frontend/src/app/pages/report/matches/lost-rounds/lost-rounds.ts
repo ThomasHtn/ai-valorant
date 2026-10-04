@@ -3,17 +3,19 @@ import { RouterLink } from '@angular/router';
 
 import { THROW_TIP } from '@core/format/format.utils';
 import { RoundStripCell } from '@core/report/matches.model';
+import { HoverTip } from '@shared/hover-tip/hover-tip';
+import { HoverTipContent } from '@shared/hover-tip/hover-tip.model';
 import { InfoTip } from '@shared/info-tip/info-tip';
 
 import { LostRoundRow, lossCauseCounts } from '../matches.utils';
 
 /**
  * Lost rounds of a match: how many per cause, then each one with its cause and, for a throw, the
- * chance the squad had. A line opens the round's page under the match.
+ * chance the squad had. A line opens the round on the match page.
  */
 @Component({
   selector: 'app-lost-rounds',
-  imports: [InfoTip, RouterLink],
+  imports: [HoverTip, InfoTip, RouterLink],
   templateUrl: './lost-rounds.html',
   host: {
     class: 'view-section',
@@ -27,7 +29,7 @@ export class LostRounds {
   /** Lost rounds with their chance, empty while the rounds of the period load. */
   public readonly rows = input.required<readonly LostRoundRow[]>();
 
-  protected readonly throwTip = THROW_TIP;
+  protected readonly throwTip: HoverTipContent = { title: 'Throw', text: THROW_TIP };
   protected readonly causes = computed(() => lossCauseCounts(this.rounds()));
   protected readonly lost = computed(() => this.rounds().filter((r) => !r.won).length);
 }

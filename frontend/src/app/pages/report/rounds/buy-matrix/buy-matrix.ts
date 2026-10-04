@@ -4,10 +4,16 @@ import { BuyType, Side } from '@core/common/enums.model';
 import { SIDE_LABELS } from '@core/format/labels.constants';
 import { RoundLine } from '@core/report/rounds.model';
 import { MapThumb } from '@shared/game-art/map-thumb';
+import { HoverTip } from '@shared/hover-tip/hover-tip';
 
-import { MATRIX_BUY_LABELS, MATRIX_BUYS, MATRIX_GAP_POINTS } from '../rounds-overview.constants';
+import {
+  MATRIX_BUY_LABELS,
+  MATRIX_BUYS,
+  MATRIX_GAP_POINTS,
+  MATRIX_MIN_ROUNDS,
+} from '../rounds-overview.constants';
 import { MatrixCell } from '../rounds-overview.model';
-import { buyMatrix } from '../rounds-overview.utils';
+import { buyMatrix, matrixCellTip, wonRecord } from '../rounds-overview.utils';
 
 /** Where a matrix cell sends the round list. */
 export interface MatrixPick {
@@ -23,7 +29,7 @@ export interface MatrixPick {
  */
 @Component({
   selector: 'app-buy-matrix',
-  imports: [MapThumb],
+  imports: [HoverTip, MapThumb],
   templateUrl: './buy-matrix.html',
   host: { class: 'view-section' },
 })
@@ -31,11 +37,20 @@ export class BuyMatrix {
   public readonly rounds = input.required<readonly RoundLine[]>();
   public readonly picked = output<MatrixPick>();
 
-  protected readonly rows = computed(() => buyMatrix(this.rounds()));
+  /** Rows with the tip of each cell, built once so the template passes stable objects. */
+  protected readonly rows = computed(() =>
+    buyMatrix(this.rounds()).map((row) => ({
+      ...row,
+      tips: row.cells.map((cell) => matrixCellTip(row, cell, true)),
+      totalTip: matrixCellTip(row, row.total, false),
+    })),
+  );
   protected readonly buys = MATRIX_BUYS;
   protected readonly buyLabels = MATRIX_BUY_LABELS;
   protected readonly sideLabels = SIDE_LABELS;
   protected readonly gap = MATRIX_GAP_POINTS;
+  protected readonly minRounds = MATRIX_MIN_ROUNDS;
+  protected readonly record = wonRecord;
 
   protected percent(cell: MatrixCell): string {
     return cell.played ? `${Math.round((cell.won / cell.played) * 100)} %` : '';

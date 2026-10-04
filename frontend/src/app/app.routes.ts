@@ -78,9 +78,13 @@ export const routes: Routes = [
           import('@pages/report/matches/matches-view').then((m) => m.MatchesView),
       },
       {
+        // A match always opens on one of its rounds, the first by default.
         path: 'matches/:match',
-        loadComponent: () =>
-          import('@pages/report/matches/matches-view').then((m) => m.MatchesView),
+        pathMatch: 'full',
+        redirectTo: ({ params, queryParams }) =>
+          inject(Router).createUrlTree(roundLink({ matchId: params['match'], roundNumber: 1 }), {
+            queryParams,
+          }),
       },
       {
         path: 'matches/:match/rounds/:round',

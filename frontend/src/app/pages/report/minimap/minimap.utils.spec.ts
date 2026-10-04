@@ -19,6 +19,7 @@ import {
   zoneMatchCount,
   zonePlayers,
   zoneRows,
+  zoneSummary,
   zoneTone,
   zoneVerdict,
 } from './minimap.utils';
@@ -157,10 +158,26 @@ describe('minimap view utils', () => {
     expect(zoneTone(row('A', 5, 5, null, 0.2))).toBe('even');
   });
 
-  it('writes the gap in rate points', () => {
-    const [line] = zoneLines([row('B Garage', 5, 15, 0.18, 0.07)], 28);
-    expect(line.excess).toBe(`+11${UNIT_SPACE}pts`);
-    expect(line.topShare).toBe(formatValue(0.07, 'pct'));
+  it('writes the figures in words and scales the bars on the largest share', () => {
+    const lines = zoneLines(
+      [row('B Garage', 5, 15, 0.18, 0.07), row('A Main', 2, 4, 0.09, 0.12)],
+      28,
+    );
+    expect(lines[0]).toMatchObject({
+      count: '5 sur 28 first deaths',
+      top: `Top ranked ${formatValue(0.07, 'pct')}`,
+      bar: 100,
+      tone: 'over',
+    });
+    expect(lines[1].bar).toBe(50);
+    expect(lines[1].tick).toBeCloseTo(66.7, 1);
+  });
+
+  it('sums up the other events of a zone', () => {
+    const zone = { ...row('A', 1, 15), kills: 1, revengeRate: 0.2 };
+    expect(zoneSummary(zone)).toBe(
+      `15 morts et 1 kill ici, 20${UNIT_SPACE}% des morts avec revenge.`,
+    );
   });
 
   it('lists each player with their rounds grouped by match, newest match first', () => {
@@ -206,21 +223,18 @@ describe('minimap view utils', () => {
     expect(zonePlayers(zone)[0].more).toBe(9);
   });
 
-  it('leaves the comparison empty where nobody died first', () => {
-    expect(zoneLines([row('A', 0, 2, 0, 0)], 20)[0].compared).toBe(false);
-    expect(zoneLines([row('A', 0, 2, 0, 0.1)], 20)[0].compared).toBe(true);
+  it('lists only zones where the squad or the top ranked die first', () => {
+    expect(zoneLines([row('A', 0, 2, 0, 0)], 20)).toEqual([]);
+    expect(zoneLines([row('A', 0, 2, 0, 0.1)], 20)).toHaveLength(1);
   });
 
   it('names the zones to work on only once the side has enough first deaths', () => {
     const over = row('B Alley', 6, 8, 0.3, 0.1);
     expect(zoneLines([over], 6)[0].tone).toBe('even');
-    expect(zoneVerdict(zoneLines([over], 6), 6, 'attaque').text).toMatch(
-      /^Seulement 6 first deaths/,
-    );
+    expect(zoneVerdict(zoneLines([over], 6), 6).text).toMatch(/^seulement 6 first deaths/);
     const lines = zoneLines([over, row('Mid', 5, 5, 0.25, 0.1)], 20);
-    expect(lines[0].sample).toBe('6 sur 20');
-    expect(zoneVerdict(lines, 20, 'attaque')).toEqual({
-      text: `L'escouade meurt en premier bien plus souvent que le top ranked à B Alley (+20${UNIT_SPACE}pts) et Mid (+15${UNIT_SPACE}pts).`,
+    expect(zoneVerdict(lines, 20)).toEqual({
+      text: "l'escouade meurt en premier plus souvent que le top ranked à B Alley et Mid.",
       alert: true,
     });
   });

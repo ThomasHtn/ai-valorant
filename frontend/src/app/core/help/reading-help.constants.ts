@@ -5,7 +5,7 @@ export const READING_HELP: Readonly<Record<string, StatHelp>> = {
   reference: {
     title: 'Référence',
     what: "Ce à quoi chaque chiffre de l'escouade est comparé pour choisir la couleur.",
-    how: "Top ranked : matchs du top 20 de chaque région, patch 13.06. Adversaires : les équipes affrontées dans les mêmes matchs. Historique : l'escouade avant la période.",
+    how: "Top ranked : matchs du top 20 de chaque région, patch 13.06. Adversaires : les équipes affrontées dans les mêmes matchs. Avant la période : l'escouade dans ses matchs plus anciens.",
     read: 'Vert : mieux que la référence. Orange : à moins de 3 points (5 % pour une moyenne). Rouge : moins bien. Gris : échantillon trop petit.',
   },
   dataQuality: {

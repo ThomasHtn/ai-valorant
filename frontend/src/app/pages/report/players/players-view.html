@@ -1,76 +1,85 @@
-<!-- Who first: the picker is the view's main choice. -->
-@if (players.hasValue()) {
-  <app-player-picker [players]="players.value()" [selected]="selected()" />
-}
-
 <app-resource-state
   [resource]="players"
   notFoundText="Aucun joueur de l'escouade sur cette période."
 >
-  <app-resource-state
-    [resource]="sheet"
-    notFoundText="Ce joueur n'a pas joué avec l'escouade sur cette période."
-  >
-    @if (sheet.hasValue()) {
-      @let p = sheet.value();
-      @let display = state.preferences();
-      <div class="view-body">
-        <!-- Who the player is, then what his figures are measured against, right over them. -->
-        <div class="flex flex-col gap-5">
-          <app-player-header [sheet]="p" />
-          <app-reading-bar [perRole]="true" />
-        </div>
+  <div class="with-side-rail">
+    <!-- Who first: the players stay on the left while the sheet scrolls. -->
+    @if (players.hasValue()) {
+      <app-player-rail [players]="players.value()" [selected]="selected()" />
+    }
 
-        <!-- His key figures once (radar and numbers), his opening duels and clutches beside. -->
-        <div class="grid items-start gap-x-10 gap-y-10 xl:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
-          <app-profile-radar
-            class="min-w-0"
-            [series]="radarSeries()"
-            [reference]="display.reference"
-            [colours]="display.colours"
-            [split]="true"
-          >
-            <app-profile-figures
-              [headline]="p.headline"
-              [openingDuels]="p.openingDuels"
-              [reference]="display.reference"
-              [colours]="display.colours"
-            />
-          </app-profile-radar>
-          <app-opening-clutch
-            class="min-w-0"
-            [openingDuels]="p.openingDuels"
-            [clutches]="p.clutches"
-            [reference]="display.reference"
-            [colours]="display.colours"
+    <app-resource-state
+      class="min-w-0"
+      [resource]="sheet"
+      notFoundText="Ce joueur n'a pas joué avec l'escouade sur cette période."
+    >
+      @if (sheet.hasValue()) {
+        @let p = sheet.value();
+        @let reference = state.preferences().reference;
+        <div class="view-body">
+          <!-- His card, then what everything below is measured against. -->
+          <div class="flex flex-col gap-5">
+            <app-player-card [sheet]="p" />
+            <app-reading-bar [perRole]="true" />
+          </div>
+
+          <!-- The answer first: how he does and what to work on. -->
+          <app-player-verdict
+            [figures]="figures()"
+            [reference]="reference"
+            [who]="names().sentence"
           />
-        </div>
 
-        <!-- Blocks two by two; a table of many columns takes its row whole. -->
-        <div class="block-grid">
-          <app-weapons-panel class="min-w-0" [weapons]="p.weapons" />
+          <!-- Pairs share one height, so their notes line up at the bottom. -->
+          <div class="grid items-stretch gap-x-10 gap-y-10 xl:grid-cols-2">
+            <div [class]="panel">
+              <app-profile-radar
+                class="flex-1"
+                [series]="radarSeries()"
+                [reference]="reference"
+                [referenceName]="names().short"
+                [split]="true"
+              />
+            </div>
+            <section [class]="panel" aria-labelledby="player-figures">
+              <h3
+                id="player-figures"
+                class="!m-0 font-display text-lg font-semibold text-text-primary"
+              >
+                Ses chiffres
+              </h3>
+              <app-stat-bars [rows]="figureRows()" />
+              <p class="!m-0 mt-auto text-sm text-text-muted">
+                Barre : de faible à très bon niveau en ranked. Trait gris : {{ names().sentence }}.
+              </p>
+            </section>
 
-          <!-- Buying habits always against the top ranked of his role, whatever the reference above. -->
-          <section class="view-section" aria-labelledby="player-economy">
-            <h3 id="player-economy" class="font-display text-lg font-semibold text-text-primary">
-              Économie<app-info-tip topic="playerEconomy" />
-            </h3>
-            <app-profile-figures
-              [headline]="p.economy"
-              reference="top"
-              [colours]="display.colours"
-            />
-            <p class="!m-0 text-sm text-text-muted">
-              Hors pistols, comparé aux joueurs du top ranked du même rôle.
-            </p>
-          </section>
+            <div [class]="panel">
+              <app-opening-clutch
+                [openingDuels]="p.openingDuels"
+                [clutches]="p.clutches"
+                [reference]="reference"
+                [referenceName]="names().short"
+              />
+            </div>
+            <!-- Buying habits always against the top ranked of his role, whatever the reference above. -->
+            <section [class]="panel" aria-labelledby="player-economy">
+              <h3
+                id="player-economy"
+                class="!m-0 font-display text-lg font-semibold text-text-primary"
+              >
+                Économie<app-info-tip topic="playerEconomy" />
+              </h3>
+              <app-stat-bars [rows]="economyRows()" />
+              <p class="!m-0 mt-auto text-sm text-text-muted">{{ economyNote() }}</p>
+            </section>
+          </div>
 
+          <app-weapons-panel [weapons]="p.weapons" />
+
+          <!-- Tables of many columns take the whole width. -->
           @for (table of tables(); track table.id) {
-            <section
-              class="view-section"
-              [class.block-wide]="isWide(table)"
-              [attr.aria-labelledby]="'player-' + table.id"
-            >
+            <section class="view-section" [attr.aria-labelledby]="'player-' + table.id">
               <h3
                 class="font-display text-lg font-semibold text-text-primary"
                 [id]="'player-' + table.id"
@@ -79,18 +88,18 @@
               </h3>
               <app-stat-table
                 [table]="table"
-                [display]="display"
+                [display]="state.preferences()"
                 [playerAgents]="context.playerAgents()"
               />
             </section>
           }
-        </div>
 
-        <app-death-zones [deathZones]="p.deathZones" />
-        @if (p.rewatch.length) {
-          <app-rewatch-list [rounds]="p.rewatch" />
-        }
-      </div>
-    }
-  </app-resource-state>
+          <app-death-zones [deathZones]="p.deathZones" />
+          @if (p.rewatch.length) {
+            <app-rewatch-list [rounds]="p.rewatch" />
+          }
+        </div>
+      }
+    </app-resource-state>
+  </div>
 </app-resource-state>

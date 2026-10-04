@@ -7,6 +7,7 @@ import { ReportContext } from '@core/report/report-context';
 import {
   DEFAULT_DOMAIN,
   DETECTIONS_KEY,
+  DETECTIONS_LABEL,
   REPORT_DOMAINS,
 } from '@core/report/report-domains.constants';
 import { ViewState } from '@core/report/view-state';
@@ -22,12 +23,13 @@ import { StatCellClick } from '@shared/stat-table/stat-table.model';
 import { isWideTable, rowText } from '@shared/stat-table/stat-table.utils';
 
 import { DetectionsPanel } from './detections-panel/detections-panel';
+import { detectionGroups } from './detections-panel/detections-panel.utils';
 import { scopeFilter } from './tables-view.utils';
 
 /**
  * Stats par thème: every metric of one domain of the dictionary as coloured tables, values only,
- * or the period's automatic detections (Alertes). The theme is picked from the Explorer menu of the
- * top bar; a cell click opens the Rounds view on the rounds behind it.
+ * or the period's automatic detections (Alertes). The theme is picked in the list on the left (or the
+ * Explorer menu of the top bar); a cell click opens the Rounds view on the rounds behind it.
  */
 @Component({
   selector: 'app-tables-view',
@@ -40,7 +42,7 @@ import { scopeFilter } from './tables-view.utils';
     ResourceState,
     DetectionsPanel,
   ],
-  host: { class: 'view-body' },
+  host: { class: 'with-side-rail' },
   providers: [provideViewState('tables')],
   templateUrl: './tables-view.html',
 })
@@ -71,6 +73,15 @@ export class TablesView {
   );
   /** Repetitions and links of the period, whatever the domain. */
   protected readonly detections = this.api.detections(this.context.query);
+
+  protected readonly domains = REPORT_DOMAINS;
+  protected readonly detectionsKey = DETECTIONS_KEY;
+  protected readonly detectionsLabel = DETECTIONS_LABEL;
+  /** Number of alerts of the period, beside the Alertes entry. */
+  protected readonly detectionCount = computed(() => {
+    const value = resourceValue(this.detections, null);
+    return value ? detectionGroups(value).reduce((n, group) => n + group.items.length, 0) : null;
+  });
 
   protected readonly isWide = isWideTable;
   protected readonly meta = computed(() => resourceValue(this.context.meta, null));

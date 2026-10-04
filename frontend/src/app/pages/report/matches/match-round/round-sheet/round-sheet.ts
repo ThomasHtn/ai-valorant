@@ -5,23 +5,23 @@ import { RoundSheet } from '@core/report/rounds.model';
 import { Badge } from '@shared/badge/badge';
 import { InfoTip } from '@shared/info-tip/info-tip';
 
-import { EconomyTable } from '../economy-table/economy-table';
 import { EventTimeline } from '../event-timeline/event-timeline';
 import { Replay2d } from '../replay-2d/replay-2d';
 import { clampStep } from '../replay-2d/replay-2d.utils';
 import { keyMoment } from '../round-moments.utils';
+import { RoundLoadouts } from '../round-loadouts/round-loadouts';
 import { WinProbabilityChart } from '../win-probability-chart/win-probability-chart';
 import { roundSummary } from './round-sheet.utils';
 
 /**
- * Sheet of one round: what happened in a few sentences, the win probability over time, the 2D replay
- * and the timeline (all three follow the selected event), then both teams' economy.
+ * Sheet of one round: both teams' weapons, how it ended beside the win probability over time, then
+ * the 2D replay and the timeline (chart, replay and timeline follow the selected event).
  */
 @Component({
   selector: 'app-round-sheet',
-  imports: [Badge, EconomyTable, EventTimeline, InfoTip, Replay2d, WinProbabilityChart],
+  imports: [Badge, EventTimeline, InfoTip, Replay2d, RoundLoadouts, WinProbabilityChart],
   templateUrl: './round-sheet.html',
-  host: { class: 'flex min-w-0 flex-col gap-8' },
+  host: { class: 'flex min-w-0 flex-col gap-5' },
 })
 export class RoundSheetView {
   public readonly sheet = input.required<RoundSheet>();
