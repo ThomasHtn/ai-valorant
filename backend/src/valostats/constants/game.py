@@ -26,6 +26,9 @@ LOCAL_TIMEZONE = "Europe/Paris"
 # Game units per metre (positions and distances are in game units).
 UNITS_PER_METRE = 100
 
+# Henrik round result of the empty rounds it appends after a surrender, up to the winning score.
+SURRENDER_RESULT = "Surrendered"
+
 # Henrik kill weapon types, and the weapon names that are a knife.
 WEAPON_TYPE_GUN = "Weapon"
 WEAPON_TYPE_MELEE = "Melee"

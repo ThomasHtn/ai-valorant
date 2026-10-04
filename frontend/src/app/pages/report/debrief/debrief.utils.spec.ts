@@ -58,24 +58,30 @@ function evening(lineups: [string, string, number, number, number][]): EveningMa
 }
 
 describe('debrief utils', () => {
-  it('colours a session tile against the month', () => {
-    const session = Array.from({ length: 10 }, (_, i) => round(i + 1, i < 7));
-    const month = Array.from({ length: 10 }, (_, i) => round(i + 1, i < 5));
-    const tile = debriefTiles(session, month, 'Septembre')[0];
+  it('colours a session tile against the rest of the month', () => {
+    const session = Array.from({ length: 20 }, (_, i) => round(i + 1, i < 14));
+    const rest = Array.from({ length: 20 }, (_, i) => round(i + 1, i < 10, { matchId: 'm2' }));
+    const tile = debriefTiles(session, [...session, ...rest], 'Septembre')[0];
     expect(tile).toMatchObject({ value: `70${UNIT_SPACE}%`, tone: 'good' });
-    expect(tile.lines[0]).toBe(`Septembre : 50${UNIT_SPACE}%`);
+    expect(tile.lines[0]).toBe(`Septembre hors session : 50${UNIT_SPACE}%`);
   });
 
-  it('ranks players by ACS with their gap to the month', () => {
-    const forms = playerForms(
-      [
-        evening([
-          ['A', 'Jett', 200, 10, 10],
-          ['B', 'Sova', 250, 20, 10],
-        ]),
-      ],
-      [evening([['A', 'Jett', 180, 10, 10]])],
-    );
+  it('greys a tile under 20 rounds and keeps 3 points as the orange band', () => {
+    const rest = Array.from({ length: 20 }, (_, i) => round(i + 1, i < 10, { matchId: 'm2' }));
+    const short = Array.from({ length: 10 }, (_, i) => round(i + 1, i < 7));
+    expect(debriefTiles(short, rest, 'Septembre')[0].tone).toBe('small');
+    const close = Array.from({ length: 50 }, (_, i) => round(i + 1, i < 26));
+    expect(debriefTiles(close, rest, 'Septembre')[0].tone).toBe('avg');
+  });
+
+  it('ranks players by ACS with their gap to the rest of the month', () => {
+    const session = evening([
+      ['A', 'Jett', 200, 10, 10],
+      ['B', 'Sova', 250, 20, 10],
+    ]);
+    const earlier = evening([['A', 'Jett', 180, 10, 10]]);
+    earlier.matches[0].matchId = 'm0';
+    const forms = playerForms([session], [earlier, session]);
     expect(forms.map((f) => f.name)).toEqual(['B', 'A']);
     expect(forms[1].acsGap).toBe(20);
     expect(forms[0].acsGap).toBeNull();

@@ -6,12 +6,23 @@ from dataclasses import dataclass
 from typing import Any
 
 from valostats.analysis.extraction.context import MatchContext
-from valostats.analysis.extraction.henrik_payload import HenrikKill, is_team, location, other_team, snapshot_location, tier
+from valostats.analysis.extraction.henrik_payload import (
+    HenrikKill,
+    is_enemy_hit,
+    is_team,
+    kill_means,
+    location,
+    opening_index,
+    other_team,
+    played_rounds,
+    snapshot_location,
+    tier,
+)
 from valostats.analysis.extraction.revenge import revenge_pairs
 from valostats.analysis.extraction.timeline import RoundTimeline, alive_before_kills, round_timelines
 from valostats.analysis.extraction.win_probability import WinProbabilityTable
 from valostats.constants.game import BLUE, RED, TEAMS
-from valostats.domain.enums import Side
+from valostats.domain.enums import KillMeans, Side
 from valostats.domain.facts import PlayerMatchFact, PlayerRoundFact
 
 
@@ -59,7 +70,7 @@ def _player_matches(ctx: MatchContext) -> list[PlayerMatchFact]:
                 puuid=p["puuid"],
                 name=p["name"],
                 agent=p["agent"]["name"],
-                rounds=len(ctx.match["rounds"]),
+                rounds=len(played_rounds(ctx.match)),
                 won=team_won.get(p["team_id"], False),
                 score=(p.get("stats") or {}).get("score") or 0,
                 tier_id=tier_id,
@@ -87,7 +98,8 @@ def _round_players(
     impact, clutch = _impact_and_clutches(timeline, win_probability)
     received = _received(rnd)
     alive_before = alive_before_kills(timeline)
-    first = kills[0] if kills and kills[0]["killer"]["team"] != kills[0]["victim"]["team"] else None
+    opening = opening_index(kills)
+    first = kills[opening] if opening is not None else None
     facts = []
     for stats in rnd["stats"]:
         puuid, team = stats["player"]["puuid"], stats["player"]["team"]
@@ -95,9 +107,13 @@ def _round_players(
             continue
         own_kills = [i for i, k in enumerate(kills) if k["killer"]["puuid"] == puuid and k["victim"]["team"] != team]
         own_deaths = [i for i, k in enumerate(kills) if k["victim"]["puuid"] == puuid]
+        # The scoreboard does not count a death to the spike detonation.
+        counted_deaths = [i for i in own_deaths if kill_means(kills[i]) is not KillMeans.SPIKE]
         assists = sum(any(a["puuid"] == puuid for a in (k.get("assistants") or [])) for k in kills if k["victim"]["team"] != team)
         traded = any(i in avenged for i in own_deaths)
-        damage = sum(e["damage"] for e in stats["damage_events"])
+        # Hits on opponents only: Henrik's counters also hold hits on teammates.
+        hits_given = [e for e in stats["damage_events"] if is_enemy_hit(e, team)]
+        damage = sum(e["damage"] for e in hits_given)
         first_blood = bool(first and first["killer"]["puuid"] == puuid)
         first_death = bool(first and first["victim"]["puuid"] == puuid)
         clutch_versus = clutch[team][1] if team in clutch and clutch[team][0] == puuid else 0
@@ -117,14 +133,14 @@ def _round_players(
                 won=rnd["winning_team"] == team,
                 match_won=team_won.get(team, False),
                 kills=len(own_kills),
-                deaths=len(own_deaths),
+                deaths=len(counted_deaths),
                 assists=assists,
                 score=counters["score"],
                 damage=damage,
                 damage_received=hits.damage,
-                headshots=counters["headshots"],
-                bodyshots=counters["bodyshots"],
-                legshots=counters["legshots"],
+                headshots=sum(e.get("headshots") or 0 for e in hits_given),
+                bodyshots=sum(e.get("bodyshots") or 0 for e in hits_given),
+                legshots=sum(e.get("legshots") or 0 for e in hits_given),
                 headshots_received=hits.headshots,
                 bodyshots_received=hits.bodyshots,
                 legshots_received=hits.legshots,
@@ -140,7 +156,7 @@ def _round_players(
                 clutch_won=bool(clutch_versus) and rnd["winning_team"] == team,
                 win_probability_added=impact[puuid],
                 death_ms=death["time_in_round_in_ms"] if death else None,
-                zero_damage_death=death is not None and damage == 0,
+                zero_damage_death=bool(counted_deaths) and damage == 0,
                 kills_outnumbered=sum(alive_before[id(kills[i])][team] < alive_before[id(kills[i])][other_team(team)] for i in own_kills),
                 multikill_span_ms=kill_times[-1] - kill_times[0] if len(kill_times) >= 2 else None,
                 weapon=(economy.get("weapon") or {}).get("name"),
@@ -156,10 +172,10 @@ def _round_players(
 
 
 def _received(rnd: dict[str, Any]) -> dict[str, _Received]:
-    """Damage and hits taken per player, from every player's damage events (they name their target)."""
+    """Damage and hits taken from opponents per player, from every player's damage events (they name their target)."""
     totals: defaultdict[str, list[int]] = defaultdict(lambda: [0, 0, 0, 0])
     for stats in rnd["stats"]:
-        for event in stats["damage_events"]:
+        for event in (e for e in stats["damage_events"] if is_enemy_hit(e, stats["player"]["team"])):
             target = (event.get("player") or {}).get("puuid")
             if target:
                 total = totals[target]

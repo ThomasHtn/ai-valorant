@@ -11,6 +11,7 @@ import {
   viewChild,
 } from '@angular/core';
 
+import { formatValue } from '@core/format/value-format.utils';
 import { ReportContext } from '@core/report/report-context';
 import { StatColumn, StatRow, StatTable } from '@core/report/stat-table.model';
 import { columnReference } from '@core/report/tone.utils';
@@ -74,7 +75,9 @@ export class StatTableView {
   protected readonly historyColumns = computed(() => {
     const { reference } = this.display();
     const keys = this.table()
-      .columns.filter((c) => reference !== 'hist' && columnReference(c, reference) === 'hist')
+      .columns.filter(
+        (c) => c.better !== 0 && reference !== 'hist' && columnReference(c, reference) === 'hist',
+      )
       .map((c) => c.key);
     return new Set(keys);
   });
@@ -94,7 +97,13 @@ export class StatTableView {
     if (view.tone === 'small') {
       return `Échantillon sous le minimum (${view.column.min}) : pas de couleur.`;
     }
-    const band = view.column.format === 'pct' ? '3 points' : '5 %';
+    const { format, band: absolute } = view.column;
+    const band =
+      format === 'pct'
+        ? '3 points'
+        : typeof absolute === 'number'
+          ? formatValue(absolute, format)
+          : '5 %';
     return `Orange à moins de ${band} de la référence. Clic : rounds concernés.`;
   });
 

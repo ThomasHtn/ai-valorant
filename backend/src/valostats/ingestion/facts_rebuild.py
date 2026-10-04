@@ -28,7 +28,9 @@ def rebuild_facts(session: Session, source: MatchSource) -> None:
     # Matches kept for extraction (known map, squad 5-stack), listed once and read by every extractor.
     contexts = list(matches_to_extract(matches, maps, squad))
     table = WinProbabilityTable.from_matches(matches)
-    players = extract_players(contexts, table)
+    # Squad player impact reads the top ranked table, like the round sheets: the squad's matches are too few.
+    top_cells = facts_repository.load_win_probability(session, MatchSource.TOP) if source is MatchSource.SQUAD else []
+    players = extract_players(contexts, WinProbabilityTable(top_cells) if top_cells else table)
     facts = SourceFacts(
         matches=extract_matches(contexts),
         rounds=extract_rounds(contexts),

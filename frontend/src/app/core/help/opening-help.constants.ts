@@ -83,7 +83,7 @@ export const OPENING_HELP: Readonly<Record<string, StatHelp>> = {
   openingWeapons: {
     title: 'Armes des premiers duels',
     what: "Armes avec lesquelles l'escouade gagne et perd les premiers duels.",
-    how: 'Les capacités, ultimes et chutes sont regroupés sous « Capacités ». Les armes avec moins de 5 duels sont masquées.',
+    how: 'Les capacités, ultimes et kills au couteau sont regroupés sous « Capacités ». Les armes avec moins de 5 duels sont masquées.',
     read: 'Comparer la part des first bloods et des first deaths de chaque arme.',
   },
   openingWeaponFb: {

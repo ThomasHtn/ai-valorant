@@ -30,6 +30,8 @@ export interface StatCell {
   oppN?: number | null;
   hist?: CellValue;
   histN?: number | null;
+  /** `hist` on a symmetric cell (pistols, 3v3): judged against the history whatever the column says. */
+  ref?: ColumnReference | null;
 }
 
 export interface StatColumn {
@@ -44,6 +46,10 @@ export interface StatColumn {
   min: number;
   /** `top` follows the analyst's choice of reference; `hist` is forced; `none` is never coloured. */
   ref: ColumnReference;
+  /** False for a rate that is not a share of the sample (HS % over hits, share of time): never tested. */
+  proportion?: boolean;
+  /** Absolute gap under which a signed mean around 0 is orange (score difference); else 5 % of the reference. */
+  band?: number | null;
 }
 
 export interface StatRow {

@@ -4,8 +4,10 @@ import { EMPTY, throwLabel } from '@core/format/format.utils';
 import { EveningMatches } from '@core/report/matches.model';
 import { RoundLine } from '@core/report/rounds.model';
 
+import { RATE_AVERAGE_BAND } from '@core/report/tone.constants';
+
 import {
-  DEBRIEF_GAP_POINTS,
+  DEBRIEF_MIN_PISTOLS,
   DEBRIEF_MIN_ROUNDS,
   TURNING_MAX_ROUNDS,
   TURNING_MIN_CHANCE,
@@ -13,14 +15,20 @@ import {
 import { DebriefTile, PlayerForm, TurningRound } from './debrief.model';
 
 /** Rounds behind each tile, in display order. */
-const TILE_RULES: readonly { key: string; label: string; keep: (r: RoundLine) => boolean }[] = [
-  { key: 'rounds', label: 'Rounds gagnés', keep: () => true },
-  { key: 'att', label: 'Attaque', keep: (r) => r.side === 'att' },
-  { key: 'def', label: 'Défense', keep: (r) => r.side === 'def' },
-  { key: 'pistols', label: 'Pistols', keep: (r) => r.buy === 'pistol' },
+const TILE_RULES: readonly {
+  key: string;
+  label: string;
+  min: number;
+  keep: (r: RoundLine) => boolean;
+}[] = [
+  { key: 'rounds', label: 'Rounds gagnés', min: DEBRIEF_MIN_ROUNDS, keep: () => true },
+  { key: 'att', label: 'Attaque', min: DEBRIEF_MIN_ROUNDS, keep: (r) => r.side === 'att' },
+  { key: 'def', label: 'Défense', min: DEBRIEF_MIN_ROUNDS, keep: (r) => r.side === 'def' },
+  { key: 'pistols', label: 'Pistols', min: DEBRIEF_MIN_PISTOLS, keep: (r) => r.buy === 'pistol' },
   {
     key: 'full',
     label: 'Full buy contre full buy',
+    min: DEBRIEF_MIN_ROUNDS,
     keep: (r) => r.buy === 'full' && r.oppBuy === 'full',
   },
 ];
@@ -29,25 +37,30 @@ function share(rounds: readonly RoundLine[]): number | null {
   return rounds.length ? rounds.filter((r) => r.won).length / rounds.length : null;
 }
 
-/** Session figures with the month's beside them; a tile turns green or red past the gap. */
+/**
+ * Session figures beside the rest of the month (the session left out, else it is compared with
+ * itself); a tile is coloured like a table cell: orange within 3 points, grey under its minimum.
+ */
 export function debriefTiles(
   session: readonly RoundLine[],
   month: readonly RoundLine[],
   monthName: string,
 ): DebriefTile[] {
+  const sessionMatches = new Set(session.map((r) => r.matchId));
+  const rest = month.filter((r) => !sessionMatches.has(r.matchId));
   return TILE_RULES.map((rule) => {
     const own = session.filter(rule.keep);
     const value = share(own);
-    const reference = share(month.filter(rule.keep));
+    const reference = share(rest.filter(rule.keep));
     let tone: DebriefTile['tone'] = null;
     if (value !== null && reference !== null) {
-      const gap = (value - reference) * 100;
+      const gap = value - reference;
       tone =
-        own.length < DEBRIEF_MIN_ROUNDS
+        own.length < rule.min
           ? 'small'
-          : gap >= DEBRIEF_GAP_POINTS
+          : gap >= RATE_AVERAGE_BAND
             ? 'good'
-            : gap <= -DEBRIEF_GAP_POINTS
+            : gap <= -RATE_AVERAGE_BAND
               ? 'bad'
               : 'avg';
     }
@@ -57,7 +70,7 @@ export function debriefTiles(
       value: formatValue(value, 'pct'),
       tone,
       lines: [
-        `${monthName} : ${reference === null ? EMPTY : formatValue(reference, 'pct')}`,
+        `${monthName} hors session : ${reference === null ? EMPTY : formatValue(reference, 'pct')}`,
         `Sur ${own.length} rounds`,
       ],
     };
@@ -96,12 +109,15 @@ function totals(evenings: readonly EveningMatches[]): Map<string, Totals> {
 
 const kd = (t: Totals) => (t.deaths ? t.kills / t.deaths : t.kills);
 
-/** Players of the session, best ACS first, each against his own month. */
+/** Players of the session, best ACS first, each against his own month without the session. */
 export function playerForms(
   session: readonly EveningMatches[],
   month: readonly EveningMatches[],
 ): PlayerForm[] {
-  const monthly = totals(month);
+  const sessionMatches = new Set(session.flatMap((e) => e.matches.map((m) => m.matchId)));
+  const monthly = totals(
+    month.map((e) => ({ ...e, matches: e.matches.filter((m) => !sessionMatches.has(m.matchId)) })),
+  );
   return [...totals(session)]
     .map(([name, t]) => {
       const m = monthly.get(name);

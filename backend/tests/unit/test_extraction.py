@@ -160,6 +160,17 @@ def test_match_facts_count_the_score_and_read_ranks():
     assert (player_match.tier_id, player_match.tier_name, player_match.score) == (15, "Platinum 1", 4000)
 
 
+def test_empty_rounds_after_a_surrender_are_not_played_rounds():
+    played = [RoundSpec("Red", [Kill(1000, "R1", "B1")]), RoundSpec("Red")]
+    match = make_match(played + [RoundSpec("Red", result="Surrendered")] * 11)
+    squad = next(m for m in extract_matches(contexts(match)) if m.cohort is Cohort.SQUAD)
+    assert (squad.rounds_won, squad.rounds_lost) == (2, 0)
+    assert len(squad_rounds(match)) == 2
+    extraction = extract_players(contexts(match), WinProbabilityTable.from_matches([match]))
+    assert {p.round_index for p in extraction.rounds} == {0, 1}
+    assert extraction.matches[0].rounds == 2
+
+
 def test_win_probability_is_smoothed_and_certain_when_a_team_is_dead():
     match = make_match([RoundSpec("Red", [Kill(1000, "R1", "B1")]), RoundSpec("Blue", [Kill(1000, "R1", "B1")])])
     table = WinProbabilityTable.from_matches([match])
@@ -167,3 +178,44 @@ def test_win_probability_is_smoothed_and_certain_when_a_team_is_dead():
     assert table.probability(3, 0, Side.ATTACK, False) == 1.0
     # Red won one of its two rounds at 5v4 on attack: (1 + 1) / (2 + 2).
     assert table.probability(5, 4, Side.ATTACK, False) == 0.5
+
+
+def test_a_fall_before_the_first_duel_is_not_the_first_kill():
+    kills = [Kill(1000, "R2", "R2", weapon=None, weapon_type="Fall"), Kill(3000, "B1", "R1")]
+    match = make_match([RoundSpec("Blue", kills)])
+    squad = squad_rounds(match)[0]
+    assert (squad.first_kill, squad.first_kill_ms) == (False, 3000)
+    by_name = players(match)
+    assert by_name["B1"].first_blood and by_name["R1"].first_death and not by_name["R2"].first_death
+
+
+def test_spike_detonation_is_not_a_scoreboard_death():
+    kills = [Kill(1000, "R1", "B1"), Kill(90_000, "B2", "B2", weapon=None, weapon_type="Bomb")]
+    by_name = players(make_match([RoundSpec("Red", kills, plant=(40_000, "A", "R1"), result="Detonate")]))
+    assert (by_name["B2"].deaths, by_name["B2"].survived, by_name["B2"].zero_damage_death) == (0, False, False)
+    assert by_name["B1"].deaths == 1
+
+
+def test_a_revived_player_spoils_a_flawless_round():
+    match = make_match([RoundSpec("Red", [Kill(1000, "R1", "B1")]), RoundSpec("Red", [Kill(1000, "B1", "R1"), Kill(5000, "R2", "B1")])])
+    # R1 is revived before the second kill: five Red players are alive at the end of the round.
+    match["kills"][-1]["player_locations"].append({"player": {"puuid": "r1", "name": "R1", "team": "Red"}, "location": {"x": 0, "y": 0}})
+    clean, spoiled = squad_rounds(match)
+    assert spoiled.alive_end == 5
+    assert clean.flawless and not spoiled.flawless
+
+
+def test_a_wiped_team_keeps_a_chance_once_the_spike_is_down():
+    match = make_match([RoundSpec("Red", [Kill(1000, "R1", "B1")])])
+    table = WinProbabilityTable.from_matches([match])
+    assert table.probability(0, 1, Side.ATTACK, True) == 0.5
+    assert table.probability(0, 1, Side.ATTACK, False) == 0.0
+
+
+def test_a_disconnected_player_is_not_counted_alive():
+    match = make_match([RoundSpec("Blue", [Kill(1000, "B1", "R1"), Kill(2000, "B1", "R2")])])
+    for kill in match["kills"]:
+        kill["player_locations"] = [q for q in kill["player_locations"] if q["player"]["name"] != "R5"]
+    squad = squad_rounds(match)[0]
+    # Red starts four against five, not 5v5 with a ghost player.
+    assert squad.states == ("2v5", "3v5", "4v5")

@@ -18,6 +18,7 @@ from typing import Any
 from valostats.analysis.report.foundation.cohorts import REFERENCE_COHORTS, FactKind, ReportCohort, ReportCohorts, SquadPlayer
 from valostats.constants.agents import role_of
 from valostats.constants.report import VALUE_DECIMALS
+from valostats.domain.enums import Reference
 from valostats.schemas.report.tables import CellValue, StatCell
 
 # A computed value and the sample it rests on (rounds, deaths, duels...).
@@ -121,6 +122,11 @@ def cell(
         out[cohort.value] = rounded(ref_value) if ref_sample else None
         out[f"{cohort.value}_n"] = ref_sample
     return StatCell.model_validate(out)
+
+
+def versus_history(symmetric: StatCell) -> StatCell:
+    """A symmetric cell (pistols, 3v3, full buy against full buy) is judged against the squad history, whatever the column says."""
+    return symmetric.model_copy(update={"ref": Reference.HISTORY})
 
 
 def player_cell(cohorts: ReportCohorts, kind: FactKind, metric: Metric, player: SquadPlayer, **equal: Any) -> StatCell:

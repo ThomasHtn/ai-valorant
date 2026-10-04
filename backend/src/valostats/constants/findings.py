@@ -4,8 +4,9 @@
 MIN_FINDING_SAMPLE = 10
 # A finding worth less than this many rounds is dropped: nothing is at stake (e.g. plant timing).
 MIN_GAP_ROUNDS = 0.5
-# KAST rises with winning (you survive because you won): its measured weight on the round is capped.
-KAST_MAX_LEVERAGE = 0.2
+# KAST and revenge rise with winning (you survive, your teammates trade, because you won): their measured weight on the round is capped.
+OUTCOME_LINKED_KINDS = frozenset({"kast", "revenge"})
+OUTCOME_LINKED_MAX_LEVERAGE = 0.2
 # Rounds to rewatch listed per finding or detection.
 MAX_REWATCH = 6
 

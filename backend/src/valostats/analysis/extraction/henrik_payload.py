@@ -17,6 +17,7 @@ from valostats.constants.game import (
     MELEE_WEAPONS,
     OVERTIME_START,
     RED,
+    SURRENDER_RESULT,
     TEAM_SIZE,
     TEAMS,
     WEAPON_TYPE_ABILITY,
@@ -56,6 +57,11 @@ def region(match: HenrikMatch) -> str:
     return str(match["metadata"].get("region") or "")
 
 
+def played_rounds(match: HenrikMatch) -> list[dict[str, Any]]:
+    """Rounds actually played: the empty rounds Henrik appends after a surrender are left out."""
+    return [rnd for rnd in match["rounds"] if rnd["result"] != SURRENDER_RESULT]
+
+
 def other_team(team: str) -> str:
     return BLUE if team == RED else RED
 
@@ -72,6 +78,31 @@ def attacker(round_index: int) -> str:
     if round_index < OVERTIME_START:
         return BLUE
     return RED if (round_index - OVERTIME_START) % 2 == 0 else BLUE
+
+
+def is_duel(kill: HenrikKill) -> bool:
+    """A player killed by an opponent: self-kills (spike, fall, Clove's ultimate), teamkills and environment kills are not."""
+    killer_team = kill["killer"]["team"]
+    return is_team(killer_team) and killer_team != kill["victim"]["team"]
+
+
+def opening_index(kills: list[HenrikKill]) -> int | None:
+    """Index of the round's first duel (kills in time order), None when nobody was killed by an opponent."""
+    return next((i for i, kill in enumerate(kills) if is_duel(kill)), None)
+
+
+def is_enemy_hit(event: dict[str, Any], team: str) -> bool:
+    """A damage event of a player of `team` on an opponent (Henrik also lists hits on teammates)."""
+    return (event.get("player") or {}).get("team") != team
+
+
+def alive_at_start(first_kill: HenrikKill | None) -> dict[str, int]:
+    """Players in the round: the first kill's snapshot plus its victim; a disconnected player is in no snapshot."""
+    if first_kill is None:
+        return {RED: TEAM_SIZE, BLUE: TEAM_SIZE}
+    alive = alive_after(first_kill)
+    alive[first_kill["victim"]["team"]] += 1
+    return {team: min(TEAM_SIZE, count) for team, count in alive.items()}
 
 
 def alive_after(kill: HenrikKill) -> dict[str, int]:

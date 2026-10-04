@@ -16,7 +16,7 @@ export const CONTEXT_HELP: Readonly<Record<string, StatHelp>> = {
   eveningRank: {
     title: 'Rang du match dans la session',
     what: "Si l'escouade joue mieux en début ou en fin de session.",
-    how: "Session = matchs d'une même journée, un match lancé avant 6h compte pour la veille. Matchs classés par heure de début.",
+    how: "Session = matchs d'un même jour, plus ceux enchaînés après minuit sans pause de plus de 3 h. Matchs classés par heure de début.",
   },
   startHour: {
     title: 'Heure de début',

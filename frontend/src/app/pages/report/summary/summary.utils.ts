@@ -87,8 +87,10 @@ export function headlineTiles(
 }
 
 /**
- * The `count` costliest subjects of the weaknesses (or strengths), each led by its biggest finding;
- * overlapping findings on the same map or player are counted once, not listed again.
+ * The `count` costliest subjects of the weaknesses (or strengths): subjects with a confirmed gap first,
+ * each led by its biggest confirmed finding, then subjects with leads only ("à confirmer": with
+ * hundreds of tests, a few pass p < 0.05 by chance). Overlapping findings on the same map or player
+ * are counted once, not listed again.
  */
 export function priorityItems(
   findings: readonly Finding[],
@@ -96,6 +98,15 @@ export function priorityItems(
   count: number,
 ): PriorityItem[] {
   return groupBySubject(findings.filter((f) => f.side === side))
+    .map(({ key, lead, others }) => ({
+      key,
+      lead: [lead, ...others].find((f) => f.status === 'confirmed') ?? lead,
+    }))
+    .sort(
+      (a, b) =>
+        Number(b.lead.status === 'confirmed') - Number(a.lead.status === 'confirmed') ||
+        Math.abs(b.lead.gapRounds) - Math.abs(a.lead.gapRounds),
+    )
     .slice(0, count)
     .map(({ key, lead }) => ({
       key,

@@ -12,7 +12,7 @@ from valostats.analysis.extraction.economy import buy_type
 from valostats.analysis.report.domains._lookups import TeamRounds, cell_from_measures, measured_cell, role_facts
 from valostats.analysis.report.domains._players import player_art, role_label
 from valostats.analysis.report.foundation.art import weapon_art
-from valostats.analysis.report.foundation.cells import Metric, cell, mean, ratio
+from valostats.analysis.report.foundation.cells import Metric, cell, mean, ratio, versus_history
 from valostats.analysis.report.foundation.cohorts import FactKind, ReportCohort, ReportCohorts, SquadPlayer
 from valostats.analysis.report.foundation.table_builder import TableBuilder
 from valostats.constants.game import PISTOL_ROUNDS
@@ -105,18 +105,19 @@ def _buy_matrix(cohorts: ReportCohorts) -> StatTable:
         table.row(
             own.value,
             label,
-            {f"vs_{opp.value}": cell(cohorts, FactKind.ROUNDS, ratio(_won, _matchup(own, opp))) for opp, _ in BUYS},
+            {f"vs_{opp.value}": _matchup_cell(cohorts, own, opp) for opp, _ in BUYS},
         )
     return table.build()
 
 
 # Buying habits of a player: key, label, format, direction and glossary key; shared with the player sheet.
 HABITS: tuple[tuple[str, str, ValueFormat, int, str], ...] = (
-    ("loadout", "Valeur moyenne du loadout", ValueFormat.INTEGER, 0, "ecoLoadout"),
-    ("remaining", "Crédits restants en full buy", ValueFormat.INTEGER, -1, "ecoRemaining"),
+    ("loadout", "Valeur moyenne du loadout", ValueFormat.CREDITS, 0, "ecoLoadout"),
+    # Neutral: a big remainder can be a drop for a teammate as well as a missed buy.
+    ("remaining", "Crédits restants en full buy", ValueFormat.CREDITS, 0, "ecoRemaining"),
     ("mismatch", "Achat différent de l'équipe", ValueFormat.PERCENT, -1, "ecoBuyMismatch"),
     ("heavy", "Armure lourde en full buy", ValueFormat.PERCENT, 1, "ecoHeavyArmor"),
-    ("lost", "Valeur perdue par round perdu", ValueFormat.INTEGER, -1, "ecoLostValue"),
+    ("lost", "Valeur perdue par round perdu", ValueFormat.CREDITS, -1, "ecoLostValue"),
 )
 
 
@@ -141,7 +142,7 @@ def habit_metrics(team_rounds: TeamRounds) -> dict[str, Metric]:
         "mismatch": ratio(buys_apart, lambda p: team_buy(p) is not None),
         "heavy": ratio(lambda p: p.armor == HEAVY_ARMOR, in_full_buy),
         # Equipment lost: the loadout of a player who died in a lost round, 0 when he survived.
-        "lost": mean(lambda p: p.loadout if p.deaths else 0, lambda p: not p.won),
+        "lost": mean(lambda p: 0 if p.survived else p.loadout, lambda p: not p.won),
     }
 
 
@@ -190,7 +191,7 @@ def _by_round_type(cohorts: ReportCohorts, team_rounds: TeamRounds) -> StatTable
         TableBuilder("eco-round-types", "Achat selon le type de round", "Type de round", help="ecoRoundTypes")
         .column("buy", "Achat le plus fréquent", ValueFormat.TEXT, 0, help="ecoRoundTypes", min=0)
         .column("weapon", "Arme principale la plus jouée", ValueFormat.TEXT, 0, help="ecoWeaponClass", min=0)
-        .column("loadout", "Valeur moyenne du loadout", ValueFormat.INTEGER, 0, help="ecoTeamLoadout")
+        .column("loadout", "Valeur moyenne du loadout", ValueFormat.CREDITS, 0, help="ecoTeamLoadout")
         .column("rw", "Rounds gagnés", help="ecoRoundTypes")
     )
     weapon_classes = _weapon_classes_by_round_type(cohorts, team_rounds)
@@ -208,10 +209,22 @@ def _by_round_type(cohorts: ReportCohorts, team_rounds: TeamRounds) -> StatTable
                     {c: weapon_classes[c][key].total() for c in ReportCohort},
                 ),
                 "loadout": cell(cohorts, FactKind.ROUNDS, mean(lambda r: r.loadout, among)),
-                "rw": cell(cohorts, FactKind.ROUNDS, ratio(_won, among)),
+                "rw": _round_type_won(cohorts, key, among),
             },
         )
     return table.build()
+
+
+def _matchup_cell(cohorts: ReportCohorts, own: BuyType, opp: BuyType) -> StatCell:
+    won = cell(cohorts, FactKind.ROUNDS, ratio(_won, _matchup(own, opp)))
+    # Same buy on both sides: symmetric, top ranked always at 50 %.
+    return versus_history(won) if own is opp else won
+
+
+def _round_type_won(cohorts: ReportCohorts, key: str, among: RoundFilter) -> StatCell:
+    won = cell(cohorts, FactKind.ROUNDS, ratio(_won, among))
+    # Both teams play the pistol round: symmetric, top ranked always at 50 %.
+    return versus_history(won) if key == "pistol" else won
 
 
 def _weapon_classes_by_round_type(cohorts: ReportCohorts, team_rounds: TeamRounds) -> dict[ReportCohort, dict[str, Counter[str]]]:

@@ -34,3 +34,7 @@ MIN_SIDE_EVENTS = 15
 MIN_SITUATION_SAMPLE = 15
 MIN_SITUATION_SIDE_SAMPLE = 10
 MIN_CLUTCH_SAMPLE = 10
+
+# Orange band of the signed means, in their unit: rounds of score difference per match, players at the plant.
+SCORE_DIFF_BAND = 1.0
+PLANT_ADVANTAGE_BAND = 0.25

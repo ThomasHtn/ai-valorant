@@ -4,8 +4,7 @@ from collections import defaultdict
 from dataclasses import dataclass
 from typing import Any, Literal
 
-from valostats.analysis.extraction.henrik_payload import HenrikKill, HenrikMatch, alive_after, attacker
-from valostats.constants.game import BLUE, RED, TEAM_SIZE
+from valostats.analysis.extraction.henrik_payload import HenrikKill, HenrikMatch, alive_after, alive_at_start, attacker, played_rounds
 
 
 @dataclass(frozen=True, slots=True)
@@ -18,7 +17,7 @@ class TimelineEvent:
 
 @dataclass(frozen=True, slots=True)
 class RoundState:
-    """Situation right after an event; the first state of a round has no event (5v5 at 0 ms)."""
+    """Situation right after an event; the first state of a round has no event (5v5 at 0 ms, fewer after a disconnect)."""
 
     event: TimelineEvent | None
     alive: dict[str, int]
@@ -46,13 +45,14 @@ def round_timelines(match: HenrikMatch) -> dict[int, RoundTimeline]:
     for kill in match["kills"]:
         kills_by_round[kill["round"]].append(kill)
     timelines = {}
-    for rnd in match["rounds"]:
+    for rnd in played_rounds(match):
         events = [TimelineEvent("kill", k["time_in_round_in_ms"], k) for k in kills_by_round[rnd["id"]]]
         if rnd["plant"]:
             events.append(TimelineEvent("plant", rnd["plant"]["round_time_in_ms"], rnd["plant"]))
         # Stable sort: on a tie the kill stays before the plant.
         events.sort(key=lambda e: e.ms)
-        alive, planted = {RED: TEAM_SIZE, BLUE: TEAM_SIZE}, False
+        first_kill = next((e.data for e in events if e.kind == "kill"), None)
+        alive, planted = alive_at_start(first_kill), False
         states = [RoundState(None, dict(alive), planted)]
         for event in events:
             if event.kind == "plant":

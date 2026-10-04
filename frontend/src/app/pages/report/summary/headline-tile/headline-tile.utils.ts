@@ -1,7 +1,7 @@
 import { Reference } from '@core/common/enums.model';
-import { formatGap, formatValue, integer } from '@core/format/value-format.utils';
+import { displayedGap, formatGap, formatValue, integer } from '@core/format/value-format.utils';
 import { StatCell, StatColumn } from '@core/report/stat-table.model';
-import { cellTone, columnReference, referenceValue } from '@core/report/tone.utils';
+import { cellReference, cellTone, referenceValue } from '@core/report/tone.utils';
 
 import { HeadlineTile } from './headline-tile.model';
 
@@ -63,7 +63,7 @@ export function headlineTile(
   valueUnit: string | null,
 ): HeadlineTile {
   const value = typeof cell.v === 'number' ? cell.v : null;
-  const reference = columnReference(column, chosen);
+  const reference = cellReference(cell, column, chosen);
   const raw = reference ? referenceValue(cell, reference).value : null;
   const refValue = typeof raw === 'number' ? raw : null;
   const tone = cellTone(cell, column, chosen);
@@ -74,7 +74,7 @@ export function headlineTile(
   let delta: HeadlineTile['delta'] = null;
   let sentence = text;
   if (value !== null && refValue !== null && reference) {
-    const gap = value - refValue;
+    const gap = displayedGap(value, refValue, column.format);
     const gapText = formatGap(gap, column.format);
     const flat = !/[1-9]/.test(gapText);
     delta = { direction: flat ? 'flat' : gap > 0 ? 'up' : 'down', text: flat ? 'égal' : gapText };

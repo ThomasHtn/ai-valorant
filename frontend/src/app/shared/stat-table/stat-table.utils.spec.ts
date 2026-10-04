@@ -38,6 +38,25 @@ describe('stat table utils', () => {
     expect(sorted.map((r) => r.label)).toEqual(['Ascent', 'Split', 'Haven', 'Toutes']);
   });
 
+  it('sorts signed and ratio texts on their number', () => {
+    const text = (label: string, v: string): StatRow => ({
+      key: label,
+      label,
+      cells: { rw: { v } },
+    });
+    const rows = [
+      text('a', '-19'),
+      text('b', '−5'),
+      text('c', '+15'),
+      text('d', '+0'),
+      text('e', '+21'),
+    ];
+    const sorted = sortRows(rows, { key: 'rw', direction: -1 });
+    expect(sorted.map((r) => r.label)).toEqual(['e', 'c', 'd', 'b', 'a']);
+    const tries = [text('a', '9/12'), text('b', '25/42')];
+    expect(sortRows(tries, { key: 'rw', direction: -1 }).map((r) => r.label)).toEqual(['b', 'a']);
+  });
+
   it('cycles the sort descending, ascending, then none', () => {
     expect(nextSort(null, 'rw')).toEqual({ key: 'rw', direction: -1 });
     expect(nextSort({ key: 'rw', direction: -1 }, 'rw')).toEqual({ key: 'rw', direction: 1 });

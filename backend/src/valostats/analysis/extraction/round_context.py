@@ -2,7 +2,7 @@
 
 from dataclasses import dataclass
 
-from valostats.analysis.extraction.henrik_payload import HenrikMatch, other_team
+from valostats.analysis.extraction.henrik_payload import HenrikMatch, other_team, played_rounds
 from valostats.constants.game import HALF_LENGTH, OVERTIME_START, TEAMS
 
 
@@ -20,7 +20,7 @@ class RoundContext:
 
 def round_contexts(match: HenrikMatch) -> dict[tuple[int, str], RoundContext]:
     """Context of every round for both teams, keyed by (round index, team id)."""
-    winners = {rnd["id"]: rnd["winning_team"] for rnd in match["rounds"]}
+    winners = {rnd["id"]: rnd["winning_team"] for rnd in played_rounds(match)}
     contexts: dict[tuple[int, str], RoundContext] = {}
     won = dict.fromkeys(TEAMS, 0)
     losses_in_row = dict.fromkeys(TEAMS, 0)

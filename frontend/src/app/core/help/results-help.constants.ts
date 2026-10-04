@@ -34,7 +34,7 @@ export const RESULTS_HELP: Readonly<Record<string, StatHelp>> = {
     title: 'Types de round',
     what: "Rounds gagnés selon l'achat de l'escouade et le moment du match.",
     how: "Eco : valeur moyenne de l'équipement sous 1 500 crédits. Full buy : 3 700 crédits ou plus. Force buy : entre les deux. R3 bonus : round 3 ou 15 après avoir gagné le pistol et le R2.",
-    read: "Le bonus round se joue souvent en force buy contre une équipe qui eco : le top ranked le gagne près d'une fois sur deux.",
+    read: "Le bonus round se joue souvent en force buy contre une équipe qui eco : le top ranked le gagne près d'une fois sur deux. Pistol et full buy contre full buy se jouent à armes égales : ces deux lignes sont comparées à l'historique.",
   },
   roundContext: {
     title: 'Déroulé du match',

@@ -30,6 +30,12 @@ describe('tone utils', () => {
     expect(cellTone({ v: 230, top: 200 }, mean, 'top')).toBe('good');
   });
 
+  it('uses the absolute band of a signed mean around 0', () => {
+    const diff: StatColumn = { ...mean, format: 'dec1', band: 1 };
+    expect(cellTone({ v: 0.03, top: -0.07 }, diff, 'top')).toBe('avg');
+    expect(cellTone({ v: -4.4, top: -0.07 }, diff, 'top')).toBe('bad');
+  });
+
   it('follows the direction of the column', () => {
     const deaths: StatColumn = { ...rate, better: -1 };
     expect(cellTone({ v: 0.4, n: 100, top: 0.48 }, deaths, 'top')).toBe('good');
@@ -39,11 +45,31 @@ describe('tone utils', () => {
     expect(cellTone({ v: 0.2, n: 6, top: 0.5 }, rate, 'top')).toBe('small');
   });
 
+  it('greys a cell whose reference is under the minimum sample', () => {
+    expect(cellTone({ v: 0.3, n: 100, opp: 0.67, oppN: 3 }, rate, 'opp')).toBe('small');
+    expect(cellTone({ v: 0.3, n: 100, opp: 0.67, oppN: 30 }, rate, 'opp')).toBe('bad');
+  });
+
   it('uses the chosen reference, or the forced history', () => {
     const cell = { v: 0.5, n: 100, top: 0.5, opp: 0.6, hist: 0.4 };
     expect(cellTone(cell, rate, 'opp')).toBe('bad');
     expect(cellTone(cell, { ...rate, ref: 'hist' }, 'opp')).toBe('good');
     expect(columnReference({ ...rate, ref: 'none' }, 'top')).toBeNull();
+  });
+
+  it('judges a symmetric cell against the history whatever the chosen reference', () => {
+    const pistols = {
+      v: 0.39,
+      n: 54,
+      top: 0.5,
+      topN: 9000,
+      hist: 0.45,
+      histN: 200,
+      ref: 'hist' as const,
+    };
+    expect(cellTone(pistols, rate, 'top')).toBe('bad');
+    expect(cellTone({ ...pistols, hist: 0.38 }, rate, 'top')).toBe('avg');
+    expect(cellTone(pistols, { ...rate, ref: 'none' }, 'top')).toBeNull();
   });
 
   it('leaves text, neutral columns and missing references uncoloured', () => {

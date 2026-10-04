@@ -1,5 +1,5 @@
 import { formatGap } from '@core/format/value-format.utils';
-import { twoProportionPValue } from '@core/report/proportion-test.utils';
+import { halfPValue, twoProportionPValue } from '@core/report/proportion-test.utils';
 import { DomainTables, StatCell, StatColumn, StatRow } from '@core/report/stat-table.model';
 
 import { MAX_ROWS_PER_TABLE, SIGNIFICANCE_LEVEL, SORTED_GROUP_TITLE } from './compare.constants';
@@ -25,10 +25,17 @@ export function cohortValue(cell: StatCell | undefined, cohort: CompareCohort): 
 }
 
 /**
- * Gap A - B of one metric. A rate gap is tested (two-proportion z-test) and stays grey when it can
- * come from chance; a mean has no test here and stays grey.
+ * Gap A - B of one metric. A rate gap is tested (z-test, Fisher on small samples) and stays grey when
+ * it can come from chance; a mean, or a rate that is not a share of its sample, has no test and stays
+ * grey. On a `mirror` measure (squad against its opponents on a symmetric stat) the opponents' rate is
+ * 1 minus the squad's: the squad's rate is tested against 50 % instead.
  */
-export function compareGap(a: CompareValue, b: CompareValue, column: StatColumn): CompareGap {
+export function compareGap(
+  a: CompareValue,
+  b: CompareValue,
+  column: StatColumn,
+  mirror = false,
+): CompareGap {
   if (typeof a.value !== 'number' || typeof b.value !== 'number') {
     return { text: '—', tone: 'ns', tip: 'Pas de valeur à comparer.' };
   }
@@ -37,8 +44,13 @@ export function compareGap(a: CompareValue, b: CompareValue, column: StatColumn)
   if (column.format !== 'pct') {
     return { text, tone: 'ns', tip: 'Moyenne : pas de test sur cet écart.' };
   }
-  const significant =
-    twoProportionPValue(a.value, a.sample, b.value, b.sample) < SIGNIFICANCE_LEVEL;
+  if (column.proportion === false) {
+    return { text, tone: 'ns', tip: "Taux qui n'est pas une part de l'échantillon : pas de test." };
+  }
+  const pValue = mirror
+    ? halfPValue(a.value, a.sample)
+    : twoProportionPValue(a.value, a.sample, b.value, b.sample);
+  const significant = pValue < SIGNIFICANCE_LEVEL;
   if (!significant || column.better === 0) {
     return {
       text,
@@ -55,11 +67,9 @@ export function compareGap(a: CompareValue, b: CompareValue, column: StatColumn)
   };
 }
 
-/** Columns worth comparing: coloured ones, not counts nor texts. */
+/** Columns worth comparing: figures with a reference (counts have none), not texts. */
 function comparableColumns(columns: StatColumn[]): StatColumn[] {
-  return columns.filter(
-    (c) => c.ref !== 'none' && c.format !== 'text' && c.format !== 'record' && c.format !== 'int',
-  );
+  return columns.filter((c) => c.ref !== 'none' && c.format !== 'text' && c.format !== 'record');
 }
 
 function line(
@@ -68,6 +78,7 @@ function line(
   column: StatColumn,
   a: CompareValue,
   b: CompareValue,
+  mirror = false,
 ): CompareLine {
   return {
     // Table id first: once every table is mixed in one list, keys stay unique.
@@ -80,7 +91,7 @@ function line(
     format: column.format,
     a,
     b,
-    gap: compareGap(a, b, column),
+    gap: compareGap(a, b, column, mirror),
   };
 }
 
@@ -105,10 +116,12 @@ export function teamGroups(
     const lines: CompareLine[] = [];
     for (const row of rows) {
       for (const column of columns) {
-        const va = cohortValue(row.cells[column.key], a);
-        const vb = cohortValue(row.cells[column.key], b);
+        const cell = row.cells[column.key];
+        const va = cohortValue(cell, a);
+        const vb = cohortValue(cell, b);
         if (va.value !== null || vb.value !== null) {
-          lines.push(line(table, row, column, va, vb));
+          const symmetric = column.ref === 'hist' || cell?.ref === 'hist';
+          lines.push(line(table, row, column, va, vb, symmetric && isSquadAgainstOpponents(a, b)));
         }
       }
     }
@@ -117,6 +130,11 @@ export function teamGroups(
     }
   }
   return groups;
+}
+
+/** The squad against its own opponents: on a symmetric stat, one rate is the mirror of the other. */
+function isSquadAgainstOpponents(a: CompareCohort, b: CompareCohort): boolean {
+  return (a === 'squad' && b === 'opp') || (a === 'opp' && b === 'squad');
 }
 
 /** Row of a player in a table: his own row, or his first 'Player · Agent' row. */

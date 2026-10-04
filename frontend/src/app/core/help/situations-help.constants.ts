@@ -12,7 +12,7 @@ export const SITUATIONS_HELP: Readonly<Record<string, StatHelp>> = {
     title: 'Rounds gagnés par situation',
     what: "Part des rounds gagnés quand l'escouade passe par cette situation.",
     how: "Rounds gagnés parmi les rounds où l'escouade a X vivants contre Y adversaires à un moment du round. Vivants comptés à chaque kill (les résurrections sont prises en compte).",
-    read: 'Comparer au top ranked : un 5v4 se gagne environ 7 fois sur 10.',
+    read: "Comparer au top ranked : un 5v4 se gagne environ 7 fois sur 10. Les situations à égalité (3v3) sont comparées à l'historique : le top ranked y est toujours à 50 %.",
   },
   reachPlus2: {
     title: 'Rounds avec +2 joueurs',
@@ -57,6 +57,6 @@ export const SITUATIONS_HELP: Readonly<Record<string, StatHelp>> = {
     title: 'Matrice des vivants',
     what: 'Part des rounds gagnés selon le nombre de joueurs vivants de chaque côté.',
     how: 'Pour chaque situation X vivants contre Y adversaires, rounds gagnés parmi les rounds qui passent par cette situation.',
-    read: 'La case 5 contre 5 est le taux de rounds gagnés global.',
+    read: "La case 5 contre 5 est le taux de rounds gagnés global. Les cases à égalité sont comparées à l'historique.",
   },
 };

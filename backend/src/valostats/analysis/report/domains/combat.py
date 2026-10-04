@@ -52,17 +52,17 @@ def _by_player(cohorts: ReportCohorts, facts: PlayerFacts) -> StatTable:
         TableBuilder("combat-players", "Combat par joueur", "Joueur", help="acs", note="Référence top ranked : joueurs du même rôle.")
         .count_column("matches", "Matchs")
         .count_column("rounds", "Rounds")
-        .column("acs", "ACS", ValueFormat.DECIMAL_1, help="acs", min=MIN_PLAYER_ROUNDS)
+        .column("acs", "ACS", ValueFormat.INTEGER, help="acs", min=MIN_PLAYER_ROUNDS)
         .column("kd", "K/D", per_round, help="kd", min=MIN_PLAYER_ROUNDS)
         .column("kpr", "Kills / round", per_round, help="killsPerRound", min=MIN_PLAYER_ROUNDS)
         .column("dpr", "Morts / round", per_round, -1, help="deathsPerRound", min=MIN_PLAYER_ROUNDS)
         .column("apr", "Assists / round", per_round, help="assistsPerRound", min=MIN_PLAYER_ROUNDS)
-        .column("adr", "ADR", ValueFormat.DECIMAL_1, help="adr", min=MIN_PLAYER_ROUNDS)
+        .column("adr", "ADR", ValueFormat.INTEGER, help="adr", min=MIN_PLAYER_ROUNDS)
         .column("dtr", "Dégâts subis / round", ValueFormat.DECIMAL_1, -1, help="damageTakenPerRound", min=MIN_PLAYER_ROUNDS)
         .column("eff", "Efficacité des dégâts", per_round, help="damageEfficiency", min=MIN_PLAYER_ROUNDS)
         .column("kast", "KAST", help="kast", min=MIN_PLAYER_ROUNDS)
-        .column("hs", "HS %", help="headshotRate", min=MIN_PLAYER_ROUNDS)
-        .column("hsIn", "HS subis %", better=-1, help="headshotTakenRate", min=MIN_PLAYER_ROUNDS)
+        .column("hs", "HS %", help="headshotRate", min=MIN_PLAYER_ROUNDS, proportion=False)
+        .column("hsIn", "HS subis %", better=-1, help="headshotTakenRate", min=MIN_PLAYER_ROUNDS, proportion=False)
         .column("zero", "Morts à 0 dégât", better=-1, help="zeroDamageDeaths", min=MIN_PLAYER_DEATHS)
         .column("surv", "Survie", help="survival", min=MIN_PLAYER_ROUNDS)
         .column("kdis", "Kills en infériorité / round", per_round, help="killsOutnumbered", min=MIN_PLAYER_ROUNDS)
@@ -99,9 +99,9 @@ def _by_player(cohorts: ReportCohorts, facts: PlayerFacts) -> StatTable:
 
 
 def acs_spread(matches: Sequence[PlayerMatchFact]) -> tuple[float | None, int]:
-    """Standard deviation of the ACS from one match to another (None under the minimum of matches)."""
+    """Sample standard deviation (n - 1) of the ACS per match, so 5-match top players compare with 25-match ones; None under the minimum."""
     acs = [m.score / m.rounds for m in matches if m.rounds]
-    return (statistics.pstdev(acs), len(acs)) if len(acs) >= MIN_CONSISTENCY_MATCHES else (None, len(acs))
+    return (statistics.stdev(acs), len(acs)) if len(acs) >= MIN_CONSISTENCY_MATCHES else (None, len(acs))
 
 
 def _top_consistency(cohorts: ReportCohorts) -> dict[str, tuple[float | None, int]]:
@@ -193,11 +193,11 @@ def _face_to_face(cohorts: ReportCohorts) -> StatTable:
 def _by_map(cohorts: ReportCohorts) -> StatTable:
     table = (
         TableBuilder("combat-maps", "Combat par carte", "Carte", help="acs")
-        .column("acs", "ACS", ValueFormat.DECIMAL_1, help="acs", min=MIN_PLAYER_ROUNDS)
+        .column("acs", "ACS", ValueFormat.INTEGER, help="acs", min=MIN_PLAYER_ROUNDS)
         .column("kd", "K/D", ValueFormat.DECIMAL_2, help="kd", min=MIN_PLAYER_ROUNDS)
-        .column("adr", "ADR", ValueFormat.DECIMAL_1, help="adr", min=MIN_PLAYER_ROUNDS)
+        .column("adr", "ADR", ValueFormat.INTEGER, help="adr", min=MIN_PLAYER_ROUNDS)
         .column("kast", "KAST", help="kast", min=MIN_PLAYER_ROUNDS)
-        .column("hs", "HS %", help="headshotRate", min=MIN_PLAYER_ROUNDS)
+        .column("hs", "HS %", help="headshotRate", min=MIN_PLAYER_ROUNDS, proportion=False)
         .column("zero", "Morts à 0 dégât", better=-1, help="zeroDamageDeaths", min=MIN_PLAYER_DEATHS)
     )
 

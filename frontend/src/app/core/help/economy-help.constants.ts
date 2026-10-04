@@ -12,7 +12,7 @@ export const ECONOMY_HELP: Readonly<Record<string, StatHelp>> = {
     title: 'Rounds gagnés selon les deux achats',
     what: 'Le taux de victoire selon votre achat et celui des adversaires.',
     how: "Rounds gagnés divisés par les rounds joués pour chaque couple achat de l'équipe et achat adverse (eco, force buy, full buy, mêmes seuils que la répartition). Pistols exclus.",
-    read: 'Un eco gagné contre un full buy est un gros bonus; un full buy perdu contre un eco est un throw.',
+    read: "Un eco gagné contre un full buy est un gros bonus; un full buy perdu contre un eco est un throw. Les cases à achat égal sont comparées à l'historique : le top ranked y est toujours à 50 %.",
   },
   ecoBuyMismatch: {
     title: "Achat différent de l'équipe",
@@ -52,6 +52,7 @@ export const ECONOMY_HELP: Readonly<Record<string, StatHelp>> = {
     title: 'Achat selon le type de round',
     what: "Ce que l'escouade achète et gagne selon la situation économique.",
     how: 'Achat le plus fréquent avec sa part, et rounds gagnés. Les lignes après 1 ou 2 rounds perdus excluent les pistols, les rounds 2 et 3 de chaque mi-temps et les prolongations. R3 bonus: pistol et R2 gagnés.',
+    read: "La ligne Pistol est comparée à l'historique : le top ranked y est toujours à 50 %.",
   },
   ecoTeamLoadout: {
     title: 'Valeur moyenne du loadout',

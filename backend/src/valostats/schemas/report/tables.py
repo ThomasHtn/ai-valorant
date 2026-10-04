@@ -56,6 +56,8 @@ class StatCell(ApiModel):
     opp_n: int | None = None
     hist: CellValue = None
     hist_n: int | None = None
+    # Forces the squad history as reference for a symmetric cell (top ranked 50 %, opponents the mirror).
+    ref: Reference | None = None
 
 
 class StatColumn(ApiModel):
@@ -70,6 +72,10 @@ class StatColumn(ApiModel):
     min: int = 0
     # Reference used for the colour; NONE for plain counts. TOP follows the analyst's choice of reference.
     ref: Reference = Reference.TOP
+    # False for a rate that is not a share of the cell's sample (HS % over hits, share of time): never tested.
+    proportion: bool = True
+    # Absolute gap under which a mean is orange, for signed means around 0 where 5 % means nothing.
+    band: float | None = None
 
 
 class StatRow(ApiModel):

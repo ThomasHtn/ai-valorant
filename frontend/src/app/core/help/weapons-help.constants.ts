@@ -52,7 +52,7 @@ export const WEAPONS_HELP: Readonly<Record<string, StatHelp>> = {
   weaponPlayerKd: {
     title: "K/D avec l'arme",
     what: 'Combien de kills le joueur fait pour chaque mort quand il joue cette arme.',
-    how: "Kills avec l'arme divisés par les morts sur les rounds où le joueur a cette arme en main à la fin de la phase d'achat. Référence top ranked: joueurs du même rôle.",
+    how: "Kills avec l'arme divisés par les morts, les deux comptés sur les rounds où le joueur a acheté cette arme (en main à la fin de la phase d'achat). Une arme ramassée ou le Classic gardé en arme secondaire ne comptent pas. Référence top ranked: joueurs du même rôle.",
     read: "Au-dessus de 1, le joueur gagne plus de duels qu'il n'en perd avec cette arme.",
   },
   weaponSecondary: {

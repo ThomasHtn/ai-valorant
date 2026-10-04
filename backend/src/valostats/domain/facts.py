@@ -114,8 +114,8 @@ class RoundFact:
 
     @property
     def flawless(self) -> bool:
-        """Won without losing a player."""
-        return self.won and self.alive_end == 5
+        """Won without losing a player, even one revived later: the team's alive count never moved."""
+        return self.won and len({state.split("v")[0] for state in self.states}) == 1
 
 
 @dataclass(frozen=True, slots=True)

@@ -1,5 +1,5 @@
 import { clock, freshness, longDay, monthTitle, roundLabel, shortDay } from './format.utils';
-import { formatGap, formatValue } from './value-format.utils';
+import { displayedGap, formatGap, formatValue } from './value-format.utils';
 
 describe('format utils', () => {
   it('names a day in French without shifting it across timezones', () => {
@@ -25,6 +25,7 @@ describe('value format utils', () => {
     expect(formatValue(1.2567, 'dec2')).toBe('1,26');
     expect(formatValue(-2.66, 'dec1')).toBe('-2,7');
     expect(formatValue(14.2, 'sec')).toBe('14 s');
+    expect(formatValue(1.3195, 'sec')).toBe('1,3 s');
     expect(formatValue(16.4, 'm')).toBe('16 m');
     expect(formatValue(2300, 'cr')).toBe('2 300 crédits');
     expect(formatValue('12-15', 'text')).toBe('12-15');
@@ -43,5 +44,13 @@ describe('value format utils', () => {
     expect(formatGap(0.01, 'pct')).toBe('+1\u202fpt');
     expect(formatGap(-0.02, 'pct')).toBe('−2\u202fpts');
     expect(formatGap(-0.04, 'dec1')).toBe('0,0');
+  });
+});
+
+describe('displayedGap', () => {
+  it('is the gap of the values as written', () => {
+    expect(formatGap(displayedGap(0.4852, 0.4811, 'pct'), 'pct')).toBe('+1 pt');
+    expect(formatGap(displayedGap(0.4849, 0.4811, 'pct'), 'pct')).toBe('0 pt');
+    expect(displayedGap(109.74, 109.66, 'int')).toBe(0);
   });
 });

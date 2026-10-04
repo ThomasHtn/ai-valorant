@@ -14,6 +14,9 @@ const TWO_DECIMALS = new Intl.NumberFormat('fr-FR', {
   maximumFractionDigits: 2,
 });
 
+/** Under this many seconds a time keeps one decimal ('1,3 s'); above it, whole seconds ('14 s'). */
+const SECONDS_WITH_TENTHS = 10;
+
 /** Formats a whole number the French way ('1 741'). */
 export function integer(value: number): string {
   return INTEGER.format(value);
@@ -41,7 +44,8 @@ export function formatValue(
     case 'dec2':
       return TWO_DECIMALS.format(value);
     case 'sec':
-      return `${INTEGER.format(value)}${UNIT_SPACE}s`;
+      // Short times (revenge delay, 1 to 3 s) need the tenth to tell players apart.
+      return `${(Math.abs(value) < SECONDS_WITH_TENTHS ? ONE_DECIMAL : INTEGER).format(value)}${UNIT_SPACE}s`;
     case 'm':
       return `${INTEGER.format(value)}${UNIT_SPACE}m`;
     case 'cr':
@@ -51,6 +55,21 @@ export function formatValue(
     default:
       return Number.isInteger(value) ? INTEGER.format(value) : TWO_DECIMALS.format(value);
   }
+}
+
+/** Gap between two values as written: '49 %' against '48 %' is 1 point, even from 0.4852 and 0.4811. */
+export function displayedGap(value: number, reference: number, format: ValueFormat): number {
+  return asShown(value, format) - asShown(reference, format);
+}
+
+function asShown(value: number, format: ValueFormat): number {
+  const decimals =
+    format === 'pct' || format === 'dec2'
+      ? 2
+      : format === 'dec1' || (format === 'sec' && Math.abs(value) < SECONDS_WITH_TENTHS)
+        ? 1
+        : 0;
+  return Number(value.toFixed(decimals));
 }
 
 /**

@@ -6,3 +6,5 @@ FDR_Q = 0.10
 LEAD_P_VALUE = 0.05
 # Under this expected count in a cell, proportions are compared with Fisher's exact test instead of a z-test.
 MIN_EXPECTED_COUNT = 5
+# Matches (or player-matches) needed to estimate how alike the rounds of one match are; under it, no correction.
+MIN_ICC_GROUPS = 10

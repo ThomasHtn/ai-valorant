@@ -95,6 +95,21 @@ describe('compareGap', () => {
       '—',
     );
   });
+
+  it('tests a mirror measure against 50 %, not as two independent rates', () => {
+    // 305 of 576 against the opponents' 271 of 576 on the same rounds.
+    const squad = { value: 305 / 576, sample: 576 };
+    const opp = { value: 271 / 576, sample: 576 };
+    expect(compareGap(squad, opp, rate).tone).toBe('good');
+    expect(compareGap(squad, opp, rate, true).tone).toBe('ns');
+  });
+
+  it('never tests a rate that is not a share of its sample', () => {
+    const hs = { ...rate, proportion: false };
+    expect(compareGap({ value: 0.3, sample: 500 }, { value: 0.2, sample: 500 }, hs).tone).toBe(
+      'ns',
+    );
+  });
 });
 
 describe('teamGroups', () => {

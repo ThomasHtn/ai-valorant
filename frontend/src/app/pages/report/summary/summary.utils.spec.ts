@@ -99,6 +99,22 @@ describe('headlineTiles', () => {
 });
 
 describe('priorityItems', () => {
+  it('lists confirmed gaps before leads, a subject led by its biggest confirmed gap', () => {
+    const items = priorityItems(
+      [
+        finding({ scope: 'Split', gapRounds: -11 }),
+        finding({ scope: 'Lotus', mapName: 'Lotus', gapRounds: -9, status: 'confirmed' }),
+        finding({ scope: 'Lotus', mapName: 'Lotus', metric: 'Retake gagné', gapRounds: -10 }),
+      ],
+      'weak',
+      5,
+    );
+    expect(items.map((i) => [i.scope, i.gapRounds, i.confirmed])).toEqual([
+      ['Lotus', -9, true],
+      ['Split', -11, false],
+    ]);
+  });
+
   it('ranks subjects by rounds at stake and writes the gap against the tested reference', () => {
     const lotus = { scope: 'Lotus', mapName: 'Lotus', reference: 'opp' as const };
     const items = priorityItems(

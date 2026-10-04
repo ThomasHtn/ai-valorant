@@ -7,7 +7,8 @@ Each test compares a squad proportion with one reference:
   mirror of the squad's (their post-plant = 1 - our retake), so testing against them would only
   duplicate each finding.
 
-Steps: two-proportion test (Fisher for small samples), Benjamini-Hochberg over every test of the period,
+Steps: two-proportion test (Fisher for small samples) on effective samples (rounds of one match are
+alike: see `statistics/clustering.py`), Benjamini-Hochberg over every test of the period,
 then "confirmed" (passes the correction) or "lead" (p < LEAD_P_VALUE alone). The gap is converted into
 rounds: (squad rate - reference rate) x squad sample x leverage, the leverage being the event's weight
 on the round measured in top ranked, P(won | event) - P(won | no event), or 1 when the metric is the
@@ -15,7 +16,7 @@ round result itself. Findings with less than MIN_GAP_ROUNDS at stake are dropped
 """
 
 from collections import Counter
-from collections.abc import Sequence
+from collections.abc import Callable, Hashable, Sequence
 from dataclasses import dataclass
 from typing import Any
 
@@ -24,10 +25,17 @@ from valostats.analysis.report.insights.finding_catalogue import finding_catalog
 from valostats.analysis.report.insights.finding_tests import UNIT_KIND, FindingTest, Predicate, Unit
 from valostats.analysis.report.insights.rewatch import rewatch_rounds
 from valostats.analysis.report.rounds.loss_causes import loss_cause
+from valostats.analysis.statistics.clustering import effective_counts, group_counts, intraclass_correlation
 from valostats.analysis.statistics.proportions import benjamini_hochberg, proportions_p_value
 from valostats.constants.agents import role_of
 from valostats.constants.analysis import FDR_Q, LEAD_P_VALUE
-from valostats.constants.findings import KAST_MAX_LEVERAGE, MIN_FINDING_SAMPLE, MIN_GAP_ROUNDS, THIRD_ROUNDS
+from valostats.constants.findings import (
+    MIN_FINDING_SAMPLE,
+    MIN_GAP_ROUNDS,
+    OUTCOME_LINKED_KINDS,
+    OUTCOME_LINKED_MAX_LEVERAGE,
+    THIRD_ROUNDS,
+)
 from valostats.domain.enums import FindingStatus, LossCause, Reference
 from valostats.domain.facts import RoundFact
 from valostats.schemas.common import Rate
@@ -60,6 +68,7 @@ class FindingContext:
                 self._round_won[(fact.match_id, fact.round_index, fact.team_id)] = fact.won
         self._slices: dict[tuple[Any, ...], Sequence[Any]] = {}
         self._leverages: dict[tuple[Unit, str, str], float] = {}
+        self._correlations: dict[tuple[Any, ...], float] = {}
 
     def won(self, unit: Unit, fact: Any) -> bool:
         """Whether the round of the fact was won by the fact's team (the victim's team for a death)."""
@@ -87,8 +96,31 @@ class FindingContext:
             no = [self.won(test.unit, f) for f in base if not test.success(f)]
             self._leverages[key] = sum(yes) / len(yes) - sum(no) / len(no) if yes and no else 0.0
         leverage = self._leverages[key]
-        # KAST is partly a consequence of winning (you survive the rounds you win): cap its weight.
-        return min(leverage, KAST_MAX_LEVERAGE) if test.kind == "kast" else leverage
+        # KAST and revenge are partly a consequence of winning: cap their weight.
+        return min(leverage, OUTCOME_LINKED_MAX_LEVERAGE) if test.kind in OUTCOME_LINKED_KINDS else leverage
+
+    def effective(self, test: FindingTest, cohort: ReportCohort, rate: Rate, base: Sequence[Any]) -> tuple[int, int]:
+        """The rate's counts scaled down to the independent tries they are worth, given how alike one match's facts are."""
+        group = match_group(test)
+        return effective_counts(rate.count, rate.total, len({group(f) for f in base}), self.correlation(test, cohort))
+
+    def correlation(self, test: FindingTest, cohort: ReportCohort) -> float:
+        """Intraclass correlation of the metric, estimated on every match of the source, memoised.
+
+        The squad's is measured on its whole history up to the period (more matches, steadier) and serves
+        its opponents too (same matches, same game); top ranked has its own.
+        """
+        source = ReportCohort.TOP if cohort is ReportCohort.TOP else ReportCohort.SQUAD
+        key = (test.unit, test.success, test.among, test.player is not None, source)
+        if key not in self._correlations:
+            kind = UNIT_KIND[test.unit]
+            if source is ReportCohort.TOP:
+                facts = self.cohorts.select(kind, ReportCohort.TOP)
+            else:
+                facts = [*self.cohorts.select(kind, ReportCohort.SQUAD), *self.cohorts.select(kind, ReportCohort.HISTORY)]
+            base = [f for f in facts if test.among(f)]
+            self._correlations[key] = intraclass_correlation(group_counts(base, test.success, match_group(test)))
+        return self._correlations[key]
 
     def _slice(self, test: FindingTest, cohort: ReportCohort, role: str | None, name: str | None) -> Sequence[Any]:
         side_field = "victim_side" if test.unit is Unit.DEATHS else "side"
@@ -113,6 +145,14 @@ class FindingContext:
         return role_of(fact.agent)
 
 
+def match_group(test: FindingTest) -> Callable[[Any], Hashable]:
+    """What one match's facts share: the match for a team test, the player in the match for a player test."""
+    if test.player is None:
+        return lambda f: f.match_id
+    field = "victim" if test.unit is Unit.DEATHS else "name"
+    return lambda f: (f.match_id, getattr(f, field))
+
+
 def proportion(facts: Sequence[Any], success: Predicate, among: Predicate) -> tuple[Rate, list[Any]]:
     """The rate of `success` among the facts passing `among`, and that base."""
     base = [f for f in facts if among(f)]
@@ -124,14 +164,18 @@ def run_test(test: FindingTest, context: FindingContext) -> Tested | None:
     squad, base = proportion(context.facts(test, ReportCohort.SQUAD), test.success, test.among)
     if squad.total < MIN_FINDING_SAMPLE:
         return None
-    opp, _ = proportion(context.facts(test, ReportCohort.OPPONENTS), test.success, test.among)
-    top, _ = proportion(context.facts(test, ReportCohort.TOP), test.success, test.among)
-    reference = opp if test.reference is Reference.OPPONENTS else top
+    opp, opp_base = proportion(context.facts(test, ReportCohort.OPPONENTS), test.success, test.among)
+    top, top_base = proportion(context.facts(test, ReportCohort.TOP), test.success, test.among)
+    reference_cohort = ReportCohort.OPPONENTS if test.reference is Reference.OPPONENTS else ReportCohort.TOP
+    reference, reference_base = (opp, opp_base) if reference_cohort is ReportCohort.OPPONENTS else (top, top_base)
     if not reference.total or squad.value is None or reference.value is None:
         return None
     leverage = context.leverage(test)
     gap = (squad.value - reference.value) * squad.total * leverage
-    p_value = proportions_p_value(squad.count, squad.total, reference.count, reference.total)
+    p_value = proportions_p_value(
+        *context.effective(test, ReportCohort.SQUAD, squad, base),
+        *context.effective(test, reference_cohort, reference, reference_base),
+    )
     # Rounds to rewatch: the facts that pushed the gap in the finding's direction.
     event_helps = leverage >= 0
     show_event = (gap > 0) == event_helps

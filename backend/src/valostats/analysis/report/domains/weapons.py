@@ -82,7 +82,7 @@ def _by_weapon(cohorts: ReportCohorts, kills: dict[ReportCohort, list[KillFact]]
         TableBuilder("weapons-list", "Kills et morts par arme", "Arme", help="weaponKillShare")
         .column("kills", "Part des kills", better=0, help="weaponKillShare")
         .column("deaths", "Part des morts subies", better=0, help="weaponDeathShare")
-        .column("hs", "HS % (rounds avec l'arme)", help="weaponHs")
+        .column("hs", "HS % (rounds avec l'arme)", help="weaponHs", proportion=False)
         .column("dist", "Distance médiane des kills", ValueFormat.METRES, 0, help="weaponDistance", min=MIN_WEAPON_SAMPLE)
         .column("won", "Rounds gagnés avec l'arme", help="weaponRoundsWon")
     )
@@ -195,11 +195,13 @@ def _by_player_weapon(cohorts: ReportCohorts, by_role: KillsByRole) -> StatTable
 
 
 def _kd_cell(kills_with: dict[ReportCohort, Sequence[KillFact]], held: dict[ReportCohort, Sequence[PlayerRoundFact]]) -> StatCell:
-    """Kills with the weapon divided by deaths while holding it; the sample is the rounds held."""
+    """Kills with the weapon over deaths, both on the rounds it was bought (not picked up, not a sidearm); sample: those rounds."""
 
     def kd(cohort: ReportCohort) -> Measure:
+        rounds = {(p.match_id, p.round_index, p.puuid) for p in held[cohort]}
+        kills = sum((k.match_id, k.round_index, k.killer_puuid) in rounds for k in kills_with[cohort])
         deaths = sum(p.deaths for p in held[cohort])
-        return (len(kills_with[cohort]) / deaths if deaths else None), len(held[cohort])
+        return (kills / deaths if deaths else None), len(held[cohort])
 
     return cell_from_measures({cohort: kd(cohort) for cohort in held})
 

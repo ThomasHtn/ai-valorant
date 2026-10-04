@@ -213,7 +213,7 @@ def _ranks(cohorts: ReportCohorts) -> StatTable:
     table = (
         TableBuilder("context-ranks", "Rangs des joueurs", "Joueur", help="ranks")
         .column("first", "Rang en début de période", ValueFormat.TEXT, 0, ref=Reference.NONE, min=0)
-        .column("current", "Rang actuel", ValueFormat.TEXT, 0, ref=Reference.NONE, min=0)
+        .column("current", "Rang en fin de période", ValueFormat.TEXT, 0, ref=Reference.NONE, min=0)
         .column("opp", "Rang moyen des adversaires", ValueFormat.TEXT, 0, help="ranks", ref=Reference.NONE, min=0)
         .count_column("matches", "Matchs")
     )

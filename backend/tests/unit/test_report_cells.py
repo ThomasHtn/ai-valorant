@@ -144,4 +144,5 @@ def test_table_builder() -> None:
         "oppN": None,
         "hist": None,
         "histN": None,
+        "ref": None,
     }

@@ -5,7 +5,7 @@ from typing import Any
 
 from valostats.analysis.extraction.context import MatchContext
 from valostats.analysis.extraction.economy import buy_type
-from valostats.analysis.extraction.henrik_payload import location, other_team
+from valostats.analysis.extraction.henrik_payload import location, opening_index, other_team, played_rounds
 from valostats.analysis.extraction.revenge import revenge_pairs
 from valostats.analysis.extraction.round_context import RoundContext, round_contexts
 from valostats.analysis.extraction.timeline import RoundTimeline, round_timelines
@@ -21,7 +21,7 @@ def extract_rounds(contexts: Iterable[MatchContext]) -> list[RoundFact]:
         timelines = round_timelines(ctx.match)
         contexts_by_round = round_contexts(ctx.match)
         team_won = {t["team_id"]: t["won"] for t in ctx.match["teams"]}
-        for rnd in ctx.match["rounds"]:
+        for rnd in played_rounds(ctx.match):
             loadouts = {team: [s["economy"]["loadout_value"] or 0 for s in rnd["stats"] if s["player"]["team"] == team] for team in TEAMS}
             if any(len(values) < TEAM_SIZE for values in loadouts.values()):
                 continue
@@ -50,7 +50,10 @@ def _round_fact(
     advantages = [state.alive[team] - state.alive[other] for state in timeline.states]
     at_plant = next((s.alive for s in timeline.states if s.event and s.event.kind == "plant"), None)
     end = timeline.states[-1].alive
-    first_death_avenged = 0 in revenge_pairs(kills) if kills and kills[0]["victim"]["team"] == team else None
+    # The opening duel: a fall or a teamkill before it is not a first kill.
+    opening = opening_index(kills)
+    first = kills[opening] if opening is not None else None
+    first_death_avenged = opening in revenge_pairs(kills) if first and first["victim"]["team"] == team else None
     event_times = [k["time_in_round_in_ms"] for k in kills] + [e["round_time_in_ms"] for e in (plant, defuse) if e]
     return RoundFact(
         **ctx.base,
@@ -59,7 +62,7 @@ def _round_fact(
         team_id=team,
         side=side,
         won=won,
-        first_kill=kills[0]["killer"]["team"] == team if kills else None,
+        first_kill=first["killer"]["team"] == team if first else None,
         first_death_avenged=first_death_avenged,
         buy=buy_type(index, loadouts[team]),
         opp_buy=buy_type(index, loadouts[other]),
@@ -77,7 +80,7 @@ def _round_fact(
         ceremony=rnd.get("ceremony"),
         # Attack lost without a plant while attackers were still alive: the clock ran out.
         timeout=side is Side.ATTACK and not won and plant is None and end[team] > 0,
-        first_kill_ms=kills[0]["time_in_round_in_ms"] if kills else None,
+        first_kill_ms=first["time_in_round_in_ms"] if first else None,
         plant_ms=plant["round_time_in_ms"] if plant else None,
         last_event_ms=max(event_times, default=0),
         loadout=sum(loadouts[team]) / TEAM_SIZE,

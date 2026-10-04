@@ -2,7 +2,7 @@ import { Reference } from '@core/common/enums.model';
 import { REFERENCE_LABELS } from '@core/format/labels.constants';
 import { formatValue, integer } from '@core/format/value-format.utils';
 import { GameArt, StatCell, StatColumn, StatRow, StatTable } from '@core/report/stat-table.model';
-import { cellTone, columnReference, referenceValue } from '@core/report/tone.utils';
+import { cellReference, cellTone, referenceValue } from '@core/report/tone.utils';
 import { CellTone } from '@core/report/tone.model';
 
 import { parseRecord } from '@shared/win-loss/win-loss.utils';
@@ -55,10 +55,10 @@ export function sortRows(rows: StatRow[], sort: StatSort | null): StatRow[] {
   if (!sort) {
     return rows;
   }
-  // A record sorts on its wins, not as text ('3-0' after '12-15').
+  // A record sorts on its wins, not as text ('3-0' after '12-15'); '+21' or '25/42' on their number.
   const value = (row: StatRow): number | string | null => {
     const v = row.cells[sort.key]?.v ?? null;
-    return parseRecord(v)?.wins ?? v;
+    return parseRecord(v)?.wins ?? leadingNumber(v) ?? v;
   };
   return [...rows].sort((a, b) => {
     if (a.total !== b.total) {
@@ -77,6 +77,15 @@ export function sortRows(rows: StatRow[], sort: StatSort | null): StatRow[] {
     }
     return (va > vb ? 1 : -1) * sort.direction;
   });
+}
+
+/** The signed number a text cell starts with ('−5' gives -5, '25/42' gives 25), null when none. */
+function leadingNumber(value: StatCell['v']): number | null {
+  if (typeof value !== 'string') {
+    return null;
+  }
+  const match = /^[+\-−]?\d+(?:[.,]\d+)?/.exec(value.trim());
+  return match ? Number(match[0].replace('−', '-').replace(',', '.')) : null;
 }
 
 /** Next sort after a click on a column: descending, then ascending, then back to the API's order. */
@@ -142,7 +151,7 @@ export function cellTipLines(cell: StatCell, column: StatColumn, chosen: Referen
   if (column.ref === 'none' || column.better === 0) {
     return lines;
   }
-  const used = columnReference(column, chosen);
+  const used = cellReference(cell, column, chosen);
   for (const reference of REFERENCES) {
     const { value, sample: n } = referenceValue(cell, reference);
     if (value !== null && value !== undefined) {

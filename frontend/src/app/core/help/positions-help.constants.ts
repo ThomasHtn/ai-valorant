@@ -25,11 +25,6 @@ export const POSITIONS_HELP: Readonly<Record<string, StatHelp>> = {
     what: 'La distance typique à laquelle le joueur tue.',
     how: 'Médiane des distances tueur-victime de ses kills, en mètres.',
   },
-  orientationUnknown: {
-    title: 'Orientation inconnue',
-    what: "La part des kills et morts du joueur dont l'orientation n'a pas pu être calculée.",
-    how: "Kills et morts sans photo précédente du regard de la victime / tous ses kills et morts. C'est presque toujours le premier kill du round.",
-  },
   contactZones: {
     title: 'Zones de contact adverses',
     what: "Les 3 zones d'où les adversaires tuent le plus souvent l'escouade, par carte et par côté.",

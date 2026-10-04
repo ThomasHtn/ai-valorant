@@ -7,6 +7,7 @@ import {
   groupBySubject,
   higherIsBetter,
   mainCauses,
+  referenceText,
   verdictText,
 } from './finding-subjects.utils';
 import { Finding } from './findings.model';
@@ -57,6 +58,32 @@ describe('groupBySubject', () => {
     ]);
     expect(subjects).toHaveLength(1);
     expect(detailLabel(subjects[0].others[0])).toBe('Défense, rounds gagnés');
+  });
+
+  it('keeps the findings that share their rounds under one subject', () => {
+    const global = { mapName: null };
+    const subjects = groupBySubject([
+      finding({ ...global, scope: 'Global', metric: 'First blood pris', gapRounds: -6 }),
+      finding({
+        ...global,
+        scope: 'Global · 5v4',
+        metric: 'Rounds gagnés après un 5v4',
+        gapRounds: -4,
+      }),
+      finding({ ...global, scope: 'Full buy', kind: 'roundType', gapRounds: -5 }),
+      finding({ ...global, scope: 'Full buy contre eco', kind: 'roundType', gapRounds: -3 }),
+    ]);
+    expect(subjects.map((s) => [s.key, s.others.length])).toEqual([
+      ['scope:Global', 1],
+      ['scope:Types de round', 1],
+    ]);
+    expect(detailLabel(subjects[0].others[0])).toBe('5v4, rounds gagnés après un 5v4');
+    expect(detailLabel(subjects[1].lead)).toBe('Full buy, rounds gagnés');
+  });
+
+  it('writes per round rates like the tables', () => {
+    const fd = finding({ kind: 'firstDeath', squad: rate(14, 100), top: rate(10, 100) });
+    expect(referenceText(fd)).toBe('0,14 contre 0,10 au top ranked');
   });
 });
 

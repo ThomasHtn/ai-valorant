@@ -7,20 +7,36 @@ import { Finding } from './findings.model';
 
 /** Kinds measured against opponents where a coordinated 5-stack is naturally ahead of solo queues. */
 const FIVE_STACK_KINDS = new Set(['revenge', 'isolated']);
+/** Round type findings overlap ('Full buy' holds 'Full buy contre eco'): one subject for all. */
+const ROUND_TYPE_KIND = 'roundType';
+const ROUND_TYPES_SUBJECT = 'Types de round';
+/** Between the parts of a scope: 'Global · 5v4', 'Split · défense'. */
+const SCOPE_SEPARATOR = ' · ';
+/** Kinds the tables write per round ('0,14'), not as a share ('14 %'): the finding writes them the same way. */
+const PER_ROUND_KINDS = new Set(['firstBlood', 'firstDeath']);
 /** Causes listed under a weakness. */
 const MAX_CAUSES = 3;
 
-/** What a finding is about: a player, else a map, else its own scope ('Global', 'Pistol'). */
+/**
+ * What a finding is about: a player, else a map, else the round types together ('Full buy' holds
+ * 'Full buy contre eco'), else the first part of its scope ('Global · 5v4' is about 'Global').
+ */
 export function subjectKey(f: Finding): string {
   if (f.player) {
     return `player:${f.player}`;
   }
-  return f.mapName ? `map:${f.mapName}` : `scope:${f.scope}`;
+  if (f.mapName) {
+    return `map:${f.mapName}`;
+  }
+  return `scope:${subjectLabel(f)}`;
 }
 
 /** Name of the subject as the card title writes it. */
 export function subjectLabel(f: Finding): string {
-  return f.player ?? f.mapName ?? f.scope;
+  if (f.player || f.mapName) {
+    return (f.player ?? f.mapName) as string;
+  }
+  return f.kind === ROUND_TYPE_KIND ? ROUND_TYPES_SUBJECT : f.scope.split(SCOPE_SEPARATOR)[0];
 }
 
 /** Findings grouped by subject, in the order of their costliest finding (input sorted by size). */
@@ -54,7 +70,13 @@ export function detailLabel(f: Finding): string {
 export function referenceText(f: Finding): string {
   const reference = f.reference === 'opp' ? f.opp : f.top;
   const name = f.reference === 'opp' ? 'chez les adversaires' : 'au top ranked';
-  return `${formatValue(f.squad.value, 'pct')} contre ${formatValue(reference.value, 'pct')} ${name}`;
+  const format = rateFormat(f);
+  return `${formatValue(f.squad.value, format)} contre ${formatValue(reference.value, format)} ${name}`;
+}
+
+/** How a finding's rates are written, the same way as in the tables. */
+function rateFormat(f: Finding): 'pct' | 'dec2' {
+  return PER_ROUND_KINDS.has(f.kind) ? 'dec2' : 'pct';
 }
 
 /** Rate the finding was tested against, and how the text names it. */

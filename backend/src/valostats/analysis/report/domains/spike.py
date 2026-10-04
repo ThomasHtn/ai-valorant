@@ -9,6 +9,7 @@ from valostats.analysis.report.foundation.art import map_art
 from valostats.analysis.report.foundation.cells import cell, fixed, mean, median, ratio
 from valostats.analysis.report.foundation.cohorts import FactKind, ReportCohorts
 from valostats.analysis.report.foundation.table_builder import TableBuilder
+from valostats.constants.report_domains import PLANT_ADVANTAGE_BAND
 from valostats.constants.timings import MS_PER_SECOND
 from valostats.domain.enums import BuyType, Side
 from valostats.domain.facts import PlayerRoundFact, RoundFact
@@ -64,7 +65,14 @@ def _by_site(cohorts: ReportCohorts) -> StatTable:
         .column("taken", "Plants subis", better=0, help="spikeSiteTaken", min=MIN_SITE_SAMPLE)
         .column("retake", "Retakes réussies", help="spikeRetakeWon", min=MIN_SITE_SAMPLE)
         .count_column("defuses", "Defuses", help="spikeDefuses")
-        .column("adv", "Écart de joueurs au plant", ValueFormat.DECIMAL_1, help="spikeAdvAtPlant", min=MIN_SITE_SAMPLE)
+        .column(
+            "adv",
+            "Écart de joueurs au plant",
+            ValueFormat.DECIMAL_1,
+            help="spikeAdvAtPlant",
+            min=MIN_SITE_SAMPLE,
+            band=PLANT_ADVANTAGE_BAND,
+        )
     )
     for map_name in cohorts.maps():
         for site in _sites(cohorts, map_name):

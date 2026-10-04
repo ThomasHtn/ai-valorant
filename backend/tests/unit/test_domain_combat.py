@@ -11,7 +11,8 @@ def test_acs_spread_needs_enough_matches() -> None:
     assert combat.acs_spread(two) == (None, 2)
     three = [player_match(match_id=f"m{i}", score=s * 22) for i, s in enumerate((180, 200, 220))]
     spread, matches = combat.acs_spread(three)
-    assert matches == 3 and spread is not None and round(spread, 2) == 16.33
+    # Sample standard deviation: 20, not the population 16.33.
+    assert matches == 3 and spread == 20.0
 
 
 def test_kill_value_reads_the_victims_buy_and_leaves_pistols_out() -> None:

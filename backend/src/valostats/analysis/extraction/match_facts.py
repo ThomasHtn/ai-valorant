@@ -3,7 +3,7 @@
 from collections.abc import Iterable
 
 from valostats.analysis.extraction.context import MatchContext
-from valostats.analysis.extraction.henrik_payload import attacker, cluster, game_length_ms, other_team, team_tiers
+from valostats.analysis.extraction.henrik_payload import attacker, cluster, game_length_ms, other_team, played_rounds, team_tiers
 from valostats.constants.game import TEAMS
 from valostats.domain.enums import Side
 from valostats.domain.facts import MatchFact
@@ -15,7 +15,7 @@ def extract_matches(contexts: Iterable[MatchContext]) -> list[MatchFact]:
         match = ctx.match
         # Scores are counted from the rounds: the payload's team score is missing in some old matches.
         won_rounds = dict.fromkeys(TEAMS, 0)
-        for rnd in match["rounds"]:
+        for rnd in played_rounds(match):
             if rnd["winning_team"] in won_rounds:
                 won_rounds[rnd["winning_team"]] += 1
         team_won = {t["team_id"]: t["won"] for t in match["teams"]}

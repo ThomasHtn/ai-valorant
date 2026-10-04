@@ -35,9 +35,10 @@ class WinProbabilityTable:
         return [WinProbabilityCell(*key, wins, total) for key, (wins, total) in self._counts.items()]
 
     def probability(self, own_alive: int, opp_alive: int, side: Side, planted: bool) -> float:
-        if own_alive == 0:
+        # Once the spike is down a wiped team is not done: the defuse or the detonation still decides.
+        if own_alive == 0 and not planted:
             return 0.0
-        if opp_alive == 0:
+        if opp_alive == 0 and not planted:
             return 1.0
         wins, total = self._counts.get((own_alive, opp_alive, side, planted), (0, 0))
         # Laplace smoothing keeps rare states away from 0 and 1.

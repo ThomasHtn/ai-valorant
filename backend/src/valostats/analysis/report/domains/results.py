@@ -4,15 +4,18 @@ from collections.abc import Callable
 from typing import Any
 
 from valostats.analysis.report.foundation.art import map_art
-from valostats.analysis.report.foundation.cells import cell, fixed, mean, ratio
+from valostats.analysis.report.foundation.cells import cell, fixed, mean, ratio, versus_history
 from valostats.analysis.report.foundation.cohorts import FactKind, ReportCohorts
 from valostats.analysis.report.foundation.table_builder import TableBuilder
 from valostats.constants.report import CHEAPER_LOADOUT_GAP, MIN_MATCH_SAMPLE, MIN_PISTOL_SAMPLE
+from valostats.constants.report_domains import SCORE_DIFF_BAND
 from valostats.domain.enums import BuyType, Reference, Side
 from valostats.domain.facts import MatchFact, RoundFact
 from valostats.schemas.report.tables import StatCell, StatTable, ValueFormat
 
 RoundFilter = Callable[[RoundFact], bool]
+# Round types both teams play alike: top ranked is always at 50 %, so they are judged against the history.
+SYMMETRIC_ROUND_TYPES = frozenset({"pistol", "fullvsfull"})
 
 # Rounds 2 and 3 of each half (0-based), where the pistol result drives the economy.
 SECOND_ROUNDS = (1, 13)
@@ -39,7 +42,15 @@ def _by_map(cohorts: ReportCohorts) -> StatTable:
         .count_column("matches", "Matchs")
         .record_column()
         .column("rw", "Rounds gagnés", help="roundsWon", ref=Reference.HISTORY)
-        .column("diff", "Écart moyen au score", ValueFormat.DECIMAL_1, help="roundDiff", min=MIN_MATCH_SAMPLE, ref=Reference.HISTORY)
+        .column(
+            "diff",
+            "Écart moyen au score",
+            ValueFormat.DECIMAL_1,
+            help="roundDiff",
+            min=MIN_MATCH_SAMPLE,
+            ref=Reference.HISTORY,
+            band=SCORE_DIFF_BAND,
+        )
         .column("att", "Attaque", help="sideRounds")
         .column("def", "Défense", help="sideRounds")
         .column("pistol", "Pistols", help="pistols", min=MIN_PISTOL_SAMPLE, ref=Reference.HISTORY)
@@ -72,7 +83,7 @@ def _by_map(cohorts: ReportCohorts) -> StatTable:
 def _by_round_type(cohorts: ReportCohorts) -> StatTable:
     table = (
         TableBuilder("results-round-types", "Rounds gagnés par type de round", "Type de round", help="roundTypes")
-        .column("rw", "Rounds gagnés", help="roundsWon")
+        .column("rw", "Rounds gagnés", help="roundTypes")
         .column("att", "Attaque")
         .column("def", "Défense")
     )
@@ -97,11 +108,12 @@ def _by_round_type(cohorts: ReportCohorts) -> StatTable:
         ),
     ]
     for key, label, among in round_types:
+        won = cell(cohorts, FactKind.ROUNDS, ratio(_won, among))
         table.row(
             key,
             label,
             {
-                "rw": cell(cohorts, FactKind.ROUNDS, ratio(_won, among)),
+                "rw": versus_history(won) if key in SYMMETRIC_ROUND_TYPES else won,
                 "att": cell(cohorts, FactKind.ROUNDS, ratio(_won, among), side=Side.ATTACK),
                 "def": cell(cohorts, FactKind.ROUNDS, ratio(_won, among), side=Side.DEFENSE),
             },

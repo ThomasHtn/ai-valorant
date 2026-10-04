@@ -24,7 +24,7 @@ from valostats.analysis.report.overview.meta import report_meta, report_periods
 from valostats.analysis.report.players.player_sheet import player_sheet, player_summaries
 from valostats.analysis.report.rounds.matches import match_list
 from valostats.analysis.report.rounds.minimap import minimap_view
-from valostats.analysis.report.rounds.round_lines import rounds_index
+from valostats.analysis.report.rounds.round_lines import evening_days, rounds_index
 from valostats.constants.report import CACHED_PERIODS
 from valostats.core.code_version import code_version
 from valostats.core.errors import NotFoundError
@@ -144,7 +144,8 @@ class ReportService:
                 squad_rounds = [r for r in squad.rounds if r.cohort is Cohort.SQUAD]
                 if not squad_rounds:
                     raise NotFoundError("No squad match in the database.")
-                window = resolve(query, [r.started_at for r in squad_rounds], [r.patch for r in squad_rounds])
+                session_day = evening_days(m for m in squad.matches if m.cohort is Cohort.SQUAD)
+                window = resolve(query, [r.started_at for r in squad_rounds], [r.patch for r in squad_rounds], session_day)
                 if not any(window.includes(m) for m in squad.matches if m.cohort is Cohort.SQUAD):
                     raise NotFoundError(f"No squad match in period {window.title}.")
                 facts: dict[FactKind, Sequence[Any]] = {

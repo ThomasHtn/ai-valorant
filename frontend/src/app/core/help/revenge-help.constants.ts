@@ -40,8 +40,8 @@ export const REVENGE_HELP: Readonly<Record<string, StatHelp>> = {
   teamSpread: {
     title: "Écartement de l'équipe",
     what: "Distance moyenne entre les joueurs vivants de l'équipe pendant les combats.",
-    how: "À chaque kill du match, moyenne des distances entre toutes les paires de joueurs vivants de l'équipe (2 vivants minimum), puis moyenne sur tous les kills, en mètres.",
-    read: "Valeur descriptive. Pas de référence top ranked (positions non conservées) : comparer à l'historique ou aux adversaires.",
+    how: "À chaque mort d'un joueur de l'équipe, moyenne des distances entre toutes les paires de coéquipiers encore vivants (2 vivants minimum), puis moyenne sur toutes ces morts, en mètres.",
+    read: "Valeur descriptive, jamais colorée : à lire à côté du top ranked, des adversaires et de l'historique.",
   },
   revengeMatrix: {
     title: 'Qui venge qui',

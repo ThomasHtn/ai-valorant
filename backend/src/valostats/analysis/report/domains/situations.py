@@ -5,7 +5,7 @@ from collections.abc import Callable, Sequence
 from typing import Any
 
 from valostats.analysis.report.domains._players import PlayerFacts, player_art
-from valostats.analysis.report.foundation.cells import cell, fixed, ratio, sum_ratio
+from valostats.analysis.report.foundation.cells import cell, fixed, ratio, sum_ratio, versus_history
 from valostats.analysis.report.foundation.cohorts import FactKind, ReportCohort, ReportCohorts
 from valostats.analysis.report.foundation.table_builder import TableBuilder
 from valostats.constants.game import TEAM_SIZE
@@ -54,7 +54,7 @@ def _xvy(cohorts: ReportCohorts) -> StatTable:
             state,
             {
                 "reach": cell(cohorts, FactKind.ROUNDS, ratio(reached)),
-                "won": cell(cohorts, FactKind.ROUNDS, ratio(_won, reached)),
+                "won": _state_won(cohorts, state),
                 "att": cell(cohorts, FactKind.ROUNDS, ratio(_won, reached), side=Side.ATTACK),
                 "def": cell(cohorts, FactKind.ROUNDS, ratio(_won, reached), side=Side.DEFENSE),
             },
@@ -65,7 +65,8 @@ def _xvy(cohorts: ReportCohorts) -> StatTable:
 def numbers_times(rounds: Sequence[RoundFact], kills: Sequence[KillFact]) -> RoundTimes:
     """Time each team spent with more and with fewer players alive, from the start to the last event.
 
-    The alive counts after a kill are derived from the counts before it (victim's team loses one).
+    Each span up to a kill takes the counts right before it (a revive, a disconnect or a fall since the
+    previous kill shows there); the victim's team then loses one.
     """
     by_round: defaultdict[tuple[str, int], list[KillFact]] = defaultdict(list)
     for k in kills:
@@ -77,15 +78,13 @@ def numbers_times(rounds: Sequence[RoundFact], kills: Sequence[KillFact]) -> Rou
         for k in sorted(by_round[(r.match_id, r.round_index)], key=lambda k: k.ms):
             if k.ms > r.last_event_ms:
                 break
+            own_side = k.victim_team == r.team_id
+            before = k.victim_team_alive - k.killer_team_alive
+            difference = before if own_side else -before
             span = k.ms - previous_ms
             ahead += span if difference > 0 else 0
             behind += span if difference < 0 else 0
-            own, opp = (
-                (k.victim_team_alive - 1, k.killer_team_alive)
-                if k.victim_team == r.team_id
-                else (k.killer_team_alive, k.victim_team_alive - 1)
-            )
-            previous_ms, difference = k.ms, own - opp
+            previous_ms, difference = k.ms, difference - 1 if own_side else difference + 1
         span = max(0, r.last_event_ms - previous_ms)
         ahead += span if difference > 0 else 0
         behind += span if difference < 0 else 0
@@ -100,8 +99,8 @@ def _advantage(cohorts: ReportCohorts) -> StatTable:
         .column("throw", "Throws", better=-1, help="throws", min=MIN_SITUATION_SAMPLE)
         .column("down2", "Rounds avec -2 joueurs", better=-1, help="reachMinus2")
         .column("comeback", "Comebacks", help="comebacks", min=MIN_SITUATION_SAMPLE)
-        .column("advTime", "Temps en avantage", help="advantageTime")
-        .column("disTime", "Temps en infériorité", better=-1, help="advantageTime")
+        .column("advTime", "Temps en avantage", help="advantageTime", proportion=False)
+        .column("disTime", "Temps en infériorité", better=-1, help="advantageTime", proportion=False)
     )
     times: RoundTimes = {}
     for cohort in ReportCohort:
@@ -198,9 +197,16 @@ def _matrix(cohorts: ReportCohorts) -> StatTable:
     for opp in alive:
         table.column(f"o{opp}", f"Contre {opp}", help="aliveMatrix", min=MIN_CLUTCH_SAMPLE)
     for own in alive:
-        cells = {f"o{opp}": cell(cohorts, FactKind.ROUNDS, ratio(_won, _reached(f"{own}v{opp}"))) for opp in alive}
+        cells = {f"o{opp}": _state_won(cohorts, f"{own}v{opp}") for opp in alive}
         table.row(f"a{own}", f"{own} vivant{'s' if own > 1 else ''}", cells)
     return table.build()
+
+
+def _state_won(cohorts: ReportCohorts, state: str) -> StatCell:
+    won = cell(cohorts, FactKind.ROUNDS, ratio(_won, _reached(state)))
+    # Even numbers (3v3): both teams reach it, so top ranked is always at 50 %.
+    own, opp = state.split("v")
+    return versus_history(won) if own == opp else won
 
 
 def _versus(opponents: int) -> Callable[[PlayerRoundFact], bool]:

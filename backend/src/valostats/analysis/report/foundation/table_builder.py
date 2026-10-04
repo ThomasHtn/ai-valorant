@@ -36,9 +36,14 @@ class TableBuilder:
         help: str | None = None,
         min: int = MIN_TEAM_SAMPLE,
         ref: Reference = Reference.TOP,
+        proportion: bool = True,
+        band: float | None = None,
     ) -> Self:
         """Add a column. `better`: 1 higher is better, -1 lower is better, 0 never coloured."""
-        self._columns.append(StatColumn(key=key, label=label, format=value_format, better=better, help=help, min=min, ref=ref))
+        column = StatColumn(
+            key=key, label=label, format=value_format, better=better, help=help, min=min, ref=ref, proportion=proportion, band=band
+        )
+        self._columns.append(column)
         return self
 
     def count_column(self, key: str, label: str, *, help: str | None = None) -> Self:

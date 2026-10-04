@@ -66,9 +66,10 @@ référence choisie par l'analyste.
 
 - Lignes par joueur : top ranked et adversaires sont limités au même rôle, l'historique au joueur lui-même.
 - Mesures symétriques (rounds gagnés, pistols, first blood pris tous sides confondus) : comparées à l'historique, car le
-  top ranked y vaut toujours 50 % et les adversaires sont le miroir.
-- Points forts et faibles : test de proportions, correction de Benjamini-Hochberg (« écart net ») ou p < 0,05 seul
-  (« à confirmer »). Adversaires pour le jeu d'équipe, top ranked pour les mesures à somme nulle et la méta. Le front
+  top ranked y vaut toujours 50 % et les adversaires sont le miroir. Dans une colonne comparée au top, une case symétrique
+  (pistol, 3v3, eco contre eco) porte `ref = hist`.
+- Points forts et faibles : test de proportions sur échantillons effectifs (les rounds d'un même match se ressemblent :
+  `statistics/clustering.py`), correction de Benjamini-Hochberg (« écart net ») ou p < 0,05 seul (« à confirmer »). Adversaires pour le jeu d'équipe, top ranked pour les mesures à somme nulle et la méta. Le front
   regroupe les écarts par sujet (carte, joueur) : le plus coûteux mène, les autres comptent les mêmes rounds et ne
   s'additionnent pas.
 - Le front écrit « vs historique » sous les colonnes comparées à l'historique quelle que soit la référence choisie.
@@ -130,8 +131,8 @@ défaite, matrice carte x side x achat, moments qui décident (pistols, round ap
 throws) et la liste filtrable. Les blocs d'une vue vont par deux (`block-grid`), un tableau de plus de 5 colonnes
 prend la ligne (`block-wide`). Le Résumé liste ses priorités sur une ligne chacune ; une ligne ouvre sa carte dans
 Points forts et faibles (`/report/findings?open=weak:<sujet>`), où l'équipe et les joueurs sont côte à côte. Le sens d'une stat s'affiche avec `shared/better-hint`
-(« Plus haut = mieux »), jamais en phrase. Couleurs : vert bien, orange moyen (à moins de 3 points de la référence, 5 % pour une moyenne), rouge pas
-bien, gris sous l'échantillon minimum. Les champs de saisie n'utilisent jamais la surface bleue `surface-800`.
+(« Plus haut = mieux »), jamais en phrase. Couleurs : vert bien, orange moyen (à moins de 3 points de la référence, 5 % pour une moyenne, `band` pour une
+moyenne signée), rouge pas bien, gris quand l'escouade ou la référence est sous l'échantillon minimum. Les champs de saisie n'utilisent jamais la surface bleue `surface-800`.
 
 Images du jeu : `frontend/public/assets/valorant/`, tirées de Data Dragon et de valorant-api (rangs, minimaps, rôles)
 par `uv run --with pillow python frontend/scripts/fetch_valorant_assets.py`, à relancer après un patch qui ajoute un
