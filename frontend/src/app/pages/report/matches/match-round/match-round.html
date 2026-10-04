@@ -1,0 +1,37 @@
+<div class="flex flex-col gap-4">
+  <app-breadcrumb [crumbs]="crumbs()">
+    <span class="seg-group">
+      @if (neighbours().previous; as previous) {
+        <a
+          class="seg-option inline-flex items-center gap-1 no-underline"
+          [routerLink]="previous.link"
+          queryParamsHandling="preserve"
+          title="Round précédent"
+          ><svg lucideChevronLeft class="size-4" aria-hidden="true"></svg>R{{ previous.number }}</a
+        >
+      }
+      @if (neighbours().next; as next) {
+        <a
+          class="seg-option inline-flex items-center gap-1 no-underline"
+          [routerLink]="next.link"
+          queryParamsHandling="preserve"
+          title="Round suivant"
+          >R{{ next.number }}<svg lucideChevronRight class="size-4" aria-hidden="true"></svg
+        ></a>
+      }
+    </span>
+  </app-breadcrumb>
+  @if (detail.hasValue()) {
+    <app-round-strip
+      [matchId]="detail.value().matchId"
+      [rounds]="detail.value().rounds"
+      [current]="roundNumber()"
+    />
+  }
+</div>
+
+<app-resource-state [resource]="sheet" notFoundText="Ce round est introuvable.">
+  @if (sheet.hasValue()) {
+    <app-round-sheet [sheet]="sheet.value()" />
+  }
+</app-resource-state>

@@ -1,46 +1,41 @@
-<!-- The way back sits with the filters, as close as they are to the list. -->
-<div class="-mb-4 flex flex-col gap-2">
-  @if (origin(); as o) {
-    <a
-      [routerLink]="o.link"
-      class="focus-ring inline-flex items-center gap-1 self-start py-0.5 pr-1 text-sm !text-text-secondary no-underline hover:!text-text-primary"
-    >
-      <svg class="size-4" lucideChevronLeft aria-hidden="true"></svg>{{ o.label }}
-    </a>
+<div class="filter-strip" role="group" aria-label="Filtres des rounds">
+  <app-round-filters
+    [filters]="filters()"
+    [maps]="mapOptions()"
+    (filtersChange)="filters.set($event)"
+  />
+  @if (filters().match) {
+    <app-scope-chip [label]="matchLabel()" (cleared)="setMatch('')" />
   }
-  <div class="filter-strip" role="group" aria-label="Filtres des rounds">
-    <app-round-filters
-      [filters]="filters()"
-      [maps]="mapOptions()"
-      (filtersChange)="filters.set($event)"
-    />
-    @if (filters().match) {
-      <app-scope-chip [label]="matchLabel()" (cleared)="setMatch('')" />
-    }
-    @if (query(); as q) {
-      <app-scope-chip [label]="q.title" (cleared)="query.set(null)" />
-    }
-  </div>
+  @if (query(); as q) {
+    <app-scope-chip [label]="q.title" (cleared)="query.set(null)" />
+  }
 </div>
 
-<!-- The overview of the filtered rounds, then the list beside the round it opens. -->
-@if (causes().length) {
-  <app-round-causes
-    [causes]="causes()"
-    [selected]="filters().cause"
-    (selectedChange)="setCause($event)"
-  />
-}
+<app-resource-state [resource]="index" notFoundText="Aucun round de l'escouade sur cette période.">
+  @if (index.hasValue()) {
+    <div class="flex flex-col gap-10">
+      @if (causes().length) {
+        <app-round-causes
+          [causes]="causes()"
+          [selected]="filters().cause"
+          (selectedChange)="setCause($event)"
+        />
+      }
 
-<!-- The sheet sets the row's height; the list fills it down to the sheet's end and scrolls inside. -->
-<div class="grid items-stretch gap-x-10 gap-y-6 lg:grid-cols-[22rem_minmax(0,1fr)]">
-  <div class="relative min-w-0 lg:min-h-[32rem]">
-    <nav class="flex flex-col gap-2 lg:absolute lg:inset-0" aria-label="Liste des rounds">
-      @if (index.hasValue()) {
-        <div class="flex items-center gap-2">
-          <p class="!m-0 font-semibold">
-            {{ rows().length }} <span class="font-normal text-text-muted">rounds</span>
-          </p>
+      <!-- Where rounds are lost, then when: both narrow the list below. -->
+      <div class="grid items-start gap-x-10 gap-y-10 xl:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]">
+        <app-buy-matrix [rounds]="matrixRounds()" (picked)="pickCell($event)" />
+        <app-costly-moments
+          [rounds]="momentRounds()"
+          [selected]="selectedMoment()"
+          (picked)="pickMoment($event)"
+        />
+      </div>
+
+      <section class="view-section scroll-mt-4" aria-labelledby="round-list-title">
+        <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
+          <h2 #listTitle class="!m-0 text-lg" id="round-list-title">{{ rows().length }} rounds</h2>
           <!-- Sorting by throw size only means something on lost rounds. -->
           @if (canSort()) {
             <div
@@ -65,53 +60,8 @@
             </div>
           }
         </div>
-        <app-round-list
-          class="mt-1.5 flex min-h-0 flex-1 flex-col"
-          [rounds]="rows()"
-          [selected]="selected()"
-        />
-      } @else {
-        <app-resource-state
-          [resource]="index"
-          notFoundText="Aucun round de l'escouade sur cette période."
-        />
-      }
-    </nav>
-  </div>
-
-  @if (selected()) {
-    <div class="flex min-w-0 flex-col gap-4">
-      <app-resource-state [resource]="sheet" notFoundText="Ce round est introuvable.">
-        @if (sheet.hasValue()) {
-          <app-round-sheet [sheet]="sheet.value()">
-            <!-- The rounds before and after this one in the list. -->
-            <span class="seg-group">
-              <a
-                class="seg-option inline-flex items-center gap-1 no-underline"
-                [class.pointer-events-none]="!neighbours().previous"
-                [class.opacity-40]="!neighbours().previous"
-                [routerLink]="neighbours().previous"
-                queryParamsHandling="preserve"
-                [attr.aria-disabled]="!neighbours().previous"
-                title="Round précédent de la liste"
-                ><svg lucideChevronLeft class="size-4" aria-hidden="true"></svg>Précédent</a
-              >
-              <a
-                class="seg-option inline-flex items-center gap-1 no-underline"
-                [class.pointer-events-none]="!neighbours().next"
-                [class.opacity-40]="!neighbours().next"
-                [routerLink]="neighbours().next"
-                queryParamsHandling="preserve"
-                [attr.aria-disabled]="!neighbours().next"
-                title="Round suivant de la liste"
-                >Suivant<svg lucideChevronRight class="size-4" aria-hidden="true"></svg
-              ></a>
-            </span>
-          </app-round-sheet>
-        }
-      </app-resource-state>
+        <app-round-list class="flex flex-col gap-3" [rounds]="rows()" />
+      </section>
     </div>
-  } @else {
-    <p class="bg-text-primary/4 px-4 py-6 text-center text-text-muted">Aucun round à afficher.</p>
   }
-</div>
+</app-resource-state>

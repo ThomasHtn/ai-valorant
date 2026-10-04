@@ -16,6 +16,8 @@ class EveningSummary(ApiModel):
     maps: list[str]
     # Squad score of each match, e.g. "13-9", in the order of `maps`.
     scores: list[str]
+    # Patch of each match, in the order of `maps`: lets a patch period draw its matches.
+    patches: list[str]
 
 
 class MonthSummary(ApiModel):

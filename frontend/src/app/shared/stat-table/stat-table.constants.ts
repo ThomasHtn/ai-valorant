@@ -8,5 +8,8 @@ export const TONE_CLASSES: Record<CellTone, string> = {
   small: 'tone-small',
 };
 
+/** Value columns a table may have and still share a row with another one. */
+export const NARROW_TABLE_COLUMNS = 5;
+
 /** Hover delay before a cell tip opens, so sweeping the mouse over a table stays quiet. */
 export const CELL_TIP_DELAY_MS = 120;

@@ -28,6 +28,3 @@ export const PLAYER_COLUMNS = ['acs', 'kd', 'adr', 'kast'] as const;
 /** Weaknesses and strengths listed in the summary, the costliest in rounds first. */
 export const SUMMARY_WEAKNESSES = 5;
 export const SUMMARY_STRENGTHS = 3;
-
-/** Rounds to rewatch under each priority. */
-export const SUMMARY_REWATCH = 4;

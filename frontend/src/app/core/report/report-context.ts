@@ -22,7 +22,7 @@ export class ReportContext {
   private readonly api = inject(ReportApi);
 
   /** Current URL, refreshed after each navigation. */
-  private readonly url = toSignal(
+  public readonly url = toSignal(
     this.router.events.pipe(
       filter((event) => event instanceof NavigationEnd),
       map(() => this.router.url),

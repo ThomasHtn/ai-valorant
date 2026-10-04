@@ -110,7 +110,7 @@ describe('matches view utils', () => {
     expect(rows.map((r) => r.number)).toEqual(['R3', 'R7']);
     expect(rows[0]).toEqual({
       key: 'r3',
-      link: ['/report/rounds', 'm_3'],
+      link: ['/report/matches', 'm', 'rounds', '3'],
       number: 'R3',
       detail: 'Attaque · full buy contre eco',
       cause: 'Avantage perdu',

@@ -11,7 +11,9 @@ describe('rewatchGroups', () => {
         key: 'm-1',
         label: '30/09 Split',
         commands: ['/report/matches', 'm-1'],
-        rounds: [{ key: 'm-1_14', label: 'R14', commands: ['/report/rounds', 'm-1_14'] }],
+        rounds: [
+          { key: 'm-1_14', label: 'R14', commands: ['/report/matches', 'm-1', 'rounds', '14'] },
+        ],
       },
     ]);
   });

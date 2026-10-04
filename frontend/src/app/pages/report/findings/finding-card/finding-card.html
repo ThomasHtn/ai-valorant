@@ -40,8 +40,8 @@
 
 @if (open()) {
   <!-- Figures and context share one label column, so every line of the card starts at the same place. -->
-  <!-- Under the verdict, capped so a figure never sits a screen away from its label. -->
-  <div [id]="bodyId" class="flex flex-col px-4 pb-4 sm:max-w-[67rem] sm:pl-[13.5rem]">
+  <!-- Under the gap chip, so it fits half the page; capped when the block is a single column. -->
+  <div [id]="bodyId" class="flex flex-col px-4 pb-4 sm:max-w-[60rem] sm:pl-[4.125rem]">
     <div class="finding-grid gap-y-2.5 border-t border-edge py-3.5">
       @for (bar of bars(); track bar.label) {
         <span [class]="bar.isSquad ? 'font-semibold' : 'text-text-secondary'">{{ bar.label }}</span>

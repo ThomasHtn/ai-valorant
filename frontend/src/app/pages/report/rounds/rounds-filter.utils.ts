@@ -18,6 +18,8 @@ import {
   RoundScope,
   RoundSort,
 } from './rounds-filter.model';
+import { MomentKind } from './rounds-overview.model';
+import { momentKeys, roundKey } from './rounds-overview.utils';
 
 /**
  * Map and side named in a table cell's text (a click in Tableaux): a map is kept only when exactly
@@ -47,6 +49,7 @@ export function filterRounds(
 ): RoundLine[] {
   const map = filters.map || scopes.find((s) => s.map)?.map || '';
   const side = filters.side || scopes.find((s) => s.side)?.side || '';
+  const moment = filters.moment ? momentKeys(rounds, filters.moment) : null;
   return rounds.filter(
     (round) =>
       (!filters.match || round.matchId === filters.match) &&
@@ -54,7 +57,8 @@ export function filterRounds(
       (!filters.cause || round.cause === filters.cause) &&
       (!map || round.mapName === map) &&
       (!side || round.side === side) &&
-      (!filters.buy || round.buy === filters.buy),
+      (!filters.buy || round.buy === filters.buy) &&
+      (!moment || moment.has(roundKey(round))),
   );
 }
 
@@ -94,6 +98,9 @@ export function causeCounts(rounds: readonly RoundLine[]): CauseCount[] {
       share: count / lost,
     }));
 }
+
+/** Moments a URL may name. */
+const MOMENTS: readonly MomentKind[] = ['streak', 'after_pistol_loss', 'bonus'];
 
 function keepsResult(round: RoundLine, result: ResultFilter): boolean {
   switch (result) {
@@ -144,6 +151,9 @@ export function readRoundParams(
       map: params.map ?? fallback.map,
       side,
       buy: (params.buy as BuyType | null) ?? fallback.buy,
+      moment: (MOMENTS as readonly string[]).includes(params.moment ?? '')
+        ? (params.moment as MomentKind)
+        : fallback.moment,
     },
     sort: params.sort === 'chance' ? 'chance' : DEFAULT_ROUND_SORT,
   };
@@ -160,6 +170,7 @@ export function roundParams(filters: RoundFilters, sort: RoundSort): RoundParams
     preset: thrown ? THROWS_PRESET : null,
     cause: filters.cause || null,
     buy: filters.buy || null,
+    moment: filters.moment || null,
     sort: sort === DEFAULT_ROUND_SORT ? null : sort,
   };
 }

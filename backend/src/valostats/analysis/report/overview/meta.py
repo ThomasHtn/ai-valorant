@@ -56,6 +56,7 @@ def _evening(evening: Evening) -> EveningSummary:
         losses=evening.losses,
         maps=[m.map_name for m in evening.matches],
         scores=[f"{m.rounds_won}-{m.rounds_lost}" for m in evening.matches],
+        patches=[m.patch for m in evening.matches],
     )
 
 

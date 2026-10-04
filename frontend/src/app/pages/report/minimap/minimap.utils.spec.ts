@@ -88,7 +88,7 @@ describe('minimap view utils', () => {
   it('draws the active layers and dims the other players', () => {
     const markers = minimapMarkers(view, 'att', new Set(['firstDeaths']), 'Psilonnix');
     expect(markers.map((m) => m.dimmed)).toEqual([false, true]);
-    expect(markers[0].link).toEqual(['/report/rounds', 'm_3']);
+    expect(markers[0].link).toEqual(['/report/matches', 'm', 'rounds', '3']);
     expect(markers[0].tip?.lines).toContainEqual({ label: 'Tué par', value: 'Opp' });
   });
 
@@ -196,7 +196,7 @@ describe('minimap view utils', () => {
     expect(izakiel.more).toBe(0);
     expect(kikoucraft.groups[0].rounds[0]).toMatchObject({
       firstDeath: true,
-      commands: ['/report/rounds', 'm-2_1'],
+      commands: ['/report/matches', 'm-2', 'rounds', '1'],
     });
     expect(zoneMatchCount([zone])).toBe(2);
   });

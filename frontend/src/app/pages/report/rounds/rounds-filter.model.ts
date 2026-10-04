@@ -1,5 +1,7 @@
 import { BuyType, LossCause, Side } from '@core/common/enums.model';
 
+import { MomentKind } from './rounds-overview.model';
+
 /** Which rounds the list shows by result; 'thrown' keeps the lost rounds the squad had in hand. */
 export type ResultFilter = 'lost' | 'thrown' | 'won' | 'all';
 
@@ -15,6 +17,8 @@ export interface RoundFilters {
   map: string;
   side: Side | '';
   buy: BuyType | '';
+  /** A moment of the match (losing streak, round after a lost pistol...), picked in its block. */
+  moment: MomentKind | '';
 }
 
 /** Map and side a list is narrowed to when the view's own filters leave them open. */
@@ -25,7 +29,7 @@ export interface RoundScope {
 
 /** Query parameters of the list's filters and sort, null when left at their default. */
 export type RoundParams = Record<
-  'match' | 'map' | 'side' | 'result' | 'preset' | 'cause' | 'buy' | 'sort',
+  'match' | 'map' | 'side' | 'result' | 'preset' | 'cause' | 'buy' | 'moment' | 'sort',
   string | null
 >;
 

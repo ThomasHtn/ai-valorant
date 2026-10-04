@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { parseRoundParam, roundParam, sameRound } from './round-ref.utils';
+import { parseRoundParam, roundLink, roundParam, sameRound } from './round-ref.utils';
 
 describe('round address', () => {
   it('round-trips a match id with dashes', () => {
@@ -13,6 +13,15 @@ describe('round address', () => {
     expect(parseRoundParam('abc')).toBeNull();
     expect(parseRoundParam('abc_0')).toBeNull();
     expect(parseRoundParam('_4')).toBeNull();
+  });
+
+  it('opens a round under its match', () => {
+    expect(roundLink({ matchId: 'abc', roundNumber: 4 })).toEqual([
+      '/report/matches',
+      'abc',
+      'rounds',
+      '4',
+    ]);
   });
 
   it('compares rounds', () => {

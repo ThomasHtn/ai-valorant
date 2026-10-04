@@ -1,19 +1,20 @@
-import { Component, ElementRef, afterRenderEffect, computed, inject, input } from '@angular/core';
+import { Component, computed, input, linkedSignal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
 import { SIDE_LABELS } from '@core/format/labels.constants';
 import { dayMonth, THROW_TIP } from '@core/format/format.utils';
 import { BUY_SENTENCE_LABELS } from '@core/format/round-labels.constants';
-import { roundLink, sameRound } from '@core/report/round-ref.utils';
-import { RoundLine, RoundRef } from '@core/report/rounds.model';
+import { roundLink } from '@core/report/round-ref.utils';
+import { RoundLine } from '@core/report/rounds.model';
 import { MapThumb } from '@shared/game-art/map-thumb';
-import { revealCurrent } from '@shared/scroll/reveal-current.utils';
 
+import { ROUND_LIST_PAGE } from './round-list.constants';
 import { roundOutcome } from './round-list.utils';
 
 /**
- * Rounds kept by the filters, in the list's order; a line opens the round's sheet. The right side
- * names the cause of a lost round and, for a throw, the chance the squad had.
+ * Rounds kept by the filters as a compact table, a page at a time; a row opens the round's page
+ * under its match. The last column names the cause of a lost round and, for a throw, the chance
+ * the squad had.
  */
 @Component({
   selector: 'app-round-list',
@@ -22,29 +23,29 @@ import { roundOutcome } from './round-list.utils';
 })
 export class RoundList {
   public readonly rounds = input.required<readonly RoundLine[]>();
-  public readonly selected = input<RoundRef | null>(null);
 
-  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
-
+  /** Rows shown; back to one page when the filters change. */
+  protected readonly shown = linkedSignal({
+    source: this.rounds,
+    computation: () => ROUND_LIST_PAGE,
+  });
   protected readonly throwTip = THROW_TIP;
   protected readonly lines = computed(() =>
-    this.rounds().map((round) => ({
-      key: `${round.matchId}_${round.roundNumber}`,
-      round,
-      link: roundLink(round),
-      active: sameRound(round, this.selected()),
-      title: `${round.mapName} R${round.roundNumber}`,
-      day: dayMonth(round.day),
-      ...roundOutcome(round),
-      detail: `${SIDE_LABELS[round.side]} · ${BUY_SENTENCE_LABELS[round.buy]} contre ${BUY_SENTENCE_LABELS[round.oppBuy]}`,
-    })),
+    this.rounds()
+      .slice(0, this.shown())
+      .map((round) => ({
+        key: `${round.matchId}_${round.roundNumber}`,
+        round,
+        link: roundLink(round),
+        day: dayMonth(round.day),
+        side: SIDE_LABELS[round.side],
+        buys: `${BUY_SENTENCE_LABELS[round.buy]} contre ${BUY_SENTENCE_LABELS[round.oppBuy]}`,
+        ...roundOutcome(round),
+      })),
   );
+  protected readonly remaining = computed(() => this.rounds().length - this.lines().length);
 
-  constructor() {
-    // Bring the open round into the list's view without scrolling the page.
-    afterRenderEffect(() => {
-      this.lines();
-      revealCurrent(this.host.nativeElement.querySelector('ul'));
-    });
+  protected more(): void {
+    this.shown.update((n) => n + ROUND_LIST_PAGE);
   }
 }

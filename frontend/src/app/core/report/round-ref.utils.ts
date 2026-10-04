@@ -3,7 +3,7 @@ import { RoundRef } from './rounds.model';
 /** Separator between the match id and the round number in a round address ('<matchId>_<n>'). */
 const SEPARATOR = '_';
 
-/** Route parameter of a round sheet: '<matchId>_<roundNumber>'. */
+/** Former route parameter of a round sheet ('<matchId>_<roundNumber>'), still read by old links. */
 export function roundParam(ref: RoundRef): string {
   return `${ref.matchId}${SEPARATOR}${ref.roundNumber}`;
 }
@@ -21,9 +21,9 @@ export function parseRoundParam(param: string | null | undefined): RoundRef | nu
   return { matchId: param.slice(0, at), roundNumber };
 }
 
-/** Router commands of a round sheet. */
+/** Router commands of a round's page, under its match. */
 export function roundLink(ref: RoundRef): string[] {
-  return ['/report/rounds', roundParam(ref)];
+  return ['/report/matches', ref.matchId, 'rounds', String(ref.roundNumber)];
 }
 
 export function sameRound(a: RoundRef | null, b: RoundRef | null): boolean {

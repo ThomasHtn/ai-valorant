@@ -5,7 +5,6 @@ import {
   detailLabel,
   gapUnit,
   groupBySubject,
-  mainCauses,
   referenceText,
   subjectLabel,
 } from '@core/report/finding-subjects.utils';
@@ -84,7 +83,7 @@ export function priorityItems(
 ): PriorityItem[] {
   return groupBySubject(findings.filter((f) => f.side === side))
     .slice(0, count)
-    .map(({ key, lead, others }) => ({
+    .map(({ key, lead }) => ({
       key,
       art: lead.art,
       scope: subjectLabel(lead),
@@ -94,8 +93,5 @@ export function priorityItems(
       detail: referenceText(lead),
       gap: formatGap(lead.gapRounds, 'dec1'),
       unit: gapUnit(lead),
-      causes: mainCauses(lead),
-      others: others.length,
-      rewatch: lead.rewatch,
     }));
 }

@@ -1,14 +1,13 @@
 import { Component, computed, input } from '@angular/core';
 
 import { longDay } from '@core/format/format.utils';
-import { EveningMatches, MatchSummary } from '@core/report/matches.model';
+import { EveningMatches } from '@core/report/matches.model';
 import { RoundLine } from '@core/report/rounds.model';
 import { Badge } from '@shared/badge/badge';
 
-import { matchDigest } from '../match-digest/match-digest.utils';
 import { MatchRow } from '../match-row/match-row';
 import { MatchRowView } from '../match-row/match-row.model';
-import { matchLength, startTime, stripItems } from '../matches.utils';
+import { matchRowView } from '../match-row/match-row.utils';
 
 interface SessionBlock {
   day: string;
@@ -42,32 +41,9 @@ export class SessionGrid {
       record: `${evening.wins}V - ${evening.losses}D`,
       good: evening.wins >= evening.losses,
       count: `${evening.matches.length} match${evening.matches.length > 1 ? 's' : ''}`,
-      rows: evening.matches.map((match) => this.row(match)),
+      rows: evening.matches.map((match) =>
+        matchRowView(match, this.rounds().get(match.matchId) ?? []),
+      ),
     })),
   );
-
-  private row(match: MatchSummary): MatchRowView {
-    const rounds = this.rounds().get(match.matchId) ?? [];
-    return {
-      matchId: match.matchId,
-      mapName: match.mapName,
-      when: match.lengthMs
-        ? `${startTime(match.startedAt)} · ${matchLength(match.lengthMs)}`
-        : startTime(match.startedAt),
-      won: match.won,
-      score: `${match.roundsWon}-${match.roundsLost}`,
-      squares: stripItems(rounds).map((item) =>
-        item.kind === 'swap'
-          ? { key: item.key, won: null }
-          : { key: `r${item.cell.roundNumber}`, won: item.cell.won },
-      ),
-      digest: matchDigest(match, rounds),
-      lineup: match.lineup.map((p) => ({
-        name: p.name,
-        agent: p.agent,
-        acs: Math.round(p.acs),
-        title: `${p.name} (${p.agent}) : ${Math.round(p.acs)} ACS, ${p.kills}/${p.deaths}`,
-      })),
-    };
-  }
 }

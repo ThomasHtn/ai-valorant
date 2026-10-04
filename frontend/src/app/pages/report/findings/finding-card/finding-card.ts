@@ -1,4 +1,12 @@
-import { Component, computed, input, linkedSignal } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  afterNextRender,
+  computed,
+  inject,
+  input,
+  linkedSignal,
+} from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { LucideChevronDown } from '@lucide/angular';
 
@@ -75,8 +83,11 @@ export class FindingCard {
   public readonly playerAgents = input<Record<string, string>>({});
   /** Opened at first (the top card of a column), folded otherwise. */
   public readonly initiallyOpen = input(false);
+  /** Brought into view once drawn: the card a Résumé line asked for. */
+  public readonly focused = input(false);
 
   protected readonly open = linkedSignal(() => this.initiallyOpen());
+  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   protected readonly bodyId = `finding-${++cardCount}`;
 
   protected readonly lead = computed<Finding>(() => this.subject().lead);
@@ -127,4 +138,12 @@ export class FindingCard {
       bar('Top ranked', f.top, 'bg-top'),
     ];
   });
+
+  constructor() {
+    afterNextRender(() => {
+      if (this.focused()) {
+        this.host.nativeElement.scrollIntoView({ block: 'center' });
+      }
+    });
+  }
 }

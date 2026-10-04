@@ -32,6 +32,11 @@ export function samePeriodQuery(a: PeriodQuery, b: PeriodQuery): boolean {
   return KEYS.every((key) => a[key] === b[key]);
 }
 
+/** True for a single session: a range of one day. */
+export function isSessionQuery(query: PeriodQuery): boolean {
+  return !!query.start && query.start === query.end;
+}
+
 /** An evening: a range of one day. */
 export function sessionQuery(day: string): PeriodQuery {
   return { start: day, end: day };

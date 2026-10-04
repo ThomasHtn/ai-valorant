@@ -148,6 +148,7 @@ describe('rounds filters', () => {
       preset: 'throws',
       cause: null,
       buy: null,
+      moment: null,
       sort: 'chance',
     });
   });

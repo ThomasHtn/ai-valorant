@@ -1,0 +1,107 @@
+@let r = round();
+@let c = context();
+@let s = summary();
+<!-- What happened in the round, read as one block; the page above names the round. -->
+<div class="flex flex-col gap-3">
+  <p class="!m-0 flex flex-wrap items-center gap-x-3 gap-y-1 text-text-secondary">
+    <app-badge
+      [label]="r.side === 'att' ? 'attaque' : 'défense'"
+      [kind]="r.side === 'att' ? 'attack' : 'defense'"
+      size="sm"
+    />
+    <span>{{ c.buys }}</span>
+    <span
+      >Score avant le round : <b class="text-text-primary">{{ r.scoreBefore }}</b></span
+    >
+  </p>
+
+  <dl
+    class="m-0 grid grid-cols-[auto_minmax(0,1fr)] items-baseline gap-x-5 gap-y-1.5 bg-text-primary/4 px-4 py-3"
+  >
+    <dt class="text-sm text-text-secondary">Résultat</dt>
+    <dd class="m-0 font-semibold" [class]="s.won ? 'text-rating-good' : 'text-rating-bad'">
+      {{ s.outcome }}
+    </dd>
+    @if (s.cause; as cause) {
+      <dt class="text-sm text-text-secondary">Cause<app-info-tip topic="lossCause" /></dt>
+      <dd class="m-0">
+        <b>{{ cause.label }}</b> : {{ cause.reason }}
+      </dd>
+    }
+    @if (s.best; as best) {
+      <dt class="text-sm text-text-secondary">Meilleur moment</dt>
+      <dd class="m-0">
+        @if (best.step !== null) {
+          <button
+            type="button"
+            class="focus-ring cursor-pointer text-left underline decoration-edge-strong underline-offset-4 hover:decoration-text-primary"
+            (click)="select(best.step)"
+          >
+            {{ best.text }}
+          </button>
+        } @else {
+          {{ best.text }}
+        }
+      </dd>
+    }
+    @if (s.key; as key) {
+      <dt class="text-sm text-text-secondary">Moment clé<app-info-tip topic="winProb" /></dt>
+      <dd class="m-0">
+        <button
+          type="button"
+          class="focus-ring cursor-pointer text-left underline decoration-edge-strong underline-offset-4 hover:decoration-text-primary"
+          (click)="select(key.step ?? 0)"
+        >
+          {{ key.text }}
+        </button>
+      </dd>
+    }
+  </dl>
+</div>
+
+<section class="flex flex-col gap-3 bg-text-primary/4 px-4 py-4" aria-labelledby="win-chart-title">
+  <h2 class="!m-0 text-lg" id="win-chart-title">
+    Chances de gagner le round<app-info-tip topic="winProb" />
+  </h2>
+  <app-win-probability-chart
+    [events]="sheet().events"
+    [step]="step()"
+    [keyMoment]="key()"
+    (stepChange)="select($event)"
+  />
+  <p class="!m-0 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-text-secondary">
+    <span class="inline-flex items-center gap-1.5"
+      ><i class="size-2.5 rounded-full bg-rating-good"></i>Kill de l'escouade</span
+    >
+    <span class="inline-flex items-center gap-1.5"
+      ><i class="size-2.5 rounded-full bg-rating-bad"></i>Mort</span
+    >
+    <span class="inline-flex items-center gap-1.5"
+      ><i class="size-2 rotate-45 bg-brand-500"></i>Plant ou defuse</span
+    >
+  </p>
+</section>
+
+<div class="grid items-start gap-x-8 gap-y-10 xl:grid-cols-[minmax(0,26rem)_minmax(0,1fr)]">
+  <app-replay-2d
+    [map]="r.mapName"
+    [events]="sheet().events"
+    [rotation]="sheet().rotation"
+    [step]="step()"
+    (stepChange)="select($event)"
+  />
+  <app-event-timeline
+    [events]="sheet().events"
+    [step]="step()"
+    [keyStep]="key()?.index ?? null"
+    (stepChange)="select($event)"
+  />
+</div>
+
+<section class="view-section" aria-labelledby="economy-title">
+  <h2 class="!m-0 text-lg" id="economy-title">Économie du round</h2>
+  <div class="grid gap-5 [grid-template-columns:repeat(auto-fit,minmax(min(100%,30rem),1fr))]">
+    <app-economy-table title="L'escouade" [lines]="sheet().squadEconomy" />
+    <app-economy-table title="Adversaires" [lines]="sheet().oppEconomy" />
+  </div>
+</section>

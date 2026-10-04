@@ -9,7 +9,7 @@ import { LostRoundRow, lossCauseCounts } from '../matches.utils';
 
 /**
  * Lost rounds of a match: how many per cause, then each one with its cause and, for a throw, the
- * chance the squad had. A line opens the round's sheet in Rounds, its list limited to the match.
+ * chance the squad had. A line opens the round's page under the match.
  */
 @Component({
   selector: 'app-lost-rounds',
@@ -22,7 +22,6 @@ import { LostRoundRow, lossCauseCounts } from '../matches.utils';
   },
 })
 export class LostRounds {
-  public readonly matchId = input.required<string>();
   /** Every round of the match, for the counts by cause. */
   public readonly rounds = input.required<readonly RoundStripCell[]>();
   /** Lost rounds with their chance, empty while the rounds of the period load. */

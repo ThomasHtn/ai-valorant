@@ -108,7 +108,5 @@ describe('priorityItems', () => {
     expect(items[0].unit).toBe('rounds sur 4 matchs');
     expect(items[0].detail).toBe('40 % contre 60 % (adversaires)');
     expect(items[0].status).toBe('Écart net');
-    expect(items[0].causes).toBe('Retake raté (3)');
-    expect(items[1].others).toBe(1);
   });
 });

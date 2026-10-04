@@ -8,6 +8,7 @@ export const DEFAULT_ROUND_FILTERS: RoundFilters = {
   map: '',
   side: '',
   buy: '',
+  moment: '',
 };
 
 export const DEFAULT_ROUND_SORT: RoundSort = 'date';

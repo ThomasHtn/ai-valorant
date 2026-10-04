@@ -1,6 +1,13 @@
 import { StatColumn, StatRow, StatTable } from '@core/report/stat-table.model';
 
-import { buildRowViews, cellTipLines, nextSort, resolveRowArt, sortRows } from './stat-table.utils';
+import {
+  buildRowViews,
+  cellTipLines,
+  isWideTable,
+  nextSort,
+  resolveRowArt,
+  sortRows,
+} from './stat-table.utils';
 
 const column: StatColumn = {
   key: 'rw',
@@ -73,5 +80,13 @@ describe('stat table utils', () => {
       ['Top ranked', true],
       ["Historique de l'escouade", false],
     ]);
+  });
+});
+
+describe('isWideTable', () => {
+  it('keeps tables of up to five columns narrow', () => {
+    const columns = (n: number) => ({ columns: Array.from({ length: n }) as StatTable['columns'] });
+    expect(isWideTable(columns(5))).toBe(false);
+    expect(isWideTable(columns(6))).toBe(true);
   });
 });
