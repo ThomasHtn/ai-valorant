@@ -21,7 +21,7 @@ import {
   MinimapLabel,
   MinimapMarker,
 } from './minimap-canvas.model';
-import { markerViews } from './minimap-canvas.utils';
+import { markerViews, rotatePoint } from './minimap-canvas.utils';
 
 let canvasCount = 0;
 
@@ -44,11 +44,28 @@ export class MinimapCanvas {
   /** Faint place names. */
   public readonly labels = input<readonly MinimapLabel[]>([]);
   public readonly highlight = input<MinimapHighlight | null>(null);
+  /** Clockwise turn of the image in degrees (0, 90, 180, 270); points follow, texts stay upright. */
+  public readonly rotation = input(0);
 
   private readonly router = inject(Router);
 
   protected readonly image = computed(() => minimapImage(this.map()));
-  protected readonly views = computed(() => markerViews(this.markers(), MARKER_RADIUS));
+  protected readonly views = computed(() =>
+    markerViews(
+      this.markers().map((m) => rotatePoint(m, this.rotation())),
+      MARKER_RADIUS,
+    ),
+  );
+  protected readonly shownDensity = computed(() =>
+    this.density().map((spot) => rotatePoint(spot, this.rotation())),
+  );
+  protected readonly shownLabels = computed(() =>
+    this.labels().map((label) => rotatePoint(label, this.rotation())),
+  );
+  protected readonly shownHighlight = computed(() => {
+    const spot = this.highlight();
+    return spot ? rotatePoint(spot, this.rotation()) : null;
+  });
 
   protected readonly r = MARKER_RADIUS;
   protected readonly densityMin = DENSITY_RADIUS_MIN;

@@ -65,7 +65,7 @@ def _agents_played(cohorts: ReportCohorts) -> StatTable:
     table = (
         TableBuilder("agents-played", "Agents joués par l'escouade", "Agent", help="agentsPlayed")
         .count_column("matches", "Matchs")
-        .column("wl", "V-D", ValueFormat.TEXT, 0, ref=Reference.NONE, min=0)
+        .record_column()
         .column("rw", "Rounds gagnés", help="agentRoundsWon")
         .column("acs", "ACS moyen", ValueFormat.INTEGER, help="acs")
         .column("players", "Joueurs", ValueFormat.TEXT, 0, ref=Reference.NONE, min=0)
@@ -94,7 +94,7 @@ def _agent_pool(cohorts: ReportCohorts) -> StatTable:
     table = (
         TableBuilder("agents-pool", "Agent pool par joueur", "Joueur · agent", help="agentPool")
         .count_column("matches", "Matchs")
-        .column("wl", "V-D", ValueFormat.TEXT, 0, ref=Reference.NONE, min=0)
+        .record_column()
         .column("rw", "Rounds gagnés", help="agentRoundsWon", min=MIN_PLAYER_SAMPLE)
         .column("acs", "ACS", ValueFormat.INTEGER, help="acs", min=MIN_PLAYER_SAMPLE)
         .column("kd", "K/D", ValueFormat.DECIMAL_2, help="kd", min=MIN_PLAYER_SAMPLE)
@@ -150,7 +150,7 @@ def _compositions(cohorts: ReportCohorts) -> StatTable:
     table = (
         TableBuilder("agents-compos", "Compos par carte", "Carte · compo", help="compos")
         .count_column("matches", "Matchs")
-        .column("wl", "V-D", ValueFormat.TEXT, 0, ref=Reference.NONE, min=0)
+        .record_column()
         .column("rw", "Rounds gagnés", help="compoRoundsWon")
     )
     for map_name in cohorts.maps():
@@ -164,7 +164,7 @@ def _compositions(cohorts: ReportCohorts) -> StatTable:
                 map_name,
                 {"matches": fixed(len(matches)), "wl": record(matches), "rw": rate},
                 art=map_art(map_name),
-                sub=key,
+                agents=sorted(matches[0].agents),
             )
     return table.build()
 
@@ -175,8 +175,7 @@ def _compo_rate(by_cohort: dict[ReportCohort, dict[str, list[MatchFact]]], key: 
 
 def _top_compositions(cohorts: ReportCohorts) -> StatTable:
     table = (
-        TableBuilder("agents-top-compos", "Compo la plus jouée en top ranked", "Carte", help="topCompo")
-        .column("compo", "Compo", ValueFormat.TEXT, 0, ref=Reference.NONE, min=0)
+        TableBuilder("agents-top-compos", "Compo la plus jouée en top ranked", "Carte · compo", help="topCompo")
         .count_column("matches", "Matchs top ranked")
         .column("share", "Part des équipes", better=0, help="topCompo", ref=Reference.NONE, min=0)
         .column("rw", "Rounds gagnés", better=0, help="topCompo", ref=Reference.NONE, min=0)
@@ -194,13 +193,13 @@ def _top_compositions(cohorts: ReportCohorts) -> StatTable:
             map_name,
             map_name,
             {
-                "compo": fixed(key, len(matches)),
                 "matches": fixed(len(matches)),
                 "share": fixed(len(matches) / total, total),
                 "rw": fixed(value, rounds),
                 "squad": fixed(played),
             },
             art=map_art(map_name),
+            agents=sorted(matches[0].agents),
         )
     return table.build()
 

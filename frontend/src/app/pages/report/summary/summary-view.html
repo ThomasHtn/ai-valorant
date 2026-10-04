@@ -103,20 +103,5 @@
         />
       }
     </section>
-
-    @if (lastEvening(); as evening) {
-      <section class="view-section" aria-labelledby="summary-evening">
-        <h2 id="summary-evening">
-          Dernière session
-          <a
-            class="order-2 font-sans text-sm font-normal"
-            routerLink="/report/matches"
-            queryParamsHandling="preserve"
-            >Tous les matchs</a
-          >
-        </h2>
-        <app-last-evening [evening]="evening" />
-      </section>
-    }
   </div>
 </div>

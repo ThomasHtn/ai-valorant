@@ -19,5 +19,4 @@ export interface ReportFilters {
 }
 
 /** Report views that keep their own filters and display options. */
-export type ReportScope =
-  'summary' | 'findings' | 'tables' | 'compare' | 'minimap' | 'players' | 'distribution';
+export type ReportScope = 'summary' | 'tables' | 'compare' | 'minimap' | 'players' | 'distribution';

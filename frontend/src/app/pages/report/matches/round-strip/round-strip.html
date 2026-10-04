@@ -1,36 +1,23 @@
 <div class="flex flex-wrap gap-0.5">
   @for (item of items(); track item.key) {
     @if (item.cell; as cell) {
-      <span class="flex w-10.5 flex-col gap-0.5">
-        <!-- Score gap after the round: up when the squad leads, down when it trails. -->
-        <span class="relative h-10" aria-hidden="true">
-          @if (item.gap !== 0) {
-            <i
-              class="absolute inset-x-2 block"
-              [class]="item.gap > 0 ? 'bottom-1/2 bg-rating-good/70' : 'top-1/2 bg-rating-bad/70'"
-              [style.height.%]="item.reach * 50"
-            ></i>
-          }
-          <i class="absolute inset-x-0 top-1/2 block h-px bg-text-primary/25"></i>
-        </span>
-        <a
-          [routerLink]="item.link"
-          [queryParams]="{ match: matchId(), result: 'all' }"
-          queryParamsHandling="merge"
-          [appHoverTip]="item.tip"
-          class="focus-ring-inset flex min-h-14 w-10.5 flex-col items-center justify-between py-1 !text-text-primary no-underline hover:outline hover:-outline-offset-1 hover:outline-edge-strong"
-          [class]="cell.won ? 'tone-good' : 'tone-bad'"
-          [attr.aria-label]="'Round ' + cell.roundNumber + ', ' + (cell.won ? 'gagné' : 'perdu')"
-        >
-          <span class="font-display text-base leading-none font-semibold">{{
-            cell.roundNumber
-          }}</span>
-          <span class="text-[0.72rem] leading-none text-text-secondary">{{
-            cell.side === 'att' ? 'Att' : 'Déf'
-          }}</span>
-          <span class="text-[0.72rem] leading-none font-semibold">{{ item.buy }}</span>
-        </a>
-      </span>
+      <a
+        [routerLink]="item.link"
+        [queryParams]="{ match: matchId(), result: 'all' }"
+        queryParamsHandling="merge"
+        [appHoverTip]="item.tip"
+        class="focus-ring-inset flex min-h-14 w-10.5 flex-col items-center justify-between py-1 !text-text-primary no-underline hover:outline hover:-outline-offset-1 hover:outline-edge-strong"
+        [class]="cell.won ? 'tone-good' : 'tone-bad'"
+        [attr.aria-label]="'Round ' + cell.roundNumber + ', ' + (cell.won ? 'gagné' : 'perdu')"
+      >
+        <span class="font-display text-base leading-none font-semibold">{{
+          cell.roundNumber
+        }}</span>
+        <span class="text-[0.72rem] leading-none text-text-secondary">{{
+          cell.side === 'att' ? 'Att' : 'Déf'
+        }}</span>
+        <span class="text-[0.72rem] leading-none font-semibold">{{ item.buy }}</span>
+      </a>
     } @else {
       <span class="w-2.5" aria-hidden="true"></span>
     }

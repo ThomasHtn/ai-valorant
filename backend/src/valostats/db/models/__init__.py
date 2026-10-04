@@ -8,6 +8,7 @@ from valostats.db.models.match import Match
 from valostats.db.models.match_fact import MatchFactRow
 from valostats.db.models.player_match_fact import PlayerMatchFactRow
 from valostats.db.models.player_round_fact import PlayerRoundFactRow
+from valostats.db.models.report_snapshot import ReportSnapshot
 from valostats.db.models.round_fact import RoundFactRow
 from valostats.db.models.squad_player import SquadPlayer
 from valostats.db.models.win_probability import WinProbabilityRow
@@ -21,6 +22,7 @@ __all__ = [
     "MatchFactRow",
     "PlayerMatchFactRow",
     "PlayerRoundFactRow",
+    "ReportSnapshot",
     "RoundFactRow",
     "SquadPlayer",
     "WinProbabilityRow",

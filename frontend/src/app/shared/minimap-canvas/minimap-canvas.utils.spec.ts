@@ -1,6 +1,13 @@
 import { describe, expect, it } from 'vitest';
 
-import { clampUnit, crossPath, diamondPath, trianglePath } from './minimap-canvas.utils';
+import {
+  clampUnit,
+  crossPath,
+  diamondPath,
+  nextRotation,
+  rotatePoint,
+  trianglePath,
+} from './minimap-canvas.utils';
 
 describe('minimap marker paths', () => {
   it('centres the diamond on the point', () => {
@@ -19,5 +26,26 @@ describe('minimap marker paths', () => {
     expect(clampUnit(-0.2)).toBe(0);
     expect(clampUnit(1.4)).toBe(1);
     expect(clampUnit(0.3)).toBe(0.3);
+  });
+});
+
+describe('rotatePoint', () => {
+  it('turns the right edge to the bottom on a quarter turn clockwise', () => {
+    expect(rotatePoint({ x: 1, y: 0.5 }, 90)).toEqual({ x: 0.5, y: 1 });
+  });
+
+  it('turns the top edge to the left on three quarter turns', () => {
+    expect(rotatePoint({ x: 0.5, y: 0 }, 270)).toEqual({ x: 0, y: 0.5 });
+  });
+
+  it('keeps the other fields and leaves an unturned point alone', () => {
+    expect(rotatePoint({ x: 0.2, y: 0.3, name: 'A' }, 180)).toEqual({ x: 0.8, y: 0.7, name: 'A' });
+    expect(rotatePoint({ x: 0.2, y: 0.3 }, 0)).toEqual({ x: 0.2, y: 0.3 });
+  });
+});
+
+describe('nextRotation', () => {
+  it('cycles through the four quarter turns', () => {
+    expect([0, 90, 180, 270].map(nextRotation)).toEqual([90, 180, 270, 0]);
   });
 });

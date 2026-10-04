@@ -15,6 +15,7 @@ from valostats.core.database import get_session_factory
 from valostats.services.facts_store import FactsStore
 from valostats.services.match_service import MatchService
 from valostats.services.report_service import ReportService
+from valostats.services.snapshot_store import SnapshotStore
 
 logger = logging.getLogger(__name__)
 
@@ -33,7 +34,7 @@ def _warm_up(store: FactsStore) -> None:
 async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     store = FactsStore(get_session_factory())
     app.state.facts_store = store
-    app.state.report_service = ReportService(store)
+    app.state.report_service = ReportService(store, SnapshotStore(get_session_factory()))
     app.state.match_service = MatchService(store, get_session_factory())
     threading.Thread(target=_warm_up, args=(store,), daemon=True).start()
     yield

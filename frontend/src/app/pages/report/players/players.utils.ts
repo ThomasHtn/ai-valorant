@@ -4,13 +4,7 @@ import { ValueFormat } from '@core/format/value-format.model';
 import { formatValue, integer } from '@core/format/value-format.utils';
 import { AgentRole } from '@core/game-assets/game-assets.model';
 import { ROLE_LABELS } from '@core/game-assets/game-assets.constants';
-import {
-  ClutchLine,
-  DeathZone,
-  FormMatch,
-  HeadlineStat,
-  OpeningDuels,
-} from '@core/report/players.model';
+import { ClutchLine, DeathZone, HeadlineStat, OpeningDuels } from '@core/report/players.model';
 import { StatCell, StatColumn } from '@core/report/stat-table.model';
 import { cellTone, columnReference, referenceValue } from '@core/report/tone.utils';
 import { CellTone } from '@core/report/tone.model';
@@ -169,23 +163,6 @@ export function clutchBars(
   });
 }
 
-/**
- * Colour of one match's ACS: the match value against the player's ACS reference (same role), with no
- * minimum sample since a match is always one sample.
- */
-export function formTone(
-  match: FormMatch,
-  acs: HeadlineStat | undefined,
-  reference: Reference,
-  colours: boolean,
-): CellTone | null {
-  if (!acs) {
-    return null;
-  }
-  const cell: StatCell = { ...acs.cell, v: match.acs, n: null };
-  return figureTone(cell, figureColumn('acs', 'ACS', 'int', 1, 0), reference, colours);
-}
-
 /** Column of an opening duel rate: a lower minimum than tables, a player has fewer duels than the squad. */
 export function openingColumn(key: string, label: string): StatColumn {
   return figureColumn(key, label, 'pct', 1, PANEL_MIN_SAMPLE);
@@ -236,7 +213,7 @@ export interface ProfileRow {
  */
 export function profileRows(
   headline: readonly HeadlineStat[],
-  duels: OpeningDuels,
+  duels: OpeningDuels | null,
   reference: Reference,
   colours: boolean,
 ): ProfileRow[] {
@@ -248,7 +225,7 @@ export function profileRows(
     cell: stat.cell,
     column: headlineColumn(stat),
   }));
-  if (!headline.some((stat) => stat.key === 'openingWon')) {
+  if (duels && !headline.some((stat) => stat.key === 'openingWon')) {
     figures.push({
       key: 'duelsWon',
       label: 'Premiers duels gagnés',
@@ -268,13 +245,4 @@ export function profileRows(
     reference: formatValue(referenceValue(f.cell, reference).value ?? null, f.column.format),
     sample: f.cell.n ? `${integer(f.cell.n)} ${f.unit}` : null,
   }));
-}
-
-/** Matches of the period, led by the last few played before it for context. */
-export function formWindow<T extends { inPeriod: boolean }>(
-  form: readonly T[],
-  context: number,
-): T[] {
-  const first = form.findIndex((m) => m.inPeriod);
-  return first < 0 ? form.slice(-context) : form.slice(Math.max(0, first - context));
 }

@@ -889,28 +889,99 @@
 }
 
 /*
- * Spacing levels of the report, each clearly wider than the one inside it: the report band and tab
- * strip apart from the view, the view's blocks 2.5rem apart, a block's title 0.75rem over its content.
+ * Spacing levels of the report, each clearly wider than the one inside it: the top bar apart from
+ * the view, the view's blocks 2.5rem apart, a block's title 0.75rem over its content.
  */
 
-/* Report band: full-bleed darker strip holding the period and its facts. */
-@utility report-band {
-  @apply shrink-0 bg-surface-sunken/75;
-}
-
-/* Inner row of the band, on the page's gutter and width cap. */
-@utility report-band-inner {
-  @apply mx-auto w-full max-w-[2400px] px-4 py-4 sm:px-6 2xl:px-8;
-}
-
-/* Tab strip: a lighter full-bleed bar under the band, so the views read apart from the report's facts. */
-@utility report-tabs {
-  @apply shrink-0 border-y border-edge-strong bg-surface-800/70;
-}
-
-/* Inner row of the strip, on the page's gutter: tab edges line up with the blocks of the view. */
-@utility report-tabs-inner {
+/* Inner row of the top bar, on the page's gutter: its edges line up with the blocks of the view. */
+@utility app-header-inner {
   @apply mx-auto w-full max-w-[2400px] px-4 sm:px-6 2xl:px-8;
+}
+
+/*
+ * One view tab of the top bar: sentence case, grey at rest, amber when active (amber is selection
+ * everywhere). The underline is not drawn here: one indicator slides under whichever tab is active.
+ * The hover ground is inset so neighbouring tabs never touch.
+ */
+@utility report-tab {
+  @apply focus-ring-inset relative isolate flex h-11 shrink-0 cursor-pointer items-center gap-1.5 px-3 text-[1.05rem] font-semibold whitespace-nowrap text-text-secondary no-underline transition-colors hover:text-text-primary;
+
+  &::before {
+    @apply absolute inset-x-0.5 inset-y-1.5 -z-10 bg-text-primary/0 transition-colors content-[''];
+  }
+
+  &:hover::before {
+    @apply bg-text-primary/6;
+  }
+
+  &[aria-current='page'],
+  &[data-active] {
+    color: var(--color-brand-400);
+  }
+}
+
+/*
+ * Entry of a top bar panel: a faint lift under the pointer or while its content is previewed
+ * (`data-preview`), amber bar and text on the one being read, as on a selected option.
+ */
+@utility panel-option {
+  @apply focus-ring-inset relative flex w-full cursor-pointer items-center gap-2.5 px-2 py-2 text-left font-semibold !text-text-secondary no-underline transition-colors hover:bg-text-primary/7 hover:!text-text-primary data-preview:bg-text-primary/7 data-preview:!text-text-primary;
+
+  &[aria-current='page'],
+  &[aria-pressed='true'] {
+    @apply bg-brand-500/10 !text-brand-400 before:absolute before:inset-y-0 before:left-0 before:w-0.5 before:bg-brand-500 before:content-[''];
+  }
+}
+
+/* Name of a column of a top bar panel ('Mois', 'Outils'): quiet, it only says what the list holds. */
+@utility panel-heading {
+  @apply !m-0 px-2 pb-2 text-sm font-semibold text-text-muted;
+}
+
+/* Small square choice of a panel (a patch), amber once chosen like a segmented option. */
+@utility panel-chip {
+  @apply focus-ring flex h-8 cursor-pointer items-center border border-edge-strong px-2.5 font-semibold whitespace-nowrap text-text-secondary transition-colors hover:bg-text-primary/10 hover:text-text-primary;
+
+  &[aria-pressed='true'] {
+    @apply border-brand-500 bg-brand-500/15 text-brand-400;
+  }
+}
+
+/* Icon of a tool entry, on the first line of its two. */
+@utility explore-icon {
+  @apply mt-0.5 size-4 shrink-0 text-brand-400;
+}
+
+/*
+ * Panel opened from the top bar (period, Explorer) as a native `popover`: the browser brings light
+ * dismiss, Escape and the top layer; its centring defaults are undone so `applyPlacement` can pin
+ * it under its trigger. It drops in a few pixels when it opens.
+ */
+@utility popover-panel {
+  @apply menu-panel fixed inset-auto m-0 overflow-y-auto p-0 text-text-primary shadow-[0_18px_48px_-12px_rgb(0_0_0/0.7)];
+
+  opacity: 0;
+  transform: translateY(-6px);
+  transition:
+    opacity 140ms ease-out,
+    transform 180ms var(--ease-out-quart),
+    display 180ms allow-discrete,
+    overlay 180ms allow-discrete;
+
+  &:popover-open {
+    opacity: 1;
+    transform: none;
+
+    @starting-style {
+      opacity: 0;
+      transform: translateY(-6px);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+    transform: none;
+  }
 }
 
 /* Routed view: its toolbar, then its blocks, set well apart so each block reads as one. */

@@ -92,7 +92,7 @@ Each lost round gets a cause, computed from its timeline:
 | <img src="docs/media/icons/chart.svg" width="15" alt=""> Context | <img src="docs/media/icons/trend.svg" width="15" alt=""> Behaviour | |
 
 Written in the squad's own words: full buy, eco, first blood, revenge, retake, post-plant, throw. Every
-stat has an "i" that explains it like a teammate would, and the glossary gathers them all.
+stat has an "i" that explains it like a teammate would.
 
 ---
 
@@ -113,7 +113,7 @@ Maps are imposed in ranked, so map verdicts are about **where to invest practice
 
 | View | What it shows |
 |---|---|
-| <img src="docs/media/icons/table.svg" width="15" alt=""> **Toutes les stats** | Every domain as a coloured table, plus the automatic alerts, against the reference of your choice |
+| <img src="docs/media/icons/table.svg" width="15" alt=""> **Stats par thème** | Every domain as a coloured table, plus the automatic alerts, against the reference of your choice |
 | <img src="docs/media/icons/target.svg" width="15" alt=""> **Points forts et faibles** | Tested strengths and weaknesses, with the rounds behind each one |
 | <img src="docs/media/icons/scale.svg" width="15" alt=""> **Comparer** | The squad against its past, its opponents or the top ranked; or player against player |
 | <img src="docs/media/icons/map.svg" width="15" alt=""> **Minimap** | Kills, deaths, first bloods, plants and isolated deaths on the real map, zone by zone |
@@ -122,7 +122,6 @@ Maps are imposed in ranked, so map verdicts are about **where to invest practice
 | <img src="docs/media/icons/player.svg" width="15" alt=""> **Joueurs** | One sheet per player, compared with their own role |
 | <img src="docs/media/icons/trend.svg" width="15" alt=""> **Évolution** | Key stats month by month, patch by patch or match by match |
 | <img src="docs/media/icons/chart.svg" width="15" alt=""> **Répartition** | Timings, distances, damage and ACS as histograms, against the top ranked |
-| <img src="docs/media/icons/book.svg" width="15" alt=""> **Glossaire** | Every stat, explained in player words |
 
 A report covers a month, a patch, an evening or any date range, and its address is shareable.
 

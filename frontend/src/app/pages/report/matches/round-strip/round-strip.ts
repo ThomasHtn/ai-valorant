@@ -17,16 +17,11 @@ interface StripView {
   tip: HoverTipContent | null;
   link: string[] | null;
   buy: string;
-  /** Score gap after the round (+2 when leading by two), drawn as a bar over the square. */
-  gap: number;
-  /** Bar height as a share of the half bar area, 0..1. */
-  reach: number;
 }
 
 /**
  * One square per round, green won and red lost, with the side and the buy; a gap marks each side
- * swap. Over each square a bar shows the score gap after the round, so the match's momentum
- * (comebacks, leads thrown) reads along the rounds. A square opens the round's sheet, its list
+ * swap. Its tip gives the score after the round. A square opens the round's sheet, its list
  * limited to the match with won rounds included.
  */
 @Component({
@@ -40,7 +35,6 @@ export class RoundStrip {
 
   protected readonly items = computed<StripView[]>(() => {
     const gaps = scoreGaps(this.rounds());
-    const widest = Math.max(1, ...gaps.map(Math.abs));
     let index = 0;
     return stripItems(this.rounds()).map((item) => {
       if (item.kind === 'swap') {
@@ -51,20 +45,15 @@ export class RoundStrip {
           tip: null,
           link: null,
           buy: '',
-          gap: 0,
-          reach: 0,
         };
       }
-      const gap = gaps[index++];
       return {
         key: `r${item.cell.roundNumber}`,
         swap: false,
         cell: item.cell,
-        tip: roundTip(item.cell, gap),
+        tip: roundTip(item.cell, gaps[index++]),
         link: roundLink({ matchId: this.matchId(), roundNumber: item.cell.roundNumber }),
         buy: BUY_SHORT_LABELS[item.cell.buy],
-        gap,
-        reach: Math.abs(gap) / widest,
       };
     });
   });

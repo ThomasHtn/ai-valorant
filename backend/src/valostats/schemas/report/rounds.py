@@ -91,5 +91,7 @@ class EconomyLine(ApiModel):
 class RoundSheet(ApiModel):
     round: RoundLine
     events: list[RoundEvent]
+    # Clockwise turn of the minimap (0, 90, 180, 270) so attackers start at the bottom.
+    rotation: int
     squad_economy: list[EconomyLine]
     opp_economy: list[EconomyLine]

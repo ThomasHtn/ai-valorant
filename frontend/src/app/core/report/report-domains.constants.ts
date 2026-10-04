@@ -18,3 +18,9 @@ export const REPORT_DOMAINS: readonly { key: string; label: string }[] = [
 
 /** Domain shown when the URL names none. */
 export const DEFAULT_DOMAIN = 'results';
+
+/** Route key of the Alertes entry, listed before the domains (`/report/tables/detections`). */
+export const DETECTIONS_KEY = 'detections';
+
+/** Label of the Alertes entry. */
+export const DETECTIONS_LABEL = 'Alertes';

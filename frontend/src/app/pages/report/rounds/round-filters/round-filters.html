@@ -10,15 +10,7 @@
     <option value="all" [selected]="f.result === 'all'">Tous</option>
   </select>
 </label>
-<label class="flex min-w-0 items-center gap-2">
-  <span class="filter-label">Carte</span>
-  <select id="round-filter-map" class="field-control min-w-28" (change)="set('map', $event)">
-    <option value="" [selected]="!f.map">Toutes</option>
-    @for (map of maps(); track map) {
-      <option [value]="map" [selected]="f.map === map">{{ map }}</option>
-    }
-  </select>
-</label>
+<app-map-select [maps]="maps()" [selected]="f.map" (selectedChange)="setMap($event)" />
 <label class="flex min-w-0 items-center gap-2">
   <span class="filter-label">Side</span>
   <select id="round-filter-side" class="field-control min-w-28" (change)="set('side', $event)">

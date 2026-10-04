@@ -2,12 +2,14 @@ import { Component, input, output } from '@angular/core';
 
 import { BuyType } from '@core/common/enums.model';
 import { BUY_SENTENCE_LABELS } from '@core/format/round-labels.constants';
+import { MapSelect } from '@shared/map-select/map-select';
 
 import { RoundFilters } from '../rounds-filter.model';
 
 /** Result, map, side and buy filters of the rounds list. Emits the whole filter set on change. */
 @Component({
   selector: 'app-round-filters',
+  imports: [MapSelect],
   templateUrl: './round-filters.html',
   host: { class: 'contents' },
 })
@@ -22,5 +24,9 @@ export class RoundFiltersView {
   protected set<K extends keyof RoundFilters>(key: K, event: Event): void {
     const value = (event.target as HTMLSelectElement).value as RoundFilters[K];
     this.filtersChange.emit({ ...this.filters(), [key]: value });
+  }
+
+  protected setMap(map: string): void {
+    this.filtersChange.emit({ ...this.filters(), map });
   }
 }

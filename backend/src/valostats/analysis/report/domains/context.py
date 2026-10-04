@@ -78,9 +78,7 @@ def _results_table(
 
     `extra(keep)` adds the cells of columns the caller declared on `table` before calling.
     """
-    table.count_column("matches", "Matchs").column("wl", "V-D", ValueFormat.TEXT, 0, ref=Reference.NONE, min=0).column(
-        "rw", "Rounds gagnés", help="roundsWon", ref=Reference.HISTORY
-    )
+    table.count_column("matches", "Matchs").record_column().column("rw", "Rounds gagnés", help="roundsWon", ref=Reference.HISTORY)
     for key, label, keep, sub in rows:
         matches = [m for m in _squad_matches(cohorts) if keep(m)]
         if not matches and key not in keep_empty:

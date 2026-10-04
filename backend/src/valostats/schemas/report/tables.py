@@ -22,6 +22,7 @@ class ValueFormat(StrEnum):
     METRES = "m"
     CREDITS = "cr"
     TEXT = "text"
+    RECORD = "record"  # wins-losses "12-15", drawn as two columns
 
 
 class ArtType(StrEnum):
@@ -76,6 +77,8 @@ class StatRow(ApiModel):
     label: str
     art: GameArt | None = None
     sub: str | None = None
+    # Agents of a composition, drawn under the label as portraits with their names.
+    agents: list[str] | None = None
     cells: dict[str, StatCell]
     # Summary row ("Toutes les cartes"), kept last when sorting.
     total: bool = False

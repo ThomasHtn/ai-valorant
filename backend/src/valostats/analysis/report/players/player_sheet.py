@@ -1,16 +1,19 @@
-"""Player sheet: headline band, results by map / agent / side, weapons, death zones, duels, clutches, form, rounds to rewatch.
+"""Player sheet: headline band, results by map / agent / side, weapons, economy, utility, death zones, duels, clutches, rounds to rewatch.
 
 References follow the player rule of `cells.player_cell`: top ranked and opponents are players of the
 same main role, history is the player himself before the period. Agent rows compare with every
-player of that agent instead.
+player of that agent instead. Weapons and economy are set beside top ranked players of the same role.
 """
 
 import statistics
 from collections import Counter, defaultdict
 from collections.abc import Callable, Sequence
-from datetime import datetime
+from dataclasses import dataclass
 from typing import Any
 
+from valostats.analysis.report.domains._lookups import TeamRounds, measured_cell
+from valostats.analysis.report.domains.economy import HABITS, MIN_HABIT_SAMPLE, habit_metrics, non_pistol_player_facts
+from valostats.analysis.report.domains.utility import casts_table
 from valostats.analysis.report.foundation.art import agent_art, map_art
 from valostats.analysis.report.foundation.cells import cell, fixed, player_cell, ratio
 from valostats.analysis.report.foundation.cohorts import FactKind, ReportCohort, ReportCohorts, SquadPlayer
@@ -35,12 +38,12 @@ from valostats.constants.players import DEATH_ZONES, REWATCH_ROUNDS, TOP_WEAPONS
 from valostats.constants.report import MIN_PLAYER_SAMPLE
 from valostats.core.errors import NotFoundError
 from valostats.domain.enums import Reference, Side
-from valostats.domain.facts import KillFact, MatchFact, PlayerMatchFact, PlayerRoundFact
+from valostats.domain.facts import KillFact, PlayerMatchFact, PlayerRoundFact
 from valostats.schemas.report.player import (
     AgentPlayed,
     ClutchLine,
     DeathZone,
-    FormMatch,
+    HeadlineStat,
     OpeningDuels,
     PlayerSheet,
     PlayerSummary,
@@ -83,6 +86,8 @@ def player_sheet(cohorts: ReportCohorts, name: str) -> PlayerSheet:
         by_agent=_split_table(cohorts, player, "agents", "Par agent", "Agent", _agent_rows(played), by_agent=True),
         by_side=_split_table(cohorts, player, "sides", "Par side", "Side", _side_rows(), record=False),
         weapons=_weapons(cohorts, player),
+        economy=_economy(cohorts, player),
+        utility=casts_table(cohorts, [player]),
         death_zones=_death_zones(cohorts, player),
         opening_duels=OpeningDuels(
             first_bloods=sum(r.first_blood for r in rounds),
@@ -92,7 +97,6 @@ def player_sheet(cohorts: ReportCohorts, name: str) -> PlayerSheet:
             won_after_first_death=player_cell(cohorts, FactKind.PLAYER_ROUNDS, won_after_first_death, player),
         ),
         clutches=[_clutch(cohorts, player, label, size) for label, size in CLUTCHES],
-        form=_form(cohorts, player),
         rewatch=_rewatch(cohorts, player),
     )
 
@@ -155,7 +159,7 @@ def _split_table(
     """
     table = TableBuilder(f"player-{suffix}", title, rows_label)
     if record:
-        table.count_column("matches", "Matchs").column("wl", "V-D", ValueFormat.TEXT, 0, ref=Reference.NONE, min=0)
+        table.count_column("matches", "Matchs").record_column()
     else:
         table.count_column("rounds", "Rounds")
     (
@@ -189,21 +193,68 @@ def _weapons(cohorts: ReportCohorts, player: SquadPlayer) -> list[WeaponUse]:
     kills: list[KillFact] = list(cohorts.squad(FactKind.KILLS, killer=player.name))
     counts = Counter(k.weapon for k in kills if k.weapon)
     rounds = _own_rounds(cohorts, player)
+    top_kills = [
+        k for k in cohorts.select(FactKind.KILLS, ReportCohort.TOP) if cohorts.role_of_player(k.match_id, k.killer_puuid) == player.role
+    ]
+    top_rounds = [r for r in cohorts.select(FactKind.PLAYER_ROUNDS, ReportCohort.TOP) if role_of(r.agent) == player.role]
     out = []
     for weapon, n in counts.most_common(TOP_WEAPONS):
-        hits, shots = headshot_rate([r for r in rounds if r.weapon == weapon])
-        distances = [k.distance / UNITS_PER_METRE for k in kills if k.weapon == weapon and k.distance is not None]
+        top = _weapon_figures(top_kills, top_rounds, weapon)
+        own = _weapon_figures(kills, rounds, weapon)
         out.append(
             WeaponUse(
                 weapon=weapon,
                 kills=n,
-                share=round(n / len(kills), 4),
-                headshot_rate=round(hits, 4) if hits is not None else None,
-                shots=shots,
-                distance=round(statistics.median(distances), 1) if distances else None,
+                share=own.share or 0.0,
+                headshot_rate=own.headshot_rate,
+                shots=own.shots,
+                distance=own.distance,
+                top_share=top.share,
+                top_headshot_rate=top.headshot_rate,
+                top_distance=top.distance,
             )
         )
     return out
+
+
+@dataclass(frozen=True)
+class _WeaponFigures:
+    share: float | None
+    headshot_rate: float | None
+    shots: int
+    distance: float | None
+
+
+def _weapon_figures(kills: Sequence[KillFact], rounds: Sequence[PlayerRoundFact], weapon: str) -> _WeaponFigures:
+    """Share of the kills made with the weapon, headshot rate in the rounds it was bought, median kill distance."""
+    hits, shots = headshot_rate([r for r in rounds if r.weapon == weapon])
+    with_weapon = [k for k in kills if k.weapon == weapon]
+    distances = [k.distance / UNITS_PER_METRE for k in with_weapon if k.distance is not None]
+    return _WeaponFigures(
+        share=round(len(with_weapon) / len(kills), 4) if kills else None,
+        headshot_rate=round(hits, 4) if hits is not None else None,
+        shots=shots,
+        distance=round(statistics.median(distances), 1) if distances else None,
+    )
+
+
+def _economy(cohorts: ReportCohorts, player: SquadPlayer) -> list[HeadlineStat]:
+    """Buying habits outside pistols, the same figures as the Économie table, for this player."""
+    metrics = habit_metrics(TeamRounds(cohorts))
+    facts = non_pistol_player_facts(cohorts, player, {})
+    return [
+        HeadlineStat(
+            key=key,
+            label=label,
+            format=value_format,
+            better=better,
+            help=help_key,
+            unit="rounds",
+            min=MIN_HABIT_SAMPLE,
+            cell=measured_cell(metrics[key], facts),
+        )
+        for key, label, value_format, better, help_key in HABITS
+    ]
 
 
 def _death_zones(cohorts: ReportCohorts, player: SquadPlayer) -> list[DeathZone]:
@@ -259,38 +310,6 @@ def _clutch(cohorts: ReportCohorts, player: SquadPlayer, label: str, size: Calla
         played=len(played),
         cell=player_cell(cohorts, FactKind.PLAYER_ROUNDS, won, player),
     )
-
-
-def _form(cohorts: ReportCohorts, player: SquadPlayer) -> list[FormMatch]:
-    """Every match of the player up to the end of the period, oldest first."""
-    dated: list[tuple[datetime, FormMatch]] = []
-    for cohort in (ReportCohort.HISTORY, ReportCohort.SQUAD):
-        matches: dict[str, MatchFact] = {m.match_id: m for m in cohorts.select(FactKind.MATCHES, cohort)}
-        # Kills, deaths and assists of each match, summed from the player's rounds.
-        totals: defaultdict[str, list[int]] = defaultdict(lambda: [0, 0, 0])
-        for r in cohorts.select(FactKind.PLAYER_ROUNDS, cohort, name=player.name):
-            line = totals[r.match_id]
-            line[0] += r.kills
-            line[1] += r.deaths
-            line[2] += r.assists
-        for p in cohorts.select(FactKind.PLAYER_MATCHES, cohort, name=player.name):
-            match = matches[p.match_id]
-            kills, deaths, assists = totals[p.match_id]
-            entry = FormMatch(
-                match_id=p.match_id,
-                day=p.started_at.date(),
-                map_name=p.map_name,
-                agent=p.agent,
-                acs=round(p.score / p.rounds, 1) if p.rounds else 0.0,
-                kills=kills,
-                deaths=deaths,
-                assists=assists,
-                won=p.won,
-                score=f"{match.rounds_won}-{match.rounds_lost}",
-                in_period=cohort is ReportCohort.SQUAD,
-            )
-            dated.append((match.started_at, entry))
-    return [entry for _, entry in sorted(dated, key=lambda x: x[0])]
 
 
 def _rewatch(cohorts: ReportCohorts, player: SquadPlayer) -> list[RewatchRound]:

@@ -8,7 +8,7 @@ for map_name in cohorts.maps():
 return table.build()
 """
 
-from collections.abc import Mapping
+from collections.abc import Mapping, Sequence
 from typing import Self
 
 from valostats.constants.report import MIN_TEAM_SAMPLE
@@ -45,6 +45,10 @@ class TableBuilder:
         """A plain count: integer, never coloured."""
         return self.column(key, label, ValueFormat.INTEGER, 0, help=help, min=0, ref=Reference.NONE)
 
+    def record_column(self, key: str = "wl") -> Self:
+        """Wins and losses of matches ('12-15'), drawn by the front as a wins and a losses column."""
+        return self.column(key, "V-D", ValueFormat.RECORD, 0, min=0, ref=Reference.NONE)
+
     def row(
         self,
         key: str,
@@ -53,10 +57,12 @@ class TableBuilder:
         *,
         art: GameArt | None = None,
         sub: str | None = None,
+        agents: Sequence[str] | None = None,
         total: bool = False,
     ) -> Self:
         """Add a row; `cells` is keyed by column key (a missing key shows as an empty cell)."""
-        self._rows.append(StatRow(key=key, label=label, art=art, sub=sub, cells=dict(cells), total=total))
+        row_agents = list(agents) if agents is not None else None
+        self._rows.append(StatRow(key=key, label=label, art=art, sub=sub, agents=row_agents, cells=dict(cells), total=total))
         return self
 
     def build(self) -> StatTable:

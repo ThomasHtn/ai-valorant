@@ -1,0 +1,95 @@
+<button
+  #trigger
+  type="button"
+  popovertarget="report-explore"
+  class="report-tab"
+  [attr.data-active]="activeLabel() ? '' : null"
+  title="Toutes les stats par thème, et les outils pour comparer"
+>
+  <svg class="size-4 shrink-0" lucideCompass aria-hidden="true"></svg>
+  @if (activeLabel(); as label) {
+    <span class="sr-only">Explorer :</span>
+    {{ label }}
+  } @else {
+    Explorer
+  }
+  <svg class="size-4 shrink-0 opacity-70" lucideChevronDown aria-hidden="true"></svg>
+</button>
+
+<div
+  #panel
+  id="report-explore"
+  popover
+  class="popover-panel"
+  aria-label="Explorer"
+  (beforetoggle)="place($event)"
+>
+  <div class="grid sm:grid-cols-[minmax(0,1fr)_16rem]">
+    <section class="p-4" aria-labelledby="explore-stats">
+      <p id="explore-stats" class="panel-heading">Stats par thème</p>
+      <ul class="grid grid-cols-2 gap-px">
+        <li class="col-span-2 mb-1">
+          <a
+            [routerLink]="[statsPath, detectionsKey]"
+            [queryParams]="periodParams()"
+            (click)="close()"
+            class="panel-option"
+            [attr.aria-current]="activeTheme() === detectionsKey ? 'page' : null"
+          >
+            <svg class="size-4 shrink-0 text-rating-average" lucideSiren aria-hidden="true"></svg>
+            {{ detectionsLabel }}
+            <span class="text-sm font-normal text-text-muted">ce que l'outil repère seul</span>
+          </a>
+        </li>
+        @for (domain of domains; track domain.key) {
+          <li>
+            <a
+              [routerLink]="[statsPath, domain.key]"
+              [queryParams]="periodParams()"
+              (click)="close()"
+              class="panel-option"
+              [attr.aria-current]="activeTheme() === domain.key ? 'page' : null"
+              >{{ domain.label }}</a
+            >
+          </li>
+        }
+      </ul>
+    </section>
+
+    <section
+      class="border-t border-edge bg-text-primary/3 p-4 sm:border-t-0 sm:border-l"
+      aria-labelledby="explore-tools"
+    >
+      <p id="explore-tools" class="panel-heading">Outils</p>
+      <ul class="flex flex-col gap-px">
+        @for (tool of tools; track tool.path) {
+          <li>
+            <a
+              [routerLink]="['/report', tool.path]"
+              [queryParams]="periodParams()"
+              (click)="close()"
+              class="panel-option !items-start !py-2.5"
+              [attr.aria-current]="location().view === tool.path ? 'page' : null"
+            >
+              @switch (tool.path) {
+                @case ('compare') {
+                  <svg class="explore-icon" lucideGitCompareArrows aria-hidden="true"></svg>
+                }
+                @case ('trend') {
+                  <svg class="explore-icon" lucideTrendingUp aria-hidden="true"></svg>
+                }
+                @default {
+                  <svg class="explore-icon" lucideChartColumn aria-hidden="true"></svg>
+                }
+              }
+              <span class="flex flex-col leading-tight">
+                <span>{{ tool.label }}</span>
+                <span class="mt-0.5 text-sm font-normal text-text-muted">{{ tool.hint }}</span>
+              </span>
+            </a>
+          </li>
+        }
+      </ul>
+    </section>
+  </div>
+</div>

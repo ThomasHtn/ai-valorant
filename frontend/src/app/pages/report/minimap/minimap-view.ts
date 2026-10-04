@@ -8,6 +8,7 @@ import {
   signal,
   untracked,
 } from '@angular/core';
+import { Router } from '@angular/router';
 
 import { Side } from '@core/common/enums.model';
 import { SIDE_LABELS } from '@core/format/labels.constants';
@@ -16,12 +17,12 @@ import { ReportApi } from '@core/report/report-api';
 import { ReportContext } from '@core/report/report-context';
 import { ViewState } from '@core/report/view-state';
 import { provideViewState } from '@core/report/view-states';
+import { MapSelect } from '@shared/map-select/map-select';
 import { MinimapCanvas } from '@shared/minimap-canvas/minimap-canvas';
 import { MinimapHighlight } from '@shared/minimap-canvas/minimap-canvas.model';
 import { ResourceState } from '@shared/resource-state/resource-state';
 
 import { LayerToggles } from './layer-toggles/layer-toggles';
-import { MapPicker } from './map-picker/map-picker';
 import { DEFAULT_LAYERS } from './minimap-layers.constants';
 import { MinimapLayerKey } from './minimap-layers.model';
 import {
@@ -41,7 +42,7 @@ import { ZoneTable } from './zone-table/zone-table';
  */
 @Component({
   selector: 'app-minimap-view',
-  imports: [LayerToggles, MapPicker, MinimapCanvas, ResourceState, ZoneTable],
+  imports: [LayerToggles, MapSelect, MinimapCanvas, ResourceState, ZoneTable],
   host: { class: 'view-body' },
   providers: [provideViewState('minimap')],
   templateUrl: './minimap-view.html',
@@ -56,6 +57,7 @@ export class MinimapView {
   protected readonly context = inject(ReportContext);
   protected readonly state = inject(ViewState);
   private readonly api = inject(ReportApi);
+  private readonly router = inject(Router);
 
   protected readonly side = linkedSignal<Side>(() => (this.sideParam() === 'def' ? 'def' : 'att'));
   protected readonly layers = signal<ReadonlySet<MinimapLayerKey>>(DEFAULT_LAYERS);
@@ -118,6 +120,12 @@ export class MinimapView {
         next.add(key);
       }
       return next;
+    });
+  }
+
+  protected openMap(map: string): void {
+    void this.router.navigate(['/report/minimap', map.toLowerCase()], {
+      queryParamsHandling: 'preserve',
     });
   }
 

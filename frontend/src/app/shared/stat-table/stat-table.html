@@ -9,26 +9,30 @@
           {{ table().rowsLabel }}
         </th>
         @for (column of table().columns; track column.key) {
-          <th
-            scope="col"
-            class="bg-text-primary/8 px-2.5 py-2 text-right text-sm font-semibold whitespace-nowrap text-text-secondary"
-            [attr.aria-sort]="sortState(column)"
-          >
-            <button
-              type="button"
-              class="focus-ring cursor-pointer font-semibold hover:text-text-primary"
-              (click)="sortBy(column)"
+          @if (column.format === 'record') {
+            <app-win-loss-header />
+          } @else {
+            <th
+              scope="col"
+              class="bg-text-primary/8 px-2.5 py-2 text-right text-sm font-semibold whitespace-nowrap text-text-secondary"
+              [attr.aria-sort]="sortState(column)"
             >
-              {{ column.label }}
-            </button>
-            <app-better-hint class="ml-0.5" [better]="column.better" [compact]="true" />
-            <app-info-tip [topic]="column.help" />
-            @if (historyColumns().has(column.key)) {
-              <span class="block text-xs leading-none font-normal text-text-muted"
-                >vs historique</span
+              <button
+                type="button"
+                class="focus-ring cursor-pointer font-semibold hover:text-text-primary"
+                (click)="sortBy(column)"
               >
-            }
-          </th>
+                {{ column.label }}
+              </button>
+              <app-better-hint class="ml-0.5" [better]="column.better" [compact]="true" />
+              <app-info-tip [topic]="column.help" />
+              @if (historyColumns().has(column.key)) {
+                <span class="block text-xs leading-none font-normal text-text-muted"
+                  >vs historique</span
+                >
+              }
+            </th>
+          }
         }
       </tr>
     </thead>
@@ -47,39 +51,57 @@
                 @if (rowView.row.sub) {
                   <small class="text-sm font-normal text-text-muted">{{ rowView.row.sub }}</small>
                 }
+                @if (rowView.row.agents; as agents) {
+                  <span
+                    class="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-sm font-normal text-text-secondary"
+                  >
+                    @for (agent of agents; track agent) {
+                      <span class="inline-flex items-center gap-1.5">
+                        <app-agent-icon [agent]="agent" [decorative]="true" />{{ agent }}
+                      </span>
+                    }
+                  </span>
+                }
               </span>
             </div>
           </td>
           @for (cell of rowView.cells; track cell.key) {
-            <td
-              class="focus-ring-inset cursor-pointer px-2.5 py-1.5 text-right whitespace-nowrap hover:outline hover:-outline-offset-1 hover:outline-edge-strong"
-              [class]="
-                cell.tone
-                  ? toneClasses[cell.tone]
-                  : rowView.row.total
-                    ? 'bg-text-primary/9'
-                    : 'bg-text-primary/4'
-              "
-              tabindex="0"
-              (click)="open(rowView.row, cell)"
-              (keydown.enter)="open(rowView.row, cell)"
-              (pointerenter)="showTip($event, rowView.row, cell)"
-              (pointerleave)="hideTip()"
-              (focus)="showTip($event, rowView.row, cell)"
-              (blur)="hideTip()"
-            >
-              <span class="font-semibold">{{ cell.text }}</span>
-              @if (cell.sample) {
-                <span class="block text-xs leading-none font-normal text-text-muted">{{
-                  cell.sample
-                }}</span>
-              }
-              @if (cell.reference) {
-                <span class="block text-xs leading-none font-normal text-text-secondary">{{
-                  cell.reference
-                }}</span>
-              }
-            </td>
+            @if (cell.column.format === 'record') {
+              <app-win-loss-cells
+                [value]="cell.cell?.v"
+                [ground]="rowView.row.total ? 'bg-text-primary/9' : 'bg-text-primary/4'"
+              />
+            } @else {
+              <td
+                class="focus-ring-inset cursor-pointer px-2.5 py-1.5 text-right whitespace-nowrap hover:outline hover:-outline-offset-1 hover:outline-edge-strong"
+                [class]="
+                  cell.tone
+                    ? toneClasses[cell.tone]
+                    : rowView.row.total
+                      ? 'bg-text-primary/9'
+                      : 'bg-text-primary/4'
+                "
+                tabindex="0"
+                (click)="open(rowView.row, cell)"
+                (keydown.enter)="open(rowView.row, cell)"
+                (pointerenter)="showTip($event, rowView.row, cell)"
+                (pointerleave)="hideTip()"
+                (focus)="showTip($event, rowView.row, cell)"
+                (blur)="hideTip()"
+              >
+                <span class="font-semibold">{{ cell.text }}</span>
+                @if (cell.sample) {
+                  <span class="block text-xs leading-none font-normal text-text-muted">{{
+                    cell.sample
+                  }}</span>
+                }
+                @if (cell.reference) {
+                  <span class="block text-xs leading-none font-normal text-text-secondary">{{
+                    cell.reference
+                  }}</span>
+                }
+              </td>
+            }
           }
         </tr>
       }

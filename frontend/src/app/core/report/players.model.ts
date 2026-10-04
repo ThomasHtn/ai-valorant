@@ -54,6 +54,10 @@ export interface WeaponUse {
   shots: number;
   /** Median kill distance in metres. */
   distance: number | null;
+  /** Same figures for top ranked players of his role; null without top ranked kills with it. */
+  topShare: number | null;
+  topHeadshotRate: number | null;
+  topDistance: number | null;
 }
 
 /** A death in a zone, with the round to rewatch. */
@@ -101,22 +105,6 @@ export interface ClutchLine {
   cell: StatCell;
 }
 
-/** One match of the player, oldest first. */
-export interface FormMatch {
-  matchId: string;
-  day: string;
-  mapName: string;
-  agent: string;
-  acs: number;
-  kills: number;
-  deaths: number;
-  assists: number;
-  won: boolean;
-  /** Squad score, e.g. '13-9'. */
-  score: string;
-  inPeriod: boolean;
-}
-
 /** A first death without revenge, with what killed the player. */
 export interface RewatchRound {
   matchId: string;
@@ -146,9 +134,12 @@ export interface PlayerSheet {
   byAgent: StatTable;
   bySide: StatTable;
   weapons: WeaponUse[];
+  /** Buying habits outside pistols, coloured against top ranked players of his role. */
+  economy: HeadlineStat[];
+  /** Ability casts on each of his agents. */
+  utility: StatTable;
   deathZones: DeathZone[];
   openingDuels: OpeningDuels;
   clutches: ClutchLine[];
-  form: FormMatch[];
   rewatch: RewatchRound[];
 }

@@ -1,16 +1,11 @@
 <!-- One compact row: each label sits left of its control so the bar costs a single line. -->
 <div class="filter-strip" role="group" aria-label="Filtres">
   @if (showMap()) {
-    <label class="flex min-w-0 items-center gap-2">
-      <span class="filter-label">Carte</span>
-      <!-- [selected] on options, not [value] on the select: options can arrive after the value. -->
-      <select class="field-control min-w-28" (change)="setMap($event)">
-        <option value="" [selected]="!state.filters().map">Toutes</option>
-        @for (map of maps(); track map) {
-          <option [value]="map" [selected]="state.filters().map === map">{{ map }}</option>
-        }
-      </select>
-    </label>
+    <app-map-select
+      [maps]="maps()"
+      [selected]="state.filters().map"
+      (selectedChange)="state.setFilter('map', $event)"
+    />
   }
   @if (showSide()) {
     <label class="flex min-w-0 items-center gap-2">

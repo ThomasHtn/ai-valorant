@@ -2,11 +2,10 @@ import { describe, expect, it } from 'vitest';
 
 import { REFERENCE_SHORT_LABELS } from '@core/format/labels.constants';
 import { UNIT_SPACE } from '@core/format/value-format.utils';
-import { DeathZone, FormMatch, HeadlineStat, OpeningDuels } from '@core/report/players.model';
+import { DeathZone, HeadlineStat, OpeningDuels } from '@core/report/players.model';
 
 import {
   clutchBars,
-  formTone,
   headlineColumn,
   headlineTiles,
   isZoneTooDeadly,
@@ -27,20 +26,6 @@ const acs: HeadlineStat = {
   min: 20,
   cell: { v: 281, n: 576, top: 224.6, topN: 147466, opp: 245, oppN: 1071, hist: 298, histN: 1531 },
 };
-
-const match = (value: number): FormMatch => ({
-  matchId: 'm',
-  day: '2026-09-30',
-  mapName: 'Split',
-  agent: 'Jett',
-  acs: value,
-  kills: 14,
-  deaths: 17,
-  assists: 6,
-  won: false,
-  score: '6-13',
-  inPeriod: true,
-});
 
 describe('roleLabel', () => {
   it('translates the role, keeps an unknown one', () => {
@@ -87,13 +72,6 @@ describe('headlineTiles', () => {
 
   it('leaves tiles uncoloured when colours are off', () => {
     expect(headlineTiles([acs], 'top', false)[0].tone).toBeNull();
-  });
-});
-
-describe('formTone', () => {
-  it('compares one match with the ACS reference, whatever the sample', () => {
-    expect(formTone(match(320), acs, 'top', true)).toBe('good');
-    expect(formTone(match(150), acs, 'top', true)).toBe('bad');
   });
 });
 

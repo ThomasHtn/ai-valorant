@@ -1,5 +1,4 @@
-import { NgTemplateOutlet } from '@angular/common';
-import { Component, computed, inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import {
   NavigationCancel,
@@ -7,52 +6,35 @@ import {
   NavigationError,
   NavigationStart,
   Router,
-  RouterLink,
-  RouterLinkActive,
   RouterOutlet,
 } from '@angular/router';
 import { filter, map, of, switchMap, timer } from 'rxjs';
 
-import { freshness } from '@core/format/format.utils';
-import { integer } from '@core/format/value-format.utils';
 import { ReportContext } from '@core/report/report-context';
 import { ReportOriginTracker } from '@core/report/report-origin';
-import { periodQueryParams } from '@core/report/period-query.utils';
-import { REPORT_MAIN_VIEWS, REPORT_TOOL_VIEWS } from '@core/report/report-views.constants';
 import { PageHeader } from '@layout/page-header/page-header';
-import { DataQuality } from '@shared/data-quality/data-quality';
 import { ResourceState } from '@shared/resource-state/resource-state';
 
-import { PeriodSelector } from './period-selector/period-selector';
+import { PeriodPulse } from './period-pulse/period-pulse';
+import { PeriodSwitcher } from './period-switcher/period-switcher';
+import { ReportTabs } from './report-tabs/report-tabs';
 
 /** A view taking longer than this to open shows the loader; quicker ones do not flash it. */
 const LOADER_DELAY_MS = 200;
 
 /**
- * Frame of every report view: the period as a title, its facts, and the view tabs (ValoQuests
- * overview tabs) grouped by job. The period stays in the URL's query when moving between views.
+ * Frame of every report view: one top bar holding the period (its switcher and its form at a
+ * glance) over the view tabs, then the routed view. The period stays in the URL's query when moving
+ * between views.
  */
 @Component({
   selector: 'app-report-page',
-  imports: [
-    RouterOutlet,
-    RouterLink,
-    RouterLinkActive,
-    NgTemplateOutlet,
-    PageHeader,
-    DataQuality,
-    ResourceState,
-    PeriodSelector,
-  ],
+  imports: [RouterOutlet, PageHeader, ResourceState, PeriodSwitcher, PeriodPulse, ReportTabs],
   host: { class: 'page-stack' },
   templateUrl: './report-page.html',
 })
 export class ReportPage {
   protected readonly context = inject(ReportContext);
-  protected readonly mainViews = REPORT_MAIN_VIEWS;
-  protected readonly toolViews = REPORT_TOOL_VIEWS;
-  /** Tabs keep the period only: a view's own filters (map, side, round) do not leak into the next. */
-  protected readonly periodParams = computed(() => periodQueryParams(this.context.query()));
   /** True while a view's code is being fetched, so the page never sits empty. */
   protected readonly opening = toSignal(
     inject(Router).events.pipe(
@@ -69,16 +51,9 @@ export class ReportPage {
     ),
     { initialValue: false },
   );
-  protected readonly integer = integer;
-  protected readonly freshness = freshness;
 
   constructor() {
     // Started here so it sees every report navigation, the first one included.
     inject(ReportOriginTracker);
-  }
-
-  /** Brings the active tab into the bar's view on narrow screens, where the bar scrolls sideways. */
-  protected reveal(tab: HTMLElement): void {
-    tab.scrollIntoView({ block: 'nearest', inline: 'nearest' });
   }
 }

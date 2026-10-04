@@ -14,9 +14,12 @@ import {
 import { StatColumn, StatRow, StatTable } from '@core/report/stat-table.model';
 import { columnReference } from '@core/report/tone.utils';
 import { BetterHint } from '@shared/better-hint/better-hint';
+import { AgentIcon } from '@shared/game-art/agent-icon';
 import { RowArt } from '@shared/game-art/row-art';
 import { InfoTip } from '@shared/info-tip/info-tip';
 import { placeTip } from '@shared/info-tip/info-tip-position.utils';
+import { WinLossCells } from '@shared/win-loss/win-loss-cells';
+import { WinLossHeader } from '@shared/win-loss/win-loss-header';
 
 import { CELL_TIP_DELAY_MS, TONE_CLASSES } from './stat-table.constants';
 import { CellView, StatCellClick, StatDisplay, StatSort } from './stat-table.model';
@@ -31,7 +34,8 @@ interface HoveredCell {
 /**
  * A coloured statistics table of the Tableaux view (any `StatTable` from the API).
  *
- * - A picture column aligns the rows (map, agent, weapon, role; players by their avatar agent).
+ * - A picture column aligns the rows (map, agent, weapon, role; players by their avatar agent);
+ *   a composition row lists its agents with their portraits.
  * - Headers sort the rows (descending, ascending, API order); the total row stays last.
  * - Cells are coloured against the chosen reference, may show their sample and reference value,
  *   explain themselves in a tip (squad, top ranked, opponents, history with their samples) and
@@ -40,7 +44,7 @@ interface HoveredCell {
  */
 @Component({
   selector: 'app-stat-table',
-  imports: [BetterHint, RowArt, InfoTip],
+  imports: [AgentIcon, BetterHint, RowArt, InfoTip, WinLossCells, WinLossHeader],
   templateUrl: './stat-table.html',
   host: { class: 'block min-w-0' },
 })

@@ -1,7 +1,5 @@
 """Player sheet of the Joueurs view: one squad player of the period, every figure beside its references."""
 
-from datetime import date
-
 from valostats.domain.enums import Side
 from valostats.schemas.common import ApiModel, RoundRef
 from valostats.schemas.report.tables import StatCell, StatTable, ValueFormat
@@ -55,6 +53,10 @@ class WeaponUse(ApiModel):
     shots: int
     # Median kill distance in metres.
     distance: float | None
+    # Same figures for top ranked players of his role; None without top ranked kills with it.
+    top_share: float | None
+    top_headshot_rate: float | None
+    top_distance: float | None
 
 
 class ZoneDeath(RoundRef):
@@ -100,23 +102,6 @@ class ClutchLine(ApiModel):
     cell: StatCell
 
 
-class FormMatch(ApiModel):
-    """One match of the player, oldest first, for the form tiles."""
-
-    match_id: str
-    day: date
-    map_name: str
-    agent: str
-    acs: float
-    kills: int
-    deaths: int
-    assists: int
-    won: bool
-    # Squad score, e.g. "13-9".
-    score: str
-    in_period: bool
-
-
 class RewatchRound(RoundRef):
     """A first death without revenge, with what killed the player."""
 
@@ -142,8 +127,11 @@ class PlayerSheet(ApiModel):
     by_agent: StatTable
     by_side: StatTable
     weapons: list[WeaponUse]
+    # Buying habits outside pistols, coloured against top ranked players of his role.
+    economy: list[HeadlineStat]
+    # Ability casts on each of his agents.
+    utility: StatTable
     death_zones: list[DeathZone]
     opening_duels: OpeningDuels
     clutches: list[ClutchLine]
-    form: list[FormMatch]
     rewatch: list[RewatchRound]

@@ -47,6 +47,17 @@
           <app-weapons-panel class="min-w-0" [weapons]="p.weapons" />
         </div>
 
+        <!-- Buying habits always against the top ranked of his role, whatever the reference above. -->
+        <section class="view-section" aria-labelledby="player-economy">
+          <h3 id="player-economy" class="font-display text-lg font-semibold text-text-primary">
+            Économie<app-info-tip topic="playerEconomy" />
+          </h3>
+          <app-profile-figures [headline]="p.economy" reference="top" [colours]="display.colours" />
+          <p class="!m-0 text-sm text-text-muted">
+            Hors pistols, comparé aux joueurs du top ranked du même rôle.
+          </p>
+        </section>
+
         <!-- Tables take the full width so their columns never scroll sideways. -->
         @for (table of tables(); track table.id) {
           <section class="view-section" [attr.aria-labelledby]="'player-' + table.id">
@@ -65,13 +76,6 @@
         }
 
         <app-death-zones [deathZones]="p.deathZones" />
-
-        <app-form-tiles
-          [form]="p.form"
-          [acs]="acs()"
-          [reference]="display.reference"
-          [colours]="display.colours"
-        />
         @if (p.rewatch.length) {
           <app-rewatch-list [rounds]="p.rewatch" />
         }

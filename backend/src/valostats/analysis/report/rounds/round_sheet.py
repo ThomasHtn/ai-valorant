@@ -45,6 +45,7 @@ def round_sheet(
     return RoundSheet(
         round=line,
         events=_events(rnd, kills, line, squad_team, game_map, table),
+        rotation=game_map.attack_up_rotation(),
         squad_economy=_economy(rnd, agents, lambda team: team == squad_team),
         opp_economy=_economy(rnd, agents, lambda team: team != squad_team),
     )

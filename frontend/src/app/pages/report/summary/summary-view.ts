@@ -11,7 +11,6 @@ import { StatTableView } from '@shared/stat-table/stat-table';
 import { StatTile } from '@shared/stat-tile/stat-tile';
 import { ToneLegend } from '@shared/tone-legend/tone-legend';
 
-import { LastEvening } from './last-evening/last-evening';
 import { PriorityList } from './priority-list/priority-list';
 import {
   MAP_COLUMNS,
@@ -24,20 +23,12 @@ import { headlineTiles, pickColumns, priorityItems } from './summary.utils';
 
 /**
  * Résumé: what an analyst looks at first, on one screen. The period's headline figures, the
- * weaknesses costing the most rounds and the biggest strengths, then maps, players and the latest
- * evening; each block leads to the view holding the details. Built from the other views' endpoints.
+ * weaknesses costing the most rounds and the biggest strengths, then maps and players; each block
+ * leads to the view holding the details. Built from the other views' endpoints.
  */
 @Component({
   selector: 'app-summary-view',
-  imports: [
-    RouterLink,
-    ResourceState,
-    StatTableView,
-    StatTile,
-    ToneLegend,
-    PriorityList,
-    LastEvening,
-  ],
+  imports: [RouterLink, ResourceState, StatTableView, StatTile, ToneLegend, PriorityList],
   host: { class: 'view-body' },
   providers: [provideViewState('summary')],
   templateUrl: './summary-view.html',
@@ -50,7 +41,6 @@ export class SummaryView {
   protected readonly results = this.api.tables(this.context.query, signal('results'));
   private readonly combat = this.api.tables(this.context.query, signal('combat'));
   protected readonly findings = this.api.findings(this.context.query);
-  private readonly matches = this.api.matches(this.context.query);
 
   private readonly resultTables = computed(() => resourceValue(this.results, null)?.tables ?? []);
   private readonly mapsSource = computed(() =>
@@ -82,10 +72,5 @@ export class SummaryView {
   );
   protected readonly strengths = computed(() =>
     priorityItems(this.allFindings(), 'strong', SUMMARY_STRENGTHS),
-  );
-
-  /** Evenings come newest first. */
-  protected readonly lastEvening = computed(
-    () => resourceValue(this.matches, null)?.evenings[0] ?? null,
   );
 }

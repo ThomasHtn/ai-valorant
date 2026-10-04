@@ -2,6 +2,7 @@ import { Component, inject, input } from '@angular/core';
 
 import { Side } from '@core/common/enums.model';
 import { ViewState } from '@core/report/view-state';
+import { MapSelect } from '@shared/map-select/map-select';
 
 import { SIDE_OPTIONS } from './filter-bar.constants';
 
@@ -12,6 +13,7 @@ import { SIDE_OPTIONS } from './filter-bar.constants';
  */
 @Component({
   selector: 'app-filter-bar',
+  imports: [MapSelect],
   templateUrl: './filter-bar.html',
   host: { class: 'block' },
 })
@@ -26,10 +28,6 @@ export class FilterBar {
 
   protected readonly state = inject(ViewState);
   protected readonly sideOptions = SIDE_OPTIONS;
-
-  protected setMap(event: Event): void {
-    this.state.setFilter('map', (event.target as HTMLSelectElement).value);
-  }
 
   protected setSide(event: Event): void {
     this.state.setFilter('side', (event.target as HTMLSelectElement).value as Side | '');

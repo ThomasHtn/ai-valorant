@@ -51,3 +51,25 @@ export function markerViews<T extends { x: number; y: number; shape: string }>(
     return { marker, x, y, path };
   });
 }
+
+/** Clockwise quarter turns of the minimap, in degrees. */
+export type MinimapRotation = 0 | 90 | 180 | 270;
+
+/** A point of the square image after turning the image clockwise around its centre. */
+export function rotatePoint<T extends { x: number; y: number }>(point: T, rotation: number): T {
+  switch (rotation) {
+    case 90:
+      return { ...point, x: 1 - point.y, y: point.x };
+    case 180:
+      return { ...point, x: 1 - point.x, y: 1 - point.y };
+    case 270:
+      return { ...point, x: point.y, y: 1 - point.x };
+    default:
+      return point;
+  }
+}
+
+/** The next quarter turn clockwise. */
+export function nextRotation(rotation: number): MinimapRotation {
+  return ((rotation + 90) % 360) as MinimapRotation;
+}

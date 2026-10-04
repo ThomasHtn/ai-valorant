@@ -110,15 +110,18 @@ def _buy_matrix(cohorts: ReportCohorts) -> StatTable:
     return table.build()
 
 
-def _by_player(cohorts: ReportCohorts, team_rounds: TeamRounds) -> StatTable:
-    table = (
-        TableBuilder("eco-players", "Habitudes d'achat par joueur (hors pistols)", "Joueur", help="ecoLoadout")
-        .column("loadout", "Valeur moyenne du loadout", ValueFormat.INTEGER, 0, help="ecoLoadout", min=MIN_HABIT_SAMPLE)
-        .column("remaining", "Crédits restants en full buy", ValueFormat.INTEGER, -1, help="ecoRemaining", min=MIN_HABIT_SAMPLE)
-        .column("mismatch", "Achat différent de l'équipe", better=-1, help="ecoBuyMismatch", min=MIN_HABIT_SAMPLE)
-        .column("heavy", "Armure lourde en full buy", help="ecoHeavyArmor", min=MIN_HABIT_SAMPLE)
-        .column("lost", "Valeur perdue par round perdu", ValueFormat.INTEGER, -1, help="ecoLostValue", min=MIN_HABIT_SAMPLE)
-    )
+# Buying habits of a player: key, label, format, direction and glossary key; shared with the player sheet.
+HABITS: tuple[tuple[str, str, ValueFormat, int, str], ...] = (
+    ("loadout", "Valeur moyenne du loadout", ValueFormat.INTEGER, 0, "ecoLoadout"),
+    ("remaining", "Crédits restants en full buy", ValueFormat.INTEGER, -1, "ecoRemaining"),
+    ("mismatch", "Achat différent de l'équipe", ValueFormat.PERCENT, -1, "ecoBuyMismatch"),
+    ("heavy", "Armure lourde en full buy", ValueFormat.PERCENT, 1, "ecoHeavyArmor"),
+    ("lost", "Valeur perdue par round perdu", ValueFormat.INTEGER, -1, "ecoLostValue"),
+)
+
+
+def habit_metrics(team_rounds: TeamRounds) -> dict[str, Metric]:
+    """How each habit of `HABITS` is measured on a player's non-pistol rounds."""
 
     def team_buy(p: PlayerRoundFact) -> BuyType | None:
         team_round = team_rounds.of(p)
@@ -132,7 +135,7 @@ def _by_player(cohorts: ReportCohorts, team_rounds: TeamRounds) -> StatTable:
         team = team_buy(p)
         return team is not None and buy_type(p.round_index, [p.loadout]) is not team
 
-    metrics: dict[str, Metric] = {
+    return {
         "loadout": mean(lambda p: p.loadout),
         "remaining": mean(lambda p: p.remaining, in_full_buy),
         "mismatch": ratio(buys_apart, lambda p: team_buy(p) is not None),
@@ -140,9 +143,16 @@ def _by_player(cohorts: ReportCohorts, team_rounds: TeamRounds) -> StatTable:
         # Equipment lost: the loadout of a player who died in a lost round, 0 when he survived.
         "lost": mean(lambda p: p.loadout if p.deaths else 0, lambda p: not p.won),
     }
+
+
+def _by_player(cohorts: ReportCohorts, team_rounds: TeamRounds) -> StatTable:
+    table = TableBuilder("eco-players", "Habitudes d'achat par joueur (hors pistols)", "Joueur", help="ecoLoadout")
+    for key, label, value_format, better, help_key in HABITS:
+        table.column(key, label, value_format, better, help=help_key, min=MIN_HABIT_SAMPLE)
+    metrics = habit_metrics(team_rounds)
     role_cache: dict[tuple[ReportCohort, str], list[PlayerRoundFact]] = {}
     for player in cohorts.players():
-        facts = _non_pistol_player_facts(cohorts, player, role_cache)
+        facts = non_pistol_player_facts(cohorts, player, role_cache)
         table.row(
             player.name,
             player.name,
@@ -153,7 +163,7 @@ def _by_player(cohorts: ReportCohorts, team_rounds: TeamRounds) -> StatTable:
     return table.build()
 
 
-def _non_pistol_player_facts(
+def non_pistol_player_facts(
     cohorts: ReportCohorts, player: SquadPlayer, role_cache: dict[tuple[ReportCohort, str], list[PlayerRoundFact]]
 ) -> dict[ReportCohort, Sequence[PlayerRoundFact]]:
     """The player's non-pistol rounds (squad, hist) and those of his role (top, opp), role lists shared between players."""

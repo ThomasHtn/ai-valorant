@@ -2,20 +2,21 @@ import { Component, computed, input } from '@angular/core';
 
 import { Reference } from '@core/common/enums.model';
 import { REFERENCE_ROLE_SENTENCES, REFERENCE_SENTENCES } from '@core/format/labels.constants';
+import { StatHelp } from '@core/help/stat-help.model';
+import { InfoTip } from '@shared/info-tip/info-tip';
 
-/** Swatch classes of the four cell colours, the same utilities the table cells use. */
+/** Swatch classes of the three judged cell colours, the same utilities the table cells use. */
 const SWATCHES = [
   { label: 'Mieux', class: 'tone-good ring-rating-good' },
   { label: 'Proche', class: 'tone-avg ring-rating-average' },
   { label: 'Moins bien', class: 'tone-bad ring-rating-bad' },
-  { label: 'Trop peu de données', class: 'tone-small ring-text-muted' },
 ] as const;
 
-/** Key of the cell colours, read as one sentence: what the figures are compared with, then each colour. */
+/** Key of the cell colours: three swatches, what they are compared with folded into the "i". */
 @Component({
   selector: 'app-tone-legend',
+  imports: [InfoTip],
   template: `
-    <span>Couleurs : comparé {{ sentence() }}</span>
     @for (swatch of swatches; track swatch.label) {
       <span class="inline-flex items-center gap-1.5">
         <i
@@ -26,9 +27,7 @@ const SWATCHES = [
         {{ swatch.label }}
       </span>
     }
-    @if (mixed()) {
-      <span class="text-text-muted">« vs historique » : comparé à l'escouade avant la période</span>
-    }
+    <app-info-tip [content]="help()" />
   `,
   host: { class: 'flex flex-wrap items-center gap-x-4 gap-y-1 text-[0.95rem] text-text-secondary' },
 })
@@ -40,7 +39,16 @@ export class ToneLegend {
   public readonly mixed = input(false);
 
   protected readonly swatches = SWATCHES;
-  protected readonly sentence = computed(
-    () => (this.perRole() ? REFERENCE_ROLE_SENTENCES : REFERENCE_SENTENCES)[this.reference()],
-  );
+  protected readonly help = computed<StatHelp>(() => {
+    const sentence = (this.perRole() ? REFERENCE_ROLE_SENTENCES : REFERENCE_SENTENCES)[
+      this.reference()
+    ];
+    return {
+      title: 'Couleurs',
+      what: `Chaque chiffre est comparé ${sentence}.`,
+      how: this.mixed()
+        ? "Gris : trop peu de données pour juger. « vs historique » sous une colonne : comparé à l'escouade avant la période."
+        : 'Gris : trop peu de données pour juger.',
+    };
+  });
 }

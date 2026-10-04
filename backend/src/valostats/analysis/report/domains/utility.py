@@ -10,7 +10,7 @@ from valostats.analysis.report.domains._lookups import KillsByRole, kill_bucket,
 from valostats.analysis.report.domains._players import player_art, role_label
 from valostats.analysis.report.foundation.art import agent_art
 from valostats.analysis.report.foundation.cells import Measure, Metric, cell, fixed, ratio
-from valostats.analysis.report.foundation.cohorts import FactKind, ReportCohort, ReportCohorts
+from valostats.analysis.report.foundation.cohorts import FactKind, ReportCohort, ReportCohorts, SquadPlayer
 from valostats.analysis.report.foundation.table_builder import TableBuilder
 from valostats.constants.game import TEAM_SIZE
 from valostats.constants.weapons import ABILITY_LABEL
@@ -52,10 +52,11 @@ def _per_match(casts: Casts, team: bool = False) -> Metric:
 
 
 def tables(cohorts: ReportCohorts) -> list[StatTable]:
-    return [_by_player_agent(cohorts), _utility_kills(cohorts), _by_match_result(cohorts)]
+    return [casts_table(cohorts, cohorts.players()), _utility_kills(cohorts), _by_match_result(cohorts)]
 
 
-def _by_player_agent(cohorts: ReportCohorts) -> StatTable:
+def casts_table(cohorts: ReportCohorts, players: Sequence[SquadPlayer]) -> StatTable:
+    """Ability casts of each player on each agent; also on the player sheet, for that player alone."""
     table = (
         TableBuilder("utility-agents", "Utilitaire par joueur et agent", "Joueur et agent", help="utilityPerRound")
         .column("c", "C par round", ValueFormat.DECIMAL_2, help="utilityPerRound", min=MIN_CAST_ROUNDS)
@@ -71,7 +72,7 @@ def _by_player_agent(cohorts: ReportCohorts) -> StatTable:
         "x": _per_match(lambda m: m.ultimate_casts),
         "total": _per_round(_all_casts),
     }
-    for player in cohorts.players():
+    for player in players:
         agents = sorted({m.agent for m in cohorts.squad(FactKind.PLAYER_MATCHES, name=player.name)})
         for agent in agents:
             # References: every top ranked and opposing player on the same agent; history: the player himself.

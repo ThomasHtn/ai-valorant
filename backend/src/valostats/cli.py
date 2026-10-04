@@ -17,6 +17,7 @@ from valostats.ingestion.schedule import run_forever
 from valostats.ingestion.squad_sync import sync_squad
 from valostats.ingestion.top_sync import sync_top
 from valostats.repositories import match_repository
+from valostats.services.snapshot_refresh import refresh_snapshots
 
 app = typer.Typer(help="ValoStats data collection.", no_args_is_help=True)
 
@@ -34,6 +35,7 @@ def sync_command() -> None:
         sync_squad(
             session, ValoQuestsClient(settings.valoquests_database_url), HenrikClient(settings.henrik_api_key, SQUAD_REQUEST_DELAY_S)
         )
+    refresh_snapshots(get_session_factory())
 
 
 @app.command("sync-top")
@@ -41,6 +43,7 @@ def sync_top_command() -> None:
     """Top ranked matches of the last 7 days (about 1 h 30, uses most of the shared Henrik quota)."""
     with get_session_factory()() as session:
         sync_top(session, HenrikClient(get_settings().henrik_api_key, TOP_REQUEST_DELAY_S))
+    refresh_snapshots(get_session_factory())
 
 
 @app.command("sync-maps")
@@ -48,6 +51,7 @@ def sync_maps_command() -> None:
     """Refresh map metadata from valorant-api.com (after a new map release)."""
     with get_session_factory()() as session:
         sync_maps(session)
+    refresh_snapshots(get_session_factory())
 
 
 @app.command("rebuild-facts")
@@ -56,12 +60,20 @@ def rebuild_facts_command(source: Annotated[MatchSource | None, typer.Argument(h
     with get_session_factory()() as session:
         for s in [source] if source else list(MatchSource):
             rebuild_facts(session, s)
+    refresh_snapshots(get_session_factory())
+
+
+@app.command("snapshots")
+def snapshots_command() -> None:
+    """Precompute the report views of every period missing for the current facts and code."""
+    refresh_snapshots(get_session_factory())
 
 
 @app.command("schedule")
 def schedule_command() -> None:
     """Production scheduler: `sync` every night at 4 h UTC, `sync-top` on Mondays. Runs until stopped."""
-    run_forever(nightly=sync_command, weekly=sync_top_command)
+    # After a deploy the stored views belong to the previous code: recompute them before waiting.
+    run_forever(startup=snapshots_command, nightly=sync_command, weekly=sync_top_command)
 
 
 @app.command("top-status")

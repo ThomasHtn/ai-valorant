@@ -1,6 +1,11 @@
 <div class="filter-strip">
-  <app-map-picker [maps]="maps()" [selected]="mapName()" />
-  <label class="ml-auto flex items-center gap-2">
+  <app-map-select
+    [maps]="maps()"
+    [selected]="mapName()"
+    [allowAll]="false"
+    (selectedChange)="openMap($event)"
+  />
+  <label class="flex items-center gap-2">
     <span class="filter-label">Joueur</span>
     <select id="minimap-player" class="field-control min-w-28" (change)="setPlayer($event)">
       <option value="" [selected]="!state.filters().player">Toute l'escouade</option>

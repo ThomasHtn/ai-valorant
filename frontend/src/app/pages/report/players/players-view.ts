@@ -6,11 +6,11 @@ import { ReportContext } from '@core/report/report-context';
 import { ViewState } from '@core/report/view-state';
 import { provideViewState } from '@core/report/view-states';
 import { ReadingBar } from '@shared/reading-bar/reading-bar';
+import { InfoTip } from '@shared/info-tip/info-tip';
 import { ResourceState } from '@shared/resource-state/resource-state';
 import { StatTableView } from '@shared/stat-table/stat-table';
 
 import { DeathZones } from './death-zones/death-zones';
-import { FormTiles } from './form-tiles/form-tiles';
 import { OpeningClutch } from './opening-clutch/opening-clutch';
 import { PlayerHeader } from './player-header/player-header';
 import { PlayerPicker } from './player-picker/player-picker';
@@ -24,12 +24,13 @@ import { WeaponsPanel } from './weapons-panel/weapons-panel';
 /**
  * Joueurs: the sheet of one squad player. Every figure sits beside the view's own reference
  * (opponents of his role by default, top ranked of his role, or his own history): profile (radar and
- * its figures), opening duels, clutches, weapons, results by map, agent and side, death zones, form
- * match by match and first deaths to rewatch.
+ * its figures), opening duels, clutches, weapons, economy, results by map, agent and side, ability
+ * casts, death zones and first deaths to rewatch. Weapons and economy always face the top ranked.
  */
 @Component({
   selector: 'app-players-view',
   imports: [
+    InfoTip,
     ReadingBar,
     ResourceState,
     StatTableView,
@@ -40,7 +41,6 @@ import { WeaponsPanel } from './weapons-panel/weapons-panel';
     OpeningClutch,
     WeaponsPanel,
     DeathZones,
-    FormTiles,
     RewatchList,
   ],
   host: { class: 'view-body' },
@@ -66,8 +66,9 @@ export class PlayersView {
   protected readonly sheet = this.api.player(this.context.query, this.selected);
 
   /**
-   * By map, by agent, by side: prepared here so the template gets a stable array. The agent table is
-   * left out for a one-agent player: the header already names it and the row would repeat the totals.
+   * By map, by agent, by side, then ability casts: prepared here so the template gets a stable array.
+   * The agent table is left out for a one-agent player: the header already names it and the row
+   * would repeat the totals.
    */
   protected readonly tables = computed(() => {
     const sheet = resourceValue(this.sheet, null);
@@ -75,8 +76,8 @@ export class PlayersView {
       return [];
     }
     return sheet.agents.length > 1
-      ? [sheet.byMap, sheet.byAgent, sheet.bySide]
-      : [sheet.byMap, sheet.bySide];
+      ? [sheet.byMap, sheet.byAgent, sheet.bySide, sheet.utility]
+      : [sheet.byMap, sheet.bySide, sheet.utility];
   });
   /** The player alone on his radar, his points coloured like his tiles. */
   protected readonly radarSeries = computed<RadarSeries[]>(() => {
@@ -85,7 +86,4 @@ export class PlayersView {
       ? [{ name: sheet.name, stats: radarStats(sheet.headline, sheet.openingDuels), colour: null }]
       : [];
   });
-  protected readonly acs = computed(() =>
-    resourceValue(this.sheet, null)?.headline.find((h) => h.key === 'acs'),
-  );
 }

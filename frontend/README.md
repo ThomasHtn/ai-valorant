@@ -1,7 +1,7 @@
 # ValoStats: Frontend
 
-Angular single-page application for the ValoStats analysis space: the home page with its months,
-evenings and patches, the report and its ten views, and the glossary. It reads everything from the
+Angular single-page application for the ValoStats analysis space: the report, its six tabs and its
+Explorer menu, with every period (months, sessions, patches) one click away in the top bar. It reads everything from the
 [backend API](../backend/README.md) and never computes a statistic itself: it formats numbers and picks
 colours.
 
@@ -43,11 +43,11 @@ Path aliases: `@core/*`, `@shared/*`, `@layout/*`, `@pages/*`.
 |---|---|
 | `core/report/` | Models mirroring the API DTOs, `ReportApi`, the period context, preferences and filters, the colour rule (`tone.utils.ts`) |
 | `core/format/` | Number formatting and the French labels of enum values |
-| `core/help/` | Every stat explained in player words, one file per domain, shown by the "i" tips and the glossary |
+| `core/help/` | Every stat explained in player words, one file per domain, shown by the "i" tips |
 | `core/game-assets/` | Paths of the game pictures: agents, maps, minimaps, weapons, roles, ranks |
 | `core/http/` | `api-endpoints.ts`, resource helpers |
-| `pages/` | `home`, `glossary`, `not-found`, and `report/` with one folder per view |
-| `layout/` | The rail (`shell`) and the page header |
+| `pages/` | `not-found`, and `report/` with its top bar parts (`period-switcher`, `period-pulse`, `report-tabs`, `explore-menu`) and one folder per view |
+| `layout/` | The frame (`shell`) and the top bar (`page-header`) |
 | `shared/` | Presentational primitives: coloured stat table, filter bar, badges, minimap canvas, charts, tiles, tips |
 | `styles/` | Copied from ValoQuests; only `valostats.css` and the last section of `styles.css` belong to this project |
 
@@ -58,11 +58,10 @@ A component is `x.ts` + `x.html`, with its view models in `x.model.ts`, its cons
 
 | Route | Screen |
 |---|---|
-| `/` | Home: months, evenings and patches |
-| `/glossary` | Every stat, explained |
-| `/report/<view>` | `tables`, `findings`, `compare`, `minimap`, `rounds`, `matches`, `players`, `trend`, `distribution` |
+| `/` | Redirects to `/report`, the latest month |
+| `/report/<view>` | Tabs: `summary`, `findings`, `matches`, `rounds`, `minimap`, `players`. Explorer: `tables/<theme>`, `compare`, `trend`, `distribution` |
 
-The period lives in the URL (`?month=2026-09`, `?patch=13.06`, `?start=...&end=...`, an evening being
+The period lives in the URL (`?month=2026-09`, `?patch=13.06`, `?start=...&end=...`, a session being
 `start=end`), so any report is shareable. Every page is lazy loaded, and route and query parameters are
 bound to component inputs (`withComponentInputBinding`).
 

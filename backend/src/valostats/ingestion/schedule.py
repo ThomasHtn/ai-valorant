@@ -16,7 +16,8 @@ def next_run(now: datetime) -> datetime:
     return run if run > now else run + timedelta(days=1)
 
 
-def run_forever(nightly: Callable[[], None], weekly: Callable[[], None]) -> None:
+def run_forever(startup: Callable[[], None], nightly: Callable[[], None], weekly: Callable[[], None]) -> None:
+    _run_safely(startup)
     while True:
         now = datetime.now(UTC)
         run = next_run(now)

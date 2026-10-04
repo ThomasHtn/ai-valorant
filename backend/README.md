@@ -45,10 +45,11 @@ uv run alembic revision --autogenerate -m "..."  # new migration after a model c
 
 | Command | When | What it does |
 |---|---|---|
-| `valostats sync` | After each evening | Squad and 5-stacks from ValoQuests, missing match details from Henrik, facts rebuild |
+| `valostats sync` | After each evening | Squad and 5-stacks from ValoQuests, missing match details from Henrik, then facts rebuild and report views only if something new arrived |
 | `valostats sync-top` | Once a week | Top 20 of each region, matches of the last 7 days (about 1 h 30) |
-| `valostats sync-maps` | After a new map | Map metadata (callouts, minimaps) from valorant-api.com, then facts rebuild |
-| `valostats rebuild-facts [squad\|top]` | After an extraction change | Recomputes the fact tables from the stored raw matches |
+| `valostats sync-maps` | After a new map | Map metadata (callouts, minimaps) from valorant-api.com, then facts rebuild and report views |
+| `valostats rebuild-facts [squad\|top]` | After an extraction change | Recomputes the fact tables from the stored raw matches, then the report views |
+| `valostats snapshots` | After a deploy (the scheduler does it at start) | Precomputes the report views of every home period missing for the current facts and code (about 15 min) |
 | `valostats top-status` | Any time | Top ranked volume per patch and map |
 | `valostats schedule` | Production | Runs `sync` every night and `sync-top` on Mondays, until stopped |
 
@@ -83,7 +84,7 @@ src/valostats/
 ├── ingestion/      collection and facts rebuild, called by the CLI
 ├── repositories/   the only place that writes SQL
 ├── schemas/        Pydantic DTOs, one file per report view
-├── services/       facts in memory, report cache per period, match service
+├── services/       facts in memory, report views stored per data version, match service
 ├── cli.py          Typer entry point (`valostats`)
 └── main.py         FastAPI application
 ```

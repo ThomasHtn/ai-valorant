@@ -3,6 +3,7 @@
     [src]="src"
     [alt]="'Minimap de ' + map()"
     class="absolute inset-0 size-full object-contain opacity-75"
+    [style.transform]="rotation() ? 'rotate(' + rotation() + 'deg)' : null"
   />
 }
 <svg
@@ -11,12 +12,12 @@
   role="img"
   [attr.aria-label]="'Points sur la minimap de ' + map()"
 >
-  @if (density().length) {
+  @if (shownDensity().length) {
     <filter [attr.id]="blurId" x="-0.1" y="-0.1" width="1.2" height="1.2">
       <feGaussianBlur [attr.stdDeviation]="densityBlur" />
     </filter>
     <g [attr.filter]="'url(#' + blurId + ')'">
-      @for (spot of density(); track spot.id) {
+      @for (spot of shownDensity(); track spot.id) {
         <circle
           [attr.cx]="spot.x"
           [attr.cy]="spot.y"
@@ -29,7 +30,7 @@
     </g>
   }
 
-  @for (label of labels(); track label.name) {
+  @for (label of shownLabels(); track label.name) {
     <text
       [attr.x]="label.x"
       [attr.y]="label.y"
@@ -45,7 +46,7 @@
     </text>
   }
 
-  @if (highlight(); as spot) {
+  @if (shownHighlight(); as spot) {
     <circle
       [attr.cx]="spot.x"
       [attr.cy]="spot.y"

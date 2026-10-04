@@ -59,7 +59,8 @@ import { profileRows } from '../players.utils';
 })
 export class ProfileFigures {
   public readonly headline = input.required<HeadlineStat[]>();
-  public readonly openingDuels = input.required<OpeningDuels>();
+  /** Adds the opening duel rate when the headline lacks it; null for other figure lists (economy). */
+  public readonly openingDuels = input<OpeningDuels | null>(null);
   public readonly reference = input.required<Reference>();
   public readonly colours = input(true);
 

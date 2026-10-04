@@ -17,14 +17,14 @@ import { UTILITY_HELP } from './utility-help.constants';
 import { VIEWS_HELP } from './views-help.constants';
 import { WEAPONS_HELP } from './weapons-help.constants';
 
-/** A group of explanations, as the glossary page lists them. */
+/** A group of explanations: one domain of the metrics dictionary. */
 export interface HelpSection {
   key: string;
   label: string;
   entries: Readonly<Record<string, StatHelp>>;
 }
 
-/** Every group of explanations, in the glossary's order: one per domain of the metrics dictionary. */
+/** Every group of explanations, one per domain of the metrics dictionary. */
 export const HELP_SECTIONS: readonly HelpSection[] = [
   { key: 'results', label: 'Résultats', entries: RESULTS_HELP },
   { key: 'opening', label: 'Ouvertures', entries: OPENING_HELP },

@@ -16,7 +16,10 @@ valorant-api ┘                     └── win_probability                  
 3. **Rapport** (`analysis/report/`) : fonctions pures qui prennent les faits d'une période et renvoient les DTO. Aucune
    base, aucun HTTP : c'est ce qui les rend faciles à tester.
 4. **Services** (`services/`) : chargent les faits en mémoire (une fois, puis à chaque nouvelle reconstruction), découpent
-   la période et gardent les résultats en cache.
+   la période et stockent chaque vue calculée dans la table `report_snapshot` (JSON prêt à servir).
+   Après chaque collecte qui apporte du nouveau, `snapshot_refresh` précalcule les vues de toutes les périodes du
+   sélecteur de période ; les pages ne font plus que lire ces vues. Une vue est rangée sous les versions des faits et une empreinte
+   du code de calcul (`core/code_version.py`) : un déploiement ne sert jamais une vue calculée par l'ancien code (le scheduler la recalcule à son démarrage).
 5. **API** (`api/`) : routes FastAPI minces sous `/api/report`. La doc interactive est sur `http://localhost:8000/docs`.
 6. **Front** (`frontend/`) : affiche les DTO. Il formate les nombres et choisit les couleurs ; il ne calcule aucune stat.
 
@@ -34,7 +37,7 @@ valorant-api ┘                     └── win_probability                  
 | `analysis/report/` | Calcul de chaque vue du rapport (détail ci-dessous) | Fonctions pures |
 | `analysis/statistics/` | Tests de proportions, Benjamini-Hochberg | |
 | `schemas/report/` | DTO Pydantic, un fichier par vue | JSON en camelCase, jamais de couleur |
-| `services/` | `facts_store` (faits en mémoire), `report_service` (cache par période), `match_service` (matchs et fiches de round) | |
+| `services/` | `facts_store` (faits en mémoire), `report_service` (vues d'une période, lues dans `report_snapshot` ou calculées puis stockées), `snapshot_refresh` (précalcul après collecte), `match_service` (matchs et fiches de round) | |
 | `api/routes/` | `report`, `report_matches`, `report_players`, `report_insights`, `reference` | Pas de logique métier |
 
 ### Le rapport (`analysis/report/`)
@@ -42,11 +45,11 @@ valorant-api ┘                     └── win_probability                  
 | Sous-dossier | Contenu |
 |---|---|
 | `foundation/` | Cohortes d'une période (`cohorts.py`), cases avec références (`cells.py`), constructeur de tableaux (`table_builder.py`), règles communes (`death_rules.py`), période (`period_selection.py`) |
-| `domains/` | Vue Toutes les stats : un module par domaine du dictionnaire (`results.py`, `combat.py`...), registre dans `__init__.py` |
+| `domains/` | Vue Stats par thème (menu Explorer) : un module par domaine du dictionnaire (`results.py`, `combat.py`...), registre dans `__init__.py` |
 | `rounds/` | Causes des rounds perdus, matchs, fiche de round (depuis le payload), minimap |
 | `insights/` | Points forts et faibles (tests statistiques), détections automatiques, tendances, distributions |
 | `players/` | Fiche joueur |
-| `overview/` | Arbre de l'accueil (sessions, mois) et en-tête du rapport (période, qualité des données) |
+| `overview/` | Arbre des périodes du sélecteur (sessions, mois) et en-tête du rapport (période, bilan) |
 
 ### Vocabulaire des faits
 
@@ -85,7 +88,7 @@ Ajouter « rounds gagnés en eco » au tableau des résultats par carte :
 2. Ajouter un test dans `backend/tests/unit/` si la règle n'est pas triviale.
 3. Le front affiche automatiquement la nouvelle colonne.
 4. Expliquer la stat pour les joueurs : une entrée `ecoWon` dans `frontend/src/app/core/help/<domaine>-help.constants.ts`,
-   affichée par l'icône « i » et dans le Glossaire.
+   affichée par l'icône « i ».
 
 Ajouter un domaine : écrire `domains/<clé>.py` avec `tables(cohorts) -> list[StatTable]`, puis l'inscrire dans
 `domains/__init__.py` et dans `REPORT_DOMAINS` côté front.
@@ -100,23 +103,25 @@ le calculer dans `analysis/extraction/`, créer une migration (`uv run alembic r
 |---|---|
 | `core/report/` | Modèles (`*.model.ts`, miroir des DTO), `ReportApi`, contexte de la période (`ReportContext`), filtres et affichage propres à chaque vue (`ViewState`, fourni par `provideViewState`), règle de couleur (`tone.utils.ts`) |
 | `core/format/` | Formatage des nombres et libellés français des valeurs d'enum |
-| `core/help/` | Explications des stats en langage de joueur, un fichier par domaine ; infobulles « i » et Glossaire |
+| `core/help/` | Explications des stats en langage de joueur, un fichier par domaine ; infobulles « i » |
 | `core/game-assets/` | Chemin des images du jeu (agents, cartes, minimaps, armes, rôles, rangs) |
-| `shared/` | Composants réutilisables : tableau coloré (`stat-table`), barre de filtres, légende, qualité des données, icône de rang, minimap avec points, graphiques (`line-chart`, `histogram`), tuile de chiffre, liens de round |
-| `pages/home`, `pages/glossary` | Accueil (mois, sessions, patchs) et glossaire |
-| `pages/report/` | Coque du rapport (sélecteur de période, onglets) et une page par vue : `summary` (onglet par défaut, assemblé à partir des autres endpoints), `tables`, `findings`, `compare`, `minimap`, `rounds`, `matches`, `players`, `trend`, `distribution` |
-| `layout/` | Barre du haut (Accueil, Glossaire), en-tête de page |
+| `shared/` | Composants réutilisables : tableau coloré (`stat-table`), colonnes victoires/défaites (`win-loss`), barre de filtres et choix de carte (`map-select`), légende, bande de forme (`form-strip`), placement des popovers (`popover`), icône de rang, minimap avec points (pivotable), graphiques (`line-chart`, `histogram`), tuile de chiffre, liens de round |
+| `pages/report/` | Coque du rapport (sélecteur de période `period-switcher`, bilan et forme `period-pulse`, onglets `report-tabs`, menu `explore-menu`) et une page par vue : `summary` (onglet par défaut, assemblé à partir des autres endpoints), `tables`, `findings`, `compare`, `minimap`, `rounds`, `matches`, `players`, `trend`, `distribution` |
+| `layout/` | Cadre (`shell`) et barre du haut (`page-header`) |
 | `src/styles*` | Copiés de ValoQuests ; seuls `styles/valostats.css` et la dernière section de `styles.css` sont propres au projet |
 
 Conventions reprises de ValoQuests : composants standalone avec `input()`, services qui exposent des `httpResource`,
 toutes les URL dans `core/http/api-endpoints.ts`, un composant = `x.ts` + `x.html`, utilitaires purs testés dans
 `*.utils.spec.ts`.
 
-Navigation : l'accueil liste les rapports ; un rapport s'ouvre sur `/report/<vue>` avec la période dans l'URL
-(`?month=2026-09`, `?patch=13.06`, `?start=…&end=…`, une session étant `start=end`). Les onglets (vues à gauche,
-outils à droite, `report-views.constants.ts`) ne gardent que la période. Les liens profonds ajoutent
-des filtres : `/report/rounds?map=Split&side=def&result=lost|won&preset=throws`, `/report/minimap/Split?side=def&player=X`. Les onglets du rapport n'existent pas
-sur l'accueil. `/report/matches` liste les sessions en cartes de match ; `/report/matches/<id>` montre le match seul, sous un
+Navigation : `/` ouvre `/report`, le dernier mois. La barre du haut tient tout : le titre de la période ouvre un
+popover (mois, sessions du mois survolé, patchs, historique) qui change la période sans quitter la vue ; à côté, le
+bilan V-D et la bande de forme (une barre par match, lien vers Matchs). Dessous, six onglets dans l'ordre de lecture
+(Résumé, Points forts et faibles, Matchs, Rounds, Minimap, Joueurs) puis le menu Explorer (stats par thème avec
+Alertes, Comparer, Évolution, Répartition), qui prend le nom de l'entrée lue (`report-views.constants.ts`). Les
+onglets ne gardent que la période. La période est dans l'URL
+(`?month=2026-09`, `?patch=13.06`, `?start=…&end=…`, une session étant `start=end`). Les liens profonds ajoutent
+des filtres : `/report/rounds?map=Split&side=def&result=lost|won&preset=throws`, `/report/minimap/Split?side=def&player=X`. `/report/matches` liste les sessions en cartes de match ; `/report/matches/<id>` montre le match seul, sous un
 fil d'Ariane (`shared/breadcrumb`) avec le match précédent et suivant. La fiche de round a le même fil d'Ariane et passe
 au round précédent ou suivant de la liste filtrée. Le sens d'une stat s'affiche avec `shared/better-hint`
 (« Plus haut = mieux »), jamais en phrase. Couleurs : vert bien, orange moyen (à moins de 3 points de la référence, 5 % pour une moyenne), rouge pas

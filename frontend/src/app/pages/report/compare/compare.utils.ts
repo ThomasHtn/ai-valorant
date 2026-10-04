@@ -57,7 +57,9 @@ export function compareGap(a: CompareValue, b: CompareValue, column: StatColumn)
 
 /** Columns worth comparing: coloured ones, not counts nor texts. */
 function comparableColumns(columns: StatColumn[]): StatColumn[] {
-  return columns.filter((c) => c.ref !== 'none' && c.format !== 'text' && c.format !== 'int');
+  return columns.filter(
+    (c) => c.ref !== 'none' && c.format !== 'text' && c.format !== 'record' && c.format !== 'int',
+  );
 }
 
 function line(
@@ -136,7 +138,7 @@ export function playerGroups(
       continue;
     }
     const lines = table.columns
-      .filter((c) => c.format !== 'text')
+      .filter((c) => c.format !== 'text' && c.format !== 'record')
       .filter((c) => rowA.cells[c.key] && rowB.cells[c.key])
       .map((c) =>
         line(

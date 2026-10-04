@@ -37,7 +37,7 @@ def _by_map(cohorts: ReportCohorts) -> StatTable:
     table = (
         TableBuilder("results-maps", "Résultats par carte", "Carte", help="roundsWon")
         .count_column("matches", "Matchs")
-        .column("wl", "V-D", ValueFormat.TEXT, 0, min=0, ref=Reference.NONE)
+        .record_column()
         .column("rw", "Rounds gagnés", help="roundsWon", ref=Reference.HISTORY)
         .column("diff", "Écart moyen au score", ValueFormat.DECIMAL_1, help="roundDiff", min=MIN_MATCH_SAMPLE, ref=Reference.HISTORY)
         .column("att", "Attaque", help="sideRounds")

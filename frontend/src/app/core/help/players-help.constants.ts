@@ -55,18 +55,18 @@ export const PLAYERS_HELP: Readonly<Record<string, StatHelp>> = {
   },
   playerWeapons: {
     title: 'Armes',
-    what: 'Les 5 armes avec lesquelles le joueur fait le plus de kills.',
-    how: 'HS = balles à la tête / balles qui touchent, sur les victimes tuées avec cette arme dans le round. Distance médiane des kills en mètres.',
+    what: 'Les 5 armes avec lesquelles le joueur fait le plus de kills, à côté des joueurs du top ranked du même rôle.',
+    how: 'Part = kills avec cette arme / tous ses kills. HS = balles à la tête / balles qui touchent, dans les rounds où il a acheté cette arme. Distance médiane des kills en mètres. Ligne « top » : mêmes chiffres pour les joueurs du top ranked du même rôle.',
+  },
+  playerEconomy: {
+    title: 'Économie',
+    what: "Les habitudes d'achat du joueur hors pistols, comparées aux joueurs du top ranked du même rôle.",
+    how: "Mêmes chiffres que le tableau « Habitudes d'achat par joueur » de Toutes les stats. Achat différent de l'équipe : son loadout seul ne donne pas le même type d'achat que celui de l'équipe.",
   },
   playerDeathZones: {
     title: 'Zones de mort',
     what: 'Les 6 zones où le joueur meurt le plus, par carte.',
     how: 'Zone = callout le plus proche de la position de la victime. Part des first deaths = first deaths dans la zone / morts dans la zone.',
-  },
-  playerForm: {
-    title: 'Forme',
-    what: "Les matchs du joueur dans l'ordre chronologique, de mai à aujourd'hui.",
-    how: "ACS du match = score de combat / rounds du match. Seuls les matchs joués à 5 avec l'escouade sont comptés.",
   },
   playerRewatch: {
     title: 'Rounds à revoir',

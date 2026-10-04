@@ -1,5 +1,6 @@
 """Report endpoints on hand-made facts, without a database."""
 
+import json
 from dataclasses import dataclass, field
 from datetime import timedelta
 from typing import Any
@@ -9,9 +10,11 @@ from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
 from tests.report_facts import AUGUST, SEPTEMBER, match_fact, player_match, player_round, round_fact
+from valostats.analysis.report.foundation.period_selection import PeriodQuery
 from valostats.api.error_handlers import register_error_handlers
 from valostats.api.router import api_router
 from valostats.domain.enums import BuyType, Cohort, Side
+from valostats.repositories.snapshot_repository import SnapshotKey
 from valostats.services.report_service import ReportService
 
 
@@ -113,3 +116,34 @@ def test_unknown_or_empty(client: TestClient) -> None:
     assert client.get("/api/report/tables/nope").status_code == 404
     assert client.get("/api/report/meta", params={"month": "2025-01"}).status_code == 404
     assert client.get("/api/report/meta", params={"month": "2026-09", "patch": "13.06"}).status_code == 422
+
+
+class MemorySnapshots:
+    """Duck-typed SnapshotStore keeping payloads in a dict."""
+
+    def __init__(self) -> None:
+        self.rows: dict[tuple[str, str], str] = {}
+
+    def find(self, key: SnapshotKey) -> str | None:
+        return self.rows.get((key.period, key.view))
+
+    def save(self, key: SnapshotKey, payload: str) -> None:
+        self.rows.setdefault((key.period, key.view), payload)
+
+
+class VersionedStore(FakeStore):
+    def versions(self) -> tuple[int, int]:
+        return 1, 1
+
+
+def test_views_are_stored_after_computing_then_read_from_the_store() -> None:
+    snapshots = MemorySnapshots()
+    service = ReportService(VersionedStore(), snapshots)  # type: ignore[arg-type]
+    september = PeriodQuery(month="2026-09")
+    computed = json.loads(service.meta(september))
+    assert computed["title"] == "Septembre 2026" and ("2026-09", "meta") in snapshots.rows
+    # A stored payload is served as is, without computing again.
+    snapshots.rows[("2026-09", "meta")] = '{"stored": true}'
+    assert service.meta(september) == '{"stored": true}'
+    service.periods()
+    assert ("*", "periods") in snapshots.rows

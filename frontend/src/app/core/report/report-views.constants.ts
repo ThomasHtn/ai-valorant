@@ -1,12 +1,12 @@
-/** One header tab of a report; `path` is the child route under `/report`. */
+/** One view of a report; `path` is the child route under `/report`. */
 export interface ReportView {
   path: string;
   label: string;
-  /** What the tab holds, shown when the pointer rests on it. */
+  /** What the view holds: a tab's hover hint, a line under an Explorer entry. */
   hint: string;
 }
 
-/** Tabs of the report itself, in the order an analyst works: overview, what costs rounds, rewatch. */
+/** Tabs of the report, from the whole period down to a round, then the people. */
 export const REPORT_MAIN_VIEWS: readonly ReportView[] = [
   { path: 'summary', label: 'Résumé', hint: "L'essentiel de la période sur un écran" },
   {
@@ -28,13 +28,15 @@ export const REPORT_MAIN_VIEWS: readonly ReportView[] = [
   { path: 'players', label: 'Joueurs', hint: 'La fiche de chaque joueur' },
 ];
 
-/** Tool tabs, set apart at the end of the bar: each answers one precise question. */
+/** Every statistic by theme, opened on a theme from the Explorer menu. */
+export const REPORT_STATS_VIEW: ReportView = {
+  path: 'tables',
+  label: 'Stats par thème',
+  hint: "Toutes les statistiques d'un thème, en tableaux",
+};
+
+/** Tools of the Explorer menu: each answers one precise question. */
 export const REPORT_TOOL_VIEWS: readonly ReportView[] = [
-  {
-    path: 'tables',
-    label: 'Toutes les stats',
-    hint: 'Toutes les statistiques par thème, en tableaux',
-  },
   {
     path: 'compare',
     label: 'Comparer',
@@ -48,5 +50,11 @@ export const REPORT_TOOL_VIEWS: readonly ReportView[] = [
   },
 ];
 
-/** Every view of a report, in tab order. */
-export const REPORT_VIEWS: readonly ReportView[] = [...REPORT_MAIN_VIEWS, ...REPORT_TOOL_VIEWS];
+/** Views gathered behind the Explorer menu rather than given a tab each. */
+export const REPORT_EXPLORE_VIEWS: readonly ReportView[] = [
+  REPORT_STATS_VIEW,
+  ...REPORT_TOOL_VIEWS,
+];
+
+/** Every view of a report, tabs first. */
+export const REPORT_VIEWS: readonly ReportView[] = [...REPORT_MAIN_VIEWS, ...REPORT_EXPLORE_VIEWS];

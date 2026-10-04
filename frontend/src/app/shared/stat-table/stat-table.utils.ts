@@ -4,6 +4,8 @@ import { formatValue, integer } from '@core/format/value-format.utils';
 import { GameArt, StatCell, StatColumn, StatRow, StatTable } from '@core/report/stat-table.model';
 import { cellTone, columnReference, referenceValue } from '@core/report/tone.utils';
 
+import { parseRecord } from '@shared/win-loss/win-loss.utils';
+
 import { RowView, StatDisplay, StatSort, TipLine } from './stat-table.model';
 
 const REFERENCES: readonly Reference[] = ['top', 'opp', 'hist'];
@@ -51,7 +53,11 @@ export function sortRows(rows: StatRow[], sort: StatSort | null): StatRow[] {
   if (!sort) {
     return rows;
   }
-  const value = (row: StatRow): number | string | null => row.cells[sort.key]?.v ?? null;
+  // A record sorts on its wins, not as text ('3-0' after '12-15').
+  const value = (row: StatRow): number | string | null => {
+    const v = row.cells[sort.key]?.v ?? null;
+    return parseRecord(v)?.wins ?? v;
+  };
   return [...rows].sort((a, b) => {
     if (a.total !== b.total) {
       return a.total ? 1 : -1;
@@ -95,7 +101,8 @@ export function buildRowViews(
       const cell = row.cells[column.key];
       const reference = columnReference(column, display.reference);
       const referenceCell = cell && reference ? referenceValue(cell, reference).value : null;
-      const countLike = column.format === 'int' || column.format === 'text';
+      const countLike =
+        column.format === 'int' || column.format === 'text' || column.format === 'record';
       return {
         key: column.key,
         column,

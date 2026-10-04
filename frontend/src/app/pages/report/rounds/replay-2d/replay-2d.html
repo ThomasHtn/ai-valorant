@@ -1,5 +1,21 @@
-<h2 class="!m-0 text-lg" id="replay-title">Replay 2D<app-info-tip topic="replay2d" /></h2>
-<app-minimap-canvas class="max-w-104" [map]="map()" [markers]="markers()" />
+<div class="flex max-w-104 items-center gap-2">
+  <h2 class="!m-0 text-lg" id="replay-title">Replay 2D<app-info-tip topic="replay2d" /></h2>
+  <button
+    type="button"
+    class="focus-ring ml-auto inline-flex cursor-pointer items-center gap-1.5 border border-edge-strong bg-text-primary/5 px-2.5 py-1 text-sm text-text-secondary hover:bg-text-primary/9 hover:text-text-primary"
+    title="Tourner la carte d'un quart de tour"
+    (click)="rotate()"
+  >
+    <svg class="size-4" lucideRotateCw aria-hidden="true"></svg>
+    Pivoter
+  </button>
+</div>
+<app-minimap-canvas
+  class="max-w-104"
+  [map]="map()"
+  [markers]="markers()"
+  [rotation]="shownRotation()"
+/>
 <div class="flex max-w-104 items-center gap-2">
   <button
     type="button"

@@ -1,0 +1,75 @@
+/* Diverging sparkline: wins rise from the axis, losses drop from it. */
+.form-strip {
+  --half: 0.875rem;
+  position: relative;
+  display: inline-flex;
+  align-items: stretch;
+  gap: 2px;
+  height: calc(var(--half) * 2);
+}
+
+.form-strip-sm {
+  --half: 0.6875rem;
+}
+
+/* The axis, faint so the bars carry the read. */
+.form-strip::before {
+  content: '';
+  position: absolute;
+  inset-inline: -2px;
+  top: 50%;
+  height: 1px;
+  background: var(--color-edge-strong);
+}
+
+/* Full-height slot: the hover target stays usable on a 13-11. */
+.form-strip-slot {
+  position: relative;
+  width: 6px;
+}
+
+.form-strip-sm .form-strip-slot {
+  width: 5px;
+}
+
+.form-strip-bar {
+  position: absolute;
+  inset-inline: 0;
+  height: calc(var(--half) * var(--h));
+}
+
+.form-strip-win {
+  bottom: 50%;
+  background: var(--color-rating-good);
+  transform-origin: bottom;
+}
+
+.form-strip-loss {
+  top: calc(50% + 1px);
+  background: var(--color-rating-bad);
+  transform-origin: top;
+}
+
+.form-strip-draw {
+  top: calc(50% - 1px);
+  height: 3px;
+  background: var(--color-text-muted);
+}
+
+.form-strip-slot:hover .form-strip-bar {
+  filter: brightness(1.25);
+}
+
+/* Bars grow from the axis one after the other when a period opens. */
+@media (prefers-reduced-motion: no-preference) {
+  .form-strip-bar {
+    animation: form-strip-grow 360ms var(--ease-out-quart) both;
+    animation-delay: calc(var(--i) * 18ms);
+  }
+}
+
+@keyframes form-strip-grow {
+  from {
+    transform: scaleY(0);
+  }
+}

@@ -4,7 +4,11 @@ import { Router, RouterLink } from '@angular/router';
 import { resourceValue } from '@core/http/resource-state.utils';
 import { ReportApi } from '@core/report/report-api';
 import { ReportContext } from '@core/report/report-context';
-import { DEFAULT_DOMAIN, REPORT_DOMAINS } from '@core/report/report-domains.constants';
+import {
+  DEFAULT_DOMAIN,
+  DETECTIONS_KEY,
+  REPORT_DOMAINS,
+} from '@core/report/report-domains.constants';
 import { ViewState } from '@core/report/view-state';
 import { provideViewState } from '@core/report/view-states';
 import { RoundQuery } from '@core/report/round-query.model';
@@ -18,14 +22,12 @@ import { StatCellClick } from '@shared/stat-table/stat-table.model';
 import { rowText } from '@shared/stat-table/stat-table.utils';
 
 import { DetectionsPanel } from './detections-panel/detections-panel';
-import { detectionGroups } from './detections-panel/detections-panel.utils';
-import { DETECTIONS_KEY } from './tables-view.constants';
 import { scopeFilter } from './tables-view.utils';
 
 /**
- * Tableaux: every metric of one domain of the dictionary as coloured tables, values only.
- * The domain list sits on the left, with the period's automatic detections as its first entry;
- * a cell click opens the Rounds view on the rounds behind it.
+ * Stats par thème: every metric of one domain of the dictionary as coloured tables, values only,
+ * or the period's automatic detections (Alertes). The theme is picked from the Explorer menu of the
+ * top bar; a cell click opens the Rounds view on the rounds behind it.
  */
 @Component({
   selector: 'app-tables-view',
@@ -50,8 +52,6 @@ export class TablesView {
   protected readonly state = inject(ViewState);
   private readonly router = inject(Router);
 
-  protected readonly domains = REPORT_DOMAINS;
-  protected readonly detectionsKey = DETECTIONS_KEY;
   protected readonly showDetections = computed(() => this.domain() === DETECTIONS_KEY);
   /** Domain whose tables are loaded; null while the detections are shown. */
   protected readonly domainKey = computed(() => {
@@ -69,12 +69,8 @@ export class TablesView {
       t.columns.some((c) => c.ref === 'hist'),
     ),
   );
-  /** Repetitions and links of the period, whatever the domain; loaded for the entry's count. */
+  /** Repetitions and links of the period, whatever the domain. */
   protected readonly detections = this.api.detections(this.context.query);
-  protected readonly detectionCount = computed(() => {
-    const value = resourceValue(this.detections, null);
-    return value ? detectionGroups(value).reduce((n, group) => n + group.items.length, 0) : null;
-  });
 
   protected readonly meta = computed(() => resourceValue(this.context.meta, null));
   protected readonly maps = computed(() => this.meta()?.maps ?? []);

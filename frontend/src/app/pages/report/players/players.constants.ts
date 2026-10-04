@@ -12,6 +12,3 @@ export const ZONE_HIGH_RATIO = 1.3;
 
 /** ...and with at least this many deaths, so one unlucky round never flags a zone. */
 export const ZONE_MIN_DEATHS = 5;
-
-/** Matches before the period kept on the form row, for context; older ones only add noise. */
-export const FORM_CONTEXT_MATCHES = 8;

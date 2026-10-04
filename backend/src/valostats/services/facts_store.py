@@ -53,15 +53,19 @@ class TopFacts:
 class FactsStore:
     def __init__(self, session_factory: sessionmaker[Session]) -> None:
         self._session_factory = session_factory
-        self._lock = threading.Lock()
+        # One lock per source: loading the top ranked facts (seconds) never blocks squad reads.
+        self._squad_lock = threading.Lock()
+        self._top_lock = threading.Lock()
+        self._maps_lock = threading.Lock()
         self._squad: SquadFacts | None = None
         self._top: TopFacts | None = None
+        self._top_win_probability: tuple[int, WinProbabilityTable] | None = None
         self._maps: dict[str, GameMap] | None = None
 
     def squad(self) -> SquadFacts:
         with self._session_factory() as session:
             version = _version(session, MatchSource.SQUAD)
-            with self._lock:
+            with self._squad_lock:
                 if self._squad is None or self._squad.version != version:
                     self._squad = _load_squad(session, version)
                     # A rebuild may follow a map refresh (sync-maps).
@@ -71,14 +75,32 @@ class FactsStore:
     def top(self) -> TopFacts:
         with self._session_factory() as session:
             version = _version(session, MatchSource.TOP)
-            with self._lock:
+            with self._top_lock:
                 if self._top is None or self._top.version != version:
                     self._top = _load_top(session, version)
                     self._maps = None
                 return self._top
 
+    def top_win_probability(self) -> WinProbabilityTable:
+        """The top ranked win probability table alone, without waiting for every top ranked fact."""
+        with self._session_factory() as session:
+            version = _version(session, MatchSource.TOP)
+            top = self._top
+            if top is not None and top.version == version:
+                return top.win_probability
+            cached = self._top_win_probability
+            if cached is None or cached[0] != version:
+                cached = (version, WinProbabilityTable(facts_repository.load_win_probability(session, MatchSource.TOP)))
+                self._top_win_probability = cached
+            return cached[1]
+
+    def versions(self) -> tuple[int, int]:
+        """Latest squad and top facts builds, read without loading the facts."""
+        with self._session_factory() as session:
+            return _version(session, MatchSource.SQUAD), _version(session, MatchSource.TOP)
+
     def maps(self) -> dict[str, GameMap]:
-        with self._lock:
+        with self._maps_lock:
             if self._maps is None:
                 with self._session_factory() as session:
                     self._maps = map_repository.load_all(session)

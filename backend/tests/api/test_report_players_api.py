@@ -33,7 +33,7 @@ def test_player_sheet(client: TestClient) -> None:
     assert [h["key"] for h in body["headline"]] == ["acs", "kd", "adr", "kast", "fb", "openingWon", "revenge", "hs"]
     assert body["headline"][0]["cell"]["v"] == 200 and body["headline"][0]["format"] == "int"
     assert body["byMap"]["rows"][0]["art"] == {"type": "map", "slug": "ascent"}
-    assert [f["inPeriod"] for f in body["form"]] == [False, True, True, True]
+    assert "form" not in body and len(body["economy"]) == 5
     assert body["openingDuels"]["firstBloods"] == 3
 
 

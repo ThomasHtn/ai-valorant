@@ -4,20 +4,12 @@ import { NotFound } from '@pages/not-found/not-found';
 
 /**
  * Application routes. The period is carried by query parameters (`?month=2026-09`, `?patch=13.05`,
- * `?start=…&end=…`, an evening being `start = end`) so every report view keeps it while the analyst
+ * `?start=…&end=…`, a session being `start = end`) so every report view keeps it while the analyst
  * moves around. Pages are lazy so each brings only its own code and icons.
  */
 export const routes: Routes = [
-  {
-    path: '',
-    loadComponent: () => import('@pages/home/home').then((m) => m.Home),
-    title: 'ValoStats',
-  },
-  {
-    path: 'glossary',
-    loadComponent: () => import('@pages/glossary/glossary-page').then((m) => m.GlossaryPage),
-    title: 'Glossaire · ValoStats',
-  },
+  // The report is the home: the period switcher in its top bar lists every period.
+  { path: '', pathMatch: 'full', redirectTo: 'report' },
   {
     path: 'report',
     loadComponent: () => import('@pages/report/report-page').then((m) => m.ReportPage),

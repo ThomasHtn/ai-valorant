@@ -51,6 +51,8 @@ export interface StatRow {
   label: string;
   art?: GameArt | null;
   sub?: string | null;
+  /** Agents of a composition, drawn under the label as portraits with their names. */
+  agents?: string[] | null;
   cells: Record<string, StatCell>;
   /** Summary row ("Toutes les cartes"), kept last when sorting. */
   total?: boolean;

@@ -1,10 +1,9 @@
 """Player sheet and the positions, agents and context domains, on hand-made facts."""
 
 from collections.abc import Sequence
-from datetime import timedelta
 from typing import Any
 
-from tests.report_facts import AUGUST, SEPTEMBER, kill_fact, match_fact, player_match, player_round
+from tests.report_facts import kill_fact, match_fact, player_match, player_round
 from valostats.analysis.report.domains import agents, context, positions
 from valostats.analysis.report.foundation.cohorts import FactKind, ReportCohorts, build_cohorts, build_index
 from valostats.analysis.report.foundation.period_selection import PeriodQuery, resolve
@@ -20,6 +19,7 @@ def make_cohorts(
     player_matches: Sequence[Any] = (),
     top_matches: Sequence[Any] = (),
     top_kills: Sequence[Any] = (),
+    top_player_matches: Sequence[Any] = (),
     portraits: dict[str, str] | None = None,
 ) -> ReportCohorts:
     all_matches = list(matches) or [match_fact()]
@@ -31,7 +31,7 @@ def make_cohorts(
         FactKind.PLAYER_ROUNDS: list(player_rounds),
         FactKind.PLAYER_MATCHES: list(player_matches) or [player_match()],
     }
-    return build_cohorts(window, facts, build_index(top_matches, [], top_kills, [], [], Cohort.TOP), portraits)
+    return build_cohorts(window, facts, build_index(top_matches, [], top_kills, [], top_player_matches, Cohort.TOP), portraits)
 
 
 def our_death(**changes: Any) -> Any:
@@ -97,16 +97,31 @@ def test_player_sheet_rewatch_keeps_first_deaths_without_revenge() -> None:
     assert sheet.death_zones[0].deaths == 3 and sheet.death_zones[0].first_deaths == 2
 
 
-def test_player_sheet_form_spans_history_and_flags_the_period() -> None:
-    old = match_fact(match_id="old", started_at=AUGUST)
-    new = match_fact(match_id="new", started_at=SEPTEMBER + timedelta(days=1))
+def test_player_weapons_beside_top_ranked_players_of_his_role() -> None:
+    def top_kill(killer: str, weapon: str) -> Any:
+        return kill_fact(
+            match_id="t1", killer=killer, killer_puuid=killer, killer_cohort=KillerCohort.TOP, victim_cohort=Cohort.TOP, weapon=weapon
+        )
+
+    top_players = [
+        player_match(match_id="t1", cohort=Cohort.TOP, puuid="duelist", name="duelist", agent="Jett"),
+        player_match(match_id="t1", cohort=Cohort.TOP, puuid="sentinel", name="sentinel", agent="Sage"),
+    ]
     cohorts = make_cohorts(
-        matches=[old, new],
-        player_rounds=[player_round(match_id="new", started_at=new.started_at, kills=2), player_round(match_id="old", started_at=AUGUST)],
-        player_matches=[player_match(match_id="new", started_at=new.started_at), player_match(match_id="old", started_at=AUGUST)],
+        kills=[kill_fact(), kill_fact(distance=2500.0)],
+        top_kills=[top_kill("duelist", "Vandal"), top_kill("duelist", "Sheriff"), top_kill("sentinel", "Vandal")],
+        top_player_matches=top_players,
     )
-    form = player_sheet(cohorts, "Alpha").form
-    assert [(f.match_id, f.in_period, f.kills) for f in form] == [("old", False, 1), ("new", True, 2)]
+    vandal = player_sheet(cohorts, "Alpha").weapons[0]
+    assert (vandal.weapon, vandal.kills, vandal.share, vandal.distance) == ("Vandal", 2, 1.0, 20.0)
+    # Only the top ranked duelist counts: one Vandal kill out of two.
+    assert (vandal.top_share, vandal.top_distance) == (0.5, 15.0)
+
+
+def test_player_economy_and_utility_follow_the_economy_and_utility_tables() -> None:
+    sheet = player_sheet(make_cohorts(player_rounds=[player_round()]), "Alpha")
+    assert [s.key for s in sheet.economy] == ["loadout", "remaining", "mismatch", "heavy", "lost"]
+    assert [r.label for r in sheet.utility.rows] == ["Alpha · Jett"]
 
 
 def test_valoquests_portrait_replaces_the_most_played_agent_but_not_the_role() -> None:

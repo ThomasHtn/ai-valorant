@@ -99,6 +99,7 @@
   <app-replay-2d
     [map]="r.mapName"
     [events]="sheet().events"
+    [rotation]="sheet().rotation"
     [step]="step()"
     (stepChange)="select($event)"
   />

@@ -1,19 +1,7 @@
-<app-filter-bar [maps]="maps()" [players]="players()">
-  <label class="inline-flex h-9 cursor-pointer items-center gap-2 text-text-secondary">
-    <input
-      id="findings-confirmed-only"
-      type="checkbox"
-      class="size-4 accent-brand-500"
-      [checked]="confirmedOnly()"
-      (change)="toggleConfirmedOnly($event)"
-    />
-    Écarts nets seulement
-  </label>
-  <span class="text-sm text-text-muted xl:ml-auto">
-    Écart en rounds : gagnés ou perdus par rapport à la référence sur le même
-    échantillon.<app-info-tip topic="findingStatus" />
-  </span>
-</app-filter-bar>
+<p class="!m-0 text-sm text-text-muted">
+  Écart en rounds : gagnés ou perdus par rapport à la référence sur le même
+  échantillon.<app-info-tip topic="findingStatus" />
+</p>
 
 <app-resource-state [resource]="report" notFoundText="Aucun écart testé sur cette période.">
   <!-- Weaknesses, then strengths, one under the other at full width; only the page scrolls. -->

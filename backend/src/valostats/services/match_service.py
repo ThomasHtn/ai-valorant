@@ -67,7 +67,7 @@ class MatchService:
 
     def win_probability(self) -> WinProbabilityTable:
         """Chances of winning a round by situation, measured on top ranked games."""
-        return self._store.top().win_probability
+        return self._store.top_win_probability()
 
     def detail(self, match_id: str) -> MatchDetail:
         index = self._squad_index()
@@ -80,7 +80,7 @@ class MatchService:
         record = self._record(index, match_id)
         if not any(r.round_index == round_number - 1 for r in record.rounds):
             raise NotFoundError(f"No round {round_number} in match {match_id}.")
-        top_version = self._store.top().version
+        top_version = self._store.versions()[1]
         with self._lock:
             return self._sheets.get_or_compute(
                 (index.version, top_version, match_id, round_number), lambda: self._build_sheet(index, record, round_number)
