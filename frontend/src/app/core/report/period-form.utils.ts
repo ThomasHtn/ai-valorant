@@ -6,7 +6,13 @@ import { FormMatch } from './period-form.model';
 export function sessionForm(session: SessionEntry): FormMatch[] {
   return session.scores.map((score, i) => {
     const [won, lost] = score.split('-').map(Number);
-    return { day: session.day, map: session.maps[i] ?? '', score, margin: won - lost };
+    return {
+      day: session.day,
+      map: session.maps[i] ?? '',
+      patch: session.patches[i] ?? '',
+      score,
+      margin: won - lost,
+    };
   });
 }
 
@@ -15,13 +21,15 @@ export function monthForm(month: MonthEntry): FormMatch[] {
   return [...month.sessions].reverse().flatMap(sessionForm);
 }
 
-/**
- * Matches of the period in play order, from the report tree; null for a patch, whose matches the
- * tree cannot tell apart. No query means the latest month.
- */
-export function periodForm(periods: ReportPeriods, query: PeriodQuery): FormMatch[] | null {
+/** Every match of the tree in play order. */
+function historyForm(periods: ReportPeriods): FormMatch[] {
+  return [...periods.months].reverse().flatMap(monthForm);
+}
+
+/** Matches of the period in play order, from the report tree. No query means the latest month. */
+export function periodForm(periods: ReportPeriods, query: PeriodQuery): FormMatch[] {
   if (query.patch) {
-    return null;
+    return historyForm(periods).filter((m) => m.patch === query.patch);
   }
   if (query.month || !query.start || !query.end) {
     const month = query.month
@@ -30,8 +38,5 @@ export function periodForm(periods: ReportPeriods, query: PeriodQuery): FormMatc
     return month ? monthForm(month) : [];
   }
   const { start, end } = query;
-  return [...periods.months]
-    .reverse()
-    .flatMap(monthForm)
-    .filter((m) => m.day >= start && m.day <= end);
+  return historyForm(periods).filter((m) => m.day >= start && m.day <= end);
 }

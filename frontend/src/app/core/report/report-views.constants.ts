@@ -6,7 +6,7 @@ export interface ReportView {
   hint: string;
 }
 
-/** Tabs of the report, from the whole period down to a round, then the people. */
+/** Tabs of a month, a patch or the whole history: the period, what costs rounds, then the detail. */
 export const REPORT_MAIN_VIEWS: readonly ReportView[] = [
   { path: 'summary', label: 'Résumé', hint: "L'essentiel de la période sur un écran" },
   {
@@ -27,6 +27,25 @@ export const REPORT_MAIN_VIEWS: readonly ReportView[] = [
   { path: 'minimap', label: 'Minimap', hint: "Où l'escouade meurt et tue, carte par carte" },
   { path: 'players', label: 'Joueurs', hint: 'La fiche de chaque joueur' },
 ];
+
+/** Tabs of a single session: too few rounds for gaps or trends, so the matches come first. */
+export const SESSION_VIEWS: readonly ReportView[] = [
+  {
+    path: 'debrief',
+    label: 'Débrief',
+    hint: 'La session face au mois : bilan, matchs, joueurs, rounds qui ont basculé',
+  },
+  {
+    path: 'matches',
+    label: 'Matchs',
+    hint: 'Chaque match de la session, puis chacun de ses rounds',
+  },
+  { path: 'players', label: 'Joueurs', hint: 'La fiche de chaque joueur sur la session' },
+];
+
+/** First view of each kind of period, where a missing view sends the analyst. */
+export const SESSION_HOME = 'debrief';
+export const PERIOD_HOME = 'summary';
 
 /** Every statistic by theme, opened on a theme from the Explorer menu. */
 export const REPORT_STATS_VIEW: ReportView = {
@@ -55,6 +74,3 @@ export const REPORT_EXPLORE_VIEWS: readonly ReportView[] = [
   REPORT_STATS_VIEW,
   ...REPORT_TOOL_VIEWS,
 ];
-
-/** Every view of a report, tabs first. */
-export const REPORT_VIEWS: readonly ReportView[] = [...REPORT_MAIN_VIEWS, ...REPORT_EXPLORE_VIEWS];

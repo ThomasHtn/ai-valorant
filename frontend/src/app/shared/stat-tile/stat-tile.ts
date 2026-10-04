@@ -46,7 +46,7 @@ export class StatTile {
   public readonly lines = input<string[]>([]);
   /** Glossary key of the "i" tip... */
   public readonly help = input<string | null>(null);
-  /** ...or its text, for figures without a glossary entry. */
+  /** ...or its text, for figures without a help entry. */
   public readonly helpContent = input<StatHelp | null>(null);
 
   protected readonly valueClass = computed(() => {

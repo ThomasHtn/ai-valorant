@@ -21,22 +21,22 @@
           <app-reading-bar [perRole]="true" />
         </div>
 
-        <!-- His key figures once: their shape on the radar, their numbers beside it. -->
-        <app-profile-radar
-          [series]="radarSeries()"
-          [reference]="display.reference"
-          [colours]="display.colours"
-          [split]="true"
-        >
-          <app-profile-figures
-            [headline]="p.headline"
-            [openingDuels]="p.openingDuels"
+        <!-- His key figures once (radar and numbers), his opening duels and clutches beside. -->
+        <div class="grid items-start gap-x-10 gap-y-10 xl:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
+          <app-profile-radar
+            class="min-w-0"
+            [series]="radarSeries()"
             [reference]="display.reference"
             [colours]="display.colours"
-          />
-        </app-profile-radar>
-
-        <div class="grid items-start gap-x-10 gap-y-10 xl:grid-cols-2">
+            [split]="true"
+          >
+            <app-profile-figures
+              [headline]="p.headline"
+              [openingDuels]="p.openingDuels"
+              [reference]="display.reference"
+              [colours]="display.colours"
+            />
+          </app-profile-radar>
           <app-opening-clutch
             class="min-w-0"
             [openingDuels]="p.openingDuels"
@@ -44,36 +44,47 @@
             [reference]="display.reference"
             [colours]="display.colours"
           />
-          <app-weapons-panel class="min-w-0" [weapons]="p.weapons" />
         </div>
 
-        <!-- Buying habits always against the top ranked of his role, whatever the reference above. -->
-        <section class="view-section" aria-labelledby="player-economy">
-          <h3 id="player-economy" class="font-display text-lg font-semibold text-text-primary">
-            Économie<app-info-tip topic="playerEconomy" />
-          </h3>
-          <app-profile-figures [headline]="p.economy" reference="top" [colours]="display.colours" />
-          <p class="!m-0 text-sm text-text-muted">
-            Hors pistols, comparé aux joueurs du top ranked du même rôle.
-          </p>
-        </section>
+        <!-- Blocks two by two; a table of many columns takes its row whole. -->
+        <div class="block-grid">
+          <app-weapons-panel class="min-w-0" [weapons]="p.weapons" />
 
-        <!-- Tables take the full width so their columns never scroll sideways. -->
-        @for (table of tables(); track table.id) {
-          <section class="view-section" [attr.aria-labelledby]="'player-' + table.id">
-            <h3
-              class="font-display text-lg font-semibold text-text-primary"
-              [id]="'player-' + table.id"
-            >
-              {{ table.title }}
+          <!-- Buying habits always against the top ranked of his role, whatever the reference above. -->
+          <section class="view-section" aria-labelledby="player-economy">
+            <h3 id="player-economy" class="font-display text-lg font-semibold text-text-primary">
+              Économie<app-info-tip topic="playerEconomy" />
             </h3>
-            <app-stat-table
-              [table]="table"
-              [display]="display"
-              [playerAgents]="context.playerAgents()"
+            <app-profile-figures
+              [headline]="p.economy"
+              reference="top"
+              [colours]="display.colours"
             />
+            <p class="!m-0 text-sm text-text-muted">
+              Hors pistols, comparé aux joueurs du top ranked du même rôle.
+            </p>
           </section>
-        }
+
+          @for (table of tables(); track table.id) {
+            <section
+              class="view-section"
+              [class.block-wide]="isWide(table)"
+              [attr.aria-labelledby]="'player-' + table.id"
+            >
+              <h3
+                class="font-display text-lg font-semibold text-text-primary"
+                [id]="'player-' + table.id"
+              >
+                {{ table.title }}
+              </h3>
+              <app-stat-table
+                [table]="table"
+                [display]="display"
+                [playerAgents]="context.playerAgents()"
+              />
+            </section>
+          }
+        </div>
 
         <app-death-zones [deathZones]="p.deathZones" />
         @if (p.rewatch.length) {

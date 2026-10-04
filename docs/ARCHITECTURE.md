@@ -118,12 +118,18 @@ Navigation : `/` ouvre `/report`, le dernier mois. La barre du haut tient tout :
 popover (mois, sessions du mois survolé, patchs, historique) qui change la période sans quitter la vue ; à côté, le
 bilan V-D et la bande de forme (une barre par match, lien vers Matchs). Dessous, six onglets dans l'ordre de lecture
 (Résumé, Points forts et faibles, Matchs, Rounds, Minimap, Joueurs) puis le menu Explorer (stats par thème avec
-Alertes, Comparer, Évolution, Répartition), qui prend le nom de l'entrée lue (`report-views.constants.ts`). Les
-onglets ne gardent que la période. La période est dans l'URL
+Alertes, Comparer, Évolution, Répartition), qui prend le nom de l'entrée lue (`report-views.constants.ts`). Une
+session n'a que trois onglets (Débrief, Matchs, Joueurs) et pas d'Explorer ; une vue absente du type de période
+renvoie vers sa première vue (`viewForPeriod`). Les onglets ne gardent que la période. La période est dans l'URL
 (`?month=2026-09`, `?patch=13.06`, `?start=…&end=…`, une session étant `start=end`). Les liens profonds ajoutent
-des filtres : `/report/rounds?map=Split&side=def&result=lost|won&preset=throws`, `/report/minimap/Split?side=def&player=X`. `/report/matches` liste les sessions en cartes de match ; `/report/matches/<id>` montre le match seul, sous un
-fil d'Ariane (`shared/breadcrumb`) avec le match précédent et suivant. La fiche de round a le même fil d'Ariane et passe
-au round précédent ou suivant de la liste filtrée. Le sens d'une stat s'affiche avec `shared/better-hint`
+des filtres : `/report/rounds?map=Split&side=def&result=lost|won&preset=throws&moment=streak`, `/report/minimap/Split?side=def&player=X`. `/report/matches` liste les sessions en cartes de match ; `/report/matches/<id>` montre le match seul, sous un
+fil d'Ariane (`shared/breadcrumb`) avec le match précédent et suivant. Un round s'ouvre sous son match
+(`/report/matches/<id>/rounds/<n>`) : fil d'Ariane, bande de rounds du match comme sélecteur, round précédent ou
+suivant, puis la fiche (replay 2D, déroulé, chances de gagner, économie). La vue Rounds reste macro : causes de
+défaite, matrice carte x side x achat, moments qui décident (pistols, round après pistol perdu, round bonus, séries,
+throws) et la liste filtrable. Les blocs d'une vue vont par deux (`block-grid`), un tableau de plus de 5 colonnes
+prend la ligne (`block-wide`). Le Résumé liste ses priorités sur une ligne chacune ; une ligne ouvre sa carte dans
+Points forts et faibles (`/report/findings?open=weak:<sujet>`), où l'équipe et les joueurs sont côte à côte. Le sens d'une stat s'affiche avec `shared/better-hint`
 (« Plus haut = mieux »), jamais en phrase. Couleurs : vert bien, orange moyen (à moins de 3 points de la référence, 5 % pour une moyenne), rouge pas
 bien, gris sous l'échantillon minimum. Les champs de saisie n'utilisent jamais la surface bleue `surface-800`.
 

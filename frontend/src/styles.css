@@ -933,6 +933,12 @@
   }
 }
 
+/* Round of a strip whose page is open: an amber frame, the colour of selection. */
+.round-strip-current {
+  outline: 2px solid var(--color-brand-500);
+  outline-offset: -2px;
+}
+
 /* Name of a column of a top bar panel ('Mois', 'Outils'): quiet, it only says what the list holds. */
 @utility panel-heading {
   @apply !m-0 px-2 pb-2 text-sm font-semibold text-text-muted;
@@ -993,6 +999,18 @@
   & > .filter-strip {
     margin-bottom: -1rem;
   }
+}
+
+/*
+ * Blocks two by two on wide screens, so a table of a few columns never stretches across the page;
+ * a wide block takes the whole row (`block-wide`).
+ */
+@utility block-grid {
+  @apply grid items-start gap-x-10 gap-y-10 xl:grid-cols-2;
+}
+
+@utility block-wide {
+  @apply xl:col-span-2;
 }
 
 /* One block of a view: its title tight over its content. */

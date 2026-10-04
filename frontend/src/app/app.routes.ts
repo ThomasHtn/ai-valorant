@@ -1,4 +1,7 @@
-import { Routes } from '@angular/router';
+import { inject } from '@angular/core';
+import { Router, Routes } from '@angular/router';
+
+import { parseRoundParam, roundLink } from '@core/report/round-ref.utils';
 
 import { NotFound } from '@pages/not-found/not-found';
 
@@ -20,6 +23,11 @@ export const routes: Routes = [
         path: 'summary',
         loadComponent: () =>
           import('@pages/report/summary/summary-view').then((m) => m.SummaryView),
+      },
+      {
+        path: 'debrief',
+        loadComponent: () =>
+          import('@pages/report/debrief/debrief-view').then((m) => m.DebriefView),
       },
       {
         path: 'tables',
@@ -54,8 +62,15 @@ export const routes: Routes = [
         loadComponent: () => import('@pages/report/rounds/rounds-view').then((m) => m.RoundsView),
       },
       {
+        // Old address of a round sheet ('<matchId>_<n>'): the round now lives under its match.
         path: 'rounds/:round',
-        loadComponent: () => import('@pages/report/rounds/rounds-view').then((m) => m.RoundsView),
+        redirectTo: ({ params, queryParams }) => {
+          const ref = parseRoundParam(params['round']);
+          const tree = inject(Router).createUrlTree(ref ? roundLink(ref) : ['/report/rounds'], {
+            queryParams,
+          });
+          return tree;
+        },
       },
       {
         path: 'matches',
@@ -66,6 +81,11 @@ export const routes: Routes = [
         path: 'matches/:match',
         loadComponent: () =>
           import('@pages/report/matches/matches-view').then((m) => m.MatchesView),
+      },
+      {
+        path: 'matches/:match/rounds/:round',
+        loadComponent: () =>
+          import('@pages/report/matches/match-round/match-round').then((m) => m.MatchRound),
       },
       {
         path: 'players',

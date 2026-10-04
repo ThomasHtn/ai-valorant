@@ -1,94 +1,57 @@
-<div class="grid items-start gap-x-8 gap-y-6 lg:grid-cols-[12rem_minmax(0,1fr)]">
-  <nav
-    class="flex flex-wrap gap-0.5 lg:sticky lg:top-0 lg:flex-col"
-    aria-label="Domaines du dictionnaire"
-  >
-    <!-- Period-wide detections first, apart from the domains: they ignore the filters. -->
-    @let detectionsActive = showDetections();
-    <a
-      [routerLink]="['/report/tables', detectionsKey]"
-      queryParamsHandling="preserve"
-      class="focus-ring-inset flex items-center gap-2 border-l-[3px] px-3 py-2 font-semibold no-underline transition-colors lg:mb-2"
-      [class]="
-        detectionsActive
-          ? 'border-brand-500 bg-text-primary/7 !text-text-primary'
-          : 'border-transparent bg-text-primary/4 !text-text-secondary hover:border-brand-500/45 hover:bg-text-primary/10 hover:!text-text-primary'
-      "
-      [attr.aria-current]="detectionsActive ? 'page' : null"
-    >
-      Alertes
-      @if (detectionCount(); as count) {
-        <span class="ml-auto text-sm font-normal text-text-muted tabular-nums">{{ count }}</span>
-      }
-    </a>
-    @for (item of domains; track item.key) {
-      @let active = item.key === domainKey();
-      <a
-        [routerLink]="['/report/tables', item.key]"
-        queryParamsHandling="preserve"
-        class="focus-ring-inset border-l-[3px] px-3 py-2 font-semibold no-underline transition-colors"
-        [class]="
-          active
-            ? 'border-brand-500 bg-text-primary/7 !text-text-primary'
-            : 'border-transparent bg-text-primary/4 !text-text-secondary hover:border-brand-500/45 hover:bg-text-primary/10 hover:!text-text-primary'
-        "
-        [attr.aria-current]="active ? 'page' : null"
-        >{{ item.label }}</a
-      >
-    }
-  </nav>
-
-  @if (showDetections()) {
-    <div class="flex min-w-0 flex-col gap-6">
-      <p class="!m-0 text-text-secondary">
-        Ce que l'outil repère seul sur toute la période, sans tenir compte des filtres.<app-info-tip
-          topic="detections"
+@if (showDetections()) {
+  <div class="flex min-w-0 flex-col gap-6">
+    <p class="!m-0 text-text-secondary">
+      Ce que l'outil repère seul sur toute la période, sans tenir compte des filtres.<app-info-tip
+        topic="detections"
+      />
+      Les écarts testés avec la référence sont dans
+      <a routerLink="/report/findings" queryParamsHandling="preserve">Points forts et faibles</a>.
+    </p>
+    <app-resource-state [resource]="detections" notFoundText="Rien de détecté sur cette période.">
+      @if (detections.hasValue()) {
+        <app-detections-panel
+          [detections]="detections.value()"
+          [playerAgents]="context.playerAgents()"
         />
-        Les écarts testés avec la référence sont dans
-        <a routerLink="/report/findings" queryParamsHandling="preserve">Points forts et faibles</a>.
-      </p>
-      <app-resource-state [resource]="detections" notFoundText="Rien de détecté sur cette période.">
-        @if (detections.hasValue()) {
-          <app-detections-panel
-            [detections]="detections.value()"
-            [playerAgents]="context.playerAgents()"
-          />
-        }
-      </app-resource-state>
+      }
+    </app-resource-state>
+  </div>
+} @else {
+  <div class="view-body">
+    <!-- What is shown (filters), then how it reads (reference and colours), over every table. -->
+    <div class="flex flex-col gap-3">
+      <app-filter-bar [maps]="maps()" [players]="players()" />
+      <app-reading-bar [mixed]="hasHistoryColumns()" />
     </div>
-  } @else {
-    <div class="view-body">
-      <!-- What is shown (filters), then how it reads (reference and colours), over every table. -->
-      <div class="flex flex-col gap-3">
-        <app-filter-bar [maps]="maps()" [players]="players()" />
-        <app-reading-bar [mixed]="hasHistoryColumns()" />
-      </div>
-      <app-resource-state
-        [resource]="tables"
-        notFoundText="Ce domaine n'a pas de données sur cette période."
-      >
-        @if (tables.hasValue()) {
-          <div class="flex flex-col gap-10">
-            @for (table of tables.value().tables; track table.id) {
-              <section class="view-section" [attr.aria-labelledby]="'table-' + table.id">
-                <h2 class="text-lg" [id]="'table-' + table.id">
-                  {{ table.title }}<app-info-tip [topic]="table.help" />
-                </h2>
-                <app-stat-table
-                  [table]="table"
-                  [display]="state.preferences()"
-                  [playerAgents]="context.playerAgents()"
-                  [rowFilter]="rowFilters().get(table.id) ?? null"
-                  (cellClick)="openRounds($event)"
-                />
-                @if (table.note) {
-                  <p class="!m-0 text-sm text-text-muted">{{ table.note }}</p>
-                }
-              </section>
-            }
-          </div>
-        }
-      </app-resource-state>
-    </div>
-  }
-</div>
+    <app-resource-state
+      [resource]="tables"
+      notFoundText="Ce domaine n'a pas de données sur cette période."
+    >
+      @if (tables.hasValue()) {
+        <div class="block-grid">
+          @for (table of tables.value().tables; track table.id) {
+            <section
+              class="view-section"
+              [class.block-wide]="isWide(table)"
+              [attr.aria-labelledby]="'table-' + table.id"
+            >
+              <h2 class="text-lg" [id]="'table-' + table.id">
+                {{ table.title }}<app-info-tip [topic]="table.help" />
+              </h2>
+              <app-stat-table
+                [table]="table"
+                [display]="state.preferences()"
+                [playerAgents]="context.playerAgents()"
+                [rowFilter]="rowFilters().get(table.id) ?? null"
+                (cellClick)="openRounds($event)"
+              />
+              @if (table.note) {
+                <p class="!m-0 text-sm text-text-muted">{{ table.note }}</p>
+              }
+            </section>
+          }
+        </div>
+      }
+    </app-resource-state>
+  </div>
+}

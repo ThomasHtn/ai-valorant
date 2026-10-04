@@ -21,8 +21,8 @@ interface StripView {
 
 /**
  * One square per round, green won and red lost, with the side and the buy; a gap marks each side
- * swap. Its tip gives the score after the round. A square opens the round's sheet, its list
- * limited to the match with won rounds included.
+ * swap. Its tip gives the score after the round. A square opens the round's page under the match,
+ * so on that page the strip is also the way to the other rounds.
  */
 @Component({
   selector: 'app-round-strip',
@@ -32,6 +32,8 @@ interface StripView {
 export class RoundStrip {
   public readonly matchId = input.required<string>();
   public readonly rounds = input.required<readonly RoundStripCell[]>();
+  /** Round whose page is open, drawn raised with an amber frame; null on the match page. */
+  public readonly current = input<number | null>(null);
 
   protected readonly items = computed<StripView[]>(() => {
     const gaps = scoreGaps(this.rounds());

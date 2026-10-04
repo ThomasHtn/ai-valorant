@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import { Finding } from '@core/report/findings.model';
 
-import { barWidth, findingColumn } from './findings-view.utils';
+import { barWidth, findingColumn, openTarget } from './findings-view.utils';
 
 const rate = { count: 1, total: 2, value: 0.5 };
 
@@ -55,5 +55,13 @@ describe('barWidth', () => {
     expect(barWidth(null)).toBe(1);
     expect(barWidth(0.42)).toBe(42);
     expect(barWidth(1.3)).toBe(100);
+  });
+});
+
+describe('openTarget', () => {
+  it('splits the side from a subject key that holds colons', () => {
+    expect(openTarget('weak:map:Split')).toEqual({ side: 'weak', key: 'map:Split' });
+    expect(openTarget('other:x')).toEqual({ side: null, key: null });
+    expect(openTarget(undefined)).toEqual({ side: null, key: null });
   });
 });

@@ -9,6 +9,7 @@ import { ReadingBar } from '@shared/reading-bar/reading-bar';
 import { InfoTip } from '@shared/info-tip/info-tip';
 import { ResourceState } from '@shared/resource-state/resource-state';
 import { StatTableView } from '@shared/stat-table/stat-table';
+import { isWideTable } from '@shared/stat-table/stat-table.utils';
 
 import { DeathZones } from './death-zones/death-zones';
 import { OpeningClutch } from './opening-clutch/opening-clutch';
@@ -52,6 +53,7 @@ export class PlayersView {
   public readonly player = input<string>();
 
   protected readonly context = inject(ReportContext);
+  protected readonly isWide = isWideTable;
   protected readonly state = inject(ViewState);
   private readonly api = inject(ReportApi);
 

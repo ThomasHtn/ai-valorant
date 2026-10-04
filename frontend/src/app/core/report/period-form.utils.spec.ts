@@ -8,7 +8,7 @@ const periods: ReportPeriods = {
   firstDay: '2026-09-28',
   lastDay: '2026-10-01',
   topMatches: 0,
-  patches: ['13.06'],
+  patches: ['13.06', '13.05'],
   months: [
     {
       key: '2026-10',
@@ -23,6 +23,7 @@ const periods: ReportPeriods = {
           losses: 1,
           maps: ['Split', 'Ascent'],
           scores: ['13-7', '9-13'],
+          patches: ['13.05', '13.06'],
         },
       ],
     },
@@ -32,7 +33,15 @@ const periods: ReportPeriods = {
       wins: 0,
       losses: 1,
       sessions: [
-        { day: '2026-09-28', matches: 1, wins: 0, losses: 1, maps: ['Lotus'], scores: ['11-13'] },
+        {
+          day: '2026-09-28',
+          matches: 1,
+          wins: 0,
+          losses: 1,
+          maps: ['Lotus'],
+          scores: ['11-13'],
+          patches: ['13.05'],
+        },
       ],
     },
   ],
@@ -44,15 +53,16 @@ describe('period form', () => {
   });
 
   it('defaults to the latest month', () => {
-    expect(periodForm(periods, {})?.map((m) => m.map)).toEqual(['Split', 'Ascent']);
+    expect(periodForm(periods, {}).map((m) => m.map)).toEqual(['Split', 'Ascent']);
   });
 
   it('keeps play order across months for a range', () => {
     const form = periodForm(periods, { start: '2026-09-01', end: '2026-10-01' });
-    expect(form?.map((m) => m.map)).toEqual(['Lotus', 'Split', 'Ascent']);
+    expect(form.map((m) => m.map)).toEqual(['Lotus', 'Split', 'Ascent']);
   });
 
-  it('cannot tell a patch apart', () => {
-    expect(periodForm(periods, { patch: '13.06' })).toBeNull();
+  it('keeps the matches of a patch, even when it changes within a session', () => {
+    expect(periodForm(periods, { patch: '13.05' }).map((m) => m.map)).toEqual(['Lotus', 'Split']);
+    expect(periodForm(periods, { patch: '13.06' }).map((m) => m.map)).toEqual(['Ascent']);
   });
 });

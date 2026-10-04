@@ -19,8 +19,8 @@ import { Scoreboard } from './scoreboard/scoreboard';
 import { SessionGrid } from './session-grid/session-grid';
 
 /**
- * Matchs: without a match, every session of the period as match cards (an evening opened from the
- * home page shows only its own). With one, the match alone under a breadcrumb, with the matches
+ * Matchs: without a match, every session of the period as match cards (a session period shows
+ * only its own). With one, the match alone under a breadcrumb, with the matches
  * played before and after it: banner, round strip, its lost rounds to rewatch, both scoreboards.
  */
 @Component({

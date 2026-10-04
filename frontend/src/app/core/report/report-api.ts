@@ -23,7 +23,7 @@ import { FindingsReport } from './findings.model';
  */
 @Service()
 export class ReportApi {
-  /** The report tree (months, evenings, patches), shared by the home page and the period selector. */
+  /** The report tree (months, sessions, patches), for the period switcher and the form strip. */
   public readonly periods = httpResource<ReportPeriods>(() => API_ENDPOINTS.reportPeriods);
 
   public meta(query: Signal<PeriodQuery>): HttpResourceRef<ReportMeta | undefined> {

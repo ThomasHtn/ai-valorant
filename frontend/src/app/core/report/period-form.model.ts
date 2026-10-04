@@ -3,6 +3,7 @@ export interface FormMatch {
   /** `YYYY-MM-DD` of its session. */
   day: string;
   map: string;
+  patch: string;
   /** Squad rounds first, e.g. '13-7'. */
   score: string;
   /** Rounds won minus rounds lost: above zero a win, below a loss. */

@@ -24,84 +24,80 @@
   </app-resource-state>
 </section>
 
-<div class="grid items-start gap-x-10 gap-y-10 xl:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
-  <div class="flex min-w-0 flex-col gap-10">
-    <section class="view-section" aria-labelledby="summary-weak">
-      <h2 id="summary-weak">
-        À travailler en priorité
-        <a
-          class="order-2 font-sans text-sm font-normal"
-          routerLink="/report/findings"
-          queryParamsHandling="preserve"
-          >Tous les points faibles</a
-        >
-      </h2>
-      <app-resource-state [resource]="findings" notFoundText="Aucun écart testé sur cette période.">
-        <app-priority-list
-          [items]="weaknesses()"
-          [weak]="true"
-          [playerAgents]="context.playerAgents()"
-        />
-      </app-resource-state>
-    </section>
+<!-- What to work on beside what works, then the maps beside the players: two by two. -->
+<div class="block-grid">
+  <section class="view-section" aria-labelledby="summary-weak">
+    <h2 id="summary-weak">
+      À travailler en priorité
+      <a
+        class="order-2 font-sans text-sm font-normal"
+        routerLink="/report/findings"
+        queryParamsHandling="preserve"
+        >Tous les points faibles</a
+      >
+    </h2>
+    <app-resource-state [resource]="findings" notFoundText="Aucun écart testé sur cette période.">
+      <app-priority-list
+        [items]="weaknesses()"
+        [weak]="true"
+        [playerAgents]="context.playerAgents()"
+      />
+    </app-resource-state>
+  </section>
 
-    <section class="view-section" aria-labelledby="summary-strong">
-      <h2 id="summary-strong">
-        Ce qui marche
-        <a
-          class="order-2 font-sans text-sm font-normal"
-          routerLink="/report/findings"
-          queryParamsHandling="preserve"
-          >Tous les points forts</a
-        >
-      </h2>
-      <app-resource-state [resource]="findings" notFoundText="Aucun écart testé sur cette période.">
-        <app-priority-list
-          [items]="strengths()"
-          [weak]="false"
-          [playerAgents]="context.playerAgents()"
-        />
-      </app-resource-state>
-    </section>
-  </div>
+  <section class="view-section" aria-labelledby="summary-strong">
+    <h2 id="summary-strong">
+      Ce qui marche
+      <a
+        class="order-2 font-sans text-sm font-normal"
+        routerLink="/report/findings"
+        queryParamsHandling="preserve"
+        >Tous les points forts</a
+      >
+    </h2>
+    <app-resource-state [resource]="findings" notFoundText="Aucun écart testé sur cette période.">
+      <app-priority-list
+        [items]="strengths()"
+        [weak]="false"
+        [playerAgents]="context.playerAgents()"
+      />
+    </app-resource-state>
+  </section>
+  <section class="view-section" aria-labelledby="summary-maps">
+    <h2 id="summary-maps">
+      Cartes
+      <a
+        class="order-2 font-sans text-sm font-normal"
+        routerLink="/report/tables/results"
+        queryParamsHandling="preserve"
+        >Tous les résultats</a
+      >
+    </h2>
+    @if (mapsTable(); as table) {
+      <app-stat-table
+        [table]="table"
+        [display]="state.preferences()"
+        [playerAgents]="context.playerAgents()"
+      />
+    }
+  </section>
 
-  <div class="flex min-w-0 flex-col gap-10">
-    <section class="view-section" aria-labelledby="summary-maps">
-      <h2 id="summary-maps">
-        Cartes
-        <a
-          class="order-2 font-sans text-sm font-normal"
-          routerLink="/report/tables/results"
-          queryParamsHandling="preserve"
-          >Tous les résultats</a
-        >
-      </h2>
-      @if (mapsTable(); as table) {
-        <app-stat-table
-          [table]="table"
-          [display]="state.preferences()"
-          [playerAgents]="context.playerAgents()"
-        />
-      }
-    </section>
-
-    <section class="view-section" aria-labelledby="summary-players">
-      <h2 id="summary-players">
-        Joueurs
-        <a
-          class="order-2 font-sans text-sm font-normal"
-          routerLink="/report/players"
-          queryParamsHandling="preserve"
-          >Fiches joueurs</a
-        >
-      </h2>
-      @if (playersTable(); as table) {
-        <app-stat-table
-          [table]="table"
-          [display]="state.preferences()"
-          [playerAgents]="context.playerAgents()"
-        />
-      }
-    </section>
-  </div>
+  <section class="view-section" aria-labelledby="summary-players">
+    <h2 id="summary-players">
+      Joueurs
+      <a
+        class="order-2 font-sans text-sm font-normal"
+        routerLink="/report/players"
+        queryParamsHandling="preserve"
+        >Fiches joueurs</a
+      >
+    </h2>
+    @if (playersTable(); as table) {
+      <app-stat-table
+        [table]="table"
+        [display]="state.preferences()"
+        [playerAgents]="context.playerAgents()"
+      />
+    }
+  </section>
 </div>

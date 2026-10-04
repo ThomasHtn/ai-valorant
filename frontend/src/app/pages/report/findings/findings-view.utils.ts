@@ -19,3 +19,15 @@ export function findingColumn(findings: Finding[], side: FindingSide): FindingCo
 export function barWidth(value: number | null): number {
   return Math.max(1, Math.min(100, (value ?? 0) * 100));
 }
+
+/** Card a link asks to open ('weak:map:Split'), split into its side and subject key. */
+export function openTarget(param: string | null | undefined): {
+  side: FindingSide | null;
+  key: string | null;
+} {
+  const at = param?.indexOf(':') ?? -1;
+  const side = at > 0 ? param!.slice(0, at) : '';
+  return side === 'weak' || side === 'strong'
+    ? { side, key: param!.slice(at + 1) || null }
+    : { side: null, key: null };
+}

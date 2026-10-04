@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, effect, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import {
   NavigationCancel,
@@ -10,14 +10,15 @@ import {
 } from '@angular/router';
 import { filter, map, of, switchMap, timer } from 'rxjs';
 
+import { isSessionQuery, periodQueryParams } from '@core/report/period-query.utils';
 import { ReportContext } from '@core/report/report-context';
-import { ReportOriginTracker } from '@core/report/report-origin';
 import { PageHeader } from '@layout/page-header/page-header';
 import { ResourceState } from '@shared/resource-state/resource-state';
 
 import { PeriodPulse } from './period-pulse/period-pulse';
 import { PeriodSwitcher } from './period-switcher/period-switcher';
 import { ReportTabs } from './report-tabs/report-tabs';
+import { reportLocation, viewForPeriod } from './report-tabs/report-tabs.utils';
 
 /** A view taking longer than this to open shows the loader; quicker ones do not flash it. */
 const LOADER_DELAY_MS = 200;
@@ -35,9 +36,10 @@ const LOADER_DELAY_MS = 200;
 })
 export class ReportPage {
   protected readonly context = inject(ReportContext);
+  private readonly router = inject(Router);
   /** True while a view's code is being fetched, so the page never sits empty. */
   protected readonly opening = toSignal(
-    inject(Router).events.pipe(
+    this.router.events.pipe(
       filter(
         (e) =>
           e instanceof NavigationStart ||
@@ -53,7 +55,17 @@ export class ReportPage {
   );
 
   constructor() {
-    // Started here so it sees every report navigation, the first one included.
-    inject(ReportOriginTracker);
+    // A period that does not offer the open view (Minimap on a session) opens its first view.
+    effect(() => {
+      const session = isSessionQuery(this.context.query());
+      const url = this.context.url();
+      const target = viewForPeriod(reportLocation(url).view, session);
+      if (target) {
+        void this.router.navigate(['/report', target], {
+          queryParams: periodQueryParams(this.context.query()),
+          replaceUrl: true,
+        });
+      }
+    });
   }
 }

@@ -19,7 +19,7 @@ import { ReadingBar } from '@shared/reading-bar/reading-bar';
 import { ResourceState } from '@shared/resource-state/resource-state';
 import { StatTableView } from '@shared/stat-table/stat-table';
 import { StatCellClick } from '@shared/stat-table/stat-table.model';
-import { rowText } from '@shared/stat-table/stat-table.utils';
+import { isWideTable, rowText } from '@shared/stat-table/stat-table.utils';
 
 import { DetectionsPanel } from './detections-panel/detections-panel';
 import { scopeFilter } from './tables-view.utils';
@@ -72,6 +72,7 @@ export class TablesView {
   /** Repetitions and links of the period, whatever the domain. */
   protected readonly detections = this.api.detections(this.context.query);
 
+  protected readonly isWide = isWideTable;
   protected readonly meta = computed(() => resourceValue(this.context.meta, null));
   protected readonly maps = computed(() => this.meta()?.maps ?? []);
   protected readonly players = computed(() => this.meta()?.players.map((p) => p.name) ?? []);

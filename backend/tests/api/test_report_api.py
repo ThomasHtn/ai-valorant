@@ -88,6 +88,7 @@ def test_periods_tree(client: TestClient) -> None:
     assert september["matches"] == 3
     assert [s["matches"] for s in september["sessions"]] == [1, 2]
     assert september["sessions"][1]["scores"] == ["13-9", "13-9"]
+    assert september["sessions"][1]["patches"] == ["13.06", "13.06"]
     assert body["topMatches"] == 1 and body["patches"] == ["13.06"]
 
 

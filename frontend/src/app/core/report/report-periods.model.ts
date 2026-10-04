@@ -1,4 +1,4 @@
-/** The report tree of the home page and of the period selector (`GET /report/periods`). */
+/** The report tree of the period switcher (`GET /report/periods`). */
 
 /** One evening of squad matches. */
 export interface SessionEntry {
@@ -11,6 +11,8 @@ export interface SessionEntry {
   maps: string[];
   /** Score of each match, e.g. '13-11', same order as `maps`. */
   scores: string[];
+  /** Patch of each match, same order as `maps`. */
+  patches: string[];
 }
 
 export interface MonthEntry {

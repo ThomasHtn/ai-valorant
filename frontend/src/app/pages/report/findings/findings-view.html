@@ -4,18 +4,20 @@
 </p>
 
 <app-resource-state [resource]="report" notFoundText="Aucun écart testé sur cette période.">
-  <!-- Weaknesses, then strengths, one under the other at full width; only the page scrolls. -->
+  <!-- Weaknesses, then strengths, one under the other; only the page scrolls. -->
   <div class="flex flex-col gap-10">
     <app-finding-column
       heading="Points faibles"
       [weak]="true"
       [column]="weaknesses()"
+      [openKey]="target().side === 'weak' ? target().key : null"
       [playerAgents]="context.playerAgents()"
     />
     <app-finding-column
       heading="Points forts"
       [weak]="false"
       [column]="strengths()"
+      [openKey]="target().side === 'strong' ? target().key : null"
       [playerAgents]="context.playerAgents()"
     />
   </div>

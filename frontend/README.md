@@ -59,7 +59,8 @@ A component is `x.ts` + `x.html`, with its view models in `x.model.ts`, its cons
 | Route | Screen |
 |---|---|
 | `/` | Redirects to `/report`, the latest month |
-| `/report/<view>` | Tabs: `summary`, `findings`, `matches`, `rounds`, `minimap`, `players`. Explorer: `tables/<theme>`, `compare`, `trend`, `distribution` |
+| `/report/<view>` | Month, patch or history tabs: `summary`, `findings`, `matches`, `rounds`, `minimap`, `players`. Explorer: `tables/<theme>`, `compare`, `trend`, `distribution`. Session tabs: `debrief`, `matches`, `players` |
+| `/report/matches/<id>/rounds/<n>` | One round under its match: replay, timeline, win chances, economy |
 
 The period lives in the URL (`?month=2026-09`, `?patch=13.06`, `?start=...&end=...`, a session being
 `start=end`), so any report is shareable. Every page is lazy loaded, and route and query parameters are

@@ -1,0 +1,137 @@
+<button
+  #trigger
+  type="button"
+  popovertarget="report-period"
+  class="focus-ring group flex min-w-0 items-center gap-2 px-2 py-1.5 transition-colors hover:bg-text-primary/7"
+  [attr.aria-label]="'Période : ' + title() + '. Changer de période'"
+>
+  <span class="truncate font-display text-xl leading-none font-medium text-text-primary">{{
+    title()
+  }}</span>
+  <svg
+    class="size-4 shrink-0 text-text-muted transition-colors group-hover:text-brand-400"
+    lucideChevronDown
+    aria-hidden="true"
+  ></svg>
+</button>
+
+<div
+  #panel
+  id="report-period"
+  popover
+  class="popover-panel"
+  aria-label="Choisir la période"
+  (beforetoggle)="opening($event)"
+>
+  @if (periods(); as periods) {
+    <div class="grid sm:h-[22rem] sm:grid-cols-[19rem_minmax(0,1fr)]">
+      <section class="scroll-subtle overflow-y-auto p-3" aria-labelledby="period-months">
+        <p id="period-months" class="panel-heading">Mois</p>
+        <ul class="flex flex-col gap-px">
+          @for (month of periods.months; track month.key) {
+            @let value = option({ month: month.key });
+            <li>
+              <button
+                type="button"
+                class="panel-option"
+                [attr.aria-pressed]="value === selected()"
+                [attr.data-preview]="month.key === preview() ? '' : null"
+                (pointerenter)="preview.set(month.key)"
+                (focus)="preview.set(month.key)"
+                (click)="choose({ month: month.key })"
+              >
+                <span class="flex-1 truncate">{{ monthTitle(month.key) }}</span>
+                <!-- Share of matches won: green then red, the month's form at a glance. -->
+                <span class="flex h-1.5 w-12 shrink-0 bg-rating-bad/75" aria-hidden="true">
+                  <span
+                    class="h-full bg-rating-good"
+                    [style.width.%]="winShare(month.wins, month.losses) * 100"
+                  ></span>
+                </span>
+                <span class="w-[4.5rem] shrink-0 text-right tabular-nums">
+                  <span class="text-rating-good">{{ month.wins }}V</span>
+                  <span class="text-rating-bad"> {{ month.losses }}D</span>
+                </span>
+              </button>
+            </li>
+          }
+        </ul>
+      </section>
+
+      <section
+        class="scroll-subtle overflow-y-auto border-t border-edge bg-text-primary/3 p-3 sm:border-t-0 sm:border-l"
+        aria-labelledby="period-sessions"
+      >
+        <p id="period-sessions" class="panel-heading">
+          @if (preview(); as month) {
+            Sessions {{ ofMonth(month) }}
+          } @else {
+            Sessions
+          }
+        </p>
+        <ul class="flex flex-col gap-px">
+          @for (item of previewSessions(); track item.session.day) {
+            <li>
+              <button
+                type="button"
+                class="panel-option"
+                [attr.aria-pressed]="item.value === selected()"
+                (click)="choose(sessionQuery(item.session.day))"
+              >
+                <span class="w-24 shrink-0">{{ sessionDay(item.session.day) }}</span>
+                <app-form-strip [matches]="item.form" size="sm" [tips]="false" />
+                <span class="ml-auto w-[4.5rem] shrink-0 text-right tabular-nums">
+                  <span class="text-rating-good">{{ item.session.wins }}V</span>
+                  <span class="text-rating-bad"> {{ item.session.losses }}D</span>
+                </span>
+              </button>
+            </li>
+          } @empty {
+            <li class="px-2 py-2 text-sm text-text-muted">Aucune session ce mois-ci.</li>
+          }
+        </ul>
+      </section>
+    </div>
+
+    <div
+      class="flex flex-wrap items-center gap-x-6 gap-y-3 border-t border-edge px-5 py-3"
+      role="group"
+      aria-label="Autres périodes"
+    >
+      @if (periods.patches.length) {
+        <div class="flex flex-wrap items-center gap-1.5">
+          <span class="mr-1 text-sm text-text-muted">Patch</span>
+          @for (patch of periods.patches; track patch) {
+            <button
+              type="button"
+              class="panel-chip tabular-nums"
+              [attr.aria-pressed]="option({ patch }) === selected()"
+              (click)="choose({ patch })"
+            >
+              {{ patch }}
+            </button>
+          }
+        </div>
+      }
+      @if (history(); as range) {
+        <button
+          type="button"
+          class="panel-chip gap-2 sm:ml-auto"
+          [attr.aria-pressed]="option(range) === selected()"
+          (click)="choose(range)"
+        >
+          <svg class="size-4 shrink-0" lucideHistory aria-hidden="true"></svg>
+          Tout l'historique
+        </button>
+      }
+    </div>
+
+    <p
+      class="!m-0 flex items-center gap-2 border-t border-edge px-5 py-2.5 text-sm text-text-muted"
+    >
+      <span class="size-2 shrink-0 rounded-full bg-rating-good" aria-hidden="true"></span>
+      Données du {{ freshness(periods.freshness) }}, références sur
+      {{ integer(periods.topMatches) }} matchs top ranked.
+    </p>
+  }
+</div>

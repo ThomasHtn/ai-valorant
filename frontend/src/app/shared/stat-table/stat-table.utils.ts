@@ -6,6 +6,7 @@ import { cellTone, columnReference, referenceValue } from '@core/report/tone.uti
 
 import { parseRecord } from '@shared/win-loss/win-loss.utils';
 
+import { NARROW_TABLE_COLUMNS } from './stat-table.constants';
 import { RowView, StatDisplay, StatSort, TipLine } from './stat-table.model';
 
 const REFERENCES: readonly Reference[] = ['top', 'opp', 'hist'];
@@ -153,4 +154,9 @@ export function cellTipLines(cell: StatCell, column: StatColumn, chosen: Referen
     }
   }
   return lines;
+}
+
+/** True for a table too wide to share a row: it then spans the whole block grid. */
+export function isWideTable(table: Pick<StatTable, 'columns'>): boolean {
+  return table.columns.length > NARROW_TABLE_COLUMNS;
 }
