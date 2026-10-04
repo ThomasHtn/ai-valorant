@@ -119,10 +119,9 @@ def _by_map_side(cohorts: ReportCohorts) -> StatTable:
                 f"{map_name} · {label}",
                 cells(map_name=map_name, victim_side=side),
                 art=map_art(map_name),
-                sub=label,
             )
     for side, label in SIDE_LABELS.items():
-        table.row(f"all-{side}", f"Toutes les cartes · {label}", cells(victim_side=side), sub=label, total=True)
+        table.row(f"all-{side}", f"Toutes les cartes · {label}", cells(victim_side=side), total=True)
     return table.build()
 
 

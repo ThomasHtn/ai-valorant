@@ -1,16 +1,10 @@
-/** Drawing box of the profile radar in CSS pixels; labels need the room left and right of the web. */
-export const RADAR_BOX = { width: 500, height: 380, radius: 128, labelGap: 18 };
+/** Drawing box of the profile radar in CSS pixels; labels need the room around the web. */
+export const RADAR_BOX = { width: 660, height: 480, radius: 175, labelGap: 20 };
 
-/**
- * Player / reference ratio at the centre and at the rim. The reference sits on the ring halfway, so
- * a stat 40 % better or worse than the reference reaches the rim or the centre.
- */
-export const RADAR_RATIO = { min: 0.6, max: 1.4 };
+/** Rings drawn behind the web, as reach on each axis' scale (the rim is the strong end). */
+export const RADAR_RINGS: readonly number[] = [0.25, 0.5, 0.75, 1];
 
-/** Rings drawn behind the web, as ratios to the reference: 1 is the reference, the last the rim. */
-export const RADAR_RINGS: readonly number[] = [0.8, 1, 1.2, 1.4];
-
-/** Short axis names; a stat missing here keeps the API's label. */
+/** Short axis names; a figure missing here keeps the API's label. */
 export const RADAR_AXIS_LABELS: Readonly<Record<string, string>> = {
   acs: 'ACS',
   kd: 'K/D',
@@ -22,6 +16,7 @@ export const RADAR_AXIS_LABELS: Readonly<Record<string, string>> = {
   zeroDmg: 'Morts à 0 dégât',
   fb: 'First bloods',
   fd: 'First deaths',
+  fbfd: 'FB moins FD',
   duelsWon: 'Premiers duels',
   revenge: 'Morts avec revenge',
   isolated: 'Morts isolées',
@@ -29,7 +24,7 @@ export const RADAR_AXIS_LABELS: Readonly<Record<string, string>> = {
   hs: 'HS',
 };
 
-/** Colour of a lone player's points and values per tone; uncoloured ones stay white. */
+/** Colour of a lone player's points per tone; uncoloured ones stay white. */
 export const RADAR_TONE_COLOURS = {
   good: 'var(--color-rating-good)',
   avg: 'var(--color-rating-average)',
@@ -38,5 +33,14 @@ export const RADAR_TONE_COLOURS = {
   none: 'var(--color-text-primary)',
 } as const;
 
-/** Polygon colour of a lone player. */
+/** Polygon colour of a lone player, and of his reference. */
 export const RADAR_SQUAD_COLOUR = 'var(--color-squad)';
+export const RADAR_REFERENCE_COLOUR = 'var(--color-top)';
+
+/** Help of the radar's "i": how the fixed scales read. */
+export const RADAR_HELP = {
+  title: 'Profil',
+  what: 'Les chiffres clés du joueur sur une seule toile, avec en pointillé ceux de la référence.',
+  how: "Chaque branche a sa propre échelle, d'un niveau faible en ranked au centre à un très bon niveau au bord (ACS de 100 à 300, KAST de 50 à 85 %...). Pour un chiffre où plus bas = mieux, l'échelle est inversée.",
+  read: 'Plus loin du centre = mieux. Là où la forme du joueur rentre sous le pointillé, la référence fait mieux que lui.',
+};

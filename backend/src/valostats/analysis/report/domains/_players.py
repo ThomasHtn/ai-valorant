@@ -32,6 +32,12 @@ def role_label(player: SquadPlayer) -> str:
     return ROLE_LABELS.get(player.role, player.role)
 
 
+def agent_role_label(agent: str) -> str:
+    """Role of an agent, under rows already labelled with the agent's name."""
+    role = role_of(agent)
+    return ROLE_LABELS.get(role, role)
+
+
 class PlayerFacts:
     """Facts of a report sliced by player and by role, built lazily once per (kind, cohort)."""
 

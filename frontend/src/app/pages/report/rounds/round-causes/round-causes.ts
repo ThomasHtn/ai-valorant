@@ -24,6 +24,11 @@ export class RoundCauses {
   public readonly selectedChange = output<LossCause | ''>();
 
   protected readonly radius = RING_RADIUS;
+  /** Lost rounds the shares are taken from, read back from the first cause. */
+  protected readonly lost = computed(() => {
+    const first = this.causes()[0];
+    return first?.share ? Math.round(first.count / first.share) : 0;
+  });
   protected readonly rings = computed(() =>
     this.causes().map((item) => {
       const percent = Math.round(item.share * 100);

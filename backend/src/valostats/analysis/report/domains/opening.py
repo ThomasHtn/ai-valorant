@@ -68,7 +68,6 @@ def _by_map_side(cohorts: ReportCohorts) -> StatTable:
                 f"{map_name} · {label}",
                 _team_cells(cohorts, map_name=map_name, side=side),
                 art=map_art(map_name),
-                sub=label,
             )
     return table.build()
 

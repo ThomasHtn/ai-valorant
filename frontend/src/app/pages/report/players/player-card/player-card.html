@@ -1,0 +1,51 @@
+<div
+  class="grid grid-cols-[auto_minmax(0,1fr)] items-start gap-x-5 gap-y-4 border-b-[3px] border-brand-500 bg-text-primary/5 p-4 sm:grid-cols-[auto_minmax(0,1fr)_auto] sm:items-center sm:gap-x-7 sm:p-5"
+>
+  <app-agent-icon
+    class="!size-20 sm:!size-32"
+    [agent]="sheet().portrait"
+    size="lg"
+    [decorative]="true"
+  />
+
+  <div class="flex min-w-0 flex-col gap-2">
+    <h2
+      class="!m-0 truncate after:hidden font-display text-[2rem] leading-none font-semibold sm:text-[2.75rem]"
+    >
+      {{ sheet().name }}
+    </h2>
+    <p class="!m-0 flex flex-wrap items-center gap-x-5 gap-y-1 text-lg text-text-secondary">
+      <span class="inline-flex items-center gap-2"
+        ><app-role-icon class="!size-5" [role]="sheet().role" />{{ role() }}</span
+      >
+      @for (item of volume(); track item.key) {
+        <span
+          ><b class="font-display text-xl text-text-primary">{{ item.value }}</b>
+          {{ item.label }}</span
+        >
+      }
+    </p>
+    <ul class="!m-0 flex list-none flex-wrap gap-x-4 gap-y-1.5 !p-0" aria-label="Agents joués">
+      @for (item of agents(); track item.agent) {
+        <li class="inline-flex items-center gap-2 text-text-secondary">
+          <app-agent-icon [agent]="item.agent" size="md" [decorative]="true" />
+          <span
+            ><span class="text-text-primary">{{ item.agent }}</span> {{ item.matches }}</span
+          >
+        </li>
+      }
+    </ul>
+  </div>
+
+  <!-- The rank emblem, the card's trophy. -->
+  <div
+    class="col-span-2 flex items-center gap-3 sm:col-span-1 sm:flex-col sm:gap-1.5 sm:px-4 sm:text-center"
+  >
+    @if (rank(); as rank) {
+      <img [src]="rank.src" alt="" class="size-12 object-contain sm:size-20" />
+      <span class="font-display text-xl font-semibold">{{ rank.label }}</span>
+    } @else {
+      <span class="text-text-muted">Rang inconnu</span>
+    }
+  </div>
+</div>

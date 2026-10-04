@@ -1,0 +1,50 @@
+<!-- Map, side and player of the view, always at hand on the left. -->
+<span class="side-rail-title">Carte</span>
+@for (map of maps(); track map) {
+  <a
+    class="side-tab !min-h-9 !py-1.5"
+    [routerLink]="['/report/minimap', map.toLowerCase()]"
+    queryParamsHandling="preserve"
+    [attr.aria-current]="map === selectedMap() ? 'page' : null"
+  >
+    <app-map-thumb [map]="map" />{{ map }}
+  </a>
+}
+
+<span class="side-rail-title">Side</span>
+<div class="grid w-full grid-cols-2 gap-0.5" role="group" aria-label="Side">
+  @for (option of sides; track option) {
+    <button
+      type="button"
+      class="side-tab !min-h-9 !py-1.5"
+      [attr.aria-pressed]="option === side()"
+      (click)="sideChange.emit(option)"
+    >
+      {{ sideLabels[option] }}
+    </button>
+  }
+</div>
+
+<span class="side-rail-title">Joueur</span>
+<button
+  type="button"
+  class="side-tab !min-h-9 !py-1.5"
+  [attr.aria-pressed]="!player()"
+  (click)="playerChange.emit('')"
+>
+  <span class="grid size-6 place-items-center bg-text-primary/8" aria-hidden="true">
+    <svg lucideUsers class="size-4"></svg>
+  </span>
+  Toute l'escouade
+</button>
+@for (one of players(); track one.name) {
+  <button
+    type="button"
+    class="side-tab !min-h-9 !py-1.5"
+    [attr.aria-pressed]="one.name === player()"
+    (click)="playerChange.emit(one.name)"
+  >
+    <app-agent-icon [agent]="one.portrait" [decorative]="true" />
+    <span class="truncate">{{ one.name }}</span>
+  </button>
+}

@@ -1,0 +1,57 @@
+<!-- Both teams side by side: what each player carries into the round, the team value on top. -->
+@for (team of teams(); track team.title) {
+  <div class="flex min-w-0 flex-col gap-0.5">
+    <p class="!m-0 flex items-baseline justify-between gap-3 px-2 pb-1 text-sm">
+      <b class="font-semibold text-text-primary">{{ team.title }}</b>
+      <span class="text-text-muted"
+        >Équipement de l'équipe :
+        <b class="font-semibold text-text-secondary">{{ team.total }}</b></span
+      >
+    </p>
+    <div
+      class="grid grid-cols-[1.5rem_minmax(0,1fr)_minmax(0,1fr)_7rem_4rem] gap-x-2.5 px-2 text-xs text-text-muted"
+      aria-hidden="true"
+    >
+      <span></span>
+      <span>Joueur</span>
+      <span>Arme</span>
+      <span>Armure</span>
+      <span class="text-right">Crédits</span>
+    </div>
+    <ul class="m-0 flex list-none flex-col gap-0.5 p-0">
+      @for (line of team.lines; track line.name) {
+        <li
+          class="grid grid-cols-[1.5rem_minmax(0,1fr)_minmax(0,1fr)_7rem_4rem] items-center gap-x-2.5 bg-text-primary/4 px-2 py-1 text-sm transition-colors hover:bg-text-primary/8"
+          [appHoverTip]="line.tip"
+          tabindex="0"
+        >
+          <app-agent-icon [agent]="line.agent" [decorative]="true" />
+          <span class="truncate">{{ line.name }}</span>
+          <span class="flex min-w-0 items-center gap-2">
+            <span class="inline-flex w-11 shrink-0 justify-center">
+              @if (line.weaponIcon; as src) {
+                <img
+                  [src]="src"
+                  alt=""
+                  loading="lazy"
+                  class="h-3.5 max-w-full object-contain opacity-80"
+                />
+              }
+            </span>
+            <span class="truncate">{{ line.weapon }}</span>
+          </span>
+          <span class="flex min-w-0 items-center gap-1.5 text-text-secondary">
+            <!-- Fixed slot so labels stay aligned when a player bought no shield. -->
+            <span class="inline-flex w-4 shrink-0 justify-center">
+              @if (line.armorIcon; as src) {
+                <img [src]="src" alt="" loading="lazy" class="size-4 object-contain opacity-80" />
+              }
+            </span>
+            <span class="truncate">{{ line.armor }}</span>
+          </span>
+          <span class="text-right tabular-nums">{{ line.value }}</span>
+        </li>
+      }
+    </ul>
+  </div>
+}

@@ -128,7 +128,7 @@ export function lostRoundRows(rounds: readonly RoundLine[], matchId: string): Lo
       key: `r${round.roundNumber}`,
       link: roundLink(round),
       number: `R${round.roundNumber}`,
-      detail: `${SIDE_LABELS[round.side]} · ${BUY_SENTENCE_LABELS[round.buy]} contre ${BUY_SENTENCE_LABELS[round.oppBuy]}`,
+      detail: `${SIDE_LABELS[round.side]}, ${BUY_SENTENCE_LABELS[round.buy]} contre ${BUY_SENTENCE_LABELS[round.oppBuy]}`,
       cause: round.cause ? LOSS_CAUSE_LABELS[round.cause] : 'Sans cause',
       chance:
         round.thrown && round.bestProbability !== null ? throwLabel(round.bestProbability) : null,
@@ -143,7 +143,7 @@ export function roundTip(round: RoundStripCell, gap: number | null = null): Hove
   const lines = [
     {
       label: 'Fin',
-      value: `${RESULT_LABELS[round.result] ?? round.result}${round.planted && round.plantSite ? ` · plant en ${round.plantSite}` : ''}`,
+      value: `${RESULT_LABELS[round.result] ?? round.result}${round.planted && round.plantSite ? `, plant en ${round.plantSite}` : ''}`,
     },
   ];
   if (gap !== null) {
@@ -162,10 +162,10 @@ export function roundTip(round: RoundStripCell, gap: number | null = null): Hove
     lines.push({ label: 'Bonus', value: ceremony });
   }
   return {
-    title: `Round ${round.roundNumber} · ${round.won ? 'gagné' : 'perdu'}`,
-    text: `${SIDE_LABELS[round.side]} · ${BUY_SENTENCE_LABELS[round.buy]} contre ${BUY_SENTENCE_LABELS[round.oppBuy]}`,
+    title: `Round ${round.roundNumber} ${round.won ? 'gagné' : 'perdu'}`,
+    text: `${SIDE_LABELS[round.side]}, ${BUY_SENTENCE_LABELS[round.buy]} contre ${BUY_SENTENCE_LABELS[round.oppBuy]}`,
     lines,
-    note: 'Clic : fiche du round',
+    note: 'Clic : ouvrir le détail du round',
   };
 }
 

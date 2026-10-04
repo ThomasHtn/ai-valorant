@@ -1,0 +1,69 @@
+@let m = match();
+<!-- The map's art, blurred to fill the band; the sharp art sits whole on the right. -->
+@if (splash(); as src) {
+  <img
+    [src]="src"
+    alt=""
+    aria-hidden="true"
+    class="absolute inset-0 size-full scale-110 object-cover opacity-70 blur-2xl"
+  />
+}
+<span
+  class="absolute inset-0 bg-linear-to-r from-surface-sunken/95 via-surface-sunken/70 to-surface-sunken/30"
+  aria-hidden="true"
+></span>
+<span
+  class="absolute inset-x-0 top-0 h-[3px]"
+  [class]="m.won ? 'bg-rating-good/70' : 'bg-rating-bad/70'"
+  aria-hidden="true"
+></span>
+
+<div class="relative flex min-w-0 flex-col justify-center gap-3 px-6 py-5">
+  <h2 class="!m-0 font-display after:hidden text-4xl leading-none font-semibold">
+    {{ m.mapName }}
+  </h2>
+
+  <p class="!m-0 flex flex-wrap items-baseline gap-x-4 gap-y-1">
+    <span class="font-display text-6xl leading-none font-bold tabular-nums">
+      <span [class]="m.won ? 'text-rating-good' : 'text-rating-bad'">{{ m.roundsWon }}</span>
+      <span class="text-text-muted"> : {{ m.roundsLost }}</span>
+    </span>
+    <span
+      class="font-display text-2xl leading-none font-semibold"
+      [class]="m.won ? 'text-rating-good' : 'text-rating-bad'"
+      >{{ m.won ? 'Victoire' : 'Défaite' }}</span
+    >
+  </p>
+
+  <!-- The side the squad played is read from each half's score, in the order played. -->
+  <ul class="m-0 flex list-none flex-wrap gap-x-6 gap-y-1 p-0" aria-label="Score par mi-temps">
+    @for (half of halves(); track half.key) {
+      <li class="inline-flex items-center gap-1.5 text-base">
+        @if (half.side === 'att') {
+          <svg lucideSwords class="size-4 text-opponent" aria-hidden="true"></svg>
+        } @else if (half.side === 'def') {
+          <svg lucideShield class="size-4 text-squad" aria-hidden="true"></svg>
+        }
+        <span class="text-text-secondary">{{ half.label }}</span>
+        <b class="font-semibold tabular-nums">{{ half.won }} : {{ half.lost }}</b>
+      </li>
+    }
+  </ul>
+
+  <p class="!m-0 flex flex-wrap gap-x-5 gap-y-1 text-sm text-text-muted">
+    <span>{{ longDay(m.day) }} à {{ startTime(m.startedAt) }}</span>
+    <span>{{ matchLength(m.lengthMs) }}</span>
+    <span>Patch {{ m.patch }}</span>
+    @if (m.cluster) {
+      <span>Serveur {{ m.cluster }}</span>
+    }
+  </p>
+</div>
+
+@if (splash(); as src) {
+  <img
+    [src]="src"
+    alt=""
+    class="relative hidden aspect-video h-64 w-auto shrink-0 object-cover mask-l-from-60% mask-l-to-100% md:block"
+  />
+}

@@ -4,7 +4,6 @@ import {
   detailLabel,
   findingLinks,
   fiveStackCaveat,
-  gapUnit,
   groupBySubject,
   higherIsBetter,
   mainCauses,
@@ -57,15 +56,13 @@ describe('groupBySubject', () => {
       finding({ ...player, scope: 'Alpha · défense', gapRounds: -4.5 }),
     ]);
     expect(subjects).toHaveLength(1);
-    expect(detailLabel(subjects[0].others[0])).toBe('Défense · Rounds gagnés');
+    expect(detailLabel(subjects[0].others[0])).toBe('Défense, rounds gagnés');
   });
 });
 
 describe('finding texts', () => {
   it('writes the metric alone when the scope is the subject', () => {
     expect(detailLabel(finding({}))).toBe('Rounds gagnés');
-    expect(gapUnit(finding({}))).toBe('rounds sur 5 matchs');
-    expect(gapUnit(finding({ matches: 1 }))).toBe('rounds sur 1 match');
   });
 
   it('says why a gap is good or bad, whichever way the metric reads', () => {
@@ -94,7 +91,9 @@ describe('finding texts', () => {
     const f = finding({
       lostCauses: { duels_lost: 2, retake_failed: 3, clutch_lost: 1, time_out: 1 },
     });
-    expect(mainCauses(f)).toBe('Retake raté (3), duels perdus (2), clutch perdu (1)');
+    expect(mainCauses(f)).toBe(
+      'Retake raté (3 rounds), duels perdus (2 rounds), clutch perdu (1 round)',
+    );
     expect(mainCauses(finding({}))).toBeNull();
   });
 

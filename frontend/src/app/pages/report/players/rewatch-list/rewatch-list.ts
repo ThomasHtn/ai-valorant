@@ -14,10 +14,10 @@ import { MapThumb } from '@shared/game-art/map-thumb';
   selector: 'app-rewatch-list',
   imports: [RouterLink, InfoTip, MapThumb],
   template: `
-    <h2 id="player-rewatch" class="!m-0 text-lg">
+    <h3 id="player-rewatch" class="!m-0 font-display text-lg font-semibold text-text-primary">
       First deaths sans revenge à revoir<app-info-tip topic="playerRewatch" />
-    </h2>
-    <ul class="!m-0 flex list-none flex-col gap-0.5 !p-0" aria-labelledby="player-rewatch">
+    </h3>
+    <ul class="!m-0 grid list-none gap-0.5 !p-0 xl:grid-cols-2" aria-labelledby="player-rewatch">
       @for (row of rows(); track row.key) {
         <li>
           <a
@@ -33,7 +33,7 @@ import { MapThumb } from '@shared/game-art/map-thumb';
       }
     </ul>
   `,
-  host: { class: 'flex flex-col gap-3' },
+  host: { class: 'view-section' },
 })
 export class RewatchList {
   public readonly rounds = input.required<RewatchRound[]>();
@@ -44,12 +44,9 @@ export class RewatchList {
       link: roundLink(r),
       mapName: r.mapName,
       when: `${dayMonth(r.startedAt)} R${r.roundNumber}`,
-      what: [
-        r.zone,
-        SIDE_LABELS[r.side].toLowerCase(),
-        formatValue(r.seconds, 'sec'),
-        `tué par ${r.killerAgent ?? '?'}${r.weapon ? ` (${r.weapon})` : ''}`,
-      ].join(' · '),
+      what:
+        `${r.zone} en ${SIDE_LABELS[r.side].toLowerCase()}, mort à ${formatValue(r.seconds, 'sec')}, ` +
+        `tué par ${r.killerAgent ?? 'un adversaire'}${r.weapon ? ` (${r.weapon})` : ''}`,
     })),
   );
 }

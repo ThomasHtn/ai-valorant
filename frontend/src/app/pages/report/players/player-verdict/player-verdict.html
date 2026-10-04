@@ -1,0 +1,67 @@
+<!-- The scoreboard: key figures above, close to and under the reference. -->
+<div class="flex flex-wrap items-end gap-x-8 gap-y-2">
+  <h3 class="!m-0 font-display text-lg font-semibold text-text-primary">
+    {{ heading() }}
+  </h3>
+  <p class="!m-0 flex items-baseline gap-x-6 sm:ml-auto">
+    @for (item of score(); track item.key) {
+      <span class="inline-flex items-baseline gap-1.5 text-text-secondary">
+        <b class="font-display text-[1.75rem] leading-none font-semibold" [class]="item.class">{{
+          item.count
+        }}</b>
+        {{ item.label }}
+      </span>
+    }
+  </p>
+</div>
+
+<div class="grid gap-x-6 gap-y-4 lg:grid-cols-2">
+  <section class="flex min-w-0 flex-col gap-1.5" aria-labelledby="verdict-strong">
+    <h4
+      id="verdict-strong"
+      class="!m-0 inline-flex items-center gap-2 font-display text-base font-semibold text-rating-good"
+    >
+      <svg lucideThumbsUp class="size-4" aria-hidden="true"></svg>Ses points forts
+    </h4>
+    @for (item of strengths(); track item.key) {
+      <ng-container *ngTemplateOutlet="line; context: { $implicit: item }" />
+    } @empty {
+      <p
+        class="!m-0 grid flex-1 place-items-center bg-text-primary/4 px-4 py-3 text-center text-text-muted"
+      >
+        Aucun chiffre nettement au-dessus de la référence.
+      </p>
+    }
+  </section>
+
+  <section class="flex min-w-0 flex-col gap-1.5" aria-labelledby="verdict-weak">
+    <h4
+      id="verdict-weak"
+      class="!m-0 inline-flex items-center gap-2 font-display text-base font-semibold text-rating-bad"
+    >
+      <svg lucideTarget class="size-4" aria-hidden="true"></svg>À travailler
+    </h4>
+    @for (item of weaknesses(); track item.key) {
+      <ng-container *ngTemplateOutlet="line; context: { $implicit: item }" />
+    } @empty {
+      <p
+        class="!m-0 grid flex-1 place-items-center bg-text-primary/4 px-4 py-3 text-center text-text-muted"
+      >
+        Aucun chiffre nettement sous la référence.
+      </p>
+    }
+  </section>
+</div>
+
+<ng-template #line let-item>
+  <p
+    class="!m-0 grid grid-cols-[minmax(0,1fr)_auto] items-baseline gap-x-4 border-l-[3px] bg-text-primary/4 px-4 py-2.5"
+    [class]="item.edgeClass"
+  >
+    <span class="font-semibold text-text-primary">{{ item.label }}</span>
+    <b class="font-display text-[1.35rem] leading-none font-semibold" [class]="item.valueClass">{{
+      item.value
+    }}</b>
+    <span class="col-span-2 text-text-secondary">{{ item.sentence }}</span>
+  </p>
+</ng-template>
