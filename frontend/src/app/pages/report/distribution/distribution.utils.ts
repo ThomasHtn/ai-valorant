@@ -45,7 +45,8 @@ export function medianGap(squad: Histogram, top: Histogram, unit: string): strin
   if (squad.median === null || top.median === null) {
     return null;
   }
-  const gap = squad.median - top.median;
+  // Gap of the medians as written, so '12 s' against '12 s' never reads '+0 s'.
+  const gap = Math.round(squad.median) - Math.round(top.median);
   const sign = gap > 0 ? '+' : gap < 0 ? '−' : '';
   return `${sign}${withUnit(Math.abs(gap), unit)}`;
 }

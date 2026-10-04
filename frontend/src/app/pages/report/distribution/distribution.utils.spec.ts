@@ -46,6 +46,10 @@ describe('medianGap', () => {
     expect(medianGap(histogram(10), histogram(19), 's')).toBe('−9 s');
   });
 
+  it('has no sign when the written medians are equal', () => {
+    expect(medianGap(histogram(12.2), histogram(11.9), 's')).toBe('0 s');
+  });
+
   it('is null without a median', () => {
     expect(medianGap(histogram(null), histogram(10), 's')).toBeNull();
   });

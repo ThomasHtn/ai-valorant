@@ -64,9 +64,11 @@ describe('linkItem', () => {
 
   it('says when a gap can come from chance', () => {
     expect(linkItem(link, 0).detail).toBe(
-      "75 % contre 68 % pour l'escouade, écart compatible avec le hasard",
+      '75 % contre 68 % pour ses coéquipiers, écart compatible avec le hasard',
     );
-    expect(linkItem({ ...link, pValue: 0.01 }, 0).detail).toBe("75 % contre 68 % pour l'escouade");
+    expect(linkItem({ ...link, pValue: 0.01 }, 0).detail).toBe(
+      '75 % contre 68 % pour ses coéquipiers',
+    );
   });
 
   it('writes the ACS link with both groups', () => {

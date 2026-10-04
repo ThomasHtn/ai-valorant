@@ -3,7 +3,7 @@
 - repetitions: first deaths in the same zone (only zones above top ranked), the same cause of lost rounds
   on a map and side, the same advantage thrown, at least REPETITION_MIN_COUNT times over
   REPETITION_MIN_MATCHES matches;
-- links: the team's rounds won after each player's first blood or first death, and with his ACS above
+- links: the team's rounds won after each player's first blood or first death (against his teammates'), and with his ACS above
   or below his median.
 """
 
@@ -173,11 +173,11 @@ def thrown_situations(cohorts: ReportCohorts) -> list[Repetition]:
 
 
 def first_duel_links(cohorts: ReportCohorts) -> list[Link]:
-    """Rounds won after each player's first blood and first death, against the team's rate after any."""
+    """Rounds won after each player's first blood and first death, against his teammates' rate after theirs."""
     rounds = cohorts.squad(FactKind.ROUNDS)
-    team = {
-        LinkKind.FIRST_BLOOD: _rate([r for r in rounds if r.first_kill is True], lambda r: r.won),
-        LinkKind.FIRST_DEATH: _rate([r for r in rounds if r.first_kill is False], lambda r: r.won),
+    team_rounds = {
+        LinkKind.FIRST_BLOOD: [r for r in rounds if r.first_kill is True],
+        LinkKind.FIRST_DEATH: [r for r in rounds if r.first_kill is False],
     }
     labels = {
         LinkKind.FIRST_BLOOD: "Rounds gagnés après son first blood",
@@ -188,7 +188,10 @@ def first_duel_links(cohorts: ReportCohorts) -> list[Link]:
         mine = [p for p in cohorts.squad(FactKind.PLAYER_ROUNDS) if p.name == player.name]
         for kind, event in ((LinkKind.FIRST_BLOOD, "first_blood"), (LinkKind.FIRST_DEATH, "first_death")):
             facts = [p for p in mine if getattr(p, event)]
-            value, reference = _rate(facts, lambda p: p.won), team[kind]
+            # The player's own rounds stay out of the reference, else he is partly compared with himself.
+            own = {(p.match_id, p.round_index) for p in facts}
+            others = [r for r in team_rounds[kind] if (r.match_id, r.round_index) not in own]
+            value, reference = _rate(facts, lambda p: p.won), _rate(others, lambda r: r.won)
             if not value.total or value.value is None or reference.value is None:
                 continue
             below_team = value.value < reference.value

@@ -47,7 +47,7 @@ export function linkItem(l: Link, index: number): DetectionItem {
       `(${integer(l.medianAcs ?? 0)}), ${rate(l.below?.rounds)} en dessous${chance}`;
     sample = `Sur ${(l.above?.matches ?? 0) + (l.below?.matches ?? 0)} matchs`;
   } else {
-    detail = `${rate(l.value)} contre ${rate(l.team)} pour l'escouade${chance}`;
+    detail = `${rate(l.value)} contre ${rate(l.team)} pour ses coéquipiers${chance}`;
     sample = l.value ? `Sur ${integer(l.value.total)} rounds` : null;
   }
   return {
