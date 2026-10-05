@@ -111,18 +111,17 @@ Maps are imposed in ranked, so map verdicts are about **where to invest practice
 
 ## <img src="docs/media/icons/map.svg" width="22" alt=""> Inside
 
+Four tabs carry what the squad reads most; Explorer holds the secondary data and the tools.
+
 | View | What it shows |
 |---|---|
-| <img src="docs/media/icons/table.svg" width="15" alt=""> **Stats par thème** | Every domain as a coloured table, plus the automatic alerts, against the reference of your choice |
-| <img src="docs/media/icons/target.svg" width="15" alt=""> **Points forts et faibles** | Tested strengths and weaknesses, with the rounds behind each one |
-| <img src="docs/media/icons/scale.svg" width="15" alt=""> **Comparer** | The squad against its past, its opponents or the top ranked; or player against player |
-| <img src="docs/media/icons/map.svg" width="15" alt=""> **Minimap** | Kills, deaths, first bloods, plants and isolated deaths on the real map, zone by zone |
-| <img src="docs/media/icons/history.svg" width="15" alt=""> **Rounds** | Why rounds are lost, where (map, side, buy) and when (pistols, streaks, throws), then the rounds behind each figure |
-| <img src="docs/media/icons/trophy.svg" width="15" alt=""> **Débrief** | A single session against its month: headline figures, matches, players, the rounds that tipped it |
-| <img src="docs/media/icons/swords.svg" width="15" alt=""> **Matchs** | Sessions, scoreboards, round strips, and each round with its 2D replay and win probability |
-| <img src="docs/media/icons/player.svg" width="15" alt=""> **Joueurs** | One sheet per player, compared with their own role |
-| <img src="docs/media/icons/trend.svg" width="15" alt=""> **Évolution** | Key stats month by month, patch by patch or match by match |
-| <img src="docs/media/icons/chart.svg" width="15" alt=""> **Répartition** | Timings, distances, damage and ACS as histograms, against the top ranked |
+| <img src="docs/media/icons/squad.svg" width="15" alt=""> **Escouade** | The period in one sentence, headline figures, situations costing rounds (overall and map by map), map verdicts, economy, openings, post-plant, retakes, roster |
+| <img src="docs/media/icons/history.svg" width="15" alt=""> **Sessions** | Each session against its month, then its matches: scoreboards, round strips, each round with its 2D replay and win probability |
+| <img src="docs/media/icons/player.svg" width="15" alt=""> **Joueurs** | One sheet per player: situations priced in rounds against the top ranked of their role |
+| <img src="docs/media/icons/target.svg" width="15" alt=""> **Stratégie** | Per map: the top ranked's compos and agents, the habits behind their extra rounds, plants and defensive contacts |
+| <img src="docs/media/icons/table.svg" width="15" alt=""> **Explorer** | Secondary stats by theme and alerts; Points forts et faibles, Rounds, Minimap, Comparer, Évolution, Répartition |
+
+Every figure covers the current competitive map pool; matches on other maps stay in Sessions only.
 
 A report covers a month, a patch, an evening or any date range, and its address is shareable.
 
