@@ -1,5 +1,0 @@
-<app-resource-state [resource]="list" notFoundText="Aucun match de l'escouade sur cette période.">
-  @if (list.hasValue()) {
-    <app-session-grid [evenings]="list.value().evenings" [rounds]="roundsMap()" />
-  }
-</app-resource-state>

@@ -87,15 +87,12 @@ describe('debrief utils', () => {
     expect(forms[0].acsGap).toBeNull();
   });
 
-  it('lists the lost rounds the squad had in hand', () => {
+  it('lists the lost rounds the squad had at 70 % or more, the biggest chance first', () => {
     const rounds = [
-      round(1, false, { bestProbability: 0.8, thrown: true }),
-      round(2, false, { bestProbability: 0.3 }),
-      round(3, false, { bestProbability: 0.6 }),
+      round(1, false, { bestProbability: 0.75, thrown: true }),
+      round(2, false, { bestProbability: 0.6 }),
+      round(3, false, { bestProbability: 0.9, thrown: true }),
     ];
-    expect(turningRounds(rounds).map((r) => r.chance)).toEqual([
-      'Throw à 80 %',
-      'Avait 60 % de chances',
-    ]);
+    expect(turningRounds(rounds).map((r) => r.chance)).toEqual(['Throw à 90 %', 'Throw à 75 %']);
   });
 });

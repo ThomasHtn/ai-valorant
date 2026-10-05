@@ -1,0 +1,229 @@
+<app-breadcrumb [crumbs]="crumbs()" />
+
+<app-resource-state [resource]="list" notFoundText="Aucune session ce jour-là.">
+  <div class="view-body">
+    <div class="flex flex-wrap items-end justify-between gap-4">
+      <div>
+        <h1 class="!m-0 font-display text-3xl font-bold uppercase sm:text-4xl">{{ title() }}</h1>
+        <p class="!m-0 mt-1 text-text-secondary">
+          {{ matches().length }} matchs, comparée au reste de {{ monthName() }}.
+          @if (offPool()) {
+            <span class="text-text-muted"
+              >{{ offPool() }} {{ offPool() > 1 ? 'matchs' : 'match' }} hors pool, sans entrer dans
+              les chiffres.</span
+            >
+          }
+        </p>
+      </div>
+      <p class="!m-0 text-right font-display text-4xl leading-none font-bold tabular-nums">
+        <span class="text-rating-good">{{ record().wins }}</span
+        >-<span class="text-rating-bad">{{ record().losses }}</span>
+        <small class="mt-1 block font-sans text-sm font-medium text-text-muted"
+          >matchs gagnés et perdus</small
+        >
+      </p>
+    </div>
+
+    <div class="flex flex-col gap-6">
+      @if (lead(); as lead) {
+        <p class="lead-note">
+          <b>{{ lead.lead }}</b>
+          {{ lead.rest }}
+        </p>
+      }
+      <app-kpi-band [items]="kpis()" />
+    </div>
+
+    <section class="view-section" aria-labelledby="session-matches-title">
+      <h2 id="session-matches-title">
+        Matchs
+        <span class="block-desc"
+          >Une ligne ouvre le match : ses scoreboards, ses rounds et leur déroulé</span
+        >
+      </h2>
+      <div class="overflow-x-auto">
+        <table class="board board-stack">
+          <thead>
+            <tr>
+              <th appColHead label="Match"></th>
+              <th appColHead label="Score" align="center"></th>
+              <th appColHead label="Rounds gagnés" [better]="1"></th>
+              <th appColHead label="Début et durée"></th>
+              <th appColHead label="Meilleur ACS"></th>
+              <th appColHead label="Basculés" align="end" [better]="-1" help="turningRounds"></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (m of matchRows(); track m.matchId) {
+              <tr
+                class="is-link"
+                [class.is-thin]="m.offPool"
+                tabindex="0"
+                (click)="openMatch(m.matchId)"
+                (keydown.enter)="openMatch(m.matchId)"
+              >
+                <td>
+                  <span class="flex items-center gap-3">
+                    <app-map-banner [map]="m.map" />
+                    @if (m.offPool) {
+                      <span class="text-sm text-text-muted">hors pool</span>
+                    }
+                  </span>
+                </td>
+                <td class="mid" data-l="Score">
+                  <span
+                    class="rounded-[3px] px-2 py-0.5 font-display font-semibold"
+                    [class]="
+                      m.won
+                        ? 'bg-rating-good/14 text-rating-good'
+                        : 'bg-rating-bad/12 text-rating-bad'
+                    "
+                    >{{ m.score }}</span
+                  >
+                </td>
+                <td data-l="Rounds gagnés">
+                  <app-gap-bar
+                    [value]="m.rate"
+                    [mark]="0.5"
+                    [tone]="m.won ? 'good' : 'bad'"
+                    [label]="m.rateText"
+                  />
+                </td>
+                <td class="text-text-secondary" data-l="Début et durée">{{ m.when }}</td>
+                <td data-l="Meilleur ACS">
+                  @if (m.best; as best) {
+                    <span class="flex items-center gap-2 font-semibold">
+                      <app-agent-icon [agent]="best.agent" [decorative]="true" />{{ best.name }}
+                      <small class="font-normal text-text-muted">{{ best.acs }} ACS</small>
+                    </span>
+                  }
+                </td>
+                <td
+                  class="num font-display font-semibold"
+                  data-l="Basculés"
+                  [class.text-rating-bad]="m.turning > 0"
+                >
+                  {{ m.turning }}
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <div class="block-grid">
+      <section class="view-section" aria-labelledby="session-turning-title">
+        <h2 id="session-turning-title">
+          Rounds qui ont basculé
+          <span class="block-desc"
+            >Perdus alors que l'escouade avait la main. Une ligne ouvre le round.</span
+          >
+        </h2>
+        <div class="overflow-x-auto">
+          <table class="board">
+            <thead>
+              <tr>
+                <th appColHead label="Round"></th>
+                <th appColHead label="Cause"></th>
+                <th appColHead label="Chances" align="end" help="turningRounds"></th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (round of turning(); track round.key) {
+                <tr
+                  class="is-link"
+                  tabindex="0"
+                  (click)="openRound(round.link)"
+                  (keydown.enter)="openRound(round.link)"
+                >
+                  <td>
+                    <span class="flex items-center gap-2.5 font-semibold">
+                      <app-map-thumb [map]="round.mapName" />{{ round.mapName }}
+                      <small class="font-normal text-text-muted">R{{ round.roundNumber }}</small>
+                    </span>
+                  </td>
+                  <td class="text-rating-bad">{{ round.cause }}</td>
+                  <td class="num text-brand-400">{{ round.chance }}</td>
+                </tr>
+              } @empty {
+                <tr>
+                  <td colspan="3" class="text-center text-text-muted">
+                    Aucun round perdu après avoir eu la main.
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="view-section" aria-labelledby="session-players-title">
+        <h2 id="session-players-title">
+          Joueurs de la session
+          <span class="block-desc">ACS et K/D face au reste de leur mois</span>
+        </h2>
+        <div class="overflow-x-auto">
+          <table class="board">
+            <thead>
+              <tr>
+                <th appColHead label="Joueur"></th>
+                <th
+                  appColHead
+                  label="ACS"
+                  align="end"
+                  [better]="1"
+                  help="acs"
+                  vs="écart à son mois"
+                ></th>
+                <th
+                  appColHead
+                  label="K/D"
+                  align="end"
+                  [better]="1"
+                  help="kd"
+                  vs="écart à son mois"
+                ></th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (p of players(); track p.name) {
+                <tr>
+                  <td>
+                    <span class="flex items-center gap-2.5 font-semibold">
+                      <app-agent-icon [agent]="p.agent" [decorative]="true" />{{ p.name }}
+                      <small class="font-normal text-text-muted">{{ p.matches }} matchs</small>
+                    </span>
+                  </td>
+                  <td class="num whitespace-nowrap">
+                    <b class="font-display font-semibold">{{ p.acs.toFixed(0) }}</b>
+                    @if (p.acsGap !== null) {
+                      <span
+                        class="ml-1.5 text-sm"
+                        [class]="p.acsGap >= 0 ? 'text-rating-good' : 'text-rating-bad'"
+                        >{{ signed(p.acsGap) }}</span
+                      >
+                    }
+                  </td>
+                  <td class="num whitespace-nowrap">
+                    <b class="font-display font-semibold">{{
+                      p.kd.toFixed(2).replace('.', ',')
+                    }}</b>
+                    @if (p.kdGap !== null) {
+                      <span
+                        class="ml-1.5 text-sm"
+                        [class]="p.kdGap >= 0 ? 'text-rating-good' : 'text-rating-bad'"
+                        >{{ p.kdGap >= 0 ? '+' : '−'
+                        }}{{ Math.abs(p.kdGap).toFixed(2).replace('.', ',') }}</span
+                      >
+                    }
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  </div>
+</app-resource-state>

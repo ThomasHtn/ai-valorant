@@ -1,0 +1,123 @@
+<p class="!m-0 max-w-[72ch] text-text-secondary">
+  Les matchs joués d'affilée le même soir. Ouvrez une session pour ses matchs, puis un match pour
+  ses rounds. Les cartes hors du map pool en cours restent ici, sans entrer dans les chiffres.
+</p>
+
+<app-resource-state [resource]="list" notFoundText="Aucune session sur cette période.">
+  <section class="view-section" aria-labelledby="sessions-title">
+    <h2 id="sessions-title">
+      {{ rows().length }} sessions
+      <span class="block-desc"
+        >La plus récente en haut. Chaque vignette est un match, soulignée en vert s'il est
+        gagné.</span
+      >
+    </h2>
+    <div class="overflow-x-auto">
+      <table class="board board-stack">
+        <thead>
+          <tr>
+            <th appColHead label="Session"></th>
+            <th appColHead label="Matchs"></th>
+            <th appColHead label="V-D" align="center"></th>
+            <th appColHead label="Rounds gagnés" [better]="1"></th>
+            <th appColHead label="Premier duel" align="end" [better]="1" help="firstDuels"></th>
+            <th
+              appColHead
+              label="Rounds basculés"
+              align="end"
+              [better]="-1"
+              help="turningRounds"
+            ></th>
+            <th appColHead label="Joueur de la session"></th>
+            <th
+              appColHead
+              label="Écart à la période"
+              align="end"
+              [better]="1"
+              vs="rounds gagnés"
+            ></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (row of rows(); track row.day) {
+            <tr
+              class="is-link"
+              tabindex="0"
+              (click)="open(row.day)"
+              (keydown.enter)="open(row.day)"
+            >
+              <td>
+                <span class="flex flex-col leading-tight">
+                  <span class="font-semibold">{{ row.label }}</span>
+                  <small class="text-sm text-text-muted">{{ row.span }}</small>
+                </span>
+              </td>
+              <td data-l="Matchs">
+                <span class="flex gap-1">
+                  @for (m of row.maps; track m.key) {
+                    <span
+                      class="relative block border-b-2 pb-0.5"
+                      [class]="
+                        m.offPool
+                          ? 'border-text-muted opacity-50'
+                          : m.won
+                            ? 'border-rating-good'
+                            : 'border-rating-bad'
+                      "
+                      [title]="m.map + ' ' + m.score + (m.offPool ? ', hors pool' : '')"
+                    >
+                      <app-map-thumb [map]="m.map" />
+                    </span>
+                  }
+                </span>
+              </td>
+              <td class="mid" data-l="V-D">
+                <span
+                  class="rounded-[3px] px-2 py-0.5 font-display font-semibold"
+                  [class]="
+                    row.winning
+                      ? 'bg-rating-good/14 text-rating-good'
+                      : 'bg-rating-bad/12 text-rating-bad'
+                  "
+                  >{{ row.record }}</span
+                >
+              </td>
+              <td data-l="Rounds gagnés">
+                <app-gap-bar
+                  [value]="row.rounds.rate"
+                  [mark]="0.5"
+                  [tone]="row.rounds.tone"
+                  [label]="row.rounds.text"
+                />
+              </td>
+              <td
+                class="num font-display font-semibold"
+                data-l="Premier duel"
+                [class]="tones[row.firstDuels.tone]"
+              >
+                {{ row.firstDuels.text }}
+              </td>
+              <td class="num font-display font-semibold" data-l="Rounds basculés">
+                {{ row.turning }}
+              </td>
+              <td data-l="Joueur de la session">
+                @if (row.best; as best) {
+                  <span class="flex items-center gap-2 font-semibold">
+                    <app-agent-icon [agent]="best.agent" [decorative]="true" />{{ best.name }}
+                    <small class="font-normal text-text-muted">{{ best.acs }} ACS</small>
+                  </span>
+                }
+              </td>
+              <td class="num whitespace-nowrap" data-l="Écart à la période">
+                <span class="font-display font-semibold" [class]="tones[row.gapTone]">{{
+                  row.gap
+                }}</span>
+                <small class="ml-1 text-sm text-text-muted">rounds</small>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </section>
+</app-resource-state>

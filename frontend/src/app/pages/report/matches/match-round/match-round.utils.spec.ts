@@ -8,7 +8,7 @@ describe('match round utils', () => {
     expect(roundNeighbours(16, 16)).toEqual({ previous: 15, next: null });
   });
 
-  it('leads back to the match list only, the match being the current step', () => {
-    expect(matchCrumbs(null)).toEqual([{ label: 'Matchs', link: ['/report/matches'] }]);
+  it('leads back to the sessions only while the match loads', () => {
+    expect(matchCrumbs(null)).toEqual([{ label: 'Sessions', link: ['/report/sessions'] }]);
   });
 });
