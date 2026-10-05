@@ -56,7 +56,7 @@ import { SituationLine } from './player-situations.model';
             >
               {{ line.gap }}
             </td>
-            <td class="num whitespace-nowrap" data-l="Coût">
+            <td class="num whitespace-nowrap" data-l="Coût" [attr.data-tone]="line.tone">
               <span class="font-display text-lg font-bold" [class]="texts[line.tone]">{{
                 line.cost
               }}</span>

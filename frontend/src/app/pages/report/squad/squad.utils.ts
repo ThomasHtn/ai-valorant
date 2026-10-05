@@ -15,7 +15,6 @@ import { Gap, MapLine, Situation, SiteLine, SquadView } from '@core/report/squad
 import { KpiItem } from '@shared/kpi-band/kpi-band.model';
 
 import { LEAD_PRIORITIES, LEAD_STRENGTHS } from './squad.constants';
-import { RoundsBar } from '@shared/rounds-chart/rounds-chart.model';
 
 import { GapCells, GapRow, MapRow, VerdictKey } from './squad.model';
 
@@ -220,13 +219,6 @@ function percent(value: number | null): string {
 
 function capitalize(text: string): string {
   return text.charAt(0).toUpperCase() + text.slice(1);
-}
-
-/** Every situation as one bar of the rounds chart, losses first, thin samples last. */
-export function roundsBars(situations: readonly Situation[]): RoundsBar[] {
-  return byCost(situations, (s) => s.gap)
-    .filter((s) => s.gap.rounds !== null && s.gap.rounds !== 0)
-    .map((s) => ({ key: s.key, label: s.label, rounds: s.gap.rounds ?? 0, thin: isThin(s.gap) }));
 }
 
 /** One line under a section title, saying what the block holds before reading it. */

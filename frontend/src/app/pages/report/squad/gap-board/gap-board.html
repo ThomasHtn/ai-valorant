@@ -55,7 +55,7 @@
             [label]="line.cells.rateText"
           />
         </td>
-        <td class="num whitespace-nowrap" data-l="Écart">
+        <td class="num whitespace-nowrap" data-l="Écart" [attr.data-tone]="line.cells.tone">
           <span class="font-display text-lg font-bold" [class]="tones[line.cells.tone]"
             >{{ line.cells.rounds
             }}<small class="ml-1 font-sans text-sm font-medium text-text-muted">rounds</small></span

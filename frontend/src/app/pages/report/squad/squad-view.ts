@@ -6,7 +6,6 @@ import {
   LucideCoins,
   LucideFlame,
   LucideMap,
-  LucideScale,
   LucideShield,
   LucideSwords,
   LucideUsers,
@@ -19,7 +18,6 @@ import { ReportApi } from '@core/report/report-api';
 import { ReportContext } from '@core/report/report-context';
 import { KpiBand } from '@shared/kpi-band/kpi-band';
 import { ResourceState } from '@shared/resource-state/resource-state';
-import { RoundsChart } from '@shared/rounds-chart/rounds-chart';
 import { SectionHead } from '@shared/section-head/section-head';
 
 import { GapBoard } from './gap-board/gap-board';
@@ -31,7 +29,6 @@ import {
   kpiItems,
   mapRows,
   priorities,
-  roundsBars,
   siteRow,
   situationRow,
   strengths,
@@ -52,14 +49,12 @@ import {
     LucideCoins,
     LucideFlame,
     LucideMap,
-    LucideScale,
     LucideShield,
     LucideSwords,
     LucideUsers,
     MapBoard,
     ResourceState,
     RosterBoard,
-    RoundsChart,
     RouterLink,
     SectionHead,
   ],
@@ -99,7 +94,6 @@ export class SquadView {
     this.allPriorities() ? this.priorityRows() : this.priorityRows().slice(0, PRIORITIES_SHOWN),
   );
   protected readonly strengthRows = computed(() => strengths(this.view()?.situations ?? []));
-  protected readonly bars = computed(() => roundsBars(this.view()?.situations ?? []));
   protected readonly priorityLine = computed(() => topLine(this.priorityRows(), 'La plus chère'));
   protected readonly strengthLine = computed(() => topLine(this.strengthRows(), 'La meilleure'));
   protected readonly mapLine = computed(() => {

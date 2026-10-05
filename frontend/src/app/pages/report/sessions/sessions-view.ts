@@ -1,6 +1,6 @@
 import { Component, computed, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { LucideCalendar, LucideChartColumn } from '@lucide/angular';
+import { LucideCalendar } from '@lucide/angular';
 
 import { resourceValue } from '@core/http/resource-state.utils';
 import { ReportApi } from '@core/report/report-api';
@@ -11,8 +11,6 @@ import { MapThumb } from '@shared/game-art/map-thumb';
 import { GapBar } from '@shared/gap-bar/gap-bar';
 import { BAR_TEXTS } from '@shared/gap-bar/gap-bar.constants';
 import { ResourceState } from '@shared/resource-state/resource-state';
-import { ColumnChart } from '@shared/column-chart/column-chart';
-import { ChartColumn } from '@shared/column-chart/column-chart.model';
 import { SectionHead } from '@shared/section-head/section-head';
 
 import { sessionRows } from './sessions.utils';
@@ -23,17 +21,7 @@ import { sessionRows } from './sessions.utils';
  */
 @Component({
   selector: 'app-sessions-view',
-  imports: [
-    AgentIcon,
-    ColHead,
-    ColumnChart,
-    GapBar,
-    LucideCalendar,
-    LucideChartColumn,
-    MapThumb,
-    ResourceState,
-    SectionHead,
-  ],
+  imports: [AgentIcon, ColHead, GapBar, LucideCalendar, MapThumb, ResourceState, SectionHead],
   templateUrl: './sessions-view.html',
   host: { class: 'view-body' },
 })
@@ -55,21 +43,12 @@ export class SessionsView {
     ),
   );
   protected readonly tones = BAR_TEXTS;
-  /** The period session by session, oldest on the left. */
-  protected readonly columns = computed<ChartColumn[]>(() =>
-    [...this.rows()].reverse().map((r) => ({
-      key: r.day,
-      label: r.label.replace(/\.$/, ''),
-      value: r.rounds.rate,
-      text: r.rounds.text,
-      tone: r.rounds.tone === 'small' ? 'small' : r.winning ? 'good' : 'bad',
-      title: `${r.label} : ${r.record}, ${r.rounds.text} de rounds gagnés`,
-    })),
-  );
   protected readonly summary = computed(() => {
     const rows = this.rows();
     const won = rows.filter((r) => r.winning).length;
-    return rows.length ? `${won} sessions gagnantes sur ${rows.length}` : null;
+    return rows.length
+      ? `${won} sessions gagnantes sur ${rows.length}, la plus récente en haut`
+      : null;
   });
 
   protected open(day: string): void {

@@ -24,16 +24,6 @@
         <app-kpi-band [items]="kpis()" />
       </header>
 
-      <section class="view-section" aria-labelledby="chart-title">
-        <app-section-head
-          headingId="chart-title"
-          title="Où partent les rounds"
-          desc="Chaque situation face au top ranked, en rounds sur la période"
-          ><svg lucideScale></svg
-        ></app-section-head>
-        <app-rounds-chart [items]="bars()" />
-      </section>
-
       <nav
         class="sticky -top-6 z-10 -mb-4 flex gap-1 overflow-x-auto border-b border-edge bg-surface-950/95 py-2 backdrop-blur-sm [scrollbar-width:none]"
         aria-label="Sections"

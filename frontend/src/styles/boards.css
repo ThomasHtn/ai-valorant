@@ -50,6 +50,19 @@
     box-shadow: inset 3px 0 0 var(--color-accent-red);
   }
 
+  /* A key cell painted like a stat table cell: its colour is the verdict. */
+  & > tbody > tr > td[data-tone='good'] {
+    background: --alpha(var(--color-rating-good) / 22%);
+  }
+
+  & > tbody > tr > td[data-tone='avg'] {
+    background: --alpha(var(--color-rating-average) / 22%);
+  }
+
+  & > tbody > tr > td[data-tone='bad'] {
+    background: --alpha(var(--color-accent-red) / 24%);
+  }
+
   & > tbody > tr.is-thin {
     opacity: 0.6;
   }

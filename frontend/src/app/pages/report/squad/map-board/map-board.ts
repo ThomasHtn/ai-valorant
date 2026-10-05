@@ -68,7 +68,7 @@ import { MapRow } from '../squad.model';
                 [label]="row.defense.rateText"
               />
             </td>
-            <td class="num" data-l="Écart">
+            <td class="num" data-l="Écart" [attr.data-tone]="row.roundsTone">
               <span class="font-display text-lg font-bold" [class]="tones[row.roundsTone]"
                 >{{ row.rounds
                 }}<small class="ml-1 font-sans text-sm font-medium text-text-muted"

@@ -41,7 +41,11 @@ import { ShareRow } from '../strategy.model';
                 [label]="row.squadText"
               />
             </td>
-            <td class="num whitespace-nowrap" [attr.data-l]="wonLabel()">
+            <td
+              class="num whitespace-nowrap"
+              [attr.data-l]="wonLabel()"
+              [attr.data-tone]="row.squadWonTone"
+            >
               <span class="font-display font-semibold" [class]="texts[row.squadWonTone]">{{
                 row.squadWon
               }}</span>

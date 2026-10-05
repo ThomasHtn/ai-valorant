@@ -69,7 +69,7 @@ import { HabitRow } from '../strategy.model';
                 }
               </span>
             </td>
-            <td class="num whitespace-nowrap" data-l="Coût estimé">
+            <td class="num whitespace-nowrap" data-l="Coût estimé" [attr.data-tone]="row.tone">
               <span class="font-display text-lg font-bold" [class]="texts[row.tone]">{{
                 row.cost
               }}</span>

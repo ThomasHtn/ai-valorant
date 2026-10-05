@@ -5,25 +5,11 @@
 
 <app-resource-state [resource]="list" notFoundText="Aucune session sur cette période.">
   <div class="view-body">
-    <section class="view-section" aria-labelledby="month-chart-title">
-      <app-section-head
-        headingId="month-chart-title"
-        title="La période session par session"
-        [desc]="summary()"
-        ><svg lucideChartColumn></svg
-      ></app-section-head>
-      <app-column-chart
-        [columns]="columns()"
-        referenceLabel="50 % de rounds gagnés"
-        (open)="open($event)"
-      />
-    </section>
-
     <section class="view-section" aria-labelledby="sessions-title">
       <app-section-head
         headingId="sessions-title"
         [title]="rows().length + ' sessions'"
-        desc="La plus récente en haut. Une vignette par match, soulignée en vert s'il est gagné."
+        [desc]="summary()"
         ><svg lucideCalendar></svg
       ></app-section-head>
       <div class="overflow-x-auto">
@@ -123,7 +109,11 @@
                     </span>
                   }
                 </td>
-                <td class="num whitespace-nowrap" data-l="Écart à la période">
+                <td
+                  class="num whitespace-nowrap"
+                  data-l="Écart à la période"
+                  [attr.data-tone]="row.gapTone"
+                >
                   <span class="font-display font-semibold" [class]="tones[row.gapTone]">{{
                     row.gap
                   }}</span>

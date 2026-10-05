@@ -36,7 +36,7 @@
           </span>
         </td>
         @for (cell of row.cells; track cell.key) {
-          <td class="num whitespace-nowrap" [attr.data-l]="cell.label">
+          <td class="num whitespace-nowrap" [attr.data-l]="cell.label" [attr.data-tone]="cell.tone">
             <span class="font-display font-semibold" [class]="tones[cell.tone]">{{
               cell.text
             }}</span>
