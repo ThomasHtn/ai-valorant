@@ -13,12 +13,18 @@ import { STRIP_FILLS } from './map-strip.constants';
   selector: 'app-map-strip',
   template: `
     @for (cell of cells(); track cell.map) {
-      <i
-        class="grid h-6 w-8 place-items-center font-display text-xs font-semibold not-italic sm:w-9"
-        [class]="cell.fill"
-        [title]="cell.title"
-        >{{ cell.text }}</i
-      >
+      <span class="flex flex-col items-center">
+        <i
+          class="grid h-6 w-8 place-items-center font-display text-xs font-semibold not-italic sm:w-9"
+          [class]="cell.fill"
+          [title]="cell.title"
+          >{{ cell.text }}</i
+        >
+        <!-- On phones the header strip is hidden: each cell names its map. -->
+        <b class="text-[0.65rem] font-medium text-text-muted sm:hidden" aria-hidden="true">{{
+          cell.map.slice(0, 3)
+        }}</b>
+      </span>
     }
   `,
   host: { class: 'inline-flex gap-0.5', role: 'img', '[attr.aria-label]': 'label()' },

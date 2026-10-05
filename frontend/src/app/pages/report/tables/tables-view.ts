@@ -24,10 +24,12 @@ import { isWideTable, rowText } from '@shared/stat-table/stat-table.utils';
 
 import { DetectionsPanel } from './detections-panel/detections-panel';
 import { detectionGroups } from './detections-panel/detections-panel.utils';
+import { MAIN_TAB_TABLES } from './tables-view.constants';
 import { scopeFilter } from './tables-view.utils';
 
 /**
- * Stats par thème: every metric of one domain of the dictionary as coloured tables, values only,
+ * Stats par thème: the secondary metrics of one domain of the dictionary as coloured tables (those a
+ * main tab already shows are linked instead of repeated),
  * or the period's automatic detections (Alertes). The theme is picked in the list on the left (or the
  * Explorer menu of the top bar); a cell click opens the Rounds view on the rounds behind it.
  */
@@ -65,6 +67,15 @@ export class TablesView {
   });
   private readonly api = inject(ReportApi);
   protected readonly tables = this.api.tables(this.context.query, this.domainKey);
+  /** Secondary tables only: those a main tab already holds are linked, not repeated. */
+  protected readonly shownTables = computed(() =>
+    (resourceValue(this.tables, null)?.tables ?? []).filter((t) => !MAIN_TAB_TABLES[t.id]),
+  );
+  protected readonly movedTables = computed(() =>
+    (resourceValue(this.tables, null)?.tables ?? [])
+      .filter((t) => MAIN_TAB_TABLES[t.id])
+      .map((t) => ({ id: t.id, title: t.title, ...MAIN_TAB_TABLES[t.id] })),
+  );
   /** Whether a table of the domain has columns always compared with the squad's history. */
   protected readonly hasHistoryColumns = computed(() =>
     (resourceValue(this.tables, null)?.tables ?? []).some((t) =>

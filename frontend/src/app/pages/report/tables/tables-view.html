@@ -53,8 +53,17 @@
         notFoundText="Ce domaine n'a pas de données sur cette période."
       >
         @if (tables.hasValue()) {
+          @if (movedTables().length) {
+            <p class="!m-0 text-sm text-text-muted">
+              Dans les onglets principaux :
+              @for (moved of movedTables(); track moved.id; let last = $last) {
+                <a [routerLink]="moved.path" queryParamsHandling="preserve">{{ moved.title }}</a>
+                ({{ moved.tab }}){{ last ? '.' : ', ' }}
+              }
+            </p>
+          }
           <div class="block-grid">
-            @for (table of tables.value().tables; track table.id) {
+            @for (table of shownTables(); track table.id) {
               <section
                 class="view-section"
                 [class.block-wide]="isWide(table)"
