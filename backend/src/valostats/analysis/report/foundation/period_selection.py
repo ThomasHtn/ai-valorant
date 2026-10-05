@@ -8,6 +8,7 @@ from zoneinfo import ZoneInfo
 
 from valostats.constants.game import LOCAL_TIMEZONE
 from valostats.constants.labels import MONTHS
+from valostats.domain.patches import patch_sort_key
 
 LOCAL_TZ = ZoneInfo(LOCAL_TIMEZONE)
 
@@ -73,10 +74,6 @@ def resolve(
         return _range_window(query.start, query.end, day_of)
     month = query.month or f"{max(days.values(), default=None) or max(squad_dates):%Y-%m}"
     return _month_window(month, day_of)
-
-
-def patch_sort_key(patch: str) -> tuple[int, ...]:
-    return tuple(int(x) for x in patch.split("."))
 
 
 def _patch_window(patch: str, squad_patches: Sequence[str]) -> PeriodWindow:

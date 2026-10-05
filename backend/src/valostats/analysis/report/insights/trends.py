@@ -11,11 +11,11 @@ from dataclasses import dataclass
 from typing import Any, Protocol
 
 from valostats.analysis.report.foundation.cohorts import FactKind, ReportCohort, ReportCohorts
-from valostats.analysis.report.foundation.period_selection import patch_sort_key
 from valostats.analysis.report.insights.findings import is_bonus_round
 from valostats.constants.agents import role_of
 from valostats.domain.enums import BuyType, Cohort, Side
 from valostats.domain.facts import KillFact, MatchFact, PlayerMatchFact, PlayerRoundFact, RoundFact
+from valostats.domain.patches import patch_sort_key
 from valostats.schemas.report.tables import ValueFormat
 from valostats.schemas.report.trends import (
     MatchPoint,

@@ -24,15 +24,26 @@ SOURCE_COHORTS = {MatchSource.SQUAD: (Cohort.SQUAD, Cohort.OPPONENT), MatchSourc
 INSERT_BATCH = 5000
 
 
-def replace_source_facts(session: Session, source: MatchSource, facts: SourceFacts, match_count: int) -> None:
-    """Swap every fact of a source in one transaction, then record the build."""
+def clear_source_facts(session: Session, source: MatchSource) -> None:
+    """First step of a rebuild: drop every fact of the source. Nothing is committed before `finish_build`."""
     cohorts = [c.value for c in SOURCE_COHORTS[source]]
-    _replace_rows(session, MatchFactRow, cohorts, [mappers.match_to_row(f) for f in facts.matches])
-    _replace_rows(session, RoundFactRow, cohorts, [mappers.round_to_row(f) for f in facts.rounds])
-    _replace_rows(session, KillFactRow, cohorts, [mappers.kill_to_row(f) for f in facts.kills])
-    _replace_rows(session, PlayerRoundFactRow, cohorts, [mappers.player_round_to_row(f) for f in facts.player_rounds])
-    _replace_rows(session, PlayerMatchFactRow, cohorts, [mappers.player_match_to_row(f) for f in facts.player_matches])
+    models: tuple[Any, ...] = (MatchFactRow, RoundFactRow, KillFactRow, PlayerRoundFactRow, PlayerMatchFactRow)
+    for model in models:
+        table: Table = model.__table__
+        session.execute(delete(table).where(table.c.cohort.in_(cohorts)))
     session.execute(delete(WinProbabilityRow).where(WinProbabilityRow.source == source.value))
+
+
+def insert_facts(session: Session, facts: SourceFacts) -> None:
+    _insert_rows(session, MatchFactRow, [mappers.match_to_row(f) for f in facts.matches])
+    _insert_rows(session, RoundFactRow, [mappers.round_to_row(f) for f in facts.rounds])
+    _insert_rows(session, KillFactRow, [mappers.kill_to_row(f) for f in facts.kills])
+    _insert_rows(session, PlayerRoundFactRow, [mappers.player_round_to_row(f) for f in facts.player_rounds])
+    _insert_rows(session, PlayerMatchFactRow, [mappers.player_match_to_row(f) for f in facts.player_matches])
+
+
+def finish_build(session: Session, source: MatchSource, cells: Iterable[WinProbabilityCell], match_count: int) -> None:
+    """Store the win probability table, record the build and commit the whole rebuild."""
     session.add_all(
         WinProbabilityRow(
             source=source.value,
@@ -43,15 +54,14 @@ def replace_source_facts(session: Session, source: MatchSource, facts: SourceFac
             wins=c.wins,
             total=c.total,
         )
-        for c in facts.win_probability
+        for c in cells
     )
     session.add(FactsBuild(source=source.value, matches=match_count))
     session.commit()
 
 
-def _replace_rows(session: Session, model: Any, cohorts: list[str], rows: list[dict[str, Any]]) -> None:
+def _insert_rows(session: Session, model: Any, rows: list[dict[str, Any]]) -> None:
     table: Table = model.__table__
-    session.execute(delete(table).where(table.c.cohort.in_(cohorts)))
     for start in range(0, len(rows), INSERT_BATCH):
         session.execute(insert(table), rows[start : start + INSERT_BATCH])
 

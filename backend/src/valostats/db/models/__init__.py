@@ -1,5 +1,6 @@
 """Every table, imported here so Alembic sees them all."""
 
+from valostats.db.models.competitive_map import CompetitiveMapRow
 from valostats.db.models.facts_build import FactsBuild
 from valostats.db.models.game_map import GameMapRow
 from valostats.db.models.kill_fact import KillFactRow
@@ -14,6 +15,7 @@ from valostats.db.models.squad_player import SquadPlayer
 from valostats.db.models.win_probability import WinProbabilityRow
 
 __all__ = [
+    "CompetitiveMapRow",
     "FactsBuild",
     "GameMapRow",
     "KillFactRow",

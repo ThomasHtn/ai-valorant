@@ -32,7 +32,8 @@ class HenrikClient:
         return data if isinstance(data, list) else []
 
     def leaderboard(self, region: str) -> dict[str, Any] | None:
-        data = self._get(henrik.LEADERBOARD_PATH.format(region=region), {"size": henrik.TOP_LEADERBOARD_SIZE})
+        size = henrik.TOP_LEADERBOARD_SIZE.get(region, henrik.TOP_LEADERBOARD_DEFAULT)
+        data = self._get(henrik.LEADERBOARD_PATH.format(region=region), {"size": size})
         return data if isinstance(data, dict) else None
 
     def _get(self, path: str, params: dict[str, Any] | None = None) -> Any:

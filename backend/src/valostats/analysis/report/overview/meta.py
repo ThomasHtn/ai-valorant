@@ -4,10 +4,11 @@ from collections import Counter, defaultdict
 from collections.abc import Sequence
 
 from valostats.analysis.report.foundation.cohorts import FactKind, ReportCohort, ReportCohorts
-from valostats.analysis.report.foundation.period_selection import PeriodQuery, patch_sort_key
+from valostats.analysis.report.foundation.period_selection import PeriodQuery
 from valostats.analysis.report.overview.evenings import Evening, evenings
 from valostats.domain.enums import Cohort
 from valostats.domain.facts import MatchFact
+from valostats.domain.patches import patch_sort_key
 from valostats.schemas.report.meta import (
     DataQuality,
     EveningSummary,

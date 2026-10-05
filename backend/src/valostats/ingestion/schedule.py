@@ -1,11 +1,11 @@
-"""Production scheduler: the squad sync every night, the top ranked sync once a week."""
+"""Production scheduler: the squad and top ranked collections every night."""
 
 import logging
 import time
-from collections.abc import Callable
+from collections.abc import Callable, Sequence
 from datetime import UTC, datetime, timedelta
 
-from valostats.constants.schedule import COLLECTION_HOUR_UTC, TOP_COLLECTION_WEEKDAY
+from valostats.constants.schedule import COLLECTION_HOUR_UTC
 
 logger = logging.getLogger(__name__)
 
@@ -16,16 +16,16 @@ def next_run(now: datetime) -> datetime:
     return run if run > now else run + timedelta(days=1)
 
 
-def run_forever(startup: Callable[[], None], nightly: Callable[[], None], weekly: Callable[[], None]) -> None:
+def run_forever(startup: Callable[[], None], nightly: Sequence[Callable[[], None]]) -> None:
     _run_safely(startup)
     while True:
         now = datetime.now(UTC)
         run = next_run(now)
         logger.info("next collection at %s", run.isoformat())
         time.sleep((run - now).total_seconds())
-        _run_safely(nightly)
-        if run.weekday() == TOP_COLLECTION_WEEKDAY:
-            _run_safely(weekly)
+        # Each job runs even if the previous one failed.
+        for job in nightly:
+            _run_safely(job)
 
 
 def _run_safely(job: Callable[[], None]) -> None:

@@ -271,11 +271,10 @@ class WinProbabilityCell:
 
 @dataclass(frozen=True, slots=True)
 class SourceFacts:
-    """Every fact of one match source (squad or top), as extracted and stored together."""
+    """Facts of a batch of matches of one source (squad or top), stored together."""
 
     matches: list[MatchFact]
     rounds: list[RoundFact]
     kills: list[KillFact]
     player_rounds: list[PlayerRoundFact]
     player_matches: list[PlayerMatchFact]
-    win_probability: list[WinProbabilityCell]

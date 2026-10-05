@@ -8,6 +8,7 @@ import typer
 from valostats.clients.henrik_client import HenrikClient
 from valostats.clients.valoquests_client import ValoQuestsClient
 from valostats.constants.henrik import SQUAD_REQUEST_DELAY_S, TOP_REQUEST_DELAY_S
+from valostats.constants.top_collection import MATCHES_PER_MAP
 from valostats.core.config import get_settings
 from valostats.core.database import get_session_factory
 from valostats.domain.enums import MatchSource
@@ -16,7 +17,7 @@ from valostats.ingestion.maps_sync import sync_maps
 from valostats.ingestion.schedule import run_forever
 from valostats.ingestion.squad_sync import sync_squad
 from valostats.ingestion.top_sync import sync_top
-from valostats.repositories import match_repository
+from valostats.repositories import map_pool_repository, match_repository
 from valostats.services.snapshot_refresh import refresh_snapshots
 
 app = typer.Typer(help="ValoStats data collection.", no_args_is_help=True)
@@ -30,20 +31,28 @@ def configure_logging() -> None:
 @app.command("sync")
 def sync_command() -> None:
     """Squad and 5-stacks from ValoQuests, missing match details from Henrik, then facts rebuild."""
-    settings = get_settings()
-    with get_session_factory()() as session:
-        sync_squad(
-            session, ValoQuestsClient(settings.valoquests_database_url), HenrikClient(settings.henrik_api_key, SQUAD_REQUEST_DELAY_S)
-        )
+    _sync_squad()
     refresh_snapshots(get_session_factory())
 
 
 @app.command("sync-top")
 def sync_top_command() -> None:
-    """Top ranked matches of the last 7 days (about 1 h 30, uses most of the shared Henrik quota)."""
+    """Top ranked matches of the current patch until each pool map holds its quota (EU first)."""
+    _sync_top()
+    refresh_snapshots(get_session_factory())
+
+
+def _sync_squad() -> None:
+    settings = get_settings()
+    with get_session_factory()() as session:
+        sync_squad(
+            session, ValoQuestsClient(settings.valoquests_database_url), HenrikClient(settings.henrik_api_key, SQUAD_REQUEST_DELAY_S)
+        )
+
+
+def _sync_top() -> None:
     with get_session_factory()() as session:
         sync_top(session, HenrikClient(get_settings().henrik_api_key, TOP_REQUEST_DELAY_S))
-    refresh_snapshots(get_session_factory())
 
 
 @app.command("sync-maps")
@@ -71,17 +80,22 @@ def snapshots_command() -> None:
 
 @app.command("schedule")
 def schedule_command() -> None:
-    """Production scheduler: `sync` every night at 4 h UTC, `sync-top` on Mondays. Runs until stopped."""
+    """Production scheduler: squad then top ranked collection every night at 4 h UTC. Runs until stopped."""
     # After a deploy the stored views belong to the previous code: recompute them before waiting.
-    run_forever(startup=snapshots_command, nightly=sync_command, weekly=sync_top_command)
+    run_forever(startup=snapshots_command, nightly=[_sync_squad, _sync_top, snapshots_command])
 
 
 @app.command("top-status")
 def top_status_command() -> None:
-    """Top ranked volume per patch and map."""
+    """Top ranked volume per patch and map against the quotas, current map pool and table sizes."""
     with get_session_factory()() as session:
+        pool = map_pool_repository.current_pool(session)
+        typer.echo(f"map pool: {', '.join(sorted(pool)) or 'unknown'}")
         for patch, map_name, n in match_repository.count_by_patch_and_map(session, MatchSource.TOP):
-            typer.echo(f"patch {patch}  {map_name:<10} {n}")
+            flag = "" if map_name in pool else "  (out of pool)"
+            typer.echo(f"patch {patch}  {map_name:<10} {n:>4} / {MATCHES_PER_MAP}{flag}")
+        for table, size in match_repository.table_sizes(session):
+            typer.echo(f"{table:<22} {size / 1e6:>8.1f} MB")
 
 
 if __name__ == "__main__":
