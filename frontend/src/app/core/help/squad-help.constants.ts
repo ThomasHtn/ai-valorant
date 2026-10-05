@@ -8,14 +8,6 @@ export const SQUAD_HELP: Readonly<Record<string, StatHelp>> = {
     how: '(taux de l’escouade − taux du top ranked) × nombre de rounds',
     read: 'Les écarts se recoupent (un round peut être à la fois un full buy et un retake) : ne pas les additionner.',
   },
-  perMatch: {
-    title: 'Par match',
-    what: "L'écart en rounds divisé par le nombre de matchs de la période : ce que la situation pèse dans un match.",
-  },
-  mapStrip: {
-    title: 'Par carte',
-    what: "Le même écart, carte par carte. Rouge sur toutes les cartes : une habitude de l'escouade. Une seule case rouge : un problème propre à la carte.",
-  },
   mapVerdict: {
     title: 'Verdict de carte',
     what: "Où mettre l'entraînement. L'escouade joue en ranked : pas de pick ni de ban.",

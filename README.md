@@ -115,7 +115,7 @@ Four tabs carry what the squad reads most; Explorer holds the secondary data and
 
 | View | What it shows |
 |---|---|
-| <img src="docs/media/icons/squad.svg" width="15" alt=""> **Escouade** | The period in one sentence, headline figures, situations costing rounds (overall and map by map), map verdicts, economy, openings, post-plant, retakes, roster |
+| <img src="docs/media/icons/squad.svg" width="15" alt=""> **Escouade** | A dashboard of cards: four headline rings with their change, the last five months, how rounds are lost, situations costing and winning rounds (with their worst or best map), map verdicts, economy, openings, post-plant, retakes, roster with ACS by month |
 | <img src="docs/media/icons/history.svg" width="15" alt=""> **Sessions** | Each session against its month, then its matches: scoreboards, round strips, each round with its 2D replay and win probability |
 | <img src="docs/media/icons/player.svg" width="15" alt=""> **Joueurs** | One sheet per player: situations priced in rounds against the top ranked of their role |
 | <img src="docs/media/icons/target.svg" width="15" alt=""> **Stratégie** | Per map: the top ranked's compos and agents, the habits behind their extra rounds, plants and defensive contacts |

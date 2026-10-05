@@ -21,6 +21,9 @@ CHEAPER_LOADOUT_GAP = 500
 # Evenings: a new evening starts after this gap between two matches.
 EVENING_GAP = timedelta(hours=3)
 
+# Calendar months on the Escouade month-by-month charts, the period's last month included.
+MONTHS_SHOWN = 5
+
 # Period computations kept in memory (cohorts and tables of a few megabytes each).
 CACHED_PERIODS = 8
 

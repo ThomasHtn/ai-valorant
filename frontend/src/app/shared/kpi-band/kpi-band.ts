@@ -2,38 +2,47 @@ import { Component, input } from '@angular/core';
 
 import { InfoTip } from '@shared/info-tip/info-tip';
 import { RingGauge } from '@shared/ring-gauge/ring-gauge';
+import { RING_TONE_TEXTS } from '@shared/ring-gauge/ring-gauge.constants';
 
-import { KPI_EDGES } from './kpi-band.constants';
 import { KpiItem } from './kpi-band.model';
 
 /**
- * Headline figures as big rings, the value in the middle and a white tick at the reference; each
- * cell carries its colour on its left edge, so the band reads in one glance.
+ * Headline figures on one framed band split by hairlines: each cell reads label, a small ring beside
+ * the big figure (white tick at the reference, colour = verdict), then what the figure rests on.
  */
 @Component({
   selector: 'app-kpi-band',
   imports: [InfoTip, RingGauge],
   template: `
-    <dl class="m-0 grid grid-cols-2 gap-1 sm:grid-cols-[repeat(auto-fit,minmax(10.5rem,1fr))]">
+    <dl
+      class="m-0 grid grid-cols-2 border border-edge bg-text-primary/3 sm:grid-cols-[repeat(auto-fit,minmax(12rem,1fr))]"
+    >
       @for (item of items(); track item.key) {
         <div
-          class="flex min-w-0 flex-col items-center gap-2.5 bg-text-primary/4 px-3 pt-3.5 pb-3 text-center"
-          [class]="edges[item.tone ?? 'none']"
+          class="-mr-px -mb-px flex min-w-0 flex-col gap-2 border-r border-b border-edge px-5 py-4"
         >
-          <dt
-            class="flex items-center gap-1 font-display text-[1.05rem] font-semibold tracking-wide uppercase"
-          >
+          <dt class="flex items-center gap-1 font-semibold text-text-secondary">
             {{ item.label }}<app-info-tip [topic]="item.help" />
           </dt>
-          <dd class="m-0">
-            <app-ring-gauge
-              class="size-[5.5rem] sm:size-24"
-              [value]="item.fraction ?? 0"
-              [reference]="item.mark ?? null"
-              [tone]="item.tone"
-              [label]="item.value + (item.unit ? ' ' + item.unit : '')"
-              textClass="text-2xl"
-            />
+          <dd class="m-0 flex items-center gap-3">
+            @if (item.fraction !== undefined && item.fraction !== null) {
+              <app-ring-gauge
+                class="size-10"
+                [value]="item.fraction"
+                [reference]="item.mark ?? null"
+                [tone]="item.tone"
+                [width]="6"
+              />
+            }
+            <span
+              class="flex items-baseline gap-0.5 font-display leading-none font-semibold tabular-nums"
+              [class]="tones[item.tone ?? 'none']"
+            >
+              <b class="text-[2.25rem] font-semibold">{{ item.value }}</b>
+              @if (item.unit) {
+                <small class="text-lg">{{ item.unit }}</small>
+              }
+            </span>
           </dd>
           <dd class="m-0 text-sm leading-snug text-text-muted">{{ item.sub }}</dd>
         </div>
@@ -45,5 +54,5 @@ import { KpiItem } from './kpi-band.model';
 export class KpiBand {
   public readonly items = input.required<readonly KpiItem[]>();
 
-  protected readonly edges = KPI_EDGES;
+  protected readonly tones = RING_TONE_TEXTS;
 }

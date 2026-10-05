@@ -17,7 +17,9 @@ import { InfoTip } from '@shared/info-tip/info-tip';
     }
     <app-info-tip [topic]="help()" />
     @if (vs()) {
-      <span class="mt-0.5 block text-xs leading-none font-normal text-text-muted">{{ vs() }}</span>
+      <span class="mt-0.5 block text-xs leading-none font-normal tracking-normal normal-case">{{
+        vs()
+      }}</span>
     }
     <ng-content />
   `,

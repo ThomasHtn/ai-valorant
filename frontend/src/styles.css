@@ -8,6 +8,7 @@
 @import './styles/elevation.css';
 @import './styles/valostats.css';
 @import './styles/boards.css';
+@import './styles/dashboard.css';
 
 @layer base {
   html,
@@ -223,9 +224,9 @@
     background-color: var(--color-surface-sunken);
   }
 
-  /* Full width so wide tables fit; the cap only stops lines from stretching on 4K screens. */
+  /* Centred column with wide gutters: lines and tables stay within reading reach. */
   & > * {
-    @apply mx-auto w-full max-w-[2400px] px-4 sm:px-6 2xl:px-8;
+    @apply page-column;
   }
 }
 
@@ -894,9 +895,14 @@
  * the view, the view's blocks 2.5rem apart, a block's title 0.75rem over its content.
  */
 
+/* Width and gutters of the page column, shared by the top bar and the page body. */
+@utility page-column {
+  @apply mx-auto w-full max-w-[90rem] px-4 sm:px-8 lg:px-12 xl:px-16;
+}
+
 /* Inner row of the top bar, on the page's gutter: its edges line up with the blocks of the view. */
 @utility app-header-inner {
-  @apply mx-auto w-full max-w-[2400px] px-4 sm:px-6 2xl:px-8;
+  @apply page-column;
 }
 
 /*
@@ -1003,11 +1009,12 @@
 }
 
 /*
- * Blocks two by two on wide screens, so a table of a few columns never stretches across the page;
- * a wide block takes the whole row (`block-wide`).
+ * Blocks two by two when each column still gets 36rem, so a table of a few columns never stretches
+ * across the page nor wraps its labels; a wide block takes the whole row (`block-wide`).
  */
 @utility block-grid {
-  @apply grid items-start gap-x-10 gap-y-10 xl:grid-cols-2;
+  @apply grid items-start gap-x-10 gap-y-10;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 36rem), 1fr));
 }
 
 /*
@@ -1048,7 +1055,7 @@
 }
 
 @utility block-wide {
-  @apply xl:col-span-2;
+  @apply col-span-full;
 }
 
 /* One block of a view: its title tight over its content. */

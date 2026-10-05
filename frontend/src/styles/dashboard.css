@@ -1,0 +1,107 @@
+/*
+ * Dashboard pages (Escouade): a 12-column grid of grey cards, each with a head (icon, title, one
+ * line), tables drawn as grid rows, and pill badges for gaps. Same ground as the boards: cream at 3 %
+ * on the navy page, the 12 % edge, square corners.
+ */
+
+/* Cards on 12 columns, stretched so side-by-side cards end level; each sets its `col-span-*`. */
+@utility dash-grid {
+  @apply grid grid-cols-12 items-stretch gap-4;
+
+  & > * {
+    @apply col-span-12;
+  }
+}
+
+@utility dash-card {
+  @apply flex min-w-0 scroll-mt-6 flex-col gap-3.5 border border-edge bg-text-primary/3 px-5 pt-[1.125rem] pb-5;
+}
+
+/* A quieter tile inside a card (attack and defense totals, a note). */
+@utility dash-inner {
+  @apply bg-text-primary/4;
+}
+
+/*
+ * A table as grid rows, so a row can hold a chart: the parent sets `--cols`, each `.dash-row` lays its
+ * cells on it, `.dash-th` is the header line.
+ */
+@utility dash-table {
+  @apply flex flex-col tabular-nums;
+
+  & > .dash-row {
+    display: grid;
+    grid-template-columns: var(--cols);
+    align-items: center;
+    column-gap: 0.75rem;
+    min-height: 2.875rem;
+    /* Wider on the right: an info tip's enlarged hit area must not make the table scroll. */
+    padding: 0 0.5rem 0 0.25rem;
+    border-top: 1px solid --alpha(var(--color-text-primary) / 6%);
+  }
+
+  & > .dash-row:hover {
+    background: --alpha(var(--color-text-primary) / 3%);
+  }
+
+  & > .dash-th {
+    min-height: 2rem;
+    border-top: 0;
+    border-bottom: 1px solid var(--color-edge);
+    color: var(--color-text-muted);
+    font-size: var(--text-xs);
+    font-weight: 500;
+  }
+
+  & > .dash-th:hover {
+    background: none;
+  }
+
+  & > .dash-th + .dash-row {
+    border-top: 0;
+  }
+}
+
+/* Right-aligned cell of a dash table. */
+@utility dash-num {
+  @apply justify-self-end text-right;
+}
+
+/* Figure of a cell in the display face. */
+@utility dash-fig {
+  @apply font-display text-lg font-medium;
+}
+
+/* Under a card: how to read it. */
+@utility dash-foot {
+  @apply m-0 border-t border-text-primary/6 pt-2.5 text-xs text-text-muted;
+}
+
+/* Painted cell of a grid (a site): green or red ground, stronger past 3 rounds. */
+@utility dash-cell {
+  @apply flex min-h-9 flex-col items-center justify-center leading-tight;
+
+  &[data-tone='good'] {
+    background: --alpha(var(--color-rating-good) / 15%);
+  }
+
+  &[data-tone='good'][data-strong] {
+    background: --alpha(var(--color-rating-good) / 32%);
+  }
+
+  &[data-tone='bad'] {
+    background: --alpha(var(--color-rating-bad) / 17%);
+  }
+
+  &[data-tone='bad'][data-strong] {
+    background: --alpha(var(--color-rating-bad) / 36%);
+  }
+
+  &[data-tone='flat'] {
+    background: --alpha(var(--color-text-primary) / 5%);
+  }
+
+  &[data-tone='thin'] {
+    background: --alpha(var(--color-text-primary) / 2.5%);
+  }
+}

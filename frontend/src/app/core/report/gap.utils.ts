@@ -2,7 +2,6 @@ import { UNIT_SPACE } from '@core/format/value-format.utils';
 
 import {
   GAP_MIN_SAMPLE,
-  STRONG_MAP_GAP,
   VERDICT_MIN_MATCHES,
   VERDICT_SOLID_ROUNDS,
   VERDICT_WORK_ROUNDS,
@@ -51,11 +50,6 @@ export function signedRounds(value: number | null): string {
   return `${rounded > 0 ? '+' : '−'}${SIGNED.format(Math.abs(rounded))}`;
 }
 
-/** Rounds per match of a gap, to one decimal. */
-export function perMatch(rounds: number | null, matches: number): number | null {
-  return rounds === null || !matches ? null : Math.round((rounds / matches) * 10) / 10;
-}
-
 /** Costliest first, thin samples last. */
 export function byCost<T>(items: readonly T[], gapOf: (item: T) => Gap): T[] {
   return [...items].sort(
@@ -63,22 +57,6 @@ export function byCost<T>(items: readonly T[], gapOf: (item: T) => Gap): T[] {
       Number(isThin(gapOf(a))) - Number(isThin(gapOf(b))) ||
       (gapOf(a).rounds ?? 0) - (gapOf(b).rounds ?? 0),
   );
-}
-
-/** Tone of one cell of the per-map strip: strong red from a 2-round loss. */
-export type StripTone = 'strong-bad' | 'bad' | 'good' | 'even' | 'none';
-
-export function stripTone(gap: Gap): StripTone {
-  if (isThin(gap) || gap.rounds === null) {
-    return 'none';
-  }
-  if (gap.rounds <= -STRONG_MAP_GAP) {
-    return 'strong-bad';
-  }
-  if (gap.rounds <= -0.5) {
-    return 'bad';
-  }
-  return gap.rounds >= 0.5 ? 'good' : 'even';
 }
 
 /** Where to invest practice on a map: never a pick or a ban, the squad plays ranked. */

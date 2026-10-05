@@ -12,13 +12,13 @@ import { ringDash, ringTick } from './ring-gauge.utils';
 @Component({
   selector: 'app-ring-gauge',
   template: `
-    <svg viewBox="0 0 36 36" class="absolute inset-0 size-full" aria-hidden="true">
+    <svg viewBox="0 0 36 36" class="absolute inset-0 size-full overflow-visible" aria-hidden="true">
       <circle
         cx="18"
         cy="18"
         [attr.r]="radius"
         fill="none"
-        stroke-width="3.5"
+        [attr.stroke-width]="width()"
         class="stroke-text-primary/10"
       />
       <circle
@@ -26,7 +26,7 @@ import { ringDash, ringTick } from './ring-gauge.utils';
         cy="18"
         [attr.r]="radius"
         fill="none"
-        stroke-width="3.5"
+        [attr.stroke-width]="width()"
         pathLength="100"
         transform="rotate(-90 18 18)"
         [attr.stroke-dasharray]="dash()"
@@ -38,16 +38,18 @@ import { ringDash, ringTick } from './ring-gauge.utils';
           [attr.y1]="t.y1"
           [attr.x2]="t.x2"
           [attr.y2]="t.y2"
-          stroke-width="1.2"
+          [attr.stroke-width]="width() > 3.5 ? 1.8 : 1.2"
           class="stroke-text-primary"
         />
       }
     </svg>
-    <span
-      class="relative font-display font-semibold tabular-nums"
-      [class]="textClass() + ' ' + text()"
-      >{{ label() }}</span
-    >
+    @if (label()) {
+      <span
+        class="relative font-display font-semibold tabular-nums"
+        [class]="textClass() + ' ' + text()"
+        >{{ label() }}</span
+      >
+    }
   `,
   host: { class: 'relative grid shrink-0 place-items-center' },
 })
@@ -61,12 +63,14 @@ export class RingGauge {
   public readonly label = input('');
   /** Size class of the middle text. */
   public readonly textClass = input('text-lg');
+  /** Stroke width in a 36-unit box: thicker for the small rings set beside a figure. */
+  public readonly width = input(3.5);
 
   protected readonly radius = RING_RADIUS;
   protected readonly dash = computed(() => ringDash(this.value()));
   protected readonly tick = computed(() => {
     const reference = this.reference();
-    return reference === null ? null : ringTick(reference);
+    return reference === null ? null : ringTick(reference, this.width());
   });
   protected readonly stroke = computed(() => RING_TONE_STROKES[this.tone() ?? 'none']);
   protected readonly text = computed(() => RING_TONE_TEXTS[this.tone() ?? 'none']);

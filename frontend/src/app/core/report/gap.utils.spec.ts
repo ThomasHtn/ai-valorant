@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { byCost, gapTone, mapVerdict, perMatch, signedRounds, stripTone } from './gap.utils';
+import { byCost, gapTone, mapVerdict, signedRounds } from './gap.utils';
 import { Gap } from './squad.model';
 
 const gap = (k: number, n: number, top: number | null): Gap => ({
@@ -35,26 +35,10 @@ describe('signedRounds', () => {
   });
 });
 
-describe('perMatch', () => {
-  it('divides by the matches, to one decimal', () => {
-    expect(perMatch(-13, 27)).toBe(-0.5);
-    expect(perMatch(-13, 0)).toBeNull();
-  });
-});
-
 describe('byCost', () => {
   it('puts the costliest first and thin samples last', () => {
     const items = [gap(2, 3, 0.9), gap(40, 100, 0.5), gap(45, 100, 0.5)];
     expect(byCost(items, (g) => g).map((g) => g.k)).toEqual([40, 45, 2]);
-  });
-});
-
-describe('stripTone', () => {
-  it('marks a loss of two rounds in strong red', () => {
-    expect(stripTone(gap(3, 10, 0.5))).toBe('strong-bad');
-    expect(stripTone(gap(4, 10, 0.5))).toBe('bad');
-    expect(stripTone(gap(5, 10, 0.5))).toBe('even');
-    expect(stripTone(gap(1, 2, 0.5))).toBe('none');
   });
 });
 

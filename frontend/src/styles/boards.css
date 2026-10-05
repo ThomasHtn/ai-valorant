@@ -5,49 +5,45 @@
  */
 @utility board {
   width: 100%;
-  border-collapse: separate;
-  border-spacing: 0 2px;
+  border: 1px solid var(--color-edge);
+  border-collapse: collapse;
+  background: --alpha(var(--color-text-primary) / 3%);
   font-variant-numeric: tabular-nums;
 
+  /* One quiet header line on a dark band: the column names never compete with the figures. */
   & > thead > tr > th {
-    padding: 0.5rem 0.75rem;
-    background: --alpha(var(--color-text-primary) / 8%);
-    font-size: var(--text-sm);
+    padding: 0.6rem 0.75rem;
+    border-bottom: 1px solid var(--color-edge-strong);
+    background: --alpha(var(--color-surface-sunken) / 85%);
+    font-size: var(--text-xs);
     font-weight: 600;
+    letter-spacing: 0.08em;
     text-align: left;
+    text-transform: uppercase;
     white-space: nowrap;
     vertical-align: bottom;
-    color: var(--color-text-secondary);
+    color: var(--color-text-muted);
   }
 
   & > tbody > tr > td {
-    padding: 0.5rem 0.75rem;
-    background: --alpha(var(--color-text-primary) / 4%);
+    padding: 0.55rem 0.75rem;
+    border-bottom: 1px solid var(--color-edge);
     vertical-align: middle;
+  }
+
+  & > tbody > tr:last-child > td {
+    border-bottom: 0;
+  }
+
+  & > tbody > tr:nth-child(even) > td {
+    background: --alpha(var(--color-text-primary) / 2%);
   }
 
   & > tbody > tr:hover > td {
     background-image: linear-gradient(
-      --alpha(var(--color-text-primary) / 6%),
-      --alpha(var(--color-text-primary) / 6%)
+      --alpha(var(--color-brand-500) / 7%),
+      --alpha(var(--color-brand-500) / 7%)
     );
-  }
-
-  & > tbody > tr:hover > td:first-child {
-    box-shadow: inset 3px 0 0 var(--color-brand-500);
-  }
-
-  /* Each row carries its verdict on its left edge, so the colours read down the board. */
-  & > tbody > tr[data-tone='good'] > td:first-child {
-    box-shadow: inset 3px 0 0 var(--color-rating-good);
-  }
-
-  & > tbody > tr[data-tone='avg'] > td:first-child {
-    box-shadow: inset 3px 0 0 var(--color-rating-average);
-  }
-
-  & > tbody > tr[data-tone='bad'] > td:first-child {
-    box-shadow: inset 3px 0 0 var(--color-accent-red);
   }
 
   /* A key cell painted like a stat table cell: its colour is the verdict. */
@@ -79,10 +75,6 @@
     background: --alpha(var(--color-brand-500) / 8%);
   }
 
-  & > tbody > tr.is-mine > td:first-child {
-    box-shadow: inset 3px 0 0 var(--color-brand-500);
-  }
-
   & .num {
     text-align: right;
   }
@@ -105,6 +97,11 @@
     display: none;
   }
 
+  .board-stack {
+    border: 0;
+    background: none;
+  }
+
   .board-stack > tbody > tr {
     margin-bottom: 2px;
     background: --alpha(var(--color-text-primary) / 4%);
@@ -118,14 +115,13 @@
     justify-content: flex-end;
     gap: 0.3rem 0.5rem;
     padding: 0.2rem 0;
+    border-bottom: 0;
     background: none;
     text-align: right;
   }
 
-  .board-stack > tbody > tr:hover > td,
-  .board-stack > tbody > tr:hover > td:first-child {
+  .board-stack > tbody > tr:hover > td {
     background-image: none;
-    box-shadow: none;
   }
 
   .board-stack > tbody > tr > td:first-child {

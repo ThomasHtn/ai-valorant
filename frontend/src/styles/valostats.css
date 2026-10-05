@@ -15,6 +15,12 @@
   --color-rating-good: #5fb88a;
   --color-rating-average: #d9954a;
   --color-rating-bad: #d9534f;
+  /* Lighter steps for text on a tinted pill or a dark card, where the plain ones lose contrast. */
+  --color-rating-good-soft: #7fd1a6;
+  --color-rating-bad-soft: #f07c77;
+
+  /* Opaque match of a dashboard card ground (cream 3 % over surface-950), for halos around dots. */
+  --color-card-ground: #16222c;
 
   /* Top ranked reference in charts and bars. */
   --color-top: #bdbcb6;
@@ -24,16 +30,20 @@
 
 /*
  * Readability floor of the report. Barlow Condensed reads a size smaller than its metrics, so the
- * two smallest steps are lifted (14px and 15px instead of 12px and 14px) and the muted grey is
- * lightened, which every caption, sample and unit in the report uses.
+ * scale runs one step above Tailwind's (15, 16, 17, 20px) and the muted grey is lightened for
+ * captions, samples and units.
  */
 @theme {
-  --text-xs: 0.875rem;
-  --text-xs--line-height: 1.3;
-  --text-sm: 0.9375rem;
-  --text-sm--line-height: 1.4;
+  --text-xs: 0.9375rem;
+  --text-xs--line-height: 1.35;
+  --text-sm: 1rem;
+  --text-sm--line-height: 1.45;
+  --text-base: 1.0625rem;
+  --text-base--line-height: 1.5;
+  --text-lg: 1.25rem;
+  --text-lg--line-height: 1.4;
 }
 
 @theme static {
-  --color-text-muted: #979c9d;
+  --color-text-muted: #9ea3a4;
 }
