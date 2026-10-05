@@ -39,6 +39,7 @@ export function compRows(view: StrategyView): CompRow[] {
     share: comp.share,
     shareText: pct(comp.share),
     rounds: pct(comp.rounds.value),
+    roundsRate: comp.rounds.value,
     matches: comp.matches,
     mine,
   });

@@ -4,7 +4,7 @@ import { CellTone } from '@core/report/tone.model';
 export const BAR_FILLS: Record<CellTone, string> = {
   good: 'bg-rating-good',
   avg: 'bg-rating-average',
-  bad: 'bg-rating-bad',
+  bad: 'bg-accent-red',
   small: 'bg-text-muted',
 };
 
@@ -12,6 +12,6 @@ export const BAR_FILLS: Record<CellTone, string> = {
 export const BAR_TEXTS: Record<CellTone, string> = {
   good: 'text-rating-good',
   avg: 'text-rating-average',
-  bad: 'text-rating-bad',
+  bad: 'text-accent-red',
   small: 'text-text-muted',
 };

@@ -24,7 +24,12 @@
       >
         <td>
           <span class="flex items-center gap-2.5 font-semibold">
-            <app-agent-icon [agent]="row.line.portrait" size="md" [decorative]="true" />
+            <app-agent-icon
+              class="clip-hex"
+              [agent]="row.line.portrait"
+              size="md"
+              [decorative]="true"
+            />
             {{ row.line.name }}
             <app-role-icon class="!size-3.5" [role]="row.line.role" />
             <span class="text-sm font-normal text-text-muted">{{ row.line.matches }} matchs</span>

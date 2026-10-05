@@ -14,11 +14,29 @@
   </thead>
   <tbody>
     @for (line of lines(); track line.row.key) {
-      <tr [class.is-thin]="line.cells.thin">
+      <tr [class.is-thin]="line.cells.thin" [attr.data-tone]="line.cells.tone">
         <td>
-          <span class="flex min-w-0 items-center gap-2.5">
+          <span class="flex min-w-0 items-center gap-3">
             @if (line.row.map) {
               <app-map-thumb [map]="line.row.map" />
+            } @else if (line.row.group) {
+              <span
+                class="grid size-8 shrink-0 place-items-center bg-text-primary/6 [&>svg]:size-[1.1rem]"
+                [class]="tones[line.cells.tone]"
+                aria-hidden="true"
+              >
+                @switch (line.row.group) {
+                  @case ('economy') {
+                    <svg lucideCoins></svg>
+                  }
+                  @case ('spike') {
+                    <svg lucideBomb></svg>
+                  }
+                  @default {
+                    <svg lucideSwords></svg>
+                  }
+                }
+              </span>
             }
             <span class="flex min-w-0 flex-col leading-tight">
               <span class="font-semibold">{{ line.row.label }}</span>

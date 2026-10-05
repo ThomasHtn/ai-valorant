@@ -1,8 +1,5 @@
 /** Rules of the gap boards (Escouade, Sessions, Joueurs): when a gap is coloured, kept, or greyed. */
 
-/** z of the 90 % Wilson interval: a gap is green or red only when the top ranked rate falls outside it. */
-export const GAP_TONE_Z = 1.645;
-
 /** Under this sample a line is greyed and sent to the end of its board. */
 export const GAP_MIN_SAMPLE = 5;
 

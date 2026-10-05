@@ -74,24 +74,24 @@
       </div>
 
       <section class="view-section" aria-labelledby="comps-title">
-        <h2 id="comps-title">
-          Compos du top ranked
-          <span class="block-desc"
-            >Les trois plus jouées, puis la vôtre. Un agent entouré de rouge n'est pas dans la compo
-            n° 1.</span
-          >
-        </h2>
+        <app-section-head
+          headingId="comps-title"
+          title="Compos du top ranked"
+          desc="Les trois plus jouées, puis la vôtre. Un agent entouré de rouge n'est pas dans la compo n° 1."
+          ><svg lucideSparkles></svg
+        ></app-section-head>
         <app-comp-board [rows]="comps()" />
       </section>
 
       <section class="view-section" aria-labelledby="roles-title">
-        <h2 id="roles-title">
-          Agents par rôle
-          <span class="block-desc"
-            >Part des équipes top ranked qui jouent l'agent sur {{ s.mapName }}. En orange : les
-            agents joués par l'escouade.</span
-          >
-        </h2>
+        <app-section-head
+          headingId="roles-title"
+          title="Agents par rôle"
+          desc="Part des équipes top ranked qui jouent l'agent sur {{
+            s.mapName
+          }}. En orange : les agents joués par l'escouade."
+          ><svg lucideUsers></svg
+        ></app-section-head>
         <div class="grid grid-cols-2 gap-x-6 gap-y-5 bg-text-primary/3 p-4 lg:grid-cols-4">
           @for (role of roles(); track role.role) {
             <div class="flex min-w-0 flex-col gap-2">
@@ -122,24 +122,25 @@
       </section>
 
       <section class="view-section" aria-labelledby="habits-title">
-        <h2 id="habits-title">
-          Pourquoi ils gagnent plus
-          <span class="block-desc"
-            >Les habitudes mesurées dans vos rounds sur {{ s.mapName }}, de la plus coûteuse à la
-            meilleure</span
-          >
-        </h2>
+        <app-section-head
+          headingId="habits-title"
+          title="Pourquoi ils gagnent plus"
+          desc="Les habitudes mesurées dans vos rounds sur {{
+            s.mapName
+          }}, de la plus coûteuse à la meilleure"
+          ><svg lucideTrendingUp></svg
+        ></app-section-head>
         <app-habit-board [rows]="habits()" />
       </section>
 
       <div class="block-grid">
         <section class="view-section" aria-labelledby="plants-title">
-          <h2 id="plants-title">
-            Attaque : où ils posent
-            <span class="block-desc"
-              >Halo violet : poses top ranked. Point : vos poses, vert si gagnées.</span
-            >
-          </h2>
+          <app-section-head
+            headingId="plants-title"
+            title="Attaque : où ils posent"
+            desc="Halo violet : poses top ranked. Point : vos poses, vert si gagnées."
+            ><svg lucideBomb></svg
+          ></app-section-head>
           <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <figure class="!m-0">
               <app-minimap-canvas
@@ -168,10 +169,12 @@
         </section>
 
         <section class="view-section" aria-labelledby="contacts-title">
-          <h2 id="contacts-title">
-            Défense : premier contact
-            <span class="block-desc">Où se trouve le défenseur au premier duel du round</span>
-          </h2>
+          <app-section-head
+            headingId="contacts-title"
+            title="Défense : premier contact"
+            desc="Où se trouve le défenseur au premier duel du round"
+            ><svg lucideShield></svg
+          ></app-section-head>
           <app-share-board
             [rows]="contacts()"
             first="Zone"

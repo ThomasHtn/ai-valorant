@@ -37,6 +37,19 @@
     box-shadow: inset 3px 0 0 var(--color-brand-500);
   }
 
+  /* Each row carries its verdict on its left edge, so the colours read down the board. */
+  & > tbody > tr[data-tone='good'] > td:first-child {
+    box-shadow: inset 3px 0 0 var(--color-rating-good);
+  }
+
+  & > tbody > tr[data-tone='avg'] > td:first-child {
+    box-shadow: inset 3px 0 0 var(--color-rating-average);
+  }
+
+  & > tbody > tr[data-tone='bad'] > td:first-child {
+    box-shadow: inset 3px 0 0 var(--color-accent-red);
+  }
+
   & > tbody > tr.is-thin {
     opacity: 0.6;
   }

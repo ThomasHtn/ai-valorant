@@ -3,13 +3,14 @@ import { Component, input } from '@angular/core';
 import { ColHead } from '@shared/col-head/col-head';
 import { AgentIcon } from '@shared/game-art/agent-icon';
 import { RoleIcon } from '@shared/game-art/role-icon';
+import { RingGauge } from '@shared/ring-gauge/ring-gauge';
 
 import { CompRow } from '../strategy.model';
 
 /** The top ranked's most played compos, then the squad's, each agent with its role glyph. */
 @Component({
   selector: 'app-comp-board',
-  imports: [AgentIcon, ColHead, RoleIcon],
+  imports: [AgentIcon, ColHead, RingGauge, RoleIcon],
   template: `
     <table class="board board-stack">
       <thead>
@@ -41,7 +42,7 @@ import { CompRow } from '../strategy.model';
                         agent.differs ? agent.name + ' : absent de la compo n° 1' : agent.name
                       "
                     >
-                      <app-agent-icon [agent]="agent.name" size="md" />
+                      <app-agent-icon class="clip-hex" [agent]="agent.name" size="md" />
                       <app-role-icon
                         class="absolute right-0.5 bottom-0.5 !size-3 drop-shadow-[0_0_2px_#000]"
                         [role]="agent.role"
@@ -67,9 +68,14 @@ import { CompRow } from '../strategy.model';
               }
             </td>
             <td class="num" data-l="Rounds gagnés">
-              <span class="font-display font-semibold" [class.text-text-muted]="row.mine">{{
-                row.rounds
-              }}</span>
+              <app-ring-gauge
+                class="ml-auto size-11"
+                [value]="row.roundsRate ?? 0"
+                [reference]="0.5"
+                [tone]="row.mine ? 'small' : null"
+                [label]="row.rounds"
+                textClass="text-xs"
+              />
               @if (row.mine) {
                 <span class="block text-sm text-text-muted">contre vos adversaires</span>
               }

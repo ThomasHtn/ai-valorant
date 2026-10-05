@@ -1,21 +1,20 @@
-@if (meta(); as meta) {
-  <p class="!m-0 max-w-[72ch] text-text-secondary">
-    {{ meta.title }} : {{ meta.matches }} matchs en {{ meta.sessions }} sessions,
-    {{ meta.rounds }} rounds sur le map pool en cours. Chaque chiffre est comparé au top ranked dans
-    la même situation.
-    @if (meta.offPoolMatches) {
-      <span class="text-text-muted"
-        >{{ meta.offPoolMatches }} {{ meta.offPoolMatches > 1 ? 'matchs' : 'match' }} sur des cartes
-        hors pool ne {{ meta.offPoolMatches > 1 ? 'comptent' : 'compte' }} pas.</span
-      >
-    }
-  </p>
-}
-
 <app-resource-state [resource]="squad" notFoundText="Aucun match sur le map pool en cours.">
   @if (matches()) {
     <div class="view-body">
-      <div class="flex flex-col gap-6">
+      <header class="flex flex-col gap-4">
+        @if (meta(); as meta) {
+          <p class="!m-0 max-w-[72ch] text-text-secondary">
+            {{ meta.title }} : {{ meta.matches }} matchs en {{ meta.sessions }} sessions,
+            {{ meta.rounds }} rounds sur le map pool en cours, comparés au top ranked dans la même
+            situation.
+            @if (meta.offPoolMatches) {
+              <span class="text-text-muted"
+                >{{ meta.offPoolMatches }} {{ meta.offPoolMatches > 1 ? 'matchs' : 'match' }} hors
+                pool ne {{ meta.offPoolMatches > 1 ? 'comptent' : 'compte' }} pas.</span
+              >
+            }
+          </p>
+        }
         @if (lead(); as lead) {
           <p class="lead-note">
             <b>{{ lead.lead }}</b>
@@ -23,16 +22,26 @@
           </p>
         }
         <app-kpi-band [items]="kpis()" />
-      </div>
+      </header>
+
+      <section class="view-section" aria-labelledby="chart-title">
+        <app-section-head
+          headingId="chart-title"
+          title="Où partent les rounds"
+          desc="Chaque situation face au top ranked, en rounds sur la période"
+          ><svg lucideScale></svg
+        ></app-section-head>
+        <app-rounds-chart [items]="bars()" />
+      </section>
 
       <nav
-        class="sticky -top-6 z-10 -mb-4 flex gap-1.5 overflow-x-auto border-b border-edge bg-surface-950 py-2 [scrollbar-width:none]"
+        class="sticky -top-6 z-10 -mb-4 flex gap-1 overflow-x-auto border-b border-edge bg-surface-950/95 py-2 backdrop-blur-sm [scrollbar-width:none]"
         aria-label="Sections"
       >
         @for (section of sections; track section.id) {
           <button
             type="button"
-            class="focus-ring min-h-9 shrink-0 cursor-pointer border border-edge-strong bg-surface-sunken/60 px-3 font-semibold text-text-secondary transition-colors hover:border-brand-500 hover:text-brand-400"
+            class="focus-ring min-h-9 shrink-0 cursor-pointer px-3 font-display text-sm font-semibold tracking-wide text-text-secondary uppercase transition-colors hover:bg-text-primary/6 hover:text-brand-400"
             (click)="jump(section.id)"
           >
             {{ section.label }}
@@ -45,17 +54,13 @@
         id="squad-priorities"
         aria-labelledby="priorities-title"
       >
-        <h2 id="priorities-title">
-          Priorités
-          <span class="block-desc"
-            >Les situations qui coûtent le plus de rounds face au top ranked, de la plus chère à la
-            moins chère</span
-          >
-        </h2>
+        <app-section-head headingId="priorities-title" title="Priorités" [desc]="priorityLine()"
+          ><svg lucideFlame></svg
+        ></app-section-head>
         <app-gap-board [rows]="shownPriorities()" [matches]="matches()" [maps]="maps()" />
         <div class="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 text-sm">
           <span class="text-text-muted"
-            >Ces écarts se recoupent : ne pas les additionner. Rouge sur toutes les cartes : une
+            >Les écarts se recoupent : ne pas les additionner. Rouge sur toutes les cartes : une
             habitude de l'escouade. Une seule case rouge : un problème de carte.</span
           >
           @if (hiddenPriorities()) {
@@ -66,7 +71,7 @@
             >
               {{
                 allPriorities()
-                  ? 'Afficher les ' + 5 + ' premières'
+                  ? 'Afficher les 5 premières'
                   : 'Afficher les ' + hiddenPriorities() + ' autres'
               }}
             </button>
@@ -79,10 +84,9 @@
         id="squad-strengths"
         aria-labelledby="strengths-title"
       >
-        <h2 id="strengths-title">
-          Ce qui marche
-          <span class="block-desc">Les situations où l'escouade fait mieux que le top ranked</span>
-        </h2>
+        <app-section-head headingId="strengths-title" title="Ce qui marche" [desc]="strengthLine()"
+          ><svg lucideCircleCheck></svg
+        ></app-section-head>
         @if (strengthRows().length) {
           <app-gap-board [rows]="strengthRows()" [matches]="matches()" [maps]="maps()" />
         } @else {
@@ -93,12 +97,9 @@
       </section>
 
       <section class="view-section scroll-mt-16" id="squad-maps" aria-labelledby="maps-title">
-        <h2 id="maps-title">
-          Cartes
-          <span class="block-desc"
-            >Où mettre l'entraînement, la carte la plus coûteuse en haut</span
-          >
-        </h2>
+        <app-section-head headingId="maps-title" title="Cartes" [desc]="mapLine()"
+          ><svg lucideMap></svg
+        ></app-section-head>
         <app-map-board [rows]="mapRows()" />
         @if (collecting().length) {
           <p class="!m-0 text-sm text-text-muted">
@@ -119,9 +120,12 @@
           id="squad-economy"
           aria-labelledby="economy-title"
         >
-          <h2 id="economy-title">
-            Économie <span class="block-desc">Rounds gagnés selon notre achat</span>
-          </h2>
+          <app-section-head
+            headingId="economy-title"
+            title="Économie"
+            desc="Rounds gagnés selon notre achat"
+            ><svg lucideCoins></svg
+          ></app-section-head>
           <app-gap-board first="Achat" [rows]="economy()" />
         </section>
         <section
@@ -129,10 +133,12 @@
           id="squad-opening"
           aria-labelledby="opening-title"
         >
-          <h2 id="opening-title">
-            Ouvertures et clutchs
-            <span class="block-desc">Qui ouvre le round, et ce que l'escouade en fait</span>
-          </h2>
+          <app-section-head
+            headingId="opening-title"
+            title="Ouvertures et clutchs"
+            desc="Qui ouvre le round, et ce que l'escouade en fait"
+            ><svg lucideSwords></svg
+          ></app-section-head>
           <app-gap-board [rows]="opening()" />
         </section>
         <section
@@ -140,9 +146,12 @@
           id="squad-post-plant"
           aria-labelledby="post-plant-title"
         >
-          <h2 id="post-plant-title">
-            Post-plant <span class="block-desc">Spike posé par l'escouade, par site</span>
-          </h2>
+          <app-section-head
+            headingId="post-plant-title"
+            title="Post-plant"
+            desc="Spike posé par l'escouade, par site"
+            ><svg lucideBomb></svg
+          ></app-section-head>
           <app-gap-board first="Site" [rows]="postPlant()" />
         </section>
         <section
@@ -150,20 +159,23 @@
           id="squad-retakes"
           aria-labelledby="retakes-title"
         >
-          <h2 id="retakes-title">
-            Retakes <span class="block-desc">Spike posé par l'adversaire, par site</span>
-          </h2>
+          <app-section-head
+            headingId="retakes-title"
+            title="Retakes"
+            desc="Spike posé par l'adversaire, par site"
+            ><svg lucideShield></svg
+          ></app-section-head>
           <app-gap-board first="Site" [rows]="retakes()" />
         </section>
       </div>
 
       <section class="view-section scroll-mt-16" id="squad-roster" aria-labelledby="roster-title">
-        <h2 id="roster-title">
-          Effectif
-          <span class="block-desc"
-            >Couleur face au top ranked de son rôle. Une ligne ouvre la fiche du joueur.</span
-          >
-        </h2>
+        <app-section-head
+          headingId="roster-title"
+          title="Effectif"
+          desc="Face au top ranked de son rôle. Une ligne ouvre la fiche du joueur."
+          ><svg lucideUsers></svg
+        ></app-section-head>
         <app-roster-board [roster]="squad.value()?.roster ?? []" />
         <a class="text-sm" routerLink="/report/tables/combat" queryParamsHandling="preserve"
           >Toutes les stats de combat dans Explorer</a

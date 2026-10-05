@@ -35,12 +35,12 @@
     </div>
 
     <section class="view-section" aria-labelledby="session-matches-title">
-      <h2 id="session-matches-title">
-        Matchs
-        <span class="block-desc"
-          >Une ligne ouvre le match : ses scoreboards, ses rounds et leur déroulé</span
-        >
-      </h2>
+      <app-section-head
+        headingId="session-matches-title"
+        title="Matchs"
+        desc="Une ligne ouvre le match : ses scoreboards, ses rounds et leur déroulé"
+        ><svg lucideSwords></svg
+      ></app-section-head>
       <div class="overflow-x-auto">
         <table class="board board-stack">
           <thead>
@@ -58,6 +58,7 @@
               <tr
                 class="is-link"
                 [class.is-thin]="m.offPool"
+                [attr.data-tone]="m.offPool ? null : m.won ? 'good' : 'bad'"
                 tabindex="0"
                 (click)="openMatch(m.matchId)"
                 (keydown.enter)="openMatch(m.matchId)"
@@ -114,12 +115,12 @@
 
     <div class="block-grid">
       <section class="view-section" aria-labelledby="session-turning-title">
-        <h2 id="session-turning-title">
-          Rounds qui ont basculé
-          <span class="block-desc"
-            >Perdus alors que l'escouade avait la main. Une ligne ouvre le round.</span
-          >
-        </h2>
+        <app-section-head
+          headingId="session-turning-title"
+          title="Rounds qui ont basculé"
+          desc="Perdus alors que l'escouade avait la main. Une ligne ouvre le round."
+          ><svg lucideFlame></svg
+        ></app-section-head>
         <div class="overflow-x-auto">
           <table class="board">
             <thead>
@@ -159,10 +160,12 @@
       </section>
 
       <section class="view-section" aria-labelledby="session-players-title">
-        <h2 id="session-players-title">
-          Joueurs de la session
-          <span class="block-desc">ACS et K/D face au reste de leur mois</span>
-        </h2>
+        <app-section-head
+          headingId="session-players-title"
+          title="Joueurs de la session"
+          desc="ACS et K/D face au reste de leur mois"
+          ><svg lucideUsers></svg
+        ></app-section-head>
         <div class="overflow-x-auto">
           <table class="board">
             <thead>

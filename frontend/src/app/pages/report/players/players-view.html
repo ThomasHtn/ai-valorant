@@ -31,13 +31,12 @@
             </p>
           }
           <section class="view-section" aria-labelledby="player-situations-title">
-            <h2 id="player-situations-title">
-              Situations
-              <span class="block-desc"
-                >Classées par coût en rounds face au top ranked de son rôle, de la plus chère à la
-                meilleure</span
-              >
-            </h2>
+            <app-section-head
+              headingId="player-situations-title"
+              title="Situations"
+              desc="Classées par coût en rounds face au top ranked de son rôle, de la plus chère à la meilleure"
+              ><svg lucideFlame></svg
+            ></app-section-head>
             <app-player-situations [lines]="situations()" />
           </section>
 

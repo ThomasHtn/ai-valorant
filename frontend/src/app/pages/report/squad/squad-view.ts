@@ -1,5 +1,16 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import {
+  LucideBomb,
+  LucideCircleCheck,
+  LucideCoins,
+  LucideFlame,
+  LucideMap,
+  LucideScale,
+  LucideShield,
+  LucideSwords,
+  LucideUsers,
+} from '@lucide/angular';
 
 import { resourceValue } from '@core/http/resource-state.utils';
 import { PRIORITIES_SHOWN } from '@core/report/gap.constants';
@@ -8,6 +19,8 @@ import { ReportApi } from '@core/report/report-api';
 import { ReportContext } from '@core/report/report-context';
 import { KpiBand } from '@shared/kpi-band/kpi-band';
 import { ResourceState } from '@shared/resource-state/resource-state';
+import { RoundsChart } from '@shared/rounds-chart/rounds-chart';
+import { SectionHead } from '@shared/section-head/section-head';
 
 import { GapBoard } from './gap-board/gap-board';
 import { MapBoard } from './map-board/map-board';
@@ -18,9 +31,11 @@ import {
   kpiItems,
   mapRows,
   priorities,
+  roundsBars,
   siteRow,
   situationRow,
   strengths,
+  topLine,
 } from './squad.utils';
 
 /**
@@ -29,7 +44,25 @@ import {
  */
 @Component({
   selector: 'app-squad-view',
-  imports: [GapBoard, KpiBand, MapBoard, ResourceState, RosterBoard, RouterLink],
+  imports: [
+    GapBoard,
+    KpiBand,
+    LucideBomb,
+    LucideCircleCheck,
+    LucideCoins,
+    LucideFlame,
+    LucideMap,
+    LucideScale,
+    LucideShield,
+    LucideSwords,
+    LucideUsers,
+    MapBoard,
+    ResourceState,
+    RosterBoard,
+    RoundsChart,
+    RouterLink,
+    SectionHead,
+  ],
   templateUrl: './squad-view.html',
   host: { class: 'view-body' },
 })
@@ -66,6 +99,15 @@ export class SquadView {
     this.allPriorities() ? this.priorityRows() : this.priorityRows().slice(0, PRIORITIES_SHOWN),
   );
   protected readonly strengthRows = computed(() => strengths(this.view()?.situations ?? []));
+  protected readonly bars = computed(() => roundsBars(this.view()?.situations ?? []));
+  protected readonly priorityLine = computed(() => topLine(this.priorityRows(), 'La plus chère'));
+  protected readonly strengthLine = computed(() => topLine(this.strengthRows(), 'La meilleure'));
+  protected readonly mapLine = computed(() => {
+    const worst = this.mapRows().find((m) => m.verdict === 'work');
+    return worst
+      ? `${worst.map} est la carte à travailler (${worst.rounds} rounds)`
+      : "Où mettre l'entraînement, la carte la plus coûteuse en haut";
+  });
   protected readonly economy = computed(() => this.group('economy'));
   protected readonly opening = computed(() => this.group('opening'));
   protected readonly postPlant = computed(() =>

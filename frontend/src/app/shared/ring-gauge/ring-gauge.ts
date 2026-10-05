@@ -2,7 +2,7 @@ import { Component, computed, input } from '@angular/core';
 
 import { CellTone } from '@core/report/tone.model';
 
-import { RING_RADIUS, RING_TONE_STROKES } from './ring-gauge.constants';
+import { RING_RADIUS, RING_TONE_STROKES, RING_TONE_TEXTS } from './ring-gauge.constants';
 import { ringDash, ringTick } from './ring-gauge.utils';
 
 /**
@@ -43,9 +43,11 @@ import { ringDash, ringTick } from './ring-gauge.utils';
         />
       }
     </svg>
-    <span class="relative font-display font-semibold tabular-nums" [class]="textClass()">{{
-      label()
-    }}</span>
+    <span
+      class="relative font-display font-semibold tabular-nums"
+      [class]="textClass() + ' ' + text()"
+      >{{ label() }}</span
+    >
   `,
   host: { class: 'relative grid shrink-0 place-items-center' },
 })
@@ -67,4 +69,5 @@ export class RingGauge {
     return reference === null ? null : ringTick(reference);
   });
   protected readonly stroke = computed(() => RING_TONE_STROKES[this.tone() ?? 'none']);
+  protected readonly text = computed(() => RING_TONE_TEXTS[this.tone() ?? 'none']);
 }

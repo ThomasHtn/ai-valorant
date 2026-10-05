@@ -1,4 +1,5 @@
 import { Component, computed, inject, input } from '@angular/core';
+import { LucideFlame } from '@lucide/angular';
 
 import { resourceValue } from '@core/http/resource-state.utils';
 import { ReportApi } from '@core/report/report-api';
@@ -14,6 +15,7 @@ import { playerLead, situationLines } from './player-situations/player-situation
 import { InfoTip } from '@shared/info-tip/info-tip';
 import { ResourceState } from '@shared/resource-state/resource-state';
 import { StatTableView } from '@shared/stat-table/stat-table';
+import { SectionHead } from '@shared/section-head/section-head';
 
 import { DeathZones } from './death-zones/death-zones';
 import { OpeningClutch } from './opening-clutch/opening-clutch';
@@ -41,6 +43,8 @@ import { WeaponsPanel } from './weapons-panel/weapons-panel';
 @Component({
   selector: 'app-players-view',
   imports: [
+    SectionHead,
+    LucideFlame,
     PlayerSituations,
     InfoTip,
     ReadingBar,

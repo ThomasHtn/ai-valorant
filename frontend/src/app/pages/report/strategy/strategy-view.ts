@@ -1,6 +1,13 @@
 import { DOCUMENT } from '@angular/common';
 import { Component, computed, inject, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import {
+  LucideBomb,
+  LucideShield,
+  LucideSparkles,
+  LucideTrendingUp,
+  LucideUsers,
+} from '@lucide/angular';
 
 import { mapSplash } from '@core/game-assets/game-assets.utils';
 import { resourceValue } from '@core/http/resource-state.utils';
@@ -12,6 +19,7 @@ import { MapThumb } from '@shared/game-art/map-thumb';
 import { RoleIcon } from '@shared/game-art/role-icon';
 import { MinimapCanvas } from '@shared/minimap-canvas/minimap-canvas';
 import { ResourceState } from '@shared/resource-state/resource-state';
+import { SectionHead } from '@shared/section-head/section-head';
 
 import { readRotation } from '../minimap/minimap-rotation.utils';
 import { CompBoard } from './comp-board/comp-board';
@@ -40,6 +48,12 @@ const TOP_PLANT_COLOR = 'var(--color-top-plants)';
 @Component({
   selector: 'app-strategy-view',
   imports: [
+    SectionHead,
+    LucideBomb,
+    LucideShield,
+    LucideSparkles,
+    LucideTrendingUp,
+    LucideUsers,
     AgentIcon,
     CompBoard,
     HabitBoard,

@@ -15,6 +15,8 @@ import { Gap, MapLine, Situation, SiteLine, SquadView } from '@core/report/squad
 import { KpiItem } from '@shared/kpi-band/kpi-band.model';
 
 import { LEAD_PRIORITIES, LEAD_STRENGTHS } from './squad.constants';
+import { RoundsBar } from '@shared/rounds-chart/rounds-chart.model';
+
 import { GapCells, GapRow, MapRow, VerdictKey } from './squad.model';
 
 /** A gap ready to draw; `matches` turns the rounds into a per-match figure. */
@@ -34,7 +36,15 @@ export function gapCells(gap: Gap, matches = 0): GapCells {
 }
 
 export function situationRow(s: Situation): GapRow {
-  return { key: s.key, label: s.label, sub: s.detail, map: null, gap: s.gap, maps: s.maps };
+  return {
+    key: s.key,
+    label: s.label,
+    sub: s.detail,
+    map: null,
+    group: s.group,
+    gap: s.gap,
+    maps: s.maps,
+  };
 }
 
 export function siteRow(s: SiteLine): GapRow {
@@ -43,6 +53,7 @@ export function siteRow(s: SiteLine): GapRow {
     label: `${s.mapName} ${s.site}`,
     sub: null,
     map: s.mapName,
+    group: null,
     gap: s.gap,
     maps: [],
   };
@@ -87,6 +98,11 @@ export function mapRows(maps: readonly MapLine[], references: readonly MapRefere
         map: m.mapName,
         matches: m.matches,
         record: `${m.wins} V ${m.matches - m.wins} D`,
+        winRate: m.matches ? m.wins / m.matches : 0,
+        winTone:
+          m.matches < 3
+            ? 'small'
+            : gapTone({ k: m.wins, n: m.matches, top: 0.5, topN: 0, rounds: null }),
         attack: gapCells(m.attack),
         defense: gapCells(m.defense),
         rounds: signedRounds(rounds),
@@ -157,8 +173,10 @@ export function kpiItems(view: SquadView): KpiItem[] {
       label: 'Rounds basculés',
       help: 'turningRounds',
       value: String(turning),
-      tone: null,
-      sub: `sur ${lost} rounds perdus`,
+      tone: 'bad',
+      // The ring shows the share of lost rounds that the squad once had in hand.
+      fraction: lost ? turning / lost : 0,
+      sub: `${lost ? Math.round((turning / lost) * 100) : 0} % des ${lost} rounds perdus`,
     },
   ];
 }
@@ -202,4 +220,19 @@ function percent(value: number | null): string {
 
 function capitalize(text: string): string {
   return text.charAt(0).toUpperCase() + text.slice(1);
+}
+
+/** Every situation as one bar of the rounds chart, losses first, thin samples last. */
+export function roundsBars(situations: readonly Situation[]): RoundsBar[] {
+  return byCost(situations, (s) => s.gap)
+    .filter((s) => s.gap.rounds !== null && s.gap.rounds !== 0)
+    .map((s) => ({ key: s.key, label: s.label, rounds: s.gap.rounds ?? 0, thin: isThin(s.gap) }));
+}
+
+/** One line under a section title, saying what the block holds before reading it. */
+export function topLine(rows: readonly GapRow[], verb: string): string | null {
+  const first = rows.find((r) => !isThin(r.gap));
+  return first
+    ? `${verb} : ${first.label.toLowerCase()} (${signedRounds(first.gap.rounds)} rounds)`
+    : null;
 }

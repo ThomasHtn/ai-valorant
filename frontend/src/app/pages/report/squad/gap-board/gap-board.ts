@@ -1,4 +1,5 @@
 import { Component, computed, input } from '@angular/core';
+import { LucideBomb, LucideCoins, LucideSwords } from '@lucide/angular';
 
 import { GapBar } from '@shared/gap-bar/gap-bar';
 import { ColHead } from '@shared/col-head/col-head';
@@ -16,7 +17,16 @@ import { gapCells } from '../squad.utils';
  */
 @Component({
   selector: 'app-gap-board',
-  imports: [ColHead, GapBar, MapStrip, MapStripHead, MapThumb],
+  imports: [
+    ColHead,
+    GapBar,
+    LucideBomb,
+    LucideCoins,
+    LucideSwords,
+    MapStrip,
+    MapStripHead,
+    MapThumb,
+  ],
   templateUrl: './gap-board.html',
   host: { class: 'block overflow-x-auto' },
 })

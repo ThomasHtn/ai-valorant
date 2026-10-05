@@ -16,12 +16,12 @@ describe('gapTone', () => {
     expect(gapTone(gap(1, 4, 0.5))).toBe('small');
   });
 
-  it('stays orange while the top ranked rate is inside the interval', () => {
-    expect(gapTone(gap(10, 25, 0.5))).toBe('avg');
+  it('stays orange within 3 points of the top ranked', () => {
+    expect(gapTone(gap(51, 100, 0.5))).toBe('avg');
   });
 
-  it('turns red or green once the gap is clear', () => {
-    expect(gapTone(gap(60, 200, 0.5))).toBe('bad');
+  it('turns red or green beyond, by its sign', () => {
+    expect(gapTone(gap(10, 25, 0.5))).toBe('bad');
     expect(gapTone(gap(140, 200, 0.5))).toBe('good');
   });
 });

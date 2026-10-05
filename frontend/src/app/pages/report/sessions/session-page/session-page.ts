@@ -1,5 +1,6 @@
 import { Component, computed, inject, input } from '@angular/core';
 import { Router } from '@angular/router';
+import { LucideFlame, LucideSwords, LucideUsers } from '@lucide/angular';
 
 import { monthTitle } from '@core/format/format.utils';
 import { resourceValue } from '@core/http/resource-state.utils';
@@ -16,6 +17,7 @@ import { GapBar } from '@shared/gap-bar/gap-bar';
 import { KpiBand } from '@shared/kpi-band/kpi-band';
 import { MapBanner } from '@shared/map-banner/map-banner';
 import { ResourceState } from '@shared/resource-state/resource-state';
+import { SectionHead } from '@shared/section-head/section-head';
 
 import { playerForms, turningRounds } from '../../debrief/debrief.utils';
 import { sessionKpis, sessionLead, sessionMatchRows, sessionTitle } from '../sessions.utils';
@@ -26,7 +28,20 @@ import { sessionKpis, sessionLead, sessionMatchRows, sessionTitle } from '../ses
  */
 @Component({
   selector: 'app-session-page',
-  imports: [AgentIcon, Breadcrumb, ColHead, GapBar, KpiBand, MapBanner, MapThumb, ResourceState],
+  imports: [
+    SectionHead,
+    LucideFlame,
+    LucideSwords,
+    LucideUsers,
+    AgentIcon,
+    Breadcrumb,
+    ColHead,
+    GapBar,
+    KpiBand,
+    MapBanner,
+    MapThumb,
+    ResourceState,
+  ],
   templateUrl: './session-page.html',
   host: { class: 'view-body' },
 })

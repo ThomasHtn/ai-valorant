@@ -21,9 +21,11 @@ import { STRIP_FILLS } from './map-strip.constants';
           >{{ cell.text }}</i
         >
         <!-- On phones the header strip is hidden: each cell names its map. -->
-        <b class="text-[0.65rem] font-medium text-text-muted sm:hidden" aria-hidden="true">{{
-          cell.map.slice(0, 3)
-        }}</b>
+        <b
+          class="font-display text-[0.65rem] font-semibold text-text-muted uppercase sm:hidden"
+          aria-hidden="true"
+          >{{ cell.map.slice(0, 3) }}</b
+        >
       </span>
     }
   `,

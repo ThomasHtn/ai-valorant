@@ -1,20 +1,18 @@
 import { Component, input } from '@angular/core';
 
-import { MapThumb } from '@shared/game-art/map-thumb';
-
-/** Header of a per-map strip: each map's thumbnail over its first three letters. */
+/** Header of a per-map strip: each map's first three letters over its column. */
 @Component({
   selector: 'app-map-strip-head',
-  imports: [MapThumb],
   template: `
     @for (map of maps(); track map) {
-      <span class="flex w-8 flex-col items-center sm:w-9" [title]="map">
-        <app-map-thumb class="!h-4 !w-full" [map]="map" />
-        <b class="text-[0.7rem] font-medium text-text-muted">{{ map.slice(0, 3) }}</b>
-      </span>
+      <b
+        class="w-8 text-center font-display text-xs font-semibold tracking-wide text-text-secondary uppercase sm:w-9"
+        [title]="map"
+        >{{ map.slice(0, 3) }}</b
+      >
     }
   `,
-  host: { class: 'mt-1 flex gap-0.5', 'aria-hidden': 'true' },
+  host: { class: 'mt-1 flex gap-0.5' },
 })
 export class MapStripHead {
   public readonly maps = input.required<readonly string[]>();

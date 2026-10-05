@@ -8,6 +8,7 @@ export interface CompRow {
   share: number;
   shareText: string;
   rounds: string;
+  roundsRate: number | null;
   matches: number;
   mine: boolean;
 }

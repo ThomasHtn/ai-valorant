@@ -1,15 +1,14 @@
 import { UNIT_SPACE } from '@core/format/value-format.utils';
 
-import { wilsonInterval } from './confidence-interval.utils';
 import {
   GAP_MIN_SAMPLE,
-  GAP_TONE_Z,
   STRONG_MAP_GAP,
   VERDICT_MIN_MATCHES,
   VERDICT_SOLID_ROUNDS,
   VERDICT_WORK_ROUNDS,
 } from './gap.constants';
 import { Gap } from './squad.model';
+import { RATE_AVERAGE_BAND } from './tone.constants';
 import { CellTone } from './tone.model';
 
 const SIGNED = new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 1 });
@@ -25,19 +24,19 @@ export function isThin(gap: Gap): boolean {
 }
 
 /**
- * Colour of a gap: grey on a thin sample, orange while the top ranked rate sits inside the squad's
- * 90 % Wilson interval (the gap may be chance), green or red once it is outside.
+ * Colour of a gap, the way it is written: grey on a thin sample, orange within 3 points of the top
+ * ranked rate, then green or red by its sign.
  */
 export function gapTone(gap: Gap): CellTone {
   const rate = gapRate(gap);
   if (isThin(gap) || rate === null || gap.top === null) {
     return 'small';
   }
-  const interval = wilsonInterval(rate, gap.n, GAP_TONE_Z);
-  if (!interval || (gap.top >= interval.low && gap.top <= interval.high)) {
+  const diff = rate - gap.top;
+  if (Math.abs(diff) < RATE_AVERAGE_BAND) {
     return 'avg';
   }
-  return rate > gap.top ? 'good' : 'bad';
+  return diff > 0 ? 'good' : 'bad';
 }
 
 /** '+4', '−2,5', '0': a number of rounds with a true minus sign and at most one decimal. */

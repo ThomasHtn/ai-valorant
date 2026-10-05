@@ -1,5 +1,5 @@
 import { CellTone } from '@core/report/tone.model';
-import { Gap, MapGap } from '@core/report/squad.model';
+import { Gap, MapGap, SituationGroup } from '@core/report/squad.model';
 
 /** One line of a gap board: a situation, a buy, a site. */
 export interface GapRow {
@@ -9,6 +9,8 @@ export interface GapRow {
   sub: string | null;
   /** Map whose thumbnail leads the line (sites). */
   map: string | null;
+  /** Kind of situation, drawn as its icon. */
+  group: SituationGroup | null;
   gap: Gap;
   /** Per-map gaps, for the boards that show the strip. */
   maps: MapGap[];
@@ -32,6 +34,9 @@ export interface MapRow {
   map: string;
   matches: number;
   record: string;
+  /** Matches won, 0 to 1. */
+  winRate: number;
+  winTone: CellTone;
   attack: GapCells;
   defense: GapCells;
   rounds: string;
