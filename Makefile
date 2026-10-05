@@ -11,7 +11,7 @@ migrate:   ## Apply database migrations
 sync:      ## Squad 5-stacks from ValoQuests and Henrik, then facts rebuild
 	cd backend && uv run valostats sync
 
-sync-top:  ## Top ranked matches of the last 7 days (about 1 h 30)
+sync-top:  ## Top ranked matches of the current patch, up to the per-map quotas
 	cd backend && uv run valostats sync-top
 
 api:       ## API on http://localhost:8000 (docs on /docs)

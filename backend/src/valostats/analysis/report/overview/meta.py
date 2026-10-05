@@ -1,17 +1,20 @@
 """The home tree (months, evenings, patches) and the header of a period report."""
 
 from collections import Counter, defaultdict
-from collections.abc import Sequence
+from collections.abc import Iterable, Sequence
 
 from valostats.analysis.report.foundation.cohorts import FactKind, ReportCohort, ReportCohorts
 from valostats.analysis.report.foundation.period_selection import PeriodQuery
 from valostats.analysis.report.overview.evenings import Evening, evenings
+from valostats.constants.report import MIN_MAP_REFERENCE
+from valostats.constants.top_collection import MATCHES_PER_MAP
 from valostats.domain.enums import Cohort
 from valostats.domain.facts import MatchFact
 from valostats.domain.patches import patch_sort_key
 from valostats.schemas.report.meta import (
     DataQuality,
     EveningSummary,
+    MapReference,
     MonthSummary,
     PatchCount,
     PeriodKind,
@@ -69,8 +72,8 @@ def period_kind(query: PeriodQuery) -> PeriodKind:
     return PeriodKind.MONTH
 
 
-def report_meta(query: PeriodQuery, cohorts: ReportCohorts, top_match_count: int) -> ReportMeta:
-    """Record, players and data quality of the period."""
+def report_meta(query: PeriodQuery, cohorts: ReportCohorts, full: ReportCohorts, top_match_count: int) -> ReportMeta:
+    """Record, players and data quality of the period; `full` holds the same period with every map."""
     matches = cohorts.matches()
     rounds = cohorts.squad(FactKind.ROUNDS)
     rounds_per_match = Counter(r.match_id for r in rounds)
@@ -90,6 +93,8 @@ def report_meta(query: PeriodQuery, cohorts: ReportCohorts, top_match_count: int
             PatchCount(patch=p, matches=n) for p, n in sorted(Counter(m.patch for m in matches).items(), key=lambda x: patch_sort_key(x[0]))
         ],
         maps=cohorts.maps(),
+        map_pool=sorted(cohorts.pool),
+        off_pool_matches=len(full.matches()) - len(matches),
         players=[ReportPlayer(name=p.name, puuid=p.puuid, portrait=p.portrait, role=p.role) for p in cohorts.players()],
         quality=DataQuality(
             complete_matches=complete,
@@ -98,5 +103,14 @@ def report_meta(query: PeriodQuery, cohorts: ReportCohorts, top_match_count: int
             top_matches=top_match_count,
             top_patches=sorted({m.patch for m in top_matches}, key=patch_sort_key),
             maps_without_top=[m for m in cohorts.maps() if m not in top_maps],
+            reference_maps=_reference_maps(cohorts.pool or top_maps, top_matches),
         ),
     )
+
+
+def _reference_maps(maps: Iterable[str], top_matches: Sequence[MatchFact]) -> list[MapReference]:
+    """Top ranked matches behind the reference of each map; a thin one is still being collected."""
+    per_map = Counter(m for m, _ in {(t.map_name, t.match_id) for t in top_matches})
+    return [
+        MapReference(map_name=m, matches=per_map[m], quota=MATCHES_PER_MAP, collecting=per_map[m] < MIN_MAP_REFERENCE) for m in sorted(maps)
+    ]

@@ -27,6 +27,7 @@ class FakeFacts:
     portraits: dict[str, str] = field(default_factory=dict)
     squad: set[str] = field(default_factory=lambda: {"alpha"})
     match_count: int = 1
+    map_pool: frozenset[str] = frozenset()
 
 
 class FakeStore:

@@ -30,6 +30,7 @@ class FakeFacts:
     player_matches: list[Any] = field(default_factory=list)
     portraits: dict[str, str] = field(default_factory=dict)
     match_count: int = 0
+    map_pool: frozenset[str] = frozenset()
 
 
 class FakeStore:

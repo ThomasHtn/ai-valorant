@@ -3,7 +3,10 @@
 - squad: the squad in the period.
 - opp: its opponents in the same matches.
 - hist: the squad before the period (its own history).
-- top: top ranked matches (every collected one, whatever the period).
+- top: top ranked matches of the reference patches (see `reference_patches.py`), whatever the period.
+
+Statistics only cover the current competitive map pool: with `pool` set, squad, opp and hist leave
+out the matches played on other maps (the match list of a period still shows them).
 
 Kill facts appear twice: `deaths` groups them by the victim's cohort ("our deaths"), `kills` by the
 killer's ("our kills"). Teamkills and environment kills (spike, fall) are left out of both.
@@ -115,6 +118,8 @@ class ReportCohorts:
     agents: dict[tuple[str, str], str] = field(default_factory=dict)
     # Puuid -> avatar agent picked in ValoQuests; players without one show their most played agent.
     portraits: Mapping[str, str] = field(default_factory=dict)
+    # Maps the squad cohorts are limited to; empty when they keep every map.
+    pool: frozenset[str] = frozenset()
 
     def select(self, kind: FactKind, cohort: ReportCohort, **equal: Any) -> Sequence[Any]:
         return self.indexes[cohort].select(kind, **equal)
@@ -152,17 +157,24 @@ def build_cohorts(
     squad_facts: Mapping[FactKind, Sequence[Any]],
     top_index: FactIndex,
     portraits: Mapping[str, str] | None = None,
+    pool: frozenset[str] = frozenset(),
 ) -> ReportCohorts:
     """Split the squad matches' facts into squad / opp / hist for the period; reuse the shared top index.
 
     `squad_facts` holds the facts of the squad's matches (both teams) by kind: MATCHES, ROUNDS, KILLS
-    (all kills of those matches), PLAYER_ROUNDS, PLAYER_MATCHES.
+    (all kills of those matches), PLAYER_ROUNDS, PLAYER_MATCHES. A non-empty `pool` keeps only its maps.
     """
     in_period = [m.started_at for m in squad_facts[FactKind.MATCHES] if m.cohort is Cohort.SQUAD and window.includes(m)]
     start = min(in_period) if in_period else None
 
+    def in_pool(fact: Dated) -> bool:
+        return not pool or fact.map_name in pool
+
+    def in_window(fact: Dated) -> bool:
+        return window.includes(fact) and in_pool(fact)
+
     def before(fact: Dated) -> bool:
-        return start is not None and fact.started_at < start
+        return start is not None and fact.started_at < start and in_pool(fact)
 
     def index(cohort: Cohort, keep: FactFilter) -> FactIndex:
         return build_index(
@@ -180,11 +192,12 @@ def build_cohorts(
     return ReportCohorts(
         window=window,
         indexes={
-            ReportCohort.SQUAD: index(Cohort.SQUAD, window.includes),
-            ReportCohort.OPPONENTS: index(Cohort.OPPONENT, window.includes),
+            ReportCohort.SQUAD: index(Cohort.SQUAD, in_window),
+            ReportCohort.OPPONENTS: index(Cohort.OPPONENT, in_window),
             ReportCohort.HISTORY: index(Cohort.SQUAD, before),
             ReportCohort.TOP: top_index,
         },
         agents=agents,
         portraits=portraits or {},
+        pool=pool,
     )

@@ -63,6 +63,17 @@ class ReportPlayer(ApiModel):
     role: str
 
 
+class MapReference(ApiModel):
+    """Top ranked matches behind the reference of one map of the pool."""
+
+    map_name: str
+    matches: int
+    # Matches the collection aims for per map and patch.
+    quota: int
+    # Too few matches yet: the map's figures are not compared.
+    collecting: bool
+
+
 class DataQuality(ApiModel):
     """What the figures of the period rest on; the front writes the sentences."""
 
@@ -73,6 +84,8 @@ class DataQuality(ApiModel):
     top_patches: list[str]
     # Maps of the period without any top ranked match: no top reference there.
     maps_without_top: list[str]
+    # Each map of the current pool, with the top ranked matches behind its reference.
+    reference_maps: list[MapReference]
 
 
 class ReportMeta(ApiModel):
@@ -88,5 +101,9 @@ class ReportMeta(ApiModel):
     sessions: int
     patches: list[PatchCount]
     maps: list[str]
+    # Current competitive map pool; every figure of the report is limited to it.
+    map_pool: list[str]
+    # Matches of the period played on maps out of the pool, left out of the figures.
+    off_pool_matches: int
     players: list[ReportPlayer]
     quality: DataQuality

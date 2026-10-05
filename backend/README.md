@@ -46,15 +46,20 @@ uv run alembic revision --autogenerate -m "..."  # new migration after a model c
 | Command | When | What it does |
 |---|---|---|
 | `valostats sync` | After each evening | Squad and 5-stacks from ValoQuests, missing match details from Henrik, then facts rebuild and report views only if something new arrived |
-| `valostats sync-top` | Once a week | Top 20 of each region, matches of the last 7 days (about 1 h 30) |
+| `valostats sync-top` | Every night | Top ranked matches of the current patch until each pool map holds 400 (60 % EU, top 150 EU then top 20 of other regions); drops patches older than the previous one |
 | `valostats sync-maps` | After a new map | Map metadata (callouts, minimaps) from valorant-api.com, then facts rebuild and report views |
 | `valostats rebuild-facts [squad\|top]` | After an extraction change | Recomputes the fact tables from the stored raw matches, then the report views |
 | `valostats snapshots` | After a deploy (the scheduler does it at start) | Precomputes the report views of every home period missing for the current facts and code (about 15 min) |
-| `valostats top-status` | Any time | Top ranked volume per patch and map |
-| `valostats schedule` | Production | Runs `sync` every night and `sync-top` on Mondays, until stopped |
+| `valostats top-status` | Any time | Map pool, top ranked volume per patch and map against the quota, table sizes |
+| `valostats schedule` | Production | Runs the squad then the top ranked collection every night, until stopped |
 
 The Henrik key is shared with ValoQuests (30 requests per minute), so `sync-top` waits between requests.
 After each rebuild, the running API notices the new build and reloads its facts by itself.
+
+Every figure is limited to the current competitive map pool, read from the maps seen in top ranked
+histories over the last 3 days. Matches on other maps stay in the match list only. A period is compared
+with the top ranked matches of its own patches, completed by the other kept patch while they hold
+fewer than 700 matches.
 
 ## Configuration
 
@@ -142,7 +147,7 @@ docker compose -f docker-compose.prod.yml up -d --build
 ```
 
 Collection runs in the `scheduler` service of the same stack (`valostats schedule`): `sync` every night
-at 4 h UTC, then `sync-top` on Mondays. A failed run is logged and retried the next night. To collect by
+at 4 h UTC, then `sync-top`. A failed run is logged and retried the next night. To collect by
 hand:
 
 ```bash

@@ -44,7 +44,7 @@ answers your question.
 
 | Reference | What it tells you |
 |---|---|
-| <img src="docs/media/icons/trophy.svg" width="15" alt=""> **Top ranked** | What the top 20 of every region do in the same spot |
+| <img src="docs/media/icons/trophy.svg" width="15" alt=""> **Top ranked** | What the top ranked players (EU first) do in the same spot, on the same patch |
 | <img src="docs/media/icons/swords.svg" width="15" alt=""> **Opponents** | The teams you actually faced, at your elo, in the very same matches |
 | <img src="docs/media/icons/history.svg" width="15" alt=""> **History** | The squad itself before the period: are you getting better? |
 

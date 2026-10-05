@@ -14,7 +14,7 @@ from valostats.analysis.extraction.win_probability import WinProbabilityTable
 from valostats.domain.enums import Cohort, MatchSource
 from valostats.domain.facts import KillFact, MatchFact, PlayerMatchFact, PlayerRoundFact, RoundFact
 from valostats.domain.maps import GameMap
-from valostats.repositories import facts_repository, map_repository, squad_repository
+from valostats.repositories import facts_repository, map_pool_repository, map_repository, squad_repository
 
 
 @dataclass(frozen=True)
@@ -48,6 +48,8 @@ class TopFacts:
     player_rounds: list[PlayerRoundFact]
     player_matches: list[PlayerMatchFact]
     win_probability: WinProbabilityTable
+    # Current competitive map pool: every statistic is limited to it.
+    map_pool: frozenset[str]
 
 
 class FactsStore:
@@ -139,4 +141,5 @@ def _load_top(session: Session, version: int) -> TopFacts:
         player_rounds=facts_repository.load_player_rounds(session, cohorts),
         player_matches=facts_repository.load_player_matches(session, cohorts),
         win_probability=WinProbabilityTable(facts_repository.load_win_probability(session, MatchSource.TOP)),
+        map_pool=map_pool_repository.current_pool(session),
     )

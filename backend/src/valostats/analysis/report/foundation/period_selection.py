@@ -14,7 +14,7 @@ LOCAL_TZ = ZoneInfo(LOCAL_TIMEZONE)
 
 
 class Dated(Protocol):
-    """Any fact: every fact type carries its match start and patch."""
+    """Any fact: every fact type carries its match start, patch and map."""
 
     @property
     def match_id(self) -> str: ...
@@ -24,6 +24,9 @@ class Dated(Protocol):
 
     @property
     def patch(self) -> str: ...
+
+    @property
+    def map_name(self) -> str: ...
 
 
 FactFilter = Callable[[Dated], bool]

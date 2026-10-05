@@ -26,3 +26,8 @@ CACHED_PERIODS = 8
 
 # Decimals kept in the JSON for computed values: enough for a percentage to one decimal.
 VALUE_DECIMALS = 4
+
+# Top ranked matches the period's own patches need before the reference stops mixing in the other kept patch.
+REFERENCE_MIN_MATCHES = 700
+# Top ranked matches of a pool map under which its reference is still being collected.
+MIN_MAP_REFERENCE = 100
