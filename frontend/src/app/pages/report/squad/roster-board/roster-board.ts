@@ -1,54 +1,44 @@
 import { Component, computed, inject, input } from '@angular/core';
 import { Router } from '@angular/router';
 
-import { displayedGap, formatGap, formatValue } from '@core/format/value-format.utils';
 import { RosterLine } from '@core/report/squad.model';
-import { cellTone } from '@core/report/tone.utils';
-import { ColHead } from '@shared/col-head/col-head';
 import { AgentIcon } from '@shared/game-art/agent-icon';
-import { RoleIcon } from '@shared/game-art/role-icon';
-import { BAR_TEXTS } from '@shared/gap-bar/gap-bar.constants';
+import { HoverTip } from '@shared/hover-tip/hover-tip';
+import { InfoTip } from '@shared/info-tip/info-tip';
+import { Sparkline } from '@shared/sparkline/sparkline';
 
-import { ROSTER_COLUMNS, RosterKey } from './roster-board.constants';
+import { DASH_TEXTS } from '../squad.constants';
+import { ROSTER_COLUMNS, ROSTER_GRID } from './roster-board.constants';
+import { rosterRows } from './roster-board.utils';
 
-/** One line per player: each figure with its gap to the top ranked of his role, so a colour never stands alone. */
+/** One line per player: ACS month by month, then each figure against the top ranked, the detail in tips. */
 @Component({
   selector: 'app-roster-board',
-  imports: [AgentIcon, ColHead, RoleIcon],
+  imports: [AgentIcon, HoverTip, InfoTip, Sparkline],
   templateUrl: './roster-board.html',
   host: { class: 'block overflow-x-auto' },
 })
 export class RosterBoard {
   public readonly roster = input.required<readonly RosterLine[]>();
+  /** 'de mai à septembre', for the ACS chart's column. */
+  public readonly span = input('');
+  /** Month labels aligned with each line's ACS months, for the chart's tip. */
+  public readonly months = input<readonly string[]>([]);
 
   private readonly router = inject(Router);
-  protected readonly columns = Object.values(ROSTER_COLUMNS);
-  protected readonly tones = BAR_TEXTS;
-
-  protected readonly rows = computed(() =>
-    [...this.roster()]
-      .sort((a, b) => Number(b.acs.v ?? 0) - Number(a.acs.v ?? 0))
-      .map((line) => ({
-        line,
-        cells: this.columns.map((column) => {
-          const cell = line[column.key as RosterKey];
-          const value = typeof cell.v === 'number' ? cell.v : null;
-          const top = typeof cell.top === 'number' ? cell.top : null;
-          return {
-            key: column.key,
-            label: column.label,
-            text: formatValue(value, column.format),
-            tone: cellTone(cell, column, 'top') ?? 'small',
-            gap:
-              column.key === 'opening'
-                ? line.openingRecord
-                : value !== null && top !== null
-                  ? formatGap(displayedGap(value, top, column.format), column.format)
-                  : '',
-          };
-        }),
-      })),
-  );
+  protected readonly rows = computed(() => rosterRows(this.roster(), this.months()));
+  protected readonly tones = DASH_TEXTS;
+  /** Column heads after the chart, with their glossary tips. */
+  protected readonly heads = [
+    ...(['acs', 'adr', 'kast', 'headshots', 'opening'] as const).map((key) => ({
+      key,
+      label: ROSTER_COLUMNS[key].label,
+      help: ROSTER_COLUMNS[key].help ?? null,
+    })),
+    { key: 'duels', label: "Duels d'ouverture", help: null },
+    { key: 'traded', label: ROSTER_COLUMNS.traded.label, help: ROSTER_COLUMNS.traded.help ?? null },
+  ];
+  protected readonly cols = ROSTER_GRID;
 
   protected open(name: string): void {
     void this.router.navigate(['/report/players', name], { queryParamsHandling: 'preserve' });

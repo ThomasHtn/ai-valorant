@@ -1,0 +1,42 @@
+<div class="dash-table min-w-[58.75rem]" [style.--cols]="cols()" role="table">
+  <div class="dash-row dash-th !min-h-13" role="row">
+    <span role="columnheader">Situation</span>
+    @for (map of maps(); track map) {
+      <span
+        class="flex flex-col items-center gap-1 text-sm text-text-secondary"
+        role="columnheader"
+      >
+        <app-map-thumb class="!h-6 !w-14" [map]="map" />
+        {{ map }}
+      </span>
+    }
+    <span role="columnheader">Lecture</span>
+  </div>
+  @for (row of rows(); track row.key) {
+    <div class="dash-row" role="row">
+      <span
+        class="inline-flex min-w-0 flex-wrap items-center gap-x-2.5 gap-y-1 font-semibold"
+        role="cell"
+      >
+        {{ row.label }}<app-rounds-pill [pill]="row.rounds" [unit]="false" />
+      </span>
+      @for (cell of row.cells; track cell.map) {
+        <span
+          class="dash-cell min-h-10 cursor-help"
+          [attr.data-tone]="cell.tone"
+          [attr.data-strong]="cell.strong ? '' : null"
+          role="cell"
+          tabindex="0"
+          [appHoverTip]="cell.tip"
+        >
+          <b class="font-display text-base font-medium" [class]="tones[cell.tone]">{{
+            cell.text
+          }}</b>
+        </span>
+      }
+      <span class="font-semibold" [class]="readings[row.reading.kind]" role="cell">{{
+        row.reading.text
+      }}</span>
+    </div>
+  }
+</div>

@@ -1,49 +1,47 @@
-<table class="board board-stack">
-  <thead>
-    <tr>
-      <th appColHead label="Joueur"></th>
-      @for (column of columns; track column.key) {
-        <th
-          appColHead
-          align="end"
-          [label]="column.label"
-          [better]="column.better"
-          [help]="column.help ?? null"
-          [vs]="column.key === 'opening' ? 'gagnés-perdus' : 'écart au top ranked'"
-        ></th>
-      }
-    </tr>
-  </thead>
-  <tbody>
-    @for (row of rows(); track row.line.name) {
-      <tr
-        class="is-link"
-        tabindex="0"
-        (click)="open(row.line.name)"
-        (keydown.enter)="open(row.line.name)"
-      >
-        <td>
-          <span class="flex items-center gap-2.5 font-semibold">
-            <app-agent-icon
-              class="clip-hex"
-              [agent]="row.line.portrait"
-              size="md"
-              [decorative]="true"
-            />
-            {{ row.line.name }}
-            <app-role-icon class="!size-3.5" [role]="row.line.role" />
-            <span class="text-sm font-normal text-text-muted">{{ row.line.matches }} matchs</span>
-          </span>
-        </td>
-        @for (cell of row.cells; track cell.key) {
-          <td class="num whitespace-nowrap" [attr.data-l]="cell.label" [attr.data-tone]="cell.tone">
-            <span class="font-display font-semibold" [class]="tones[cell.tone]">{{
-              cell.text
-            }}</span>
-            <span class="ml-1.5 text-sm text-text-muted">{{ cell.gap }}</span>
-          </td>
-        }
-      </tr>
+<div class="dash-table min-w-[60rem]" [style.--cols]="cols" role="table">
+  <div class="dash-row dash-th" role="row">
+    <span role="columnheader">Joueur</span>
+    <span role="columnheader">ACS {{ span() }}</span>
+    @for (head of heads; track head.key) {
+      <span class="dash-num inline-flex items-center gap-1" role="columnheader"
+        >{{ head.label }}<app-info-tip [topic]="head.help"
+      /></span>
     }
-  </tbody>
-</table>
+  </div>
+  @for (row of rows(); track row.name) {
+    <div
+      class="dash-row !min-h-14 cursor-pointer focus-visible:outline-2 focus-visible:outline-brand-500"
+      role="row"
+      tabindex="0"
+      (click)="open(row.name)"
+      (keydown.enter)="open(row.name)"
+    >
+      <span class="inline-flex min-w-0 items-center gap-2.5 font-semibold" role="cell">
+        <app-agent-icon class="rounded-full" [agent]="row.portrait" size="md" [decorative]="true" />
+        <span class="flex flex-col leading-tight">
+          <span>{{ row.name }}</span>
+          <span class="text-sm font-medium text-text-muted"
+            >{{ row.matches }} {{ row.matches > 1 ? 'matchs' : 'match' }}</span
+          >
+        </span>
+      </span>
+      <span
+        class="cursor-help self-stretch content-center focus-visible:outline-2 focus-visible:outline-brand-500"
+        role="cell"
+        tabindex="0"
+        [appHoverTip]="row.acsTip"
+        ><app-sparkline [values]="row.acsMonths" [reference]="row.acsTop"
+      /></span>
+      @for (cell of row.cells; track cell.key) {
+        <span
+          class="dash-num cursor-help font-display text-lg font-medium"
+          [class]="tones[cell.tone]"
+          role="cell"
+          tabindex="0"
+          [appHoverTip]="cell.tip"
+          >{{ cell.text }}</span
+        >
+      }
+    </div>
+  }
+</div>

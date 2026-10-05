@@ -1,0 +1,111 @@
+<div
+  class="relative flex-1"
+  role="group"
+  [attr.aria-label]="label()"
+  [style.min-height.px]="height()"
+>
+  @for (line of view().grid; track line.y) {
+    <div class="absolute inset-x-0 border-t border-text-primary/6" [style.top.%]="line.y">
+      <span
+        class="absolute top-[-0.6rem] -left-[2.375rem] w-8 text-right text-[0.8125rem] text-text-muted"
+        >{{ line.label }}</span
+      >
+    </div>
+  }
+  @if (view().reference !== null) {
+    <div
+      class="absolute inset-x-0 border-t-[1.5px] border-dashed border-top/70"
+      [style.top.%]="view().reference"
+    ></div>
+  }
+  @if (tip(); as t) {
+    <div
+      class="pointer-events-none absolute inset-y-0 border-l border-text-primary/35"
+      [style.left.%]="t.tick.x"
+    ></div>
+  }
+  <svg
+    viewBox="0 0 1000 100"
+    preserveAspectRatio="none"
+    class="absolute inset-0 size-full overflow-visible"
+    aria-hidden="true"
+  >
+    @for (path of view().paths; track path.key) {
+      @if (path.area) {
+        <path [attr.d]="path.area" [attr.fill]="path.color" fill-opacity="0.1" />
+      }
+      <path
+        [attr.d]="path.line"
+        fill="none"
+        [attr.stroke]="path.color"
+        stroke-width="2.5"
+        vector-effect="non-scaling-stroke"
+      />
+    }
+  </svg>
+  @for (dot of view().dots; track dot.key) {
+    <span
+      class="pointer-events-none absolute size-2.5 -translate-1/2 rounded-full shadow-[0_0_0_3px_var(--color-card-ground)]"
+      [style.left.%]="dot.x"
+      [style.top.%]="dot.y"
+      [style.background]="dot.faded ? 'var(--color-card-ground)' : dot.color"
+      [style.box-shadow]="dot.faded ? '0 0 0 2px ' + dot.color : null"
+    ></span>
+    @if (values()) {
+      <span
+        class="pointer-events-none absolute -translate-x-1/2 -translate-y-[190%] text-[0.8125rem] font-semibold whitespace-nowrap"
+        [style.left.%]="dot.x"
+        [style.top.%]="dot.y"
+        >{{ dot.text }}</span
+      >
+    }
+  }
+  <!-- One hover zone per month, the whole height of the plot. -->
+  @for (tick of view().ticks; track tick.key; let i = $index) {
+    <button
+      type="button"
+      class="absolute inset-y-0 cursor-default bg-transparent p-0 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-brand-500"
+      [class.!cursor-pointer]="action()"
+      [style.left.%]="tick.from"
+      [style.width.%]="tick.width"
+      [attr.aria-label]="tick.label + ', ' + tick.sample"
+      (pointerenter)="hovered.set(i)"
+      (pointerleave)="hovered.set(null)"
+      (focus)="hovered.set(i)"
+      (blur)="hovered.set(null)"
+      (click)="choose(i)"
+    ></button>
+  }
+  @if (tip(); as t) {
+    <div
+      class="pointer-events-none absolute top-2 z-10 w-max min-w-56 border-l-2 border-brand-500/60 bg-surface-sunken px-3.5 py-2.5 shadow-[0_18px_40px_-12px_rgb(0_0_0/0.7)]"
+      [style.left.%]="t.tick.x"
+      [class]="t.flip ? '-translate-x-[calc(100%+0.875rem)]' : 'translate-x-3.5'"
+      role="tooltip"
+    >
+      <p class="m-0 mb-1.5 font-display text-[1.05rem] font-semibold text-brand-400 uppercase">
+        {{ t.tick.label }}, {{ t.tick.sample }}
+      </p>
+      @for (line of t.lines; track line.key) {
+        <div class="grid grid-cols-[0.75rem_1fr_auto] items-baseline gap-x-2 text-[0.95rem]">
+          <i class="inline-block size-2.5 rounded-full" [style.background]="line.color"></i>
+          <span class="text-text-secondary">{{ line.label }}</span>
+          <b class="font-semibold">{{ line.value }}</b>
+        </div>
+      }
+      @if (action()) {
+        <small class="mt-2 block text-sm text-text-muted">Clic : {{ action() }} {{ t.of }}</small>
+      }
+    </div>
+  }
+</div>
+<div class="relative h-[2.375rem]" aria-hidden="true">
+  @for (tick of view().ticks; track tick.key) {
+    <span
+      class="absolute -translate-x-1/2 text-center text-sm leading-tight whitespace-nowrap text-text-secondary"
+      [style.left.%]="tick.x"
+      >{{ tick.label
+      }}<small class="block text-[0.8125rem] text-text-muted">{{ tick.sample }}</small></span
+    >
+  }
+</div>

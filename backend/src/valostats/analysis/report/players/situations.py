@@ -84,6 +84,11 @@ def player_situations(cohorts: ReportCohorts, player: SquadPlayer) -> list[Playe
     return sorted(lines, key=lambda s: (s.cost is None, s.cost or 0))
 
 
+def player_situation_by_key(cohorts: ReportCohorts, player: SquadPlayer) -> dict[str, PlayerSituation]:
+    """The player's situations keyed by rule, for views that pick a few of them."""
+    return {s.key: s for s in player_situations(cohorts, player)}
+
+
 def _situation(rule: SituationRule, own: Sequence[PlayerRoundFact], top: Sequence[PlayerRoundFact]) -> PlayerSituation:
     mine = [r for r in own if rule.among(r)]
     theirs = [r for r in top if rule.among(r)]

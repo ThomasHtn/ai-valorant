@@ -1,0 +1,67 @@
+<div class="flex items-start justify-between gap-[1.125rem]">
+  <div class="flex min-w-0 flex-col gap-1.5">
+    <h2
+      class="!m-0 flex items-center gap-2.5 text-lg font-semibold after:!hidden"
+      [id]="headingId()"
+    >
+      <span
+        class="grid size-[1.125rem] shrink-0 place-items-center text-brand-500 [&>svg]:size-[1.125rem]"
+        aria-hidden="true"
+        ><ng-content
+      /></span>
+      {{ title() }}
+    </h2>
+    <span class="text-xs text-text-muted">{{ lead() }} : {{ head().sub }}</span>
+    <app-rounds-pill class="self-start" [pill]="head().rounds" />
+  </div>
+  <app-ring-gauge
+    class="size-24"
+    [value]="head().share ?? 0"
+    [reference]="head().mark"
+    [tone]="rings[head().tone]"
+    [width]="3.4"
+    [label]="head().value + ' %'"
+    [textClass]="'text-[1.625rem] font-medium ' + tones[head().tone]"
+  />
+</div>
+
+<div class="dash-table" [style.--cols]="cols" role="table">
+  <div class="dash-row dash-th" role="row">
+    <span role="columnheader">Carte</span>
+    @for (letter of letters; track letter) {
+      <span class="text-center" role="columnheader">Site {{ letter }}</span>
+    }
+    <span class="dash-num" role="columnheader">Carte entière</span>
+  </div>
+  @for (line of lines(); track line.map) {
+    <div class="dash-row" role="row">
+      <span class="inline-flex items-center gap-2 font-semibold whitespace-nowrap" role="cell">
+        <app-map-thumb class="!h-[1.375rem] !w-10" [map]="line.map" />
+        {{ line.map }}
+      </span>
+      @for (cell of line.sites; track $index) {
+        @if (cell) {
+          <span
+            class="dash-cell cursor-help"
+            [attr.data-tone]="cell.tone"
+            [attr.data-strong]="cell.strong ? '' : null"
+            role="cell"
+            tabindex="0"
+            [appHoverTip]="cell.tip"
+          >
+            <b class="font-display text-[1.0625rem] font-medium" [class]="tones[cell.tone]">{{
+              cell.rounds
+            }}</b>
+          </span>
+        } @else {
+          <span class="flex min-h-9 items-center justify-center text-text-muted/50" role="cell"
+            >–</span
+          >
+        }
+      }
+      <span class="dash-num cursor-help" role="cell" tabindex="0" [appHoverTip]="line.tip"
+        ><app-rounds-pill [pill]="line.rounds"
+      /></span>
+    </div>
+  }
+</div>

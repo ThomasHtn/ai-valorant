@@ -145,5 +145,18 @@ def player_cell(cohorts: ReportCohorts, kind: FactKind, metric: Metric, player: 
     )
 
 
+def squad_player_cell(cohorts: ReportCohorts, kind: FactKind, metric: Metric, player: SquadPlayer, **equal: Any) -> StatCell:
+    """A cell of one squad player against every player of the top and opp cohorts, whatever their role; hist is himself."""
+    return cell(
+        cohorts,
+        kind,
+        metric,
+        where=lambda f: f.name == player.name,
+        reference_where=lambda _: True,
+        history_where=lambda f: f.name == player.name,
+        **equal,
+    )
+
+
 def _filtered(facts: Sequence[Any], keep: Predicate | None) -> Sequence[Any]:
     return facts if keep is None else [f for f in facts if keep(f)]

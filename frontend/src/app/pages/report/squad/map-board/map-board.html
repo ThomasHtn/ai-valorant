@@ -1,0 +1,136 @@
+<div class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,18.75rem),1fr))] gap-3">
+  @for (side of sides(); track side.key) {
+    <div class="dash-inner grid grid-cols-[auto_1fr_auto] items-center gap-x-4 gap-y-1.5 px-4 py-3">
+      <span class="flex items-center gap-2.5 text-[1.0625rem] font-semibold">
+        <i class="inline-block size-3 rounded-full" [style.background]="side.color"></i>
+        {{ side.label }}
+      </span>
+      <span class="flex flex-wrap items-baseline gap-x-2.5">
+        <b class="font-display text-[1.625rem] font-medium" [class]="tones[side.cells.tone]">{{
+          side.cells.rate
+        }}</b>
+        <span class="text-text-muted"
+          >{{ side.cells.volume }}, top ranked {{ side.cells.top }}</span
+        >
+      </span>
+      <app-rounds-pill
+        class="cursor-help"
+        tabindex="0"
+        [appHoverTip]="side.cells.tip"
+        [pill]="side.cells.rounds"
+      />
+    </div>
+  }
+</div>
+
+<div class="overflow-x-auto">
+  <div class="dash-table" [style.--cols]="cols" [style.min-width.px]="minWidth" role="table">
+    <div class="dash-row dash-th" role="row">
+      <span role="columnheader">Carte</span>
+      <span role="columnheader">Matchs</span>
+      <span class="dash-num" role="columnheader">Attaque</span>
+      <span class="dash-num" role="columnheader">Défense</span>
+      <span role="columnheader">Rounds gagnés par côté</span>
+      <span class="dash-num" role="columnheader">Rounds</span>
+      <span class="inline-flex items-center gap-1" role="columnheader"
+        >Verdict<app-info-tip topic="mapVerdict"
+      /></span>
+    </div>
+    @for (line of lines(); track line.map) {
+      <div class="dash-row !min-h-14" [class.opacity-70]="line.thin" role="row">
+        <span class="inline-flex items-center gap-3" role="cell">
+          @if (banner(line.map); as src) {
+            <img [src]="src" alt="" loading="lazy" class="h-8 w-21 object-cover" />
+          } @else {
+            <span class="h-8 w-21 bg-surface-700"></span>
+          }
+          <b class="font-display text-lg font-medium">{{ line.map }}</b>
+        </span>
+        <span
+          class="cursor-help font-semibold justify-self-start"
+          role="cell"
+          tabindex="0"
+          [appHoverTip]="line.recordTip"
+          ><span class="text-rating-good-soft">{{ line.wins }} V</span>
+          <span class="ml-1.5 text-rating-bad-soft">{{ line.losses }} D</span></span
+        >
+        <span
+          class="dash-num dash-fig cursor-help"
+          [class]="tones[line.attack.tone]"
+          role="cell"
+          tabindex="0"
+          [appHoverTip]="line.attack.tip"
+          >{{ line.attack.rate }}</span
+        >
+        <span
+          class="dash-num dash-fig cursor-help"
+          [class]="tones[line.defense.tone]"
+          role="cell"
+          tabindex="0"
+          [appHoverTip]="line.defense.tip"
+          >{{ line.defense.rate }}</span
+        >
+        <span class="cursor-help" role="cell" tabindex="0" [appHoverTip]="line.roundsTip">
+          <svg
+            [attr.width]="box.width"
+            height="24"
+            [attr.viewBox]="'0 0 ' + box.width + ' 24'"
+            aria-hidden="true"
+          >
+            <line
+              [attr.x1]="box.start"
+              y1="12"
+              [attr.x2]="box.start + box.span"
+              y2="12"
+              class="stroke-text-primary/10"
+              stroke-width="2"
+            />
+            <line
+              [attr.x1]="mid"
+              y1="2"
+              [attr.x2]="mid"
+              y2="22"
+              class="stroke-top"
+              stroke-width="1.2"
+              stroke-dasharray="3 3"
+            />
+            <line
+              [attr.x1]="x(line.attack.share)"
+              y1="12"
+              [attr.x2]="x(line.defense.share)"
+              y2="12"
+              class="stroke-text-primary/25"
+              stroke-width="3"
+            />
+            <circle
+              [attr.cx]="x(line.attack.share)"
+              cy="12"
+              r="6"
+              [attr.fill]="colors.attack"
+              class="stroke-card-ground"
+              stroke-width="2"
+            />
+            <circle
+              [attr.cx]="x(line.defense.share)"
+              cy="12"
+              r="6"
+              [attr.fill]="colors.defense"
+              class="stroke-card-ground"
+              stroke-width="2"
+            />
+          </svg>
+        </span>
+        <span class="dash-num cursor-help" role="cell" tabindex="0" [appHoverTip]="line.roundsTip"
+          ><app-rounds-pill [pill]="line.rounds"
+        /></span>
+        <span role="cell">
+          <span
+            class="inline-block rounded-full px-2.5 py-0.5 text-xs font-semibold whitespace-nowrap"
+            [class]="verdicts[line.verdict].pill"
+            >{{ verdicts[line.verdict].label }}</span
+          >
+        </span>
+      </div>
+    }
+  </div>
+</div>

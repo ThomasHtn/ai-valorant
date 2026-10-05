@@ -2,6 +2,8 @@
 
 from enum import StrEnum
 
+from pydantic import Field
+
 from valostats.schemas.common import ApiModel, Rate
 from valostats.schemas.report.tables import StatCell
 
@@ -22,6 +24,19 @@ class MapGap(ApiModel):
     gap: Gap
 
 
+class SituationPlayer(ApiModel):
+    """One player in a squad situation, against the top ranked of his role (see `PlayerSituation`)."""
+
+    name: str
+    portrait: str
+    role: str
+    k: int
+    n: int
+    top: float | None
+    # Rounds won (+) or lost (-) against a top ranked player of the role on the same n.
+    cost: float | None
+
+
 class SituationGroup(StrEnum):
     OPENING = "opening"
     ECONOMY = "economy"
@@ -38,6 +53,8 @@ class Situation(ApiModel):
     group: SituationGroup
     gap: Gap
     maps: list[MapGap]
+    # Player by player, for the situations a single player decides (opening duels); empty otherwise.
+    players: list[SituationPlayer] = Field(default_factory=list)
 
 
 class MapLine(ApiModel):
@@ -59,11 +76,10 @@ class SiteLine(ApiModel):
 
 
 class RosterLine(ApiModel):
-    """A squad player; the top ranked reference of each cell is players of his main role."""
+    """A squad player; the top ranked reference of each cell is every top ranked player, whatever the role."""
 
     name: str
     portrait: str
-    role: str
     matches: int
     acs: StatCell
     adr: StatCell
@@ -73,6 +89,31 @@ class RosterLine(ApiModel):
     # First bloods and first deaths, e.g. "14-13".
     opening_record: str
     traded: StatCell
+    # ACS month by month, aligned with `SquadView.months`; null when he did not play that month.
+    acs_months: list[float | None]
+
+
+class KpisBefore(ApiModel):
+    """The headline rates of the squad before the period (its history), to tell a trend from noise."""
+
+    wins: Rate
+    rounds: Rate
+    first_duels: Rate
+    pistols: Rate
+
+
+class MonthPoint(ApiModel):
+    """One month of the squad, for the month-by-month charts."""
+
+    # '2026-09'
+    month: str
+    # 'Septembre'
+    label: str
+    matches: int
+    rounds: Rate
+    first_duels: Rate
+    pistols: Rate
+    duel_defense: Rate
 
 
 class SquadKpis(ApiModel):
@@ -83,10 +124,13 @@ class SquadKpis(ApiModel):
     # Lost rounds the squad had at least a 70 % chance of winning at some point (thrown).
     turning: int
     lost: int
+    before: KpisBefore
 
 
 class SquadView(ApiModel):
     kpis: SquadKpis
+    # The last months up to the period's end, oldest first.
+    months: list[MonthPoint]
     situations: list[Situation]
     maps: list[MapLine]
     post_plant: list[SiteLine]
