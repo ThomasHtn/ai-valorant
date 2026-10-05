@@ -7,28 +7,36 @@ import { InfoTip } from '@shared/info-tip/info-tip';
 import { ToneLegend } from '@shared/tone-legend/tone-legend';
 
 /**
- * How the coloured figures of a view read: what they are compared with, then the colour key. Sits right over the figures it governs and only changes this view.
+ * How the coloured figures of a view read: what they are compared with, then the colour key. Only
+ * Comparer lets the analyst pick the reference; the other views always read against the top ranked.
  */
 @Component({
   selector: 'app-reading-bar',
   imports: [InfoTip, ToneLegend],
   template: `
     <div class="flex flex-wrap items-center gap-x-6 gap-y-2">
-      <div class="flex flex-wrap items-center gap-2">
-        <span class="filter-label">Comparer à<app-info-tip topic="reference" /></span>
-        <div class="seg-group flex-wrap" role="group" aria-label="Comparer à">
-          @for (option of options; track option.value) {
-            <button
-              type="button"
-              class="seg-option"
-              [attr.aria-pressed]="state.preferences().reference === option.value"
-              (click)="select(option.value)"
-            >
-              {{ option.label }}
-            </button>
-          }
+      @if (state.referenceChoice) {
+        <div class="flex flex-wrap items-center gap-2">
+          <span class="filter-label">Comparer à<app-info-tip topic="reference" /></span>
+          <div class="seg-group flex-wrap" role="group" aria-label="Comparer à">
+            @for (option of options; track option.value) {
+              <button
+                type="button"
+                class="seg-option"
+                [attr.aria-pressed]="state.preferences().reference === option.value"
+                (click)="select(option.value)"
+              >
+                {{ option.label }}
+              </button>
+            }
+          </div>
         </div>
-      </div>
+      } @else {
+        <span class="filter-label"
+          >Comparé au top ranked{{ perRole() ? ' du même rôle' : ''
+          }}<app-info-tip topic="reference"
+        /></span>
+      }
       <app-tone-legend
         class="ml-auto"
         [reference]="state.preferences().reference"

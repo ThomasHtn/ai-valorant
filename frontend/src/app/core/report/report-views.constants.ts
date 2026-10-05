@@ -6,56 +6,41 @@ export interface ReportView {
   hint: string;
 }
 
-/** Tabs of a month, a patch or the whole history: the period, what costs rounds, then the detail. */
+/** Main tabs: what the squad reads most, each opening on its conclusion. */
 export const REPORT_MAIN_VIEWS: readonly ReportView[] = [
-  { path: 'summary', label: 'Résumé', hint: "L'essentiel de la période sur un écran" },
+  { path: 'squad', label: 'Escouade', hint: "L'essentiel de l'escouade sur la période" },
   {
-    path: 'findings',
-    label: 'Points forts et faibles',
-    hint: "Les situations où l'escouade gagne ou perd des rounds face à la référence",
+    path: 'sessions',
+    label: 'Sessions',
+    hint: 'Chaque session, puis ses matchs, puis leurs rounds',
   },
-  {
-    path: 'matches',
-    label: 'Matchs',
-    hint: 'Les matchs par session : scoreboard et rounds perdus',
-  },
-  {
-    path: 'rounds',
-    label: 'Rounds',
-    hint: 'Pourquoi les rounds sont perdus, et chacun en replay 2D',
-  },
-  { path: 'minimap', label: 'Minimap', hint: "Où l'escouade meurt et tue, carte par carte" },
   { path: 'players', label: 'Joueurs', hint: 'La fiche de chaque joueur' },
+  {
+    path: 'strategy',
+    label: 'Stratégie',
+    hint: 'Ce que joue le top ranked sur chaque carte, et pourquoi il gagne plus',
+  },
 ];
 
-/** Tabs of a single session: too few rounds for gaps or trends, so the matches come first. */
-export const SESSION_VIEWS: readonly ReportView[] = [
-  {
-    path: 'debrief',
-    label: 'Débrief',
-    hint: 'La session face au mois : bilan, matchs, joueurs, rounds qui ont basculé',
-  },
-  {
-    path: 'matches',
-    label: 'Matchs',
-    hint: 'Chaque match de la session, puis chacun de ses rounds',
-  },
-  { path: 'players', label: 'Joueurs', hint: 'La fiche de chaque joueur sur la session' },
-];
+/** First view of a period, where a missing view sends the analyst. */
+export const PERIOD_HOME = 'squad';
 
-/** First view of each kind of period, where a missing view sends the analyst. */
-export const SESSION_HOME = 'debrief';
-export const PERIOD_HOME = 'summary';
-
-/** Every statistic by theme, opened on a theme from the Explorer menu. */
+/** Every secondary statistic by theme, opened on a theme from the Explorer menu. */
 export const REPORT_STATS_VIEW: ReportView = {
   path: 'tables',
   label: 'Stats par thème',
-  hint: "Toutes les statistiques d'un thème, en tableaux",
+  hint: "Les statistiques secondaires d'un thème, en tableaux",
 };
 
 /** Tools of the Explorer menu: each answers one precise question. */
 export const REPORT_TOOL_VIEWS: readonly ReportView[] = [
+  {
+    path: 'findings',
+    label: 'Points forts et faibles',
+    hint: 'Les écarts testés, avec les rounds derrière chacun',
+  },
+  { path: 'rounds', label: 'Rounds', hint: 'Pourquoi les rounds sont perdus, et chacun en replay' },
+  { path: 'minimap', label: 'Minimap', hint: "Où l'escouade meurt et tue, carte par carte" },
   {
     path: 'compare',
     label: 'Comparer',

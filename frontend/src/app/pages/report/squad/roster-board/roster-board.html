@@ -1,0 +1,44 @@
+<table class="board board-stack">
+  <thead>
+    <tr>
+      <th appColHead label="Joueur"></th>
+      @for (column of columns; track column.key) {
+        <th
+          appColHead
+          align="end"
+          [label]="column.label"
+          [better]="column.better"
+          [help]="column.help ?? null"
+          [vs]="column.key === 'opening' ? 'gagnés-perdus' : 'écart au top ranked'"
+        ></th>
+      }
+    </tr>
+  </thead>
+  <tbody>
+    @for (row of rows(); track row.line.name) {
+      <tr
+        class="is-link"
+        tabindex="0"
+        (click)="open(row.line.name)"
+        (keydown.enter)="open(row.line.name)"
+      >
+        <td>
+          <span class="flex items-center gap-2.5 font-semibold">
+            <app-agent-icon [agent]="row.line.portrait" size="md" [decorative]="true" />
+            {{ row.line.name }}
+            <app-role-icon class="!size-3.5" [role]="row.line.role" />
+            <span class="text-sm font-normal text-text-muted">{{ row.line.matches }} matchs</span>
+          </span>
+        </td>
+        @for (cell of row.cells; track cell.key) {
+          <td class="num whitespace-nowrap" [attr.data-l]="cell.label">
+            <span class="font-display font-semibold" [class]="tones[cell.tone]">{{
+              cell.text
+            }}</span>
+            <span class="ml-1.5 text-sm text-text-muted">{{ cell.gap }}</span>
+          </td>
+        }
+      </tr>
+    }
+  </tbody>
+</table>

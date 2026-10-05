@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { exploreLabel, reportLocation, viewForPeriod } from './report-tabs.utils';
+import { exploreLabel, redirectFor, reportLocation } from './report-tabs.utils';
 
 describe('report tabs utils', () => {
   it('reads the view and sub-page of a report URL', () => {
@@ -12,11 +12,20 @@ describe('report tabs utils', () => {
     expect(reportLocation('/elsewhere')).toEqual({ view: null, sub: null });
   });
 
-  it('sends a view a period does not offer to its first view', () => {
-    expect(viewForPeriod('minimap', true)).toBe('debrief');
-    expect(viewForPeriod('matches', true)).toBeNull();
-    expect(viewForPeriod('debrief', false)).toBe('summary');
-    expect(viewForPeriod('findings', false)).toBeNull();
+  it('opens a session under Sessions, inside its month', () => {
+    expect(
+      redirectFor({ view: 'squad', sub: null }, { start: '2026-09-27', end: '2026-09-27' }),
+    ).toEqual({
+      commands: ['/report/sessions', '2026-09-27'],
+      queryParams: { month: '2026-09' },
+    });
+  });
+
+  it('leaves other periods and round pages where they are', () => {
+    expect(redirectFor({ view: 'squad', sub: null }, { month: '2026-09' })).toBeNull();
+    expect(
+      redirectFor({ view: 'matches', sub: 'abc' }, { start: '2026-09-27', end: '2026-09-27' }),
+    ).toBeNull();
   });
 
   it('names the Explorer entry being read', () => {

@@ -18,6 +18,16 @@ export interface MetaPlayer {
   role: string;
 }
 
+/** Top ranked matches behind the reference of one map of the pool. */
+export interface MapReference {
+  mapName: string;
+  matches: number;
+  /** Matches the collection aims for per map and patch. */
+  quota: number;
+  /** Too few matches yet: the map's figures are not compared. */
+  collecting: boolean;
+}
+
 /** What the figures rest on, shown under the filters. */
 export interface DataQuality {
   completeMatches: number;
@@ -28,6 +38,8 @@ export interface DataQuality {
   topPatches: string[];
   /** Maps of the period without top ranked games: no top reference there. */
   mapsWithoutTop: string[];
+  /** Each map of the current pool, with the top ranked matches behind its reference. */
+  referenceMaps: MapReference[];
 }
 
 export interface ReportMeta {
@@ -40,8 +52,12 @@ export interface ReportMeta {
   rounds: number;
   sessions: number;
   patches: PatchCount[];
-  /** Maps played in the period, alphabetical. */
+  /** Maps of the pool played in the period, alphabetical. */
   maps: string[];
+  /** Current competitive map pool: every figure of the report is limited to it. */
+  mapPool: string[];
+  /** Matches of the period on maps out of the pool, left out of the figures. */
+  offPoolMatches: number;
   /** Alphabetical. */
   players: MetaPlayer[];
   quality: DataQuality;

@@ -1,7 +1,11 @@
 import { DOCUMENT } from '@angular/common';
 import { inject, Provider, Service } from '@angular/core';
 
-import { DEFAULT_PREFERENCES, SCOPE_DEFAULT_REFERENCE } from './report-preferences.constants';
+import {
+  DEFAULT_PREFERENCES,
+  REFERENCE_CHOICE_SCOPES,
+  SCOPE_DEFAULT_REFERENCE,
+} from './report-preferences.constants';
 import { ReportScope } from './report-preferences.model';
 import { ViewState } from './view-state';
 
@@ -18,7 +22,9 @@ export class ViewStates {
     let view = this.views.get(scope);
     if (!view) {
       const reference = SCOPE_DEFAULT_REFERENCE[scope] ?? DEFAULT_PREFERENCES.reference;
-      view = new ViewState(scope, { ...DEFAULT_PREFERENCES, reference }, this.storage);
+      // A fixed reference is never read back from storage, where an older choice may linger.
+      const storage = REFERENCE_CHOICE_SCOPES.has(scope) ? this.storage : null;
+      view = new ViewState(scope, { ...DEFAULT_PREFERENCES, reference }, storage);
       this.views.set(scope, view);
     }
     return view;

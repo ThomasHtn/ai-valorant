@@ -16,6 +16,8 @@ import { PlayerSheet, PlayerSummary } from './players.model';
 import { Trends } from './trends.model';
 import { Detections } from './detections.model';
 import { FindingsReport } from './findings.model';
+import { SquadView } from './squad.model';
+import { StrategyView } from './strategy.model';
 
 /**
  * Data-access service of the report. Each method returns a resource bound to reactive inputs, so a
@@ -42,6 +44,29 @@ export class ReportApi {
       const key = domain();
       return key
         ? { url: API_ENDPOINTS.reportTables(key), params: periodQueryParams(query()) }
+        : undefined;
+    });
+  }
+
+  // --- Escouade and Stratégie views ---
+
+  /** Headline figures, situations in rounds against the top ranked, maps, sites and roster. */
+  public squad(query: Signal<PeriodQuery>): HttpResourceRef<SquadView | undefined> {
+    return httpResource<SquadView>(() => ({
+      url: API_ENDPOINTS.reportSquad,
+      params: periodQueryParams(query()),
+    }));
+  }
+
+  /** What the top ranked play on one map; idle while `map` is null. */
+  public strategy(
+    query: Signal<PeriodQuery>,
+    map: Signal<string | null>,
+  ): HttpResourceRef<StrategyView | undefined> {
+    return httpResource<StrategyView>(() => {
+      const name = map();
+      return name
+        ? { url: API_ENDPOINTS.reportStrategy(name), params: periodQueryParams(query()) }
         : undefined;
     });
   }

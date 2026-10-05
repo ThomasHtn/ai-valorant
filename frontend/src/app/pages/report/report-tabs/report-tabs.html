@@ -3,20 +3,18 @@
   class="app-header-inner relative flex items-center overflow-x-auto [scrollbar-width:none]"
   aria-label="Vues du rapport"
 >
-  @for (view of views(); track view.path) {
+  @for (view of views; track view.path) {
     <a
       [routerLink]="['/report', view.path]"
       [queryParams]="periodParams()"
-      [attr.aria-current]="location().view === view.path ? 'page' : null"
+      [attr.aria-current]="isActive(view.path) ? 'page' : null"
       [title]="view.hint"
       class="report-tab"
       >{{ view.label }}</a
     >
   }
-  @if (!session()) {
-    <span class="mx-1.5 h-5 w-px shrink-0 bg-edge-strong" aria-hidden="true"></span>
-    <app-explore-menu [location]="location()" />
-  }
+  <span class="mx-1.5 h-5 w-px shrink-0 bg-edge-strong" aria-hidden="true"></span>
+  <app-explore-menu [location]="location()" />
   <span
     #indicator
     class="pointer-events-none absolute bottom-0 left-0 h-0.5 bg-brand-500 opacity-0 data-ready:transition-[transform,width] data-ready:duration-300 data-ready:ease-(--ease-out-quart) motion-reduce:transition-none"

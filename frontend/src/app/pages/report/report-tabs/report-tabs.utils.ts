@@ -5,13 +5,9 @@ import {
   DETECTIONS_LABEL,
   REPORT_DOMAINS,
 } from '@core/report/report-domains.constants';
-import {
-  PERIOD_HOME,
-  REPORT_STATS_VIEW,
-  REPORT_TOOL_VIEWS,
-  SESSION_HOME,
-  SESSION_VIEWS,
-} from '@core/report/report-views.constants';
+import { PeriodQuery } from '@core/report/period-query.model';
+import { isSessionQuery } from '@core/report/period-query.utils';
+import { REPORT_STATS_VIEW, REPORT_TOOL_VIEWS } from '@core/report/report-views.constants';
 
 import { ReportLocation } from './report-tabs.model';
 
@@ -37,16 +33,17 @@ export function exploreLabel(location: ReportLocation): string | null {
   return REPORT_TOOL_VIEWS.find((v) => v.path === location.view)?.label ?? null;
 }
 
-/**
- * View to open instead of one that a kind of period does not offer (Minimap on a session, Débrief
- * on a month); null when the view fits.
- */
-export function viewForPeriod(view: string | null, session: boolean): string | null {
-  if (!view) {
+/** A session period opens its page under Sessions, read inside its month; null otherwise. */
+export function redirectFor(
+  location: ReportLocation,
+  query: PeriodQuery,
+): { commands: string[]; queryParams: Record<string, string> } | null {
+  // A round page keeps its period: it is reached from a session's match list.
+  if (!isSessionQuery(query) || !query.start || location.view === 'matches') {
     return null;
   }
-  if (session) {
-    return SESSION_VIEWS.some((v) => v.path === view) ? null : SESSION_HOME;
-  }
-  return view === SESSION_HOME ? PERIOD_HOME : null;
+  return {
+    commands: ['/report/sessions', query.start],
+    queryParams: { month: query.start.slice(0, 7) },
+  };
 }

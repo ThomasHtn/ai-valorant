@@ -18,17 +18,34 @@ export const routes: Routes = [
     loadComponent: () => import('@pages/report/report-page').then((m) => m.ReportPage),
     title: 'Rapport · ValoStats',
     children: [
-      { path: '', pathMatch: 'full', redirectTo: 'summary' },
+      { path: '', pathMatch: 'full', redirectTo: 'squad' },
       {
-        path: 'summary',
-        loadComponent: () =>
-          import('@pages/report/summary/summary-view').then((m) => m.SummaryView),
+        path: 'squad',
+        loadComponent: () => import('@pages/report/squad/squad-view').then((m) => m.SquadView),
       },
       {
-        path: 'debrief',
+        path: 'sessions',
         loadComponent: () =>
-          import('@pages/report/debrief/debrief-view').then((m) => m.DebriefView),
+          import('@pages/report/sessions/sessions-view').then((m) => m.SessionsView),
       },
+      {
+        path: 'sessions/:day',
+        loadComponent: () =>
+          import('@pages/report/sessions/session-page/session-page').then((m) => m.SessionPage),
+      },
+      {
+        path: 'strategy',
+        loadComponent: () =>
+          import('@pages/report/strategy/strategy-view').then((m) => m.StrategyView),
+      },
+      {
+        path: 'strategy/:map',
+        loadComponent: () =>
+          import('@pages/report/strategy/strategy-view').then((m) => m.StrategyView),
+      },
+      // Older addresses, now inside a main tab.
+      { path: 'summary', redirectTo: 'squad' },
+      { path: 'debrief', redirectTo: 'sessions' },
       {
         path: 'tables',
         loadComponent: () => import('@pages/report/tables/tables-view').then((m) => m.TablesView),
@@ -72,11 +89,7 @@ export const routes: Routes = [
           return tree;
         },
       },
-      {
-        path: 'matches',
-        loadComponent: () =>
-          import('@pages/report/matches/matches-view').then((m) => m.MatchesView),
-      },
+      { path: 'matches', pathMatch: 'full', redirectTo: 'sessions' },
       {
         // A match always opens on one of its rounds, the first by default.
         path: 'matches/:match',

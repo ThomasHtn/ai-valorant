@@ -4,14 +4,14 @@ import { StatHelp } from './stat-help.model';
 export const READING_HELP: Readonly<Record<string, StatHelp>> = {
   reference: {
     title: 'Référence',
-    what: "Ce à quoi chaque chiffre de l'escouade est comparé pour choisir la couleur.",
-    how: "Top ranked : matchs du top 20 de chaque région, patch 13.06. Adversaires : les équipes affrontées dans les mêmes matchs. Avant la période : l'escouade dans ses matchs plus anciens.",
-    read: 'Vert : mieux que la référence. Orange : à moins de 3 points (5 % pour une moyenne). Rouge : moins bien. Gris : échantillon trop petit.',
+    what: "Chaque chiffre de l'escouade est comparé au top ranked dans la même situation : les meilleurs joueurs classés, EU en priorité. Pour un joueur, au top ranked de son rôle.",
+    how: 'Matchs top ranked du même patch que la période (complétés par le patch précédent tant que le nouveau en compte moins de 700), sur les cartes du map pool en cours. Comparer permet aussi de se mesurer aux adversaires ou à son propre passé.',
+    read: 'Vert : mieux que le top ranked. Orange : à moins de 3 points (5 % pour une moyenne). Rouge : moins bien. Gris : échantillon trop petit.',
   },
   dataQuality: {
     title: 'Données',
     what: 'Sur quoi reposent les chiffres affichés.',
-    how: "Matchs Henrik de l'escouade en 5-stack, rechargés après chaque session ; top ranked rechargé chaque semaine.",
+    how: "Matchs Henrik de l'escouade en 5-stack, rechargés chaque nuit ; top ranked collecté chaque nuit jusqu'à 400 matchs par carte et par patch, gardé sur le patch en cours et le précédent.",
   },
   detections: {
     title: 'Alertes automatiques',

@@ -2,7 +2,11 @@ import { computed, signal, WritableSignal } from '@angular/core';
 
 import { Reference } from '@core/common/enums.model';
 
-import { NO_FILTERS, PREFERENCES_STORAGE_PREFIX } from './report-preferences.constants';
+import {
+  NO_FILTERS,
+  PREFERENCES_STORAGE_PREFIX,
+  REFERENCE_CHOICE_SCOPES,
+} from './report-preferences.constants';
 import { ReportFilters, ReportPreferences, ReportScope } from './report-preferences.model';
 import { hasFilters, parsePreferences } from './report-preferences.utils';
 
@@ -14,6 +18,8 @@ export class ViewState {
   public readonly preferences: WritableSignal<ReportPreferences>;
   public readonly filters = signal<ReportFilters>(NO_FILTERS);
   public readonly filtered = computed(() => hasFilters(this.filters()));
+  /** Whether the analyst picks the reference here; elsewhere it stays on the top ranked. */
+  public readonly referenceChoice: boolean;
 
   private readonly key: string;
 
@@ -23,6 +29,7 @@ export class ViewState {
     private readonly storage: Storage | null,
   ) {
     this.key = PREFERENCES_STORAGE_PREFIX + scope;
+    this.referenceChoice = REFERENCE_CHOICE_SCOPES.has(scope);
     this.preferences = signal(this.read());
   }
 

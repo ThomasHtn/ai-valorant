@@ -9,10 +9,12 @@ export const DEFAULT_PREFERENCES: ReportPreferences = {
   reference: 'top',
 };
 
-/** Player views compare with opponents of the same role: top ranked paints every cell red. */
+/** Comparer defaults to the opponents; every other view always reads against the top ranked. */
 export const SCOPE_DEFAULT_REFERENCE: Partial<Record<ReportScope, Reference>> = {
-  players: 'opp',
   compare: 'opp',
 };
+
+/** The only view where the analyst picks the reference; the others are fixed on the top ranked. */
+export const REFERENCE_CHOICE_SCOPES: ReadonlySet<ReportScope> = new Set(['compare']);
 
 export const NO_FILTERS: ReportFilters = { map: '', side: '', player: '' };

@@ -10,27 +10,26 @@ import {
 } from '@angular/router';
 import { filter, map, of, switchMap, timer } from 'rxjs';
 
-import { isSessionQuery, periodQueryParams } from '@core/report/period-query.utils';
 import { ReportContext } from '@core/report/report-context';
 import { PageHeader } from '@layout/page-header/page-header';
 import { ResourceState } from '@shared/resource-state/resource-state';
 
-import { PeriodPulse } from './period-pulse/period-pulse';
+import { ReferenceChip } from './reference-chip/reference-chip';
 import { PeriodSwitcher } from './period-switcher/period-switcher';
 import { ReportTabs } from './report-tabs/report-tabs';
-import { reportLocation, viewForPeriod } from './report-tabs/report-tabs.utils';
+import { redirectFor, reportLocation } from './report-tabs/report-tabs.utils';
 
 /** A view taking longer than this to open shows the loader; quicker ones do not flash it. */
 const LOADER_DELAY_MS = 200;
 
 /**
- * Frame of every report view: one top bar holding the period (its switcher and its form at a
- * glance) over the view tabs, then the routed view. The period stays in the URL's query when moving
+ * Frame of every report view: one top bar holding the period and what it is compared with, over
+ * the view tabs, then the routed view. The period stays in the URL's query when moving
  * between views.
  */
 @Component({
   selector: 'app-report-page',
-  imports: [RouterOutlet, PageHeader, ResourceState, PeriodSwitcher, PeriodPulse, ReportTabs],
+  imports: [RouterOutlet, PageHeader, ResourceState, PeriodSwitcher, ReferenceChip, ReportTabs],
   host: { class: 'page-stack' },
   templateUrl: './report-page.html',
 })
@@ -55,14 +54,13 @@ export class ReportPage {
   );
 
   constructor() {
-    // A period that does not offer the open view (Minimap on a session) opens its first view.
+    // A session opens its page under Sessions, inside its month.
     effect(() => {
-      const session = isSessionQuery(this.context.query());
-      const url = this.context.url();
-      const target = viewForPeriod(reportLocation(url).view, session);
+      const query = this.context.query();
+      const target = redirectFor(reportLocation(this.context.url()), query);
       if (target) {
-        void this.router.navigate(['/report', target], {
-          queryParams: periodQueryParams(this.context.query()),
+        void this.router.navigate(target.commands, {
+          queryParams: target.queryParams,
           replaceUrl: true,
         });
       }

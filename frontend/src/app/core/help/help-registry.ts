@@ -11,6 +11,8 @@ import { RESULTS_HELP } from './results-help.constants';
 import { REVENGE_HELP } from './revenge-help.constants';
 import { SITUATIONS_HELP } from './situations-help.constants';
 import { SPIKE_HELP } from './spike-help.constants';
+import { SQUAD_HELP } from './squad-help.constants';
+import { STRATEGY_HELP } from './strategy-help.constants';
 import { StatHelp } from './stat-help.model';
 import { TIMINGS_HELP } from './timings-help.constants';
 import { UTILITY_HELP } from './utility-help.constants';
@@ -40,6 +42,8 @@ export const HELP_SECTIONS: readonly HelpSection[] = [
   { key: 'agents', label: 'Agents et compos', entries: AGENTS_HELP },
   { key: 'context', label: 'Contexte', entries: CONTEXT_HELP },
   { key: 'behavior', label: 'Comportement', entries: BEHAVIOR_HELP },
+  { key: 'squad', label: 'Escouade', entries: SQUAD_HELP },
+  { key: 'strategy', label: 'Stratégie', entries: STRATEGY_HELP },
   { key: 'players', label: 'Joueurs', entries: PLAYERS_HELP },
   { key: 'views', label: 'Vues du rapport', entries: VIEWS_HELP },
   { key: 'reading', label: 'Lecture des chiffres', entries: READING_HELP },

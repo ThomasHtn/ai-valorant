@@ -13,8 +13,8 @@ import { NavigationEnd, Router, RouterLink } from '@angular/router';
 import { filter, map } from 'rxjs';
 
 import { ReportContext } from '@core/report/report-context';
-import { isSessionQuery, periodQueryParams } from '@core/report/period-query.utils';
-import { REPORT_MAIN_VIEWS, SESSION_VIEWS } from '@core/report/report-views.constants';
+import { periodQueryParams } from '@core/report/period-query.utils';
+import { REPORT_MAIN_VIEWS } from '@core/report/report-views.constants';
 
 import { ExploreMenu } from '../explore-menu/explore-menu';
 import { reportLocation } from './report-tabs.utils';
@@ -23,9 +23,9 @@ import { reportLocation } from './report-tabs.utils';
 const ACTIVE_TAB = '.report-tab[aria-current="page"], .report-tab[data-active]';
 
 /**
- * Second row of the top bar: the report's views in reading order, then Explorer; a session gets its
- * own short set (Débrief, Matchs, Joueurs) and no Explorer. One amber indicator slides under the active tab; on narrow screens the
- * row scrolls sideways and brings the active tab into view.
+ * Second row of the top bar: the main tabs (Escouade, Sessions, Joueurs, Stratégie), then Explorer
+ * for the secondary data and the tools. One amber indicator slides under the active tab; on narrow
+ * screens the row scrolls sideways and brings the active tab into view.
  */
 @Component({
   selector: 'app-report-tabs',
@@ -39,9 +39,7 @@ export class ReportTabs {
   private readonly nav = viewChild.required<ElementRef<HTMLElement>>('nav');
   private readonly indicator = viewChild.required<ElementRef<HTMLElement>>('indicator');
 
-  /** A session reads as a debrief of its matches; other periods get the analysis views. */
-  protected readonly session = computed(() => isSessionQuery(this.context.query()));
-  protected readonly views = computed(() => (this.session() ? SESSION_VIEWS : REPORT_MAIN_VIEWS));
+  protected readonly views = REPORT_MAIN_VIEWS;
   /** Tabs keep the period only: a view's own filters (map, side, round) do not leak into the next. */
   protected readonly periodParams = computed(() => periodQueryParams(this.context.query()));
   protected readonly location = toSignal(
@@ -51,6 +49,12 @@ export class ReportTabs {
     ),
     { initialValue: reportLocation(this.router.url) },
   );
+  /** A round page belongs to Sessions, where its match is listed. */
+  protected isActive(path: string): boolean {
+    const view = this.location().view;
+    return view === path || (path === 'sessions' && view === 'matches');
+  }
+
   /** Bumped when the row resizes, so the indicator follows its tab. */
   private readonly resized = signal(0);
 
@@ -60,7 +64,6 @@ export class ReportTabs {
 
     afterRenderEffect(() => {
       this.location();
-      this.views();
       this.resized();
       const nav = this.nav().nativeElement;
       observer.observe(nav);

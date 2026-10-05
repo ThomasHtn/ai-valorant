@@ -12,6 +12,10 @@ export const API_ENDPOINTS = {
   reportMeta: `${REPORT}/meta`,
   /** `GET` every table of one domain of the metrics dictionary. */
   reportTables: (domain: string): string => `${REPORT}/tables/${encodeURIComponent(domain)}`,
+  /** `GET` Escouade: headline figures, situations in rounds against the top ranked, maps, sites, roster. */
+  reportSquad: `${REPORT}/squad`,
+  /** `GET` Stratégie of one map: top ranked comps and agents, habits, plants, defensive contacts. */
+  reportStrategy: (map: string): string => `${REPORT}/strategy/${encodeURIComponent(map)}`,
   // Matches, rounds and minimap views.
   /** `GET` matches of the period grouped by evening. */
   reportMatches: `${REPORT}/matches`,

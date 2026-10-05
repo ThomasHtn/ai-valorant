@@ -5,6 +5,9 @@ import {
   LucideChevronDown,
   LucideCompass,
   LucideGitCompareArrows,
+  LucideHistory,
+  LucideMap,
+  LucideScale,
   LucideSiren,
   LucideTrendingUp,
 } from '@lucide/angular';
@@ -24,9 +27,9 @@ import { exploreLabel } from '../report-tabs/report-tabs.utils';
 import { EXPLORE_MENU_WIDTH_REM } from './explore-menu.constants';
 
 /**
- * Last tab of the report: one menu instead of a tab per tool. It opens on every statistic by theme
- * (Alertes first) and the tools (Comparer, Évolution, Répartition); while one of them is read, the
- * tab takes its name.
+ * Last tab of the report, the detailed part: the secondary statistics by theme (Alertes first) and
+ * the tools (Points forts et faibles, Rounds, Minimap, Comparer, Évolution, Répartition); while one
+ * of them is read, the tab takes its name.
  */
 @Component({
   selector: 'app-explore-menu',
@@ -36,6 +39,9 @@ import { EXPLORE_MENU_WIDTH_REM } from './explore-menu.constants';
     LucideChevronDown,
     LucideCompass,
     LucideGitCompareArrows,
+    LucideHistory,
+    LucideMap,
+    LucideScale,
     LucideSiren,
     LucideTrendingUp,
   ],

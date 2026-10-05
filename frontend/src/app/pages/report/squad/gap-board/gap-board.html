@@ -1,0 +1,55 @@
+<table class="board board-stack">
+  <thead>
+    <tr>
+      <th appColHead [label]="first()"></th>
+      <th appColHead label="Volume" align="end"></th>
+      <th appColHead label="Taux" [better]="1" vs="trait blanc : top ranked"></th>
+      <th appColHead label="Écart" align="end" [better]="1" help="gapRounds" vs="en rounds"></th>
+      @if (maps().length) {
+        <th appColHead label="Par carte" help="mapStrip">
+          <app-map-strip-head [maps]="maps()" />
+        </th>
+      }
+    </tr>
+  </thead>
+  <tbody>
+    @for (line of lines(); track line.row.key) {
+      <tr [class.is-thin]="line.cells.thin">
+        <td>
+          <span class="flex min-w-0 items-center gap-2.5">
+            @if (line.row.map) {
+              <app-map-thumb [map]="line.row.map" />
+            }
+            <span class="flex min-w-0 flex-col leading-tight">
+              <span class="font-semibold">{{ line.row.label }}</span>
+              @if (line.row.sub) {
+                <small class="text-sm text-text-muted">{{ line.row.sub }}</small>
+              }
+            </span>
+          </span>
+        </td>
+        <td class="num whitespace-nowrap" data-l="Volume">{{ line.cells.volume }}</td>
+        <td data-l="Taux">
+          <app-gap-bar
+            [value]="line.cells.rate"
+            [mark]="line.cells.top"
+            [tone]="line.cells.tone"
+            [label]="line.cells.rateText"
+          />
+        </td>
+        <td class="num whitespace-nowrap" data-l="Écart">
+          <span class="font-display text-lg font-bold" [class]="tones[line.cells.tone]"
+            >{{ line.cells.rounds
+            }}<small class="ml-1 font-sans text-sm font-medium text-text-muted">rounds</small></span
+          >
+          @if (line.cells.perMatch) {
+            <span class="block text-sm text-text-muted">{{ line.cells.perMatch }}</span>
+          }
+        </td>
+        @if (maps().length) {
+          <td data-l="Par carte"><app-map-strip [maps]="maps()" [gaps]="line.row.maps" /></td>
+        }
+      </tr>
+    }
+  </tbody>
+</table>

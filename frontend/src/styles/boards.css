@@ -1,0 +1,133 @@
+/*
+ * Boards of the main tabs (Escouade, Sessions, Joueurs, Stratégie): the stat tables' headers over
+ * roomier rows, one fact per line. On phones a `board-stack` turns each row into a card whose cells
+ * repeat their column name (`data-l`); dense numeric boards keep scrolling sideways instead.
+ */
+@utility board {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 2px;
+  font-variant-numeric: tabular-nums;
+
+  & > thead > tr > th {
+    padding: 0.5rem 0.75rem;
+    background: --alpha(var(--color-text-primary) / 8%);
+    font-size: var(--text-sm);
+    font-weight: 600;
+    text-align: left;
+    white-space: nowrap;
+    vertical-align: bottom;
+    color: var(--color-text-secondary);
+  }
+
+  & > tbody > tr > td {
+    padding: 0.5rem 0.75rem;
+    background: --alpha(var(--color-text-primary) / 4%);
+    vertical-align: middle;
+  }
+
+  & > tbody > tr:hover > td {
+    background-image: linear-gradient(
+      --alpha(var(--color-text-primary) / 6%),
+      --alpha(var(--color-text-primary) / 6%)
+    );
+  }
+
+  & > tbody > tr:hover > td:first-child {
+    box-shadow: inset 3px 0 0 var(--color-brand-500);
+  }
+
+  & > tbody > tr.is-thin {
+    opacity: 0.6;
+  }
+
+  & > tbody > tr.is-link {
+    cursor: pointer;
+  }
+
+  & > tbody > tr.is-open > td {
+    background: --alpha(var(--color-brand-500) / 10%);
+  }
+
+  & > tbody > tr.is-mine > td {
+    background: --alpha(var(--color-brand-500) / 8%);
+  }
+
+  & > tbody > tr.is-mine > td:first-child {
+    box-shadow: inset 3px 0 0 var(--color-brand-500);
+  }
+
+  & .num {
+    text-align: right;
+  }
+
+  & .mid {
+    text-align: center;
+  }
+}
+
+@media (width < 40rem) {
+  .board-stack,
+  .board-stack > tbody,
+  .board-stack > tbody > tr,
+  .board-stack > tbody > tr > td {
+    display: block;
+    width: auto;
+  }
+
+  .board-stack > thead {
+    display: none;
+  }
+
+  .board-stack > tbody > tr {
+    margin-bottom: 2px;
+    background: --alpha(var(--color-text-primary) / 4%);
+    padding: 0.6rem 0.75rem;
+  }
+
+  .board-stack > tbody > tr > td {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.3rem 0.5rem;
+    padding: 0.2rem 0;
+    background: none;
+    text-align: right;
+  }
+
+  .board-stack > tbody > tr:hover > td,
+  .board-stack > tbody > tr:hover > td:first-child {
+    background-image: none;
+    box-shadow: none;
+  }
+
+  .board-stack > tbody > tr > td:first-child {
+    display: block;
+    padding-bottom: 0.35rem;
+    text-align: left;
+  }
+
+  .board-stack > tbody > tr > td[data-l]:not(:first-child)::before {
+    content: attr(data-l);
+    margin-right: auto;
+    font-size: 0.9rem;
+    font-weight: 500;
+    text-align: left;
+    color: var(--color-text-muted);
+  }
+}
+
+/* The answer of a page in one sentence, over its figures. */
+@utility lead-note {
+  @apply m-0 max-w-[72ch] border-l-[3px] border-brand-500 bg-brand-500/8 px-4 py-3 leading-relaxed text-text-secondary;
+
+  & b {
+    @apply font-semibold text-text-primary;
+  }
+}
+
+/* Block title with a short line saying what the block holds, as the other views write it. */
+@utility block-desc {
+  @apply order-2 font-sans text-sm font-normal text-text-muted;
+}

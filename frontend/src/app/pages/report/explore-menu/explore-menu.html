@@ -4,7 +4,7 @@
   popovertarget="report-explore"
   class="report-tab"
   [attr.data-active]="activeLabel() ? '' : null"
-  title="Toutes les stats par thème, et les outils pour comparer"
+  title="Les stats secondaires par thème, et les outils d'analyse"
 >
   <svg class="size-4 shrink-0" lucideCompass aria-hidden="true"></svg>
   @if (activeLabel(); as label) {
@@ -26,7 +26,7 @@
 >
   <div class="grid sm:grid-cols-[minmax(0,1fr)_16rem]">
     <section class="p-4" aria-labelledby="explore-stats">
-      <p id="explore-stats" class="panel-heading">Stats par thème</p>
+      <p id="explore-stats" class="panel-heading">Stats secondaires par thème</p>
       <ul class="grid grid-cols-2 gap-px">
         <li class="col-span-2 mb-1">
           <a
@@ -72,6 +72,15 @@
               [attr.aria-current]="location().view === tool.path ? 'page' : null"
             >
               @switch (tool.path) {
+                @case ('findings') {
+                  <svg class="explore-icon" lucideScale aria-hidden="true"></svg>
+                }
+                @case ('rounds') {
+                  <svg class="explore-icon" lucideHistory aria-hidden="true"></svg>
+                }
+                @case ('minimap') {
+                  <svg class="explore-icon" lucideMap aria-hidden="true"></svg>
+                }
                 @case ('compare') {
                   <svg class="explore-icon" lucideGitCompareArrows aria-hidden="true"></svg>
                 }

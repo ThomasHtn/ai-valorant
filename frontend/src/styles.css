@@ -7,6 +7,7 @@
 @import './styles/typography.css';
 @import './styles/elevation.css';
 @import './styles/valostats.css';
+@import './styles/boards.css';
 
 @layer base {
   html,
