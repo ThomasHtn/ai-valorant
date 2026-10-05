@@ -1,0 +1,186 @@
+<p class="!m-0 max-w-[72ch] text-text-secondary">
+  Ce que joue le top ranked sur chaque carte du map pool, et les habitudes qui expliquent pourquoi
+  il gagne plus de rounds que l'escouade.
+</p>
+
+<nav class="flex flex-wrap gap-1.5" aria-label="Carte">
+  @for (map of pool(); track map) {
+    <a
+      class="focus-ring flex min-h-10 items-center gap-2 border px-2.5 font-semibold no-underline transition-colors"
+      [class]="
+        map === mapName()
+          ? 'border-brand-500 bg-brand-500/12 !text-brand-400'
+          : 'border-edge-strong bg-surface-sunken/60 !text-text-secondary hover:!text-text-primary'
+      "
+      [routerLink]="['/report/strategy', map]"
+      [queryParams]="periodParams()"
+      [attr.aria-current]="map === mapName() ? 'page' : null"
+    >
+      <app-map-thumb [map]="map" />{{ map }}
+    </a>
+  }
+</nav>
+
+<app-resource-state [resource]="strategy" notFoundText="Pas de données top ranked sur cette carte.">
+  @if (strategy.hasValue()) {
+    <div class="view-body">
+      @let s = strategy.value();
+      <div class="flex flex-col gap-6">
+        <header
+          class="relative flex min-h-36 flex-wrap items-end justify-between gap-4 bg-surface-800 bg-cover bg-[center_40%] px-5 py-4"
+          [style.background-image]="splash()"
+        >
+          <span
+            class="absolute inset-0 bg-linear-to-t from-surface-sunken/95 from-5% to-surface-sunken/35"
+            aria-hidden="true"
+          ></span>
+          <div class="relative">
+            <h2 class="!m-0 font-display text-3xl font-bold uppercase after:!hidden">
+              {{ s.mapName }}
+            </h2>
+            <p class="!m-0 mt-1 text-text-secondary">
+              {{ s.topMatches }} matchs top ranked analysés, patch {{ s.patches.join(' et ') }}
+            </p>
+          </div>
+          @if (s.squadMatches.total) {
+            <p
+              class="relative !m-0 text-right font-display text-3xl leading-none font-bold tabular-nums"
+            >
+              <span class="text-rating-good">{{ s.squadMatches.count }}</span
+              >-<span class="text-rating-bad">{{
+                s.squadMatches.total - s.squadMatches.count
+              }}</span>
+              <small class="mt-1 block font-sans text-sm font-medium text-text-muted"
+                >vos matchs sur la période</small
+              >
+            </p>
+          } @else {
+            <p class="relative !m-0 text-sm text-text-muted">
+              L'escouade n'a pas joué cette carte sur la période.
+            </p>
+          }
+        </header>
+        @if (collecting(); as c) {
+          <p class="lead-note">
+            <b>Collecte en cours sur {{ c.mapName }} :</b> {{ c.matches }} matchs top ranked sur
+            {{ c.quota }}. Les chiffres ci-dessous reposent sur peu de matchs.
+          </p>
+        } @else if (lead(); as lead) {
+          <p class="lead-note">
+            <b>{{ lead.lead }}</b>
+            {{ lead.rest }}
+          </p>
+        }
+      </div>
+
+      <section class="view-section" aria-labelledby="comps-title">
+        <h2 id="comps-title">
+          Compos du top ranked
+          <span class="block-desc"
+            >Les trois plus jouées, puis la vôtre. Un agent entouré de rouge n'est pas dans la compo
+            n° 1.</span
+          >
+        </h2>
+        <app-comp-board [rows]="comps()" />
+      </section>
+
+      <section class="view-section" aria-labelledby="roles-title">
+        <h2 id="roles-title">
+          Agents par rôle
+          <span class="block-desc"
+            >Part des équipes top ranked qui jouent l'agent sur {{ s.mapName }}. En orange : les
+            agents joués par l'escouade.</span
+          >
+        </h2>
+        <div class="grid grid-cols-2 gap-x-6 gap-y-5 bg-text-primary/3 p-4 lg:grid-cols-4">
+          @for (role of roles(); track role.role) {
+            <div class="flex min-w-0 flex-col gap-2">
+              <p
+                class="!m-0 flex items-center gap-2 font-display font-semibold tracking-wide text-text-secondary uppercase"
+              >
+                <app-role-icon [role]="role.role" />{{ role.label }}
+              </p>
+              @for (agent of role.agents; track agent.name) {
+                <span
+                  class="flex items-center gap-2 font-semibold"
+                  [class.text-brand-400]="agent.squad"
+                >
+                  <app-agent-icon [agent]="agent.name" size="md" [decorative]="true" />
+                  <span class="w-16 truncate">{{ agent.name }}</span>
+                  <span class="relative h-1.5 min-w-8 flex-1 bg-surface-sunken/70">
+                    <span
+                      class="absolute inset-y-0 left-0 bg-brand-500"
+                      [style.width.%]="agent.share * 100"
+                    ></span>
+                  </span>
+                  <small class="w-10 text-right text-text-muted">{{ agent.shareText }}</small>
+                </span>
+              }
+            </div>
+          }
+        </div>
+      </section>
+
+      <section class="view-section" aria-labelledby="habits-title">
+        <h2 id="habits-title">
+          Pourquoi ils gagnent plus
+          <span class="block-desc"
+            >Les habitudes mesurées dans vos rounds sur {{ s.mapName }}, de la plus coûteuse à la
+            meilleure</span
+          >
+        </h2>
+        <app-habit-board [rows]="habits()" />
+      </section>
+
+      <div class="block-grid">
+        <section class="view-section" aria-labelledby="plants-title">
+          <h2 id="plants-title">
+            Attaque : où ils posent
+            <span class="block-desc"
+              >Halo violet : poses top ranked. Point : vos poses, vert si gagnées.</span
+            >
+          </h2>
+          <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <figure class="!m-0">
+              <app-minimap-canvas
+                [map]="s.mapName"
+                [density]="density()"
+                [labels]="labels()"
+                [rotation]="rotation()"
+              />
+              <figcaption class="mt-1.5 text-center font-semibold text-text-secondary">
+                Top ranked
+              </figcaption>
+            </figure>
+            <figure class="!m-0">
+              <app-minimap-canvas
+                [map]="s.mapName"
+                [markers]="plants()"
+                [labels]="labels()"
+                [rotation]="rotation()"
+              />
+              <figcaption class="mt-1.5 text-center font-semibold text-text-secondary">
+                Escouade
+              </figcaption>
+            </figure>
+          </div>
+          <app-share-board [rows]="sites()" help="plantSites" wonLabel="Post-plant gagnés" />
+        </section>
+
+        <section class="view-section" aria-labelledby="contacts-title">
+          <h2 id="contacts-title">
+            Défense : premier contact
+            <span class="block-desc">Où se trouve le défenseur au premier duel du round</span>
+          </h2>
+          <app-share-board
+            [rows]="contacts()"
+            first="Zone"
+            help="defenseContacts"
+            shareLabel="part des premiers duels"
+            wonLabel="Duels gagnés"
+          />
+        </section>
+      </div>
+    </div>
+  }
+</app-resource-state>
