@@ -23,7 +23,24 @@
             <app-reading-bar [perRole]="true" />
           </div>
 
-          <!-- The answer first: how he does and what to work on. -->
+          <!-- The answer first, in rounds: what costs him the most, then each situation. -->
+          @if (lead(); as lead) {
+            <p class="lead-note">
+              <b>{{ lead.lead }}</b>
+              {{ lead.rest }}
+            </p>
+          }
+          <section class="view-section" aria-labelledby="player-situations-title">
+            <h2 id="player-situations-title">
+              Situations
+              <span class="block-desc"
+                >Classées par coût en rounds face au top ranked de son rôle, de la plus chère à la
+                meilleure</span
+              >
+            </h2>
+            <app-player-situations [lines]="situations()" />
+          </section>
+
           <app-player-verdict
             [figures]="figures()"
             [reference]="reference"

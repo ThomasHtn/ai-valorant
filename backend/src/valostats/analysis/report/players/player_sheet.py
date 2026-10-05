@@ -32,6 +32,7 @@ from valostats.analysis.report.foundation.player_metrics import (
 )
 from valostats.analysis.report.foundation.table_builder import TableBuilder
 from valostats.analysis.report.players.headline import headline
+from valostats.analysis.report.players.situations import player_situations
 from valostats.constants.agents import role_of
 from valostats.constants.game import UNITS_PER_METRE
 from valostats.constants.players import DEATH_ZONES, REWATCH_ROUNDS, TOP_WEAPONS
@@ -98,6 +99,7 @@ def player_sheet(cohorts: ReportCohorts, name: str) -> PlayerSheet:
         ),
         clutches=[_clutch(cohorts, player, label, size) for label, size in CLUTCHES],
         rewatch=_rewatch(cohorts, player),
+        situations=player_situations(cohorts, player),
     )
 
 

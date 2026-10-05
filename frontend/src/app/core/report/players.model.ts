@@ -119,6 +119,24 @@ export interface RewatchRound {
   seconds: number;
 }
 
+/**
+ * A situation of the player against the top ranked of his role: `gap` in its own unit (duels,
+ * deaths, clutches), `cost` in rounds.
+ */
+export interface PlayerSituation {
+  key: string;
+  label: string;
+  detail: string;
+  unit: string;
+  /** 1 when a higher rate is better, -1 when lower is. */
+  better: number;
+  k: number;
+  n: number;
+  top: number | null;
+  gap: number | null;
+  cost: number | null;
+}
+
 export interface PlayerSheet {
   name: string;
   puuid: string;
@@ -142,4 +160,6 @@ export interface PlayerSheet {
   openingDuels: OpeningDuels;
   clutches: ClutchLine[];
   rewatch: RewatchRound[];
+  /** The costliest first, in rounds against the top ranked of his role. */
+  situations: PlayerSituation[];
 }

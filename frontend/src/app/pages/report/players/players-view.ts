@@ -6,6 +6,11 @@ import { ReportContext } from '@core/report/report-context';
 import { ViewState } from '@core/report/view-state';
 import { provideViewState } from '@core/report/view-states';
 import { ReadingBar } from '@shared/reading-bar/reading-bar';
+import { ROLE_LABELS } from '@core/game-assets/game-assets.constants';
+import { AgentRole } from '@core/game-assets/game-assets.model';
+
+import { PlayerSituations } from './player-situations/player-situations';
+import { playerLead, situationLines } from './player-situations/player-situations.utils';
 import { InfoTip } from '@shared/info-tip/info-tip';
 import { ResourceState } from '@shared/resource-state/resource-state';
 import { StatTableView } from '@shared/stat-table/stat-table';
@@ -36,6 +41,7 @@ import { WeaponsPanel } from './weapons-panel/weapons-panel';
 @Component({
   selector: 'app-players-view',
   imports: [
+    PlayerSituations,
     InfoTip,
     ReadingBar,
     ResourceState,
@@ -88,6 +94,16 @@ export class PlayersView {
   /** Economy always faces the top ranked of his role, whatever the reference chosen. */
   protected readonly economyNote = computed(
     () => `Hors pistols, toujours comparé ${this.topNames().sentence.replace(/^les /, 'aux ')}.`,
+  );
+
+  /** His situations against the top ranked of his role, in rounds, and the answer they give. */
+  protected readonly situations = computed(() => situationLines(this.loaded()?.situations ?? []));
+  protected readonly lead = computed(() =>
+    playerLead(
+      this.situations(),
+      this.loaded()?.situations ?? [],
+      `top ranked ${(ROLE_LABELS[this.loaded()?.role as AgentRole] ?? '').toLowerCase()}`,
+    ),
   );
 
   /** His key figures: the role's headline figures and his opening duels won. */

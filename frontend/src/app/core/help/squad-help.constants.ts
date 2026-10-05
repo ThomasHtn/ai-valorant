@@ -31,6 +31,11 @@ export const SQUAD_HELP: Readonly<Record<string, StatHelp>> = {
     what: "Le premier kill du round. L'équipe qui le gagne joue à 5 contre 4.",
     how: 'premiers duels gagnés ÷ premiers duels',
   },
+  playerCost: {
+    title: 'Coût en rounds',
+    what: "L'écart du joueur traduit en rounds : chaque duel, mort ou clutch vaut ce qu'il change au round chez le top ranked de son rôle.",
+    how: 'écart × (rounds gagnés quand ça se passe bien − quand ça se passe mal, chez le top ranked)',
+  },
   offPool: {
     title: 'Hors pool',
     what: "Carte sortie du map pool compétitif en cours : ses matchs restent dans Sessions mais n'entrent dans aucun chiffre.",

@@ -112,6 +112,27 @@ class RewatchRound(RoundRef):
     seconds: float
 
 
+class PlayerSituation(ApiModel):
+    """A situation of the player against the top ranked of his role, in its own unit and in rounds.
+
+    `gap` counts duels, deaths or clutches won (+) or lost (-) against a top ranked player of the
+    role on the same n; `cost` turns it into rounds with what one of them is worth to the top ranked.
+    """
+
+    key: str
+    label: str
+    detail: str
+    # What `n` counts: "duels", "morts", "clutchs".
+    unit: str
+    # 1 when a higher rate is better, -1 when lower is (deaths without damage).
+    better: int
+    k: int
+    n: int
+    top: float | None
+    gap: float | None
+    cost: float | None
+
+
 class PlayerSheet(ApiModel):
     name: str
     puuid: str
@@ -135,3 +156,5 @@ class PlayerSheet(ApiModel):
     opening_duels: OpeningDuels
     clutches: list[ClutchLine]
     rewatch: list[RewatchRound]
+    # The costliest first, in rounds against the top ranked of his role.
+    situations: list[PlayerSituation]
