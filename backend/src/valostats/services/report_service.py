@@ -26,6 +26,8 @@ from valostats.analysis.report.players.player_sheet import player_sheet, player_
 from valostats.analysis.report.rounds.matches import match_list
 from valostats.analysis.report.rounds.minimap import minimap_view
 from valostats.analysis.report.rounds.round_lines import evening_days, rounds_index
+from valostats.analysis.report.squad.squad_view import squad_view
+from valostats.analysis.report.strategy.strategy_view import strategy_view
 from valostats.constants.report import CACHED_PERIODS
 from valostats.core.code_version import code_version
 from valostats.core.errors import NotFoundError
@@ -108,6 +110,9 @@ class ReportService:
             raise NotFoundError(f"Unknown map {scope.map_name}.")
         return self.view(query, scope.cache_key, lambda c: distributions(c, scope))
 
+    def squad(self, query: PeriodQuery) -> str:
+        return self.view(query, "squad", lambda c: squad_view(c, self._store.top().win_probability))
+
     def matches(self, query: PeriodQuery) -> str:
         # Every match of the period, maps out of the pool included.
         return self.view(query, "matches", match_list, full=True)
@@ -120,6 +125,12 @@ class ReportService:
         if game_map is None:
             raise NotFoundError(f"Unknown map {map_name}.")
         return self.view(query, f"minimap:{map_name}", lambda c: minimap_view(c, game_map))
+
+    def strategy(self, query: PeriodQuery, map_name: str) -> str:
+        game_map = self._store.maps().get(map_name)
+        if game_map is None:
+            raise NotFoundError(f"Unknown map {map_name}.")
+        return self.view(query, f"strategy:{map_name}", lambda c: strategy_view(c, game_map))
 
     def players(self, query: PeriodQuery) -> str:
         return self.view(query, "players", player_summaries)

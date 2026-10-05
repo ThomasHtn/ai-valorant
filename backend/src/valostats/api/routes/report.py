@@ -7,6 +7,8 @@ from fastapi import APIRouter, Response
 from valostats.api.dependencies import PeriodQueryDep, ReportServiceDep
 from valostats.api.responses import json_body
 from valostats.schemas.report.meta import ReportMeta, ReportPeriods
+from valostats.schemas.report.squad import SquadView
+from valostats.schemas.report.strategy import StrategyView
 from valostats.schemas.report.tables import DomainTables
 
 router = APIRouter(prefix="/report", tags=["report"])
@@ -31,3 +33,23 @@ def report_meta(service: ReportServiceDep, query: PeriodQueryDep) -> Response:
 )
 def report_tables(domain: str, service: ReportServiceDep, query: PeriodQueryDep) -> Response:
     return json_body(service.tables(query, domain))
+
+
+@router.get(
+    "/squad",
+    summary="Escouade: headline figures, situations in rounds against the top ranked, maps, sites, roster",
+    response_model=SquadView,
+    responses=NOT_FOUND,
+)
+def report_squad(service: ReportServiceDep, query: PeriodQueryDep) -> Response:
+    return json_body(service.squad(query))
+
+
+@router.get(
+    "/strategy/{map_name}",
+    summary="Stratégie of one map: top ranked compositions and agents, habits priced in rounds, plants, defensive contacts",
+    response_model=StrategyView,
+    responses=NOT_FOUND,
+)
+def report_strategy(map_name: str, service: ReportServiceDep, query: PeriodQueryDep) -> Response:
+    return json_body(service.strategy(query, map_name))

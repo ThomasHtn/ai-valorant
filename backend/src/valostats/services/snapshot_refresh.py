@@ -65,6 +65,7 @@ def _store_period(reports: ReportService, query: PeriodQuery) -> None:
         # A patch or month without squad match of its own: nothing to show.
         return
     reports.meta(query)
+    reports.squad(query)
     for domain in DOMAINS:
         reports.tables(query, domain)
     reports.findings(query)
@@ -81,4 +82,10 @@ def _store_period(reports: ReportService, query: PeriodQuery) -> None:
             reports.minimap(query, map_name)
         except NotFoundError:
             # A map without minimap metadata (sync-maps not run since its release).
+            continue
+    # Stratégie opens on any map of the pool, played or not.
+    for map_name in sorted(cohorts.pool) or cohorts.maps():
+        try:
+            reports.strategy(query, map_name)
+        except NotFoundError:
             continue

@@ -1,0 +1,1 @@
+"""Stratégie view."""
